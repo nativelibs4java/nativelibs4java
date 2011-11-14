@@ -45,6 +45,35 @@ void throwWindowsError(JNIEnv* env, int code, jlong info, jlong address) {
 }
 #endif
 
+#ifdef _WIN32
+jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode)
+{
+	jstring message = NULL;
+	// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
+	LPVOID lpMsgBuf;
+	int res;
+	res = FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR) &lpMsgBuf,
+		0, 
+		NULL 
+	);
+	if (res) {
+		message = (*env)->NewStringUTF(env, (LPCSTR)lpMsgBuf);
+		LocalFree(lpMsgBuf);
+	} else {
+#define MESSAGE_BUF_SIZE 2048
+		char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
+		sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
+		message = (*env)->NewStringUTF(env, lpMsgBuf);
+	}
+	return message;
+}
+#endif
+
 void throwIfLastError(JNIEnv* env) {
 	int errorCode = 0;
 	int en = errno;
@@ -53,29 +82,9 @@ void throwIfLastError(JNIEnv* env) {
 	
 #ifdef _WIN32
 	errorCode = GetLastError();
-	if (errorCode) {
-		// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
-		LPVOID lpMsgBuf;
-		int res;
-		res = FormatMessageA(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			errorCode,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPSTR) &lpMsgBuf,
-			0, 
-			NULL 
-		);
-		if (res) {
-			message = (*env)->NewStringUTF(env, (LPCSTR)lpMsgBuf);
-			LocalFree(lpMsgBuf);
-		} else {
-#define MESSAGE_BUF_SIZE 2048
-			char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
-			sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
-			message = (*env)->NewStringUTF(env, lpMsgBuf);
-		}
-	}
+	if (errorCode)
+		message = formatWin32ErrorMessage(env, errorCode);
+	
 #endif
 	if (!errorCode) {
 		errorCode = en;

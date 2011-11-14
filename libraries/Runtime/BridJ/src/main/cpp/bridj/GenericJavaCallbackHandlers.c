@@ -106,6 +106,7 @@ jboolean followCallGenericJavaCallback(CallTempStruct* call, ValueType returnTyp
 {
 	JNIEnv* env = call->env;
 	jobject ret = dcCallPointer(call->vm, callback);
+	HACK_REFETCH_ENV();
 	if ((*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	

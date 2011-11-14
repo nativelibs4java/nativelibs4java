@@ -92,8 +92,10 @@ jobject Box ## shortName(JNIEnv* env, type v) { \
 	return (*env)->CallStaticObjectMethod(env, g ## shortName ## Class, g ## shortName ## ValueOfMethod, (jlong)v); \
 } \
 type Unbox ## shortName(JNIEnv* env, jobject v) { \
+	HACK_REFETCH_ENV(); \
 	return (type)(*env)->Call ## methShort ## Method(env, v, g ## shortName ## ValueMethod); \
 }
+//
 			
 BOX_METHOD_IMPL("org/bridj/TimeT", TimeT, Long, time_t, "J");
 BOX_METHOD_IMPL("org/bridj/SizeT", SizeT, Long, jlong, "J");
@@ -364,17 +366,25 @@ jlong JNICALL Java_org_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, job
  
 #if defined(DC_UNIX)
 char* dlerror();
+#else
+jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode);
 #endif
 
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	const char* path = GET_CHARS(pathStr);
 	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
-#if defined(DC_UNIX)
 	if (!ret) {
-		printf("# BridJ: dlopen error = %s\n", dlerror());
-	}
+#if defined(DC_UNIX)
+		printf("# BridJ: dlopen error : %s\n", dlerror());
+#else if defined(DC_WINDOWS)
+		jstring message = formatWin32ErrorMessage(env, GetLastError());
+		const char* msg = GET_CHARS(message);
+		printf("# BridJ: LoadLibrary error : %s\n", msg);
+		RELEASE_CHARS(message, msg);
 #endif
+	}
+
 	RELEASE_CHARS(pathStr, path);
 	return ret;
 }

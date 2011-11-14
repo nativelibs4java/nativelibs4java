@@ -30,6 +30,7 @@ import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
+import org.ochafik.util.string.StringUtils;
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
 
@@ -334,6 +335,9 @@ public class BridJ {
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
             "Enable destructors (in languages that support them, such as C++)"
         ),
+        DeleteOldBinaries("bridj.deleteOldBinaries", "BRIDJ_DELETE_OLD_BINARIES", false,
+            "Delete old BridJ binaries upon startup"
+        ),
         Direct("bridj.direct", "BRIDJ_DIRECT", true,
             "Direct mode (uses optimized assembler glue when possible to speed up calls)"
         );
@@ -438,7 +442,7 @@ public class BridJ {
 		getLogger().log(Level.INFO, "Calling method " + m);
 	}
 
-	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
+	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = getNativeLibrary(type);
         if (lib != null) {
 			return lib.getNativeEntities();
@@ -446,7 +450,7 @@ public class BridJ {
 		return getOrphanEntities();
 	}
 
-	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws FileNotFoundException {
+	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
 			String name = getNativeLibraryName(type);
@@ -766,8 +770,10 @@ public class BridJ {
                 else
                     f = extractEmbeddedLibraryResource(name);
 
-                if (f != null && f.exists())
-                    return f;
+                if (f == null || !f.exists())
+                    throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
+                
+                return f;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -805,7 +811,7 @@ public class BridJ {
     /**
      * Loads the library with the name provided in argument (see {@link #getNativeLibraryFile(String)})
 	 */
-    public static synchronized NativeLibrary getNativeLibrary(String name) throws FileNotFoundException {
+    public static synchronized NativeLibrary getNativeLibrary(String name) throws IOException {
         if (name == null) {
             return null;
         }
@@ -826,7 +832,7 @@ public class BridJ {
     /**
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
-    public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
+    public static NativeLibrary getNativeLibrary(String name, File f) throws IOException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
 		if (ll == null) {
             ll = PlatformSupport.getInstance().loadNativeLibrary(name);

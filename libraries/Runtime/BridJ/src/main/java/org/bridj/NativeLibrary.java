@@ -32,7 +32,10 @@ import static org.bridj.Pointer.*;
 import static org.bridj.util.AnnotationUtils.*;
 
 import java.util.Collection;
+import org.bridj.Platform.DeleteFiles;
 import org.bridj.demangling.Demangler;
+import org.bridj.util.ProcessUtils;
+import org.ochafik.util.string.StringUtils;
 
 /**
  * Representation of a native shared library, with symbols retrieval / matching facilities.<br>
@@ -40,8 +43,9 @@ import org.bridj.demangling.Demangler;
  * @author ochafik
  */
 public class NativeLibrary {
-	long handle, symbols;
+	volatile long handle, symbols;
 	String path;
+    final File canonicalFile;
 	//Map<Class<?>, long[]> callbacks = new HashMap<Class<?>, long[]>();
 	NativeEntities nativeEntities = new NativeEntities();
 	
@@ -49,10 +53,14 @@ public class NativeLibrary {
 	Map<String, Symbol> nameToSym;
 //	Map<String, Long> nameToAddr;
 	
-	protected NativeLibrary(String path, long handle, long symbols) {
+    
+	protected NativeLibrary(String path, long handle, long symbols) throws IOException {
 		this.path = path;
 		this.handle = handle;
 		this.symbols = symbols;
+        this.canonicalFile = new File(path).getCanonicalFile();
+        
+        Platform.addNativeLibrary(this);
 	}
 	
 	long getSymbolsHandle() {
@@ -79,7 +87,8 @@ public class NativeLibrary {
 					Matcher m = ldGroupPattern.matcher(src);
 					if (m.find()) {
 						String actualPath = m.group(1);
-						BridJ.log(Level.INFO, "Parsed LD script '" + path + "', found absolute reference to '" + actualPath + "'");
+						if (BridJ.verbose)
+                            BridJ.log(Level.INFO, "Parsed LD script '" + path + "', found absolute reference to '" + actualPath + "'");
 						return actualPath;
 					} else {
 						BridJ.log(Level.SEVERE, "Failed to parse LD script '" + path + "' !");
@@ -93,7 +102,7 @@ public class NativeLibrary {
 		}
 		return path;
 	}
-	public static NativeLibrary load(String path) {
+	public static NativeLibrary load(String path) throws IOException {
 		long handle = 0;
 		if (Platform.isUnix() && new File(path).exists())
 			path = followGNULDScript(path);
@@ -130,6 +139,15 @@ public class NativeLibrary {
 		JNI.freeLibrarySymbols(symbols);
 		JNI.freeLibrary(handle);
 		handle = 0;
+        
+        if (Platform.temporaryExtractedLibraryCanonicalFiles.remove(canonicalFile)) {
+            if (canonicalFile.delete()) {
+                if (BridJ.verbose)
+                    BridJ.log(Level.INFO, "Deleted temporary library file '" + canonicalFile + "'");
+            } else
+                BridJ.log(Level.SEVERE, "Failed to delete temporary library file '" + canonicalFile + "'");
+        }
+            
 	}
     public Pointer<?> getSymbolPointer(String name) {
         return pointerToAddress(getSymbolAddress(name));

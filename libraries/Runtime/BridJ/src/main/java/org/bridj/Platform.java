@@ -1,29 +1,25 @@
 package org.bridj;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.nio.channels.FileLock;
-import java.nio.channels.FileChannel;
+import org.bridj.util.ProcessUtils;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.io.*;
 import java.net.URL;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.Buffer;
-import static org.bridj.NativeConstants.*;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Collections;
 import java.util.Collection;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import static org.bridj.JNI.*;
+import org.ochafik.util.string.StringUtils;
 
 /**
  * Information about the execution platform (OS, architecture, native sizes...) and platform-specific actions.
@@ -106,41 +102,17 @@ public class Platform {
     		embeddedLibraryResourceRoots.add(0, root);
     }
     
-    /**
-     * Create (touch) output file and lock it
-     */
-    static FileLock lockOutputFile(File f) throws IOException {
-        FileLock lock;
-        do {
-            FileOutputStream in = new FileOutputStream(f);
-            FileChannel ch = in.getChannel();
-            lock = ch.lock();
-            ch.close();
-        } while (!f.exists()); // in case someone deleted the file in the meanwhile...
-        return lock;
+    static Set<File> temporaryExtractedLibraryCanonicalFiles = Collections.synchronizedSet(new LinkedHashSet<File>());
+	static void addTemporaryExtractedLibraryFileToDeleteOnExit(File file) throws IOException {
+        File canonicalFile = file.getCanonicalFile();
+        
+        // Give a chance to NativeLibrary.release() to delete the file :
+        temporaryExtractedLibraryCanonicalFiles.add(canonicalFile);
+        
+        // Ask Java to delete the file upon exit if it still exists
+        canonicalFile.deleteOnExit();
     }
-	
-    static Map<File, FileLock> lockedFilesToDeleteUponShutdown = new LinkedHashMap<File, FileLock>();
-	static void lockFileAndDeleteUponShutdown(File file) throws IOException {
-        FileLock lock = lockOutputFile(file);
-        synchronized (lockedFilesToDeleteUponShutdown) {
-            lockedFilesToDeleteUponShutdown.put(file, lock);
-        }
-        //file.deleteOnExit();
-    }
-    private static void shutdown() {
-        for (Map.Entry<File, FileLock> e : lockedFilesToDeleteUponShutdown.entrySet()) {
-            File file = e.getKey();
-            FileLock lock = e.getValue();
-            try {
-                lock.release();
-            } catch (Throwable th) {
-                BridJ.log(Level.SEVERE, "Failed to unlock file '" + file + "' upon shutdown !", th);
-            }
-            if (!file.delete())
-                BridJ.log(Level.SEVERE, "Failed to delete file '" + file + "' upon shutdown !");
-        }
-    }
+    
     static {
         
         	addEmbeddedLibraryResourceRoot("lib/");
@@ -161,12 +133,90 @@ public class Platform {
         
         systemClassLoader = createClassLoader();
         
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				shutdown();
-			}
-		});
+        Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
+            shutdown();
+        }});
+    }
+    private static List<NativeLibrary> nativeLibraries = new ArrayList<NativeLibrary>();
+    static void addNativeLibrary(NativeLibrary library) {
+        synchronized (nativeLibraries) {
+            nativeLibraries.add(library);
+        }
+    }
+    private static void shutdown() {
+        releaseNativeLibraries();
+        deleteTemporaryExtractedLibraryFiles();
+    }
+    private static void releaseNativeLibraries() {
+        synchronized (nativeLibraries) {
+            // Release libraries in reverse order :
+            for (int iLibrary = nativeLibraries.size(); iLibrary-- != 0;) {
+                NativeLibrary lib = nativeLibraries.get(iLibrary);
+                try {
+                    lib.release();
+                } catch (Throwable th) {
+                    BridJ.log(Level.SEVERE, "Failed to release library '" + lib.path + "' : " + th, th);
+                }
+            }
+        }
+    }
+    private static void deleteTemporaryExtractedLibraryFiles() {
+        synchronized (temporaryExtractedLibraryCanonicalFiles) {
+            // Release libraries in reverse order :
+            List<File> filesToDeleteAfterExit = new ArrayList<File>();
+            for (File tempFile : Platform.temporaryExtractedLibraryCanonicalFiles) {
+                if (tempFile.delete()) {
+                    if (BridJ.verbose)
+                        BridJ.log(Level.INFO, "Deleted temporary library file '" + tempFile + "'");
+                } else
+                    filesToDeleteAfterExit.add(tempFile);
+            }
+            if (!filesToDeleteAfterExit.isEmpty()) {
+                if (BridJ.verbose)
+                    BridJ.log(Level.INFO, "Attempting to delete " + filesToDeleteAfterExit.size() + " files after JVM exit : " + StringUtils.implode(filesToDeleteAfterExit, ", "));
+                
+                try {
+                    ProcessUtils.startJavaProcess(DeleteFiles.class, filesToDeleteAfterExit);
+                } catch (Throwable ex) {
+                    BridJ.log(Level.SEVERE, "Failed to launch process to delete files after JVM exit : " + ex, ex);
+                }
+            }
+        }
+    }
+    public static class DeleteFiles {
+        static boolean delete(List<File> files) {
+            for (Iterator<File> it = files.iterator(); it.hasNext();) {
+                File file = it.next();
+                if (file.delete())
+                    it.remove();
+            }
+            return files.isEmpty();
+        }
+        final static long 
+            TRY_DELETE_EVERY_MILLIS = 50,
+            FAIL_AFTER_MILLIS = 10000;
+        public static void main(String[] args) {
+            try {
+                List<File> files = new LinkedList<File>();
+                for (String arg : args)
+                    files.add(new File(arg));
+
+                long start = System.currentTimeMillis();
+                while (!delete(files)) {
+                    long elapsed = System.currentTimeMillis() - start;
+                    if (elapsed > FAIL_AFTER_MILLIS) {
+                        System.err.println("Failed to delete the following files : " + StringUtils.implode(files));
+                        System.exit(1);
+                    }
+
+                    Thread.sleep(TRY_DELETE_EVERY_MILLIS);
+                }
+            } catch (Throwable th) {
+                th.printStackTrace();
+            } finally {
+                System.exit(0);
+            }
+        }
     }
     static ClassLoader createClassLoader()
 	{
@@ -233,11 +283,16 @@ public class Platform {
 					if (!Platform.isAndroid())
 						try {
 							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+                            if (libFile == null)
+                                throw new FileNotFoundException(BridJLibraryName);
+                            
 							BridJ.log(Level.INFO, "Loading library " + libFile);
 							System.load(lib = libFile.toString());
                             BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
                             loaded = true;
-						} catch (IOException ex) {}
+						} catch (IOException ex) {
+                            BridJ.log(Level.SEVERE, "Failed to load '" + BridJLibraryName + "'", ex);
+                        }
 					if (!loaded)
 						System.loadLibrary("bridj");
 	        		}
@@ -258,29 +313,6 @@ public class Platform {
     }
     private static native void init();
 
-    static {
-    	/*try {
-            JNI.initLibrary();
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }*/
-    		
-		/*
-        int p = -1, c = -1, s = -1, l = -1, t = -1;
-        try {
-            p = sizeOf_ptrdiff_t();
-	        c = sizeOf_wchar_t();
-	        l = sizeOf_long();
-	        s = sizeOf_size_t();
-	        t = sizeOf_time_t();
-        } catch (Throwable th) {}
-        POINTER_SIZE = p;
-        WCHAR_T_SIZE = c;
-        SIZE_T_SIZE = s;
-        TIME_T_SIZE = t;
-        CLONG_SIZE = l;
-        */
-    }
     public static boolean isLinux() {
     	return isUnix() && osName.toLowerCase().contains("linux");
     }
@@ -408,26 +440,35 @@ public class Platform {
 		return ret;
     }
     
-    static void tryDeleteFilesInDirectory(File dir, Pattern fileNamePattern, long atLeastOlderThanMillis) {
-        try {
-            long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
-            for (String name : dir.list()) {
-                if (!fileNamePattern.matcher(name).matches()) 
-                    continue;
+    static void tryDeleteFilesInSameDirectory(final File legitFile, final Pattern fileNamePattern, long atLeastOlderThanMillis) {
+        final long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
+        new Thread(new Runnable() { public void run() {
+            File dir = legitFile.getParentFile();
+            String legitFileName = legitFile.getName();
+            try {
+                for (String name : dir.list()) {
+                    if (name.equals(legitFileName))
+                        continue;
 
-                File file = new File(dir, name);
-                if (file.lastModified() > maxModifiedDateForDeletion)
-                    continue;
-                
-                if (file.delete())
-                    BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+                    if (!fileNamePattern.matcher(name).matches()) 
+                        continue;
+
+                    File file = new File(dir, name);
+                    if (file.lastModified() > maxModifiedDateForDeletion)
+                        continue;
+
+                    if (file.delete() && BridJ.verbose)
+                        BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+                }
+            } catch (SecurityException ex) {
+                // no right to delete files in that directory
+                BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in directory '" + dir + "'", ex);
+            } catch (Throwable ex) {
+                BridJ.log(Level.SEVERE, "Unexpected error : " + ex, ex);
             }
-        } catch (SecurityException ex) {
-            // no right to delete files in that directory
-            BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in diretory '" + dir + "'");
-        }
+        }}).start();
     }
-    static final long DELETE_OLD_BINARIES_AFTER_MILLIS = TimeUnit.MINUTES.toMillis(5);
+    static final long DELETE_OLD_BINARIES_AFTER_MILLIS = 24 * 60 * 60 * 1000; // 24 hours
     
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
@@ -452,18 +493,21 @@ public class Platform {
 			}
             String fileName = new File(libraryResource).getName();
 			File libFile = File.createTempFile(fileName, ext);
-            tryDeleteFilesInDirectory(libFile.getParentFile(), Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
-            lockFileAndDeleteUponShutdown(libFile);
-			
+            if (BridJ.Switch.DeleteOldBinaries.enabled)
+                tryDeleteFilesInSameDirectory(libFile, Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
+            
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
 			while ((len = in.read(b)) > 0)
 			out.write(b, 0, len);
 			out.close();
 			in.close();
 			
-			return libFile;
+			addTemporaryExtractedLibraryFileToDeleteOnExit(libFile);
+			
+            return libFile;
 		}
-		throw new FileNotFoundException(firstLibraryResource);
+        return null;
+		//throw new FileNotFoundException(firstLibraryResource);
     }
     
     /**

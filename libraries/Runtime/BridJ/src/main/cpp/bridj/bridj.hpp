@@ -110,9 +110,6 @@ typedef struct CommonCallbackInfo {
 	JNIEnv* fEnv;
 	jmethodID fMethodID;
 	jobject fMethod;
-//#ifdef _DEBUG
-//	char* fSymbolName;
-//#endif
 } CommonCallbackInfo;
 
 typedef struct VirtualMethodCallInfo {
@@ -227,6 +224,13 @@ void cleanupCallHandler(CallTempStruct* call);
 		for (int i = 0; i < 1000; i++)\
 			*p = *p + 1;\
 	}
+
+#if defined(_WIN32) && !defined(_WIN64)
+#define HACK_REFETCH_ENV() env = GetEnv(); 
+#else
+#define HACK_REFETCH_ENV()
+#endif
+
 
 #endif
 

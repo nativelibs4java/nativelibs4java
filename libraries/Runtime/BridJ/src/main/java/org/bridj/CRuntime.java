@@ -2,6 +2,7 @@ package org.bridj;
 
 import org.bridj.util.Utils;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -361,7 +362,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			register(typeClass, forcedLibrary, methodCallInfoBuilder);
 	}
 
-	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
+	protected NativeLibrary getNativeLibrary(Class<?> type) throws IOException {
 		return BridJ.getNativeLibrary(type);
 	}
 	protected Level getSeverityOfMissingSymbol(Method method) {

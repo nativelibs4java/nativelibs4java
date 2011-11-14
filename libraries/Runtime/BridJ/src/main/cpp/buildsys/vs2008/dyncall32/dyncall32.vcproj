@@ -193,10 +193,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;DC_API=__declspec(dllexport)"
 				ExceptionHandling="1"
@@ -267,9 +269,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="1"

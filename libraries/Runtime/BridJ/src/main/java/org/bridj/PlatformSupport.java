@@ -4,7 +4,7 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 class PlatformSupport {
     PlatformSupport() {}
@@ -32,7 +32,7 @@ class PlatformSupport {
         PlatformSupport.instance = instance;
     }
     
-    public NativeLibrary loadNativeLibrary(String name) throws FileNotFoundException {
+    public NativeLibrary loadNativeLibrary(String name) throws IOException {
         return null;
     }
 }

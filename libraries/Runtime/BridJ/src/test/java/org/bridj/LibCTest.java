@@ -1,5 +1,6 @@
 package org.bridj;
 
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import org.bridj.ann.*; // annotations such as Library...
 
@@ -46,7 +47,7 @@ public class LibCTest {
         setLastWindowsError();
 	}
 	@Test
-	public void testErrno() throws FileNotFoundException {
+	public void testErrno() throws IOException {
 		if (!Platform.isUnix())
 			return;
 		
