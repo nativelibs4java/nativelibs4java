@@ -11,8 +11,8 @@ public class SEL extends TypedPointer {
 			return sel_registerName(pointerToCString(name));
 		}
 		
-		volatile String name;
-		public synchronized String getName() {
+		protected volatile String name;
+		public String getName() {
 			if (name == null)
 				name = sel_getName(this).getCString();
 			return name;

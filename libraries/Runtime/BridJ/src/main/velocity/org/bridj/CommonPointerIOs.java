@@ -1,4 +1,5 @@
 package org.bridj;
+import java.util.concurrent.atomic.AtomicLong;
 import org.bridj.util.*;
 import java.util.*;
 import java.nio.*;
@@ -9,14 +10,14 @@ import static org.bridj.util.DefaultParameterizedType.*;
 class CommonPointerIOs {
 
 	static class NativeObjectPointerIO<N extends NativeObject> extends PointerIO<N> {
-		Type nativeObjectType;
+		protected volatile long targetSize = -1, targetAlignment = -1;
+		protected Type nativeObjectType;
 		public NativeObjectPointerIO(Type nativeObjectType) {
 			super(nativeObjectType, -1, null);
 			this.nativeObjectType = nativeObjectType;
 		}
 
 
-		protected volatile Long targetSize, targetAlignment;
 		protected long computeTargetSize() {
 			return BridJ.sizeOf(nativeObjectType);
 		}
@@ -24,16 +25,18 @@ class CommonPointerIOs {
 			return getTargetSize();
 		}
         @Override
-        public synchronized long getTargetSize() {
-        		if (targetSize == null)
-        			targetSize = computeTargetSize();
-        		return targetSize;
+        public long getTargetSize() {
+            if (targetSize < 0)
+                targetSize = computeTargetSize();
+                
+            return targetSize;
         }
         @Override
-        public synchronized long getTargetAlignment() {
-        		if (targetAlignment == null)
-        			targetAlignment = computeTargetAlignment();
-        		return targetAlignment;
+        public long getTargetAlignment() {
+            if (targetAlignment < 0)
+                targetAlignment = computeTargetAlignment();
+                
+            return targetAlignment;
         }
 		
 		@Override

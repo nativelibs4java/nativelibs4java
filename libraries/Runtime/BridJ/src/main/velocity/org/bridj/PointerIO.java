@@ -4,6 +4,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.nio.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bridj.util.Utils;
 
 /**
@@ -66,13 +68,6 @@ public abstract class PointerIO<T> {
 		return null;
 	}
 	
-	static PointerIO pointerInstance;
-    public synchronized static PointerIO<Pointer> getPointerInstance() {
-        if (pointerInstance == null)
-            pointerInstance = getPointerInstance((PointerIO<?>)null);
-        return pointerInstance;
-    }
-    
 	public static <T> PointerIO<Pointer<T>> getPointerInstance(Type target) {
 		return getPointerInstance((PointerIO<T>)getInstance(target));
 	}
@@ -91,11 +86,22 @@ public abstract class PointerIO<T> {
 		return PointerIO.getInstance(array.getClass().getComponentType());
 	}   
 	
-	public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
-        return new CommonPointerIOs.StructPointerIO(s);
+	private static final ConcurrentHashMap<StructIO, PointerIO<?>> structIOs = new ConcurrentHashMap<StructIO, PointerIO<?>>();
+	public static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
+        PointerIO io = structIOs.get(s);
+        if (io == null) {
+            io = new CommonPointerIOs.StructPointerIO(s);
+            PointerIO previousIO = structIOs.putIfAbsent(s, io);
+            if (previousIO != null)
+                io = previousIO;
+        }
+        return io;
     }
-    static Map<Type, PointerIO<?>> ios = new HashMap<Type, PointerIO<?>>();
-	public synchronized static <P> PointerIO<P> getInstance(Type type) {
+    private static final ConcurrentHashMap<Type, PointerIO<?>> ios = new ConcurrentHashMap<Type, PointerIO<?>>();
+	public static <P> PointerIO<P> getInstance(Type type) {
+        if (type == null)
+            return null;
+        
 		PointerIO io = ios.get(type);
         if (io == null) {
             final Class<?> cl = Utils.getClass(type);
@@ -110,7 +116,7 @@ public abstract class PointerIO<T> {
 					io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
 				else if (Pointer.class.isAssignableFrom(cl)) {
 					if (Pointer.class.equals(type) || !(type instanceof ParameterizedType))
-						io = getPointerInstance();
+						io = getPointerInstance((PointerIO<?>)null);
 					else
 						io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
 				}
@@ -133,37 +139,42 @@ public abstract class PointerIO<T> {
 
             //if (io == null)
             //	throw new RuntimeException("Failed to create pointer io to type " + type);
-            ios.put(type, io);
+            if (io != null) {
+                PointerIO previousIO = ios.putIfAbsent(type, io);
+                if (previousIO != null)
+                    io = previousIO; // created io twice : not important in general (expecially not compared to cost of contention on non-concurrent map)
+            }
         }
         return io;
     }
 
-    static PointerIO<SizeT> sizeTInstance;
+    private static PointerIO atomicInstance(AtomicReference ref, Type type) {
+        PointerIO io = (PointerIO)ref.get();
+        if (io != null)
+            return io;
 
-    public static PointerIO<SizeT> getSizeTInstance() {
-        if (sizeTInstance == null)
-            sizeTInstance = getInstance(SizeT.class);
-        return sizeTInstance;
-	}
+        if (ref.compareAndSet(null, io = getInstance(type)))
+            return io;
+               
+        return (PointerIO)ref.get();
+    }
 
-    static PointerIO<CLong> clongInstance;
-
-    public static PointerIO<CLong> getCLongInstance() {
-        if (clongInstance == null)
-            clongInstance = getInstance(CLong.class);
-        return clongInstance;
-	}
-
-#foreach ($prim in $primitives)
-    static PointerIO<${prim.WrapperName}> ${prim.Name}Instance;
-    
+#foreach ($prim in $bridJPrimitives)
+    private static final AtomicReference<PointerIO<${prim.WrapperName}>> ${prim.Name}Instance = new AtomicReference<PointerIO<${prim.WrapperName}>>();
 	public static PointerIO<${prim.WrapperName}> get${prim.CapName}Instance() {
-        if (${prim.Name}Instance == null)
-            ${prim.Name}Instance = getInstance(${prim.WrapperName}.class);
-        return ${prim.Name}Instance;
-	}
-#end
+        return atomicInstance(${prim.Name}Instance, ${prim.WrapperName}.class);
+    }
+    /*    PointerIO<${prim.WrapperName}> io = ${prim.Name}Instance.get();
+        if (io != null)
+            return io;
 
+        if (${prim.Name}Instance.compareAndSet(null, io = getInstance(${prim.WrapperName}.class)))
+            return io;
+               
+        return ${prim.Name}Instance.get();
+	}*/
+#end
+	
     public static <P> PointerIO<P> getBufferPrimitiveInstance(Buffer buffer) {
         #foreach ($prim in $primitivesNoBool)
 		if (buffer instanceof ${prim.BufferName})
@@ -172,11 +183,17 @@ public abstract class PointerIO<T> {
         throw new UnsupportedOperationException();
     }
 
-    static PointerIO stringInstance;
-    public synchronized static PointerIO<String> getStringInstance() {
-        if (stringInstance == null)
-            stringInstance = getInstance(String.class);
-        return stringInstance;
+    private static final AtomicReference<PointerIO> stringInstance = new AtomicReference<PointerIO>();
+    public static PointerIO<String> getStringInstance() {
+        return atomicInstance(stringInstance, String.class);/*
+        PointerIO io = stringInstance.get();
+        if (io != null)
+            return io;
+
+        if (stringInstance.compareAndSet(null, io = getInstance(String.class)))
+            return io;
+               
+        return stringInstance.get();*/
     }
 
 }

@@ -353,13 +353,14 @@ public class Platform {
 	);
     
 	private static volatile String arch;
-	private static synchronized String getArch() {
-		if (arch == null) {
-			arch = System.getProperty("os.arch");
+	private static String getArch() {
+		if (Platform.arch == null) {
+            String arch = System.getProperty("os.arch");
 			if (arch == null)
 				arch = System.getProperty("sun.arch.data.model");
+            Platform.arch = arch;
 		}
-		return arch;
+		return Platform.arch;
 	}
 	/**
 	 * Machine (as returned by `uname -m`, except for i686 which is actually i386)

@@ -3,6 +3,8 @@ package org.bridj;
 import org.bridj.util.Utils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -16,9 +18,11 @@ import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.ann.JNIBound;
-import org.bridj.util.AutoHashMap;
+import org.bridj.util.ConcurrentCache;
+import static org.bridj.util.AnnotationUtils.*;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bridj.ann.Optional;
 
 /**
@@ -30,7 +34,7 @@ import org.bridj.ann.Optional;
 public class CRuntime extends AbstractBridJRuntime {
 
 	final static Set<Type> registeredTypes = new HashSet<Type>();
-	volatile CallbackNativeImplementer _callbackNativeImplementer;
+	final AtomicReference<CallbackNativeImplementer> _callbackNativeImplementer = new AtomicReference<CallbackNativeImplementer>();
 
     /**
      * @deprecated use {@link CRuntime#getInstance() } instead
@@ -40,11 +44,16 @@ public class CRuntime extends AbstractBridJRuntime {
         
     }
 
-    public synchronized CallbackNativeImplementer getCallbackNativeImplementer() {
-        if (_callbackNativeImplementer == null)
-            _callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
-        
-        return _callbackNativeImplementer;
+    public CallbackNativeImplementer getCallbackNativeImplementer() {
+        CallbackNativeImplementer impl = _callbackNativeImplementer.get();
+        if (impl == null) {
+            CallbackNativeImplementer newImpl = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
+            if (_callbackNativeImplementer.compareAndSet(null, newImpl))
+                impl = newImpl;
+            else
+                impl = _callbackNativeImplementer.get();
+        }
+        return impl;
     }
     
     
@@ -77,7 +86,7 @@ public class CRuntime extends AbstractBridJRuntime {
         protected final Class<T> typeClass;
 		protected final StructIO structIO;
 		protected final PointerIO<T> pointerIO;
-        protected Class<?> castClass;
+        protected volatile Class<T> castClass;
 
         //@Override
         public long sizeOf() {
@@ -122,16 +131,26 @@ public class CRuntime extends AbstractBridJRuntime {
             return type;
         }
         
-        protected synchronized Class<?> getCastClass() {
+        protected Class<T> getCastClass() {
             if (castClass == null)
-                castClass = getTypeForCast(typeClass);
+                castClass = (Class<T>)getTypeForCast(typeClass);
             return castClass;
+        }
+        protected T newCastInstance() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            Class<?> cc = getCastClass();
+            try {
+                return (T)cc.newInstance();
+            } catch (IllegalAccessException ex) {
+                Constructor<T> constructor = (Constructor<T>) cc.getConstructor();
+                constructor.setAccessible(true);
+                return constructor.newInstance();
+            }
         }
 
         //@Override
         public T cast(Pointer peer) {
             try {
-                T instance = (T)getCastClass().newInstance();
+                T instance = newCastInstance();
                 // TODO template parameters here !!!
                 initialize(instance, peer);
                 return instance;
@@ -142,7 +161,7 @@ public class CRuntime extends AbstractBridJRuntime {
         //@Override
         public T createReturnInstance() {
             try {
-                T instance = (T)getCastClass().newInstance();
+                T instance = newCastInstance();
                 initialize(instance);
                 return instance;
             } catch (Exception ex) {
@@ -274,7 +293,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			typeLibrary = forcedLibrary == null ? getNativeLibrary(typeClass) : forcedLibrary;
 		} catch (Throwable th) {}
 		
-		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
+		ConcurrentCache<NativeEntities, NativeEntities.Builder> builders = new ConcurrentCache<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
             Set<Method> handledMethods = new HashSet<Method>();
 			/*if (StructObject.class.isAssignableFrom(typeClass)) {
@@ -319,7 +338,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			for (Method method : typeClass.getDeclaredMethods()) {
 				int modifiers = method.getModifiers();
 				if (Modifier.isNative(modifiers)) {
-					if (method.getAnnotation(JNIBound.class) == null)
+					if (!isAnnotationPresent(JNIBound.class, method))
 						nativeMethods.add(method);
 				}
 			}
@@ -366,7 +385,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		return BridJ.getNativeLibrary(type);
 	}
 	protected Level getSeverityOfMissingSymbol(Method method) {
-		return BridJ.getAnnotation(Optional.class, true, method) != null ? Level.INFO : Level.SEVERE;
+		return getInheritableAnnotation(Optional.class, method) != null ? Level.INFO : Level.SEVERE;
 	}
 	protected void registerNativeMethod(
 			Class<?> type, 
