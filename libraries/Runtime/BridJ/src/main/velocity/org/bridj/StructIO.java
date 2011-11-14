@@ -787,12 +787,14 @@ public class StructIO {
             }
 	}
 	static Pointer fixIntegralTypeIOToMatchLength(Pointer ptr, long byteLength, long arrayLength) {
-		if (ptr.getTargetSize() * arrayLength == byteLength)
+        long targetSize = ptr.getTargetSize();
+		if (targetSize * arrayLength == byteLength)
 			return ptr;
 		
 		Type targetType = ptr.getTargetType();
 		if (!Utils.isSignedIntegral(targetType))
-			throw new UnsupportedOperationException("Cannot change byte length of non-signed integral fields (field type = " + Utils.toString(targetType) + ", target size = " + ptr.getTargetSize() + ", byteLength = " + byteLength + ")");
+            return ptr;
+			//throw new UnsupportedOperationException("Cannot change byte length of non-signed-integral fields (field type = " + Utils.toString(targetType) + ", target size = " + ptr.getTargetSize() + ", byteLength = " + byteLength + ")");
 		
 		switch ((int)byteLength) {
 		case 1:
