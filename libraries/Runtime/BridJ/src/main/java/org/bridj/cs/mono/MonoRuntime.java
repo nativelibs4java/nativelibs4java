@@ -55,7 +55,7 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
             try {
                 fetchedLibrary = true;
                 monoLibrary = BridJ.getNativeLibrary("mono");
-            } catch (FileNotFoundException ex) {
+            } catch (Exception ex) {
                 log(Level.INFO, null, ex);
             }
         }

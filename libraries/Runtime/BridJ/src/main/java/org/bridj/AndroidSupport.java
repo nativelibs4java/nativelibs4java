@@ -95,7 +95,7 @@ public class AndroidSupport extends PlatformSupport {
 	}
     
     @Override
-    public synchronized NativeLibrary loadNativeLibrary(String name) throws FileNotFoundException {
+    public synchronized NativeLibrary loadNativeLibrary(String name) throws IOException {
         File f = new File(getNativeLibraryDir(name), getLibFileName(name));
         if (f.exists()) {
             return NativeLibrary.load(f == null ? name : f.toString());

@@ -5,6 +5,7 @@
 
 package org.bridj;
 
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -21,7 +22,7 @@ public class DynamicCallbackTest {
 
 
     @Test
-    public void testAddDynamicFunction() throws FileNotFoundException {
+    public void testAddDynamicFunction() throws IOException {
         NativeLibrary lib = BridJ.getNativeLibrary("test");
         DynamicFunction i = lib.getSymbolPointer("testAddDyncall").asDynamicFunction(null, int.class, int.class, int.class);
         int res = (Integer)i.apply(1, 2);

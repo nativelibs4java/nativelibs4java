@@ -354,7 +354,7 @@ public class CPPRuntime extends CRuntime {
             try {
                 NativeLibrary libStdCpp = BridJ.getNativeLibrary("stdc++");
                 memoryOperators = new MemoryOperators(libStdCpp);
-            } catch (FileNotFoundException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(CPPRuntime.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

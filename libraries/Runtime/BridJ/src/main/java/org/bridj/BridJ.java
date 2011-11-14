@@ -437,7 +437,7 @@ public class BridJ {
 		getLogger().log(Level.INFO, "Calling method " + m);
 	}
 
-	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
+	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = getNativeLibrary(type);
         if (lib != null) {
 			return lib.getNativeEntities();
@@ -445,7 +445,7 @@ public class BridJ {
 		return getOrphanEntities();
 	}
 
-	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws FileNotFoundException {
+	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
 			String name = getNativeLibraryName(type);
@@ -806,7 +806,7 @@ public class BridJ {
     /**
      * Loads the library with the name provided in argument (see {@link #getNativeLibraryFile(String)})
 	 */
-    public static synchronized NativeLibrary getNativeLibrary(String name) throws FileNotFoundException {
+    public static synchronized NativeLibrary getNativeLibrary(String name) throws IOException {
         if (name == null) {
             return null;
         }
@@ -827,7 +827,7 @@ public class BridJ {
     /**
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
-    public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
+    public static NativeLibrary getNativeLibrary(String name, File f) throws IOException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
 		if (ll == null) {
             ll = PlatformSupport.getInstance().loadNativeLibrary(name);

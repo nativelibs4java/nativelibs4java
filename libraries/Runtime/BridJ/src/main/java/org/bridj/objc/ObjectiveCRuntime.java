@@ -2,20 +2,17 @@ package org.bridj.objc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;                               
 
 import org.bridj.*;
 import static org.bridj.Pointer.*;
-import static org.bridj.BridJ.*;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.util.Utils;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
-import org.bridj.ann.Runtime;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import org.bridj.Platform;
@@ -157,7 +154,7 @@ public class ObjectiveCRuntime extends CRuntime {
     }
 
     @Override
-    protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
+    protected NativeLibrary getNativeLibrary(Class<?> type) throws IOException {
         Library libAnn = type.getAnnotation(Library.class);
         if (libAnn != null) {
             try {
