@@ -333,6 +333,9 @@ public class BridJ {
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
             "Enable destructors (in languages that support them, such as C++)"
         ),
+        DeleteOldBinaries("bridj.deleteOldBinaries", "BRIDJ_DELETE_OLD_BINARIES", false,
+            "Delete old BridJ binaries upon startup"
+        ),
         Direct("bridj.direct", "BRIDJ_DIRECT", true,
             "Direct mode (uses optimized assembler glue when possible to speed up calls)"
         );

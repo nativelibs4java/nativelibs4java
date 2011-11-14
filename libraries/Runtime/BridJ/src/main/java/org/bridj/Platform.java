@@ -103,7 +103,7 @@ public class Platform {
     }
     
     static Set<File> temporaryExtractedLibraryCanonicalFiles = Collections.synchronizedSet(new LinkedHashSet<File>());
-	static void deleteTemporaryExtractedLibraryFileOnExit(File file) throws IOException {
+	static void addTemporaryExtractedLibraryFileToDeleteOnExit(File file) throws IOException {
         File canonicalFile = file.getCanonicalFile();
         
         // Give a chance to NativeLibrary.release() to delete the file :
@@ -165,7 +165,10 @@ public class Platform {
             // Release libraries in reverse order :
             List<File> filesToDeleteAfterExit = new ArrayList<File>();
             for (File tempFile : Platform.temporaryExtractedLibraryCanonicalFiles) {
-                if (!tempFile.delete())
+                if (tempFile.delete()) {
+                    if (BridJ.verbose)
+                        BridJ.log(Level.INFO, "Deleted temporary library file '" + tempFile + "'");
+                } else
                     filesToDeleteAfterExit.add(tempFile);
             }
             if (!filesToDeleteAfterExit.isEmpty()) {
@@ -454,7 +457,7 @@ public class Platform {
                     if (file.lastModified() > maxModifiedDateForDeletion)
                         continue;
 
-                    if (file.delete())
+                    if (file.delete() && BridJ.verbose)
                         BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
                 }
             } catch (SecurityException ex) {
@@ -490,7 +493,8 @@ public class Platform {
 			}
             String fileName = new File(libraryResource).getName();
 			File libFile = File.createTempFile(fileName, ext);
-            tryDeleteFilesInSameDirectory(libFile, Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
+            if (BridJ.Switch.DeleteOldBinaries.enabled)
+                tryDeleteFilesInSameDirectory(libFile, Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
             
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
 			while ((len = in.read(b)) > 0)
@@ -498,7 +502,7 @@ public class Platform {
 			out.close();
 			in.close();
 			
-			deleteTemporaryExtractedLibraryFileOnExit(libFile);
+			addTemporaryExtractedLibraryFileToDeleteOnExit(libFile);
 			
             return libFile;
 		}
