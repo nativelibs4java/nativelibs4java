@@ -192,10 +192,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="1"
@@ -266,9 +268,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="1"
@@ -334,6 +338,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_arch_x64_masm.asm"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="MASM64"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_x64.c"
 				>
 				<FileConfiguration
@@ -347,18 +363,6 @@
 			</File>
 			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_x64_masm.asm"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="MASM64"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_arch_x64_masm.asm"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

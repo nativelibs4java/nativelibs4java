@@ -225,10 +225,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				ExceptionHandling="1"
 				EnableFunctionLevelLinking="true"
@@ -314,9 +316,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				ExceptionHandling="1"
 				EnableFunctionLevelLinking="true"
@@ -397,11 +401,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\bridj\HandlersCommon.c"
+				RelativePath="..\..\..\bridj\GenericJavaCallbackHandlers.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\bridj\GenericJavaCallbackHandlers.c"
+				RelativePath="..\..\..\bridj\HandlersCommon.c"
 				>
 			</File>
 			<File
