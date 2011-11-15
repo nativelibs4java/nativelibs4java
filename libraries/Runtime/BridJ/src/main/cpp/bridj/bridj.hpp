@@ -188,12 +188,10 @@ BOX_METHOD_DECL("java/lang/Double", Double, Double, jdouble, "D");
 void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject);
-//jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
 void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
-//jobject newFlagSet(JNIEnv *env, jlong value, jobject enumClass);
 
 JNIEnv* GetEnv();
 

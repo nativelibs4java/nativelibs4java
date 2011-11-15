@@ -276,7 +276,7 @@ jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* meth
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 	jobject instance;
 	jlong addr;
-	if (!ptr || !callIO)
+	if (!callIO)
 		return NULL;
 	initMethods(env);
 	addr = PTR_TO_JLONG(ptr);
