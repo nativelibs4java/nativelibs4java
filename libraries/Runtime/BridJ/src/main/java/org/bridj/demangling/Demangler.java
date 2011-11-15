@@ -369,7 +369,10 @@ public abstract class Demangler {
 			return (param instanceof Type) && matches((Type)param, annotations);
 		}
 		public boolean matches(Type type, Annotations annotations) {
-			return getQualifiedName(new StringBuilder(), false).toString().equals(getTypeClass(type).getName());
+            String thisName = getQualifiedName(new StringBuilder(), false).toString();
+            Class typeClass = getTypeClass(type);
+            String typeName = typeClass.getSimpleName();
+			return thisName.equals(typeName) || thisName.equals(typeClass.getName());
 		}
 		
 	}
