@@ -408,7 +408,6 @@ void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jl
 {
 	DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	dlSymsCleanup(pSyms);
-	free(pSyms);
 }
 
 jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
