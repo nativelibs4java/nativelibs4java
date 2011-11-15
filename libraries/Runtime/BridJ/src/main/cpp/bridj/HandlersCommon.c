@@ -294,6 +294,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
+	HACK_REFETCH_ENV(); 
 	if (bCallingJava && (*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	return JNI_TRUE;
