@@ -29,7 +29,7 @@ public class LibCTest {
 	public static native int abs(int x);
 	public static native int getpid();
 	
-	public static native long strtoul(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
+    public static native @org.bridj.ann.CLong long strtol(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
 	
     @Optional // only on Windows
     @Library("test")
@@ -55,13 +55,13 @@ public class LibCTest {
 	}
 	
 	public void testNoLastError() {
-        long v = strtoul(pointerToCString("1010"), null, 10);
+        long v = strtol(pointerToCString("1010"), null, 10);
         assertEquals(1010, v);
 	}
 	
 	@Test(expected = LastError.class)
 	public void testLastError() {
-        strtoul(pointerToCString("18446744073709551616"), null, 10);
+        strtol(pointerToCString("18446744073709551616"), null, 10);
 	}
 	
 	@Test
