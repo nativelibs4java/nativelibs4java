@@ -124,6 +124,9 @@ ifdef BUILD_CONFIG_debug
 CPPFLAGS +=	-O0 -g
 else
 CPPFLAGS += -O3
+endif
+
+ifndef BUILD_OS_sunos
 CPPFLAGS += -funsafe-loop-optimizations
 endif
 
