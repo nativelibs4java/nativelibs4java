@@ -148,9 +148,6 @@ public class Platform {
         deleteTemporaryExtractedLibraryFiles();
     }
     private static void releaseNativeLibraries() {
-        if (!isWindows())
-            return; // TODO !!!
-        
         synchronized (nativeLibraries) {
             // Release libraries in reverse order :
             for (int iLibrary = nativeLibraries.size(); iLibrary-- != 0;) {
