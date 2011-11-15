@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 #undef org_bridj_Platform_DELETE_OLD_BINARIES_AFTER_MILLIS
-#define org_bridj_Platform_DELETE_OLD_BINARIES_AFTER_MILLIS 300000i64
+#define org_bridj_Platform_DELETE_OLD_BINARIES_AFTER_MILLIS 86400000LL
 /*
  * Class:     org_bridj_Platform
  * Method:    init
