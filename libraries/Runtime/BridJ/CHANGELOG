@@ -4,9 +4,11 @@ Current version : BridJ 0.7-SNAPSHOT
 - Fixed Unix binaries dependency on GLIBC 2.11 (lowered to version 2.2.5) (issue #195)
 - Fixed some pointer methods : 3D pointers allocation, Pointer.setXXXsAtOffset, float endianness conversion
 - Fixed regression on struct-valued struct fields (when implemented by java fields) (issue #200)
+- Fixed crash of dynamic callbacks on Win32
 - Removed many synchronization pain points in PointerIO.getInstance mechanism to help scale up in massively multithreaded use-cases (issue #203)
 - Added Pointer.getXxxs(XxxBuffer)
 - Added alias mechanism for annotations : any annotation which class is itself annotated by @Ptr / @CLong can serve as an alias (issue #202)
+- Added error log when failed to load Windows DLL
 - Enabled all compiler optimizations on all platforms (-O3 + -funsafe-loop-optimizations on GCC, /O3 + fiber optimizations + inlining on Windows)
 - Updated doc of Pointer.getXxxs()
 
