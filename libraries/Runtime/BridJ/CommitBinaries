@@ -2,7 +2,7 @@
 
 ./GitConfig
 
-FILES=`git status -s | grep ' M.*' | sed 's/^ M //' | grep -E '\.so|\.dylib'`
+FILES=`git status | egrep 'modified:|new file:' | sed 's/#//' | sed 's/modified://' | sed 's/new file://' | egrep '\.so|\.dylib'`
 
 PLATFORM="$1"
 if [[ -z "$PLATFORM" ]] ; then
