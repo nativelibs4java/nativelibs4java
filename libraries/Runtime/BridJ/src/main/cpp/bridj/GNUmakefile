@@ -51,12 +51,10 @@ UNITS += FunctionHandler
 UNITS += CallbackHandler
 UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
-UNITS += ObjCBlocks
-UNITS += ObjCHandler
-UNITS += ObjCProxy
+UNITS += ObjCHandler ObjCProxy ObjCBlocks
 endif
 ifdef BUILD_OS_iphoneos
-UNITS += ObjCHandler
+UNITS += ObjCHandler ObjCProxy ObjCBlocks
 endif
 UNITS += RawNativeForwardCallback
 #ifdef BUILD_TOOL_gcc
@@ -85,14 +83,13 @@ endif
 ifdef BUILD_OS_darwin
 CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
-LDFLAGS		+= -ldl -all_load
-LDFLAGS		+= -framework Foundation
+LDFLAGS		+= -ldl -framework Foundation -all_load 
 endif
 
 ifdef BUILD_OS_iphoneos
 CPPFLAGS		+= -I/Users/ochafik/src/jamvm/src
 CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
-LDFLAGS		+= -ldl -lobjc -all_load
+LDFLAGS		+= -ldl -framework Foundation -all_load 
 endif
 
 ifndef BUILD_OS_android

@@ -377,7 +377,7 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring 
 	if (!ret) {
 #if defined(DC_UNIX)
 		printf("# BridJ: dlopen error : %s\n", dlerror());
-#else if defined(DC_WINDOWS)
+#elif defined(DC_WINDOWS)
 		jstring message = formatWin32ErrorMessage(env, GetLastError());
 		const char* msg = GET_CHARS(message);
 		printf("# BridJ: LoadLibrary error : %s\n", msg);
