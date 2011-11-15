@@ -15,6 +15,20 @@ interface CallIO {
         public static CallIO createPointerCallIOToTargetType(Type targetType) {
             return new CallIO.GenericPointerHandler(targetType);
         }
+        public static <EE extends Enum<EE>> CallIO createValueEnumCallIO(final Class<EE> enumClass) {
+            return new CallIO() {
+
+                public Object newInstance(long value) {
+                    return FlagSet.fromValue(value, enumClass);
+                }
+
+                public void checkArg(Object e) {
+                    if (!(e instanceof FlagSet))
+                        enumClass.cast(e);
+                }
+                
+            };
+        }
         //static final Map<Type, CallIO> instances = new HashMap<Type, CallIO>();
         public static /*synchronized*/ CallIO createPointerCallIO(Type type) {
             //CallIO io = instances.get(type);

@@ -141,6 +141,10 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return value;
     }
 
+    public Class<E> getEnumClass() {
+        return enumClass;
+    }
+
     protected E[] getEnumClassValues() {
         return enumClassValues == null ? enumClassValues = getValues(enumClass) : enumClassValues;
     }

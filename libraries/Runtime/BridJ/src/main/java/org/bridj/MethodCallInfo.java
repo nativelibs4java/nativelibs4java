@@ -327,6 +327,11 @@ public class MethodCallInfo {
         }
         if (c == ValuedEnum.class) {//.isAssignableFrom(c)) {
         	direct = false;
+            CallIO cio = CallIO.Utils.createValueEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
+            if (BridJ.veryVerbose)
+                System.out.println("CallIO : " + cio);
+            addCallIO(cio);
+        	
         	return ValueType.eIntFlagSet;
         }
         if (NativeObject.class.isAssignableFrom(c)) {

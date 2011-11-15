@@ -39,6 +39,15 @@ public class ValuedEnumTest {
     private static final int nTests = 100000;
     
     @Test
+    public void testSingleIntToEnum() {
+        MyEnum expected = MyEnum.Two;
+        int expectedInt = (int)expected.value();
+        ValuedEnum<MyEnum> ret = intToMyEnum(expectedInt);
+        FlagSet<MyEnum> f = (FlagSet<MyEnum>)ret;
+        assertEquals(MyEnum.class, f.getEnumClass());
+    }
+    
+    @Test
     public void testIntToEnum() {
         MyEnum expected = MyEnum.Two;
         int expectedInt = (int)expected.value();
