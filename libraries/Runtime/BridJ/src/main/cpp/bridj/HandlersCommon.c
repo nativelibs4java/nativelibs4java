@@ -11,9 +11,11 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 		switch (type) {
 			case eIntFlagSet:
 				{
+					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
 					if (toJava) {
 						int flags = dcbArgInt(args);
-						dcArgPointer(call->vm, newFlagSet(env, flags));
+						jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
+						dcArgPointer(call->vm, obj);
 					} else {
 						int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
 						if (isVarArgs)
@@ -247,7 +249,10 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case eIntFlagSet:
 			{
 				int flags = dcCallInt(call->vm, callback);
-				result->p = newFlagSet(env, flags);
+				jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
+				jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
+					
+				result->p = obj;
 			}
 			break;
 		case ePointerValue:

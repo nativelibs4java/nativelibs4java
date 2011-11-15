@@ -21,7 +21,7 @@ jboolean gProtected = JNI_FALSE;
 
 jclass gObjectClass = NULL;
 jclass gPointerClass = NULL;
-jclass gFlagSetClass = NULL;
+//jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
 jclass gBridJClass = NULL;
 jclass gCallIOClass = NULL;
@@ -33,7 +33,7 @@ jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
-jmethodID gNewFlagSetMethod = NULL;
+//jmethodID gNewFlagSetMethod = NULL;
 jmethodID gThrowNewLastErrorMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
@@ -175,7 +175,7 @@ void initMethods(JNIEnv* env) {
 		INIT_PRIM("java/lang/Double", Double, Double, double, "D");    
 		
 		gBridJClass = FIND_GLOBAL_CLASS("org/bridj/BridJ");
-		gFlagSetClass = FIND_GLOBAL_CLASS("org/bridj/FlagSet");
+		//gFlagSetClass = FIND_GLOBAL_CLASS("org/bridj/FlagSet");
 		gValuedEnumClass = FIND_GLOBAL_CLASS("org/bridj/ValuedEnum");
 		//gStructFieldsIOClass = FIND_GLOBAL_CLASS("org/bridj/StructFieldsIO");
 		gPointerClass = FIND_GLOBAL_CLASS("org/bridj/Pointer");
@@ -188,7 +188,7 @@ void initMethods(JNIEnv* env) {
 		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
 		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J");
 		gGetJavaObjectFromNativePeerMethod = (*env)->GetStaticMethodID(env, gBridJClass, "getJavaObjectFromNativePeer", "(J)" OBJECT_SIG);
-		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(J" CLASS_SIG ")Lorg/bridj/FlagSet;"); 
+		//gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(J" CLASS_SIG ")Lorg/bridj/FlagSet;"); 
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;" CLASS_SIG ")J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)" POINTER_SIG);
@@ -249,11 +249,14 @@ jlong getFlagValue(JNIEnv *env, jobject valuedEnum)
 	return valuedEnum ? (*env)->CallLongMethod(env, valuedEnum, gGetValuedEnumValueMethod) : 0;	
 }
 
-jobject newFlagSet(JNIEnv *env, jlong value)
+/*
+jobject newFlagSet(JNIEnv *env, jlong value, jobject enumClass)
 {
-	initMethods(env);
-	return (*env)->CallStaticObjectMethod(env, gFlagSetClass, gNewFlagSetMethod, value);	
+	env = GetEnv();
+	//initMethods(env);
+	return (*env)->CallStaticObjectMethod(env, gFlagSetClass, gNewFlagSetMethod, value, enumClass);	
 }
+*/
 
 //void main() {}
 jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* methName, const char* javaSig)

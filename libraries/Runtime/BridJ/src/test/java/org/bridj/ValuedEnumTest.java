@@ -45,6 +45,7 @@ public class ValuedEnumTest {
         ValuedEnum<MyEnum> ret = intToMyEnum(expectedInt);
         FlagSet<MyEnum> f = (FlagSet<MyEnum>)ret;
         assertEquals(MyEnum.class, f.getEnumClass());
+        assertEquals(expectedInt, f.value());
     }
     
     @Test

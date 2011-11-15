@@ -193,7 +193,7 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
 void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
-jobject newFlagSet(JNIEnv *env, jlong value);
+//jobject newFlagSet(JNIEnv *env, jlong value, jobject enumClass);
 
 JNIEnv* GetEnv();
 
