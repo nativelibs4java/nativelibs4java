@@ -88,7 +88,8 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
             while (list.isInstanceOf[::[Int]]) {
             //while (!list.isEmpty) {
                 val item = list.head
-                builder += item + "..."
+                val mapped = item + "..."
+                builder += mapped
                 list = list.tail
             }
             builder.result
