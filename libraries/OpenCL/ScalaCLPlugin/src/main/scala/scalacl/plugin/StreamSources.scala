@@ -182,7 +182,7 @@ trait StreamSources extends Streams with StreamSinks {
       loop.postInner += (() => iVal.ifUsed { incrementIntVar(iVar, newInt(1)) })
       
       new StreamValue(
-        value = itemVar,
+        value = itemVal,
         valueIndex = Some(iVal),
         valuesCount = Some(sizeVal)
       )

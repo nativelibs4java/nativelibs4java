@@ -54,7 +54,8 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
           while (i < n)
           {
             val iVal = i
-            if (iVal < 10) {
+            val cond = iVal < 10
+            if (cond) {
               t += 2 * iVal
             }
             i += 1
@@ -108,11 +109,12 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
             val to = 100
             val n = to
             var i = from
-            var builder1 = new scala.collection.immutable.VectorBuilder[Int]
+            val builder1 = new scala.collection.immutable.VectorBuilder[Int]
             while (i < n)
             {
               val iVal = i
-              if (iVal != 50)
+              val cond = iVal != 50
+              if (cond)
                 builder1 += iVal
               i += 1
             }
