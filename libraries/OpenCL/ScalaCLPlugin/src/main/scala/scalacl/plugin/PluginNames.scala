@@ -111,6 +111,8 @@ trait PluginNames {
   lazy val SetBuilderClass            = C("scala.collection.mutable.SetBuilder")
   
   lazy val CanBuildFromClass = C("scala.collection.generic.CanBuildFrom")
+
+  lazy val ArrayIndexOutOfBoundsExceptionClass = C("java.lang.ArrayIndexOutOfBoundsException")
   
   val primArrayNames = Array(
     (IntClass.tpe, "ofInt"),

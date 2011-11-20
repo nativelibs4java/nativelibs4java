@@ -297,6 +297,7 @@ extends MiscMatchers
   }
 
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
+    assert(op != NoSymbol)
     Apply(Select(a, op).setSymbol(op), List(b)).setSymbol(op)
   }
 
@@ -325,6 +326,7 @@ extends MiscMatchers
       binOp(a, BooleanClass.tpe.member(nme.ZOR), b)
   }
   def ident(sym: Symbol, n: Name, pos: Position = NoPosition) = {
+    assert(sym != NoSymbol)
     val v = Ident(n)
     v.symbol = sym
     if (sym.hasRawInfo)
@@ -408,11 +410,16 @@ extends MiscMatchers
 
   def newDefaultValue(tpe: Type) = {
     if (isAnyVal(tpe))
-      Literal(Constant(0: Byte)).setType(tpe)
+      Literal(Constant(0: Int)).setType(tpe)
     else
       newNull(tpe)
   }
-  
+
+  def newOneValue(tpe: Type) = {
+    assert(isAnyVal(tpe))
+    Literal(Constant(1: Byte)).setType(tpe)
+  }
+
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 

@@ -118,7 +118,7 @@ extends PluginNames
             List(function),
             List(CanBuildFromArg())
           )
-        ) =>
+        ) if isLeft =>
         Some(new TraversalOp(ScanOp(tree, function, initialValue, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // foldLeft, foldRight
         (
@@ -128,7 +128,7 @@ extends PluginNames
             List(initialValue),
             List(function)
           )
-        ) =>
+        ) if isLeft =>
         Some(new TraversalOp(FoldOp(tree, function, initialValue, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // toArray
         (
@@ -139,9 +139,9 @@ extends PluginNames
           )
         ) =>
         Some(new TraversalOp(new ToArrayOp(tree), collection, functionResultType.tpe, null, true, null))
-      case // sum, min, max
+      case // sum, product, min, max
         (
-          n @ (sumName() | minName() | maxName()),
+          n @ (sumName() | productName() | minName() | maxName()),
           List(functionResultType @ TypeTree()),
           Seq(
             List(isNumeric)
@@ -176,7 +176,7 @@ extends PluginNames
           Seq(
             List(function)
           )
-        ) =>
+        ) if isLeft =>
         Some(new TraversalOp(ReduceOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, null))
       case // zip(col)(canBuildFrom)
         (

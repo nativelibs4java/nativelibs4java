@@ -49,13 +49,20 @@ class Reduce2WhileTest extends TestUtils {
           val s = {
             val aa = a
             val n = aa.length
-            var i = 1
-            var t = aa(0)
+            var i = 0
+            var t = 0.0
+            var isDefined = false
             while (i < n) {
                 val item = aa(i)
-                t = t + item * 0.01
+                if (!isDefined) {
+                  isDefined = true
+                  t = item
+                } else
+                  t = t + item * 0.01
                 i += 1
             }
+            if (!isDefined)
+              throw new ArrayIndexOutOfBoundsException(0)
             t
           }
       """
@@ -74,13 +81,20 @@ class Reduce2WhileTest extends TestUtils {
           val s = {
             val aa = a
             val n = aa.length
-            var i = n - 1
-            var t = aa(n - 1)
+            var i = n// - 1
+            var t = 0.0//aa(n - 1)
+            var isDefined = false
             while (i > 0) {
                 i -= 1
                 val item = aa(i)
-                t = item * 0.01 + t
+                if (!isDefined) {
+                  isDefined = true
+                  t = item
+                } else
+                  t = item * 0.01 + t
             }
+            if (!isDefined)
+              throw new ArrayIndexOutOfBoundsException(0)
             t
           }
       """
@@ -98,7 +112,7 @@ class Reduce2WhileTest extends TestUtils {
             val a = Array(1, 2, 3)
             val n = a.length
             var i = 0
-            var tot = 0
+            var tot = 0.0
             while (i < n) {
                 val item = a(i)
                 tot += item
@@ -121,6 +135,41 @@ class Reduce2WhileTest extends TestUtils {
       """
     )
   }
+  @Test
+  def simpleProduct {
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """
+          val s1 = Array(1, 2, 3).product
+          val s2 = Array(1.0, 2.0, 3.0).product
+      """,
+      """
+          val s1 = {
+            val a = Array(1, 2, 3)
+            val n = a.length
+            var i = 0
+            var tot = 1.0
+            while (i < n) {
+                val item = a(i)
+                tot *= item
+                i += 1
+            }
+            tot
+          };
+          val s2 = {
+            val a = Array(1.0, 2.0, 3.0)
+            val n = a.length
+            var i = 0
+            var tot = 1.0
+            while (i < n) {
+                val item = a(i)
+                tot *= item
+                i += 1
+            }
+            tot
+          }
+      """
+    )
+  }
 
   @Test
   def simpleMinMax {
@@ -133,27 +182,39 @@ class Reduce2WhileTest extends TestUtils {
           val s1 = {
             val a = Array(1, 2, 3)
             val n = a.length
-            var i = 1
-            var tot = a(0)
+            var i = 0//1
+            var tot = 0.0//a(0)
+            var isDefined = false
             while (i < n) {
                 val item = a(i)
-                if (item < tot)
+                if (!isDefined) {
+                  isDefined = true
+                  tot = item
+                } else if (item < tot)
                   tot = item
                 i += 1
             }
+            if (!isDefined)
+              throw new ArrayIndexOutOfBoundsException(0)
             tot
           };
           val s2 = {
             val a = Array(1.0, 2.0, 3.0)
             val n = a.length
-            var i = 1
-            var tot = a(0)
+            var i = 0//1
+            var tot = 0.0//a(0)
+            var isDefined = false
             while (i < n) {
                 val item = a(i)
-                if (item > tot)
+                if (!isDefined) {
+                  isDefined = true
+                  tot = item
+                } else if (item > tot)
                   tot = item
                 i += 1
             }
+            if (!isDefined)
+              throw new ArrayIndexOutOfBoundsException(0)
             tot
           }
       """

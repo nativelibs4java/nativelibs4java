@@ -38,12 +38,13 @@ with CodeAnalysis
       def ++=(trees: Seq[Tree]) = 
         data ++= trees.map(Left(_))
       
-      def +=(treeGen: OptTreeGen) = 
+      def +=(treeGen: OptTreeGen) =
         data ++= Seq(Right(treeGen))
-      
-      //def +=(treeGen: TreeGen) =
-      //  data ++= Seq(Right(() => Some(treeGen())))
-      
+
+      def +=(treeGenOpt: Option[TreeGen]) =
+        for (treeGen <- treeGenOpt)
+          data ++= Seq(Right(() => Some(treeGen())))
+
       def toSeq: Seq[Tree] = data flatMap(_ match {
         case Left(tree) => Some(tree)
         case Right(treeGen) => treeGen()

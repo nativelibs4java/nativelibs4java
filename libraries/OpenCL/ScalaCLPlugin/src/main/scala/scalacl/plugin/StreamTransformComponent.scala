@@ -303,10 +303,10 @@ extends PluginComponent
     
     val closuresCount = sourceAndOps.map(_.closuresCount).sum
     (transformers, closuresCount, source) match {
-      case (_, _, _: ExplicitCollectionStreamSource) =>
-        // ok... transforming a List(1, 2, 3) into Array(1, 2, 3) is worth it
       case (Seq(), _, _) =>
         throw CodeWontBenefitFromOptimization("No operations chain : " + sourceAndOps)
+      case (_, _, _: ArrayStreamSource) if !transformers.isEmpty =>
+        // ok to transform any stream that starts with an array
       case (Seq(_), 0, _) =>
         throw CodeWontBenefitFromOptimization("Only one operations without closure is not enough to optimize : " + sourceAndOps)
       case (Seq(_), 1, _: ListStreamSource) =>
