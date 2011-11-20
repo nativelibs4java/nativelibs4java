@@ -51,12 +51,14 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            var builder1 = new scala.collection.mutable.ArrayBuilder.ofInt
+            val builder1 = new scala.collection.mutable.ArrayBuilder.ofInt
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              if (item1 != 0)
+              val cond = item1 != 0
+              if (cond) {
                 builder1 += item1
+              }
               i1 += 1
             }
             builder1.result
@@ -78,12 +80,14 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            var builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[String]
+            val builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[String]
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              if (item1 != "")
+              val cond = item1 != ""
+              if (cond) {
                 builder1 += item1
+              }
               i1 += 1
             }
             builder1.result
@@ -105,12 +109,14 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            var builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[(Int, Int)]
+            val builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[(Int, Int)]
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              if (item1._1 < 30)
+              val cond = item1._1 < 30
+              if (cond) {
                 builder1 += item1
+              }
               i1 += 1
             }
             builder1.result
@@ -131,12 +137,14 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            var builder1 = new scala.collection.mutable.ArrayBuilder.of""" + (if (primTypeNames.contains(typeStr)) typeStr else "Ref[" + typeStr + "]") + """
+            val builder1 = new scala.collection.mutable.ArrayBuilder.of""" + (if (primTypeNames.contains(typeStr)) typeStr else "Ref[" + typeStr + "]") + """
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              if (item1 != """ + valueStr + """)
+              val cond = item1 != """ + valueStr + """
+              if (cond) {
                 builder1 += item1
+              }
               i1 += 1
             }
             builder1.result
@@ -156,12 +164,14 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
           val a = List(1, 2, 3, 4)
           val m = {
             var list1 = a
-            var builder1 = new scala.collection.mutable.ListBuffer[Int]
+            val builder1 = new scala.collection.mutable.ListBuffer[Int]
             //while (!list1.isEmpty) {
             while (list1.isInstanceOf[::[Int]]) {
                 val item1 = list1.head
-                if (item1 != 0)
-                builder1 += item1
+                val cond = item1 != 0
+                if (cond) {
+                  builder1 += item1
+                }
                 list1 = list1.tail
             }
             builder1.result

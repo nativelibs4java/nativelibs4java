@@ -1,5 +1,7 @@
 name := "scalacl-compiler-plugin"
 
+mainClass := Some("scalacl.plugin.Compile")
+
 version := "0.3-SNAPSHOT"
 
 //fork := true
