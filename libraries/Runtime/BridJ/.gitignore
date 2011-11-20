@@ -24,3 +24,5 @@ src/main/cpp/buildsys/vs2008/Debug
 src/main/cpp/buildsys/vs2008/x64/Release
 src/main/cpp/buildsys/vs2008/x64/Debug
 dependency-reduced-pom.xml
+dyncall/*
+*.log
