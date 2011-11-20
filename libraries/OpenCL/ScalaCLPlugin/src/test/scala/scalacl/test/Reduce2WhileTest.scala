@@ -172,11 +172,10 @@ class Reduce2WhileTest extends TestUtils {
   }
 
   @Test
-  def simpleMinMax {
+  def simpleMin {
     ensurePluginCompilesSnippetsToSameByteCode(
       """
           val s1 = Array(1, 2, 3).min
-          val s2 = Array(1.0, 2.0, 3.0).max
       """,
       """
           val s1 = {
@@ -200,6 +199,16 @@ class Reduce2WhileTest extends TestUtils {
               throw new ArrayIndexOutOfBoundsException(0)
             tot
           };
+      """
+    )
+  }
+  @Test
+  def simpleMax {
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """
+          val s2 = Array(1.0, 2.0, 3.0).max
+      """,
+      """
           val s2 = {
             val a = Array(1.0, 2.0, 3.0)
             val n = a.length

@@ -395,22 +395,43 @@ extends MiscMatchers
   }
 
   type IdentGen = () => Ident
+  
+  private val anyValTypeInfos = Seq[(Class[_], Type, AnyVal)](
+    ( classOf[java.lang.Boolean], BooleanClass.tpe, false ),
+    ( classOf[java.lang.Integer], IntClass.tpe, 0),
+    ( classOf[java.lang.Long], LongClass.tpe, 0: Long),
+    ( classOf[java.lang.Short], ShortClass.tpe, 0: Short),
+    ( classOf[java.lang.Byte], ByteClass.tpe, 0: Byte),
+    ( classOf[java.lang.Character], CharClass.tpe, 0.asInstanceOf[Char]),
+    ( classOf[java.lang.Double], DoubleClass.tpe, 0.0),
+    ( classOf[java.lang.Float], FloatClass.tpe, 0.0f)
+  )
+  val classToType: Map[Class[_], Type] =
+    (anyValTypeInfos.map { case (cls, tpe, defVal) => cls -> tpe }).toMap
+    
+  val typeToDefaultValue: Map[Type, AnyVal] =
+    (anyValTypeInfos.map { case (cls, tpe, defVal) => tpe -> defVal }).toMap
+  
+  def newConstant(v: Any, tpe: Type = null) = {
+    Literal(Constant(v)).setType(
+      if (tpe != null) 
+        tpe
+      else if (v.isInstanceOf[String])
+        StringClass.tpe
+      else
+        classToType(v.getClass)
+    )
+  }
 
-  def newBool(v: Boolean) = 
-    Literal(Constant(v)).setType(BooleanClass.tpe)
+  def newBool(v: Boolean) =   newConstant(v)
+  def newInt(v: Int) =        newConstant(v)
+  def newLong(v: Long) =      newConstant(v)
 
-  def newInt(v: Int) = 
-    Literal(Constant(v)).setType(IntClass.tpe)
-
-  def newLong(v: Long) = 
-    Literal(Constant(v)).setType(LongClass.tpe)
-
-  def newNull(tpe: Type) = 
-    Literal(Constant(null)).setType(tpe)
+  def newNull(tpe: Type) =    newConstant(null, tpe)
 
   def newDefaultValue(tpe: Type) = {
     if (isAnyVal(tpe))
-      Literal(Constant(0: Int)).setType(tpe)
+      newConstant(typeToDefaultValue(tpe), tpe)
     else
       newNull(tpe)
   }
