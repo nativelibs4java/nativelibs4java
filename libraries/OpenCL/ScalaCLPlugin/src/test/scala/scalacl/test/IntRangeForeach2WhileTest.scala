@@ -54,8 +54,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
           while (i < n)
           {
             val iVal = i
-            val cond = iVal < 10
-            if (cond) {
+            if (iVal < 10) {
               t += 2 * iVal
             }
             i += 1
@@ -113,8 +112,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
             while (i < n)
             {
               val iVal = i
-              val cond = iVal != 50
-              if (cond)
+              if (iVal != 50)
                 builder1 += iVal
               i += 1
             }

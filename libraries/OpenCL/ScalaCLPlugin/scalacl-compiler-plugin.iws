@@ -68,10 +68,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StreamOps.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="StreamOps.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="339" column="50" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.0">
+            <state line="340" column="8" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.27222222">
               <folding />
             </state>
           </provider>
@@ -80,16 +80,16 @@
       <file leaf-file-name="CollectionRewriters.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/CollectionRewriters.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="320" column="39" selection-start="11990" selection-end="11990" vertical-scroll-proportion="0.0">
+            <state line="320" column="41" selection-start="11992" selection-end="11992" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StreamSources.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="StreamSources.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="184" column="23" selection-start="6347" selection-end="6347" vertical-scroll-proportion="0.33333334">
+            <state line="141" column="43" selection-start="4755" selection-end="4755" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -113,24 +113,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Streams.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="110" column="4" selection-start="2968" selection-end="2968" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PluginNames.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="103" column="2" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FindManager">
@@ -149,11 +131,11 @@
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/TraversalOps.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamTransformComponent.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala" />
       </list>
     </option>
   </component>
@@ -655,13 +637,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TraversalOps.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="144" column="22" selection-start="4178" selection-end="4185" vertical-scroll-proportion="-6.923077">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-compiler/2.9.1/scala-compiler-2.9.1.jar!/scala/tools/nsc/symtab/StdNames.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="342" column="8" selection-start="26198" selection-end="26198" vertical-scroll-proportion="0.3666027">
@@ -672,13 +647,6 @@
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="103" column="2" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="479" column="20" selection-start="15275" selection-end="15275" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -699,28 +667,44 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="110" column="4" selection-start="2968" selection-end="2968" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="103" column="4" selection-start="2802" selection-end="2802" vertical-scroll-proportion="0.0">
+          <folding>
+            <marker date="1321830452000" expanded="true" signature="-1:-1" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TraversalOps.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="339" column="50" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.0">
+        <state line="144" column="22" selection-start="4178" selection-end="4185" vertical-scroll-proportion="-6.923077">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/CollectionRewriters.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="320" column="39" selection-start="11990" selection-end="11990" vertical-scroll-proportion="0.0">
+        <state line="320" column="41" selection-start="11992" selection-end="11992" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="184" column="23" selection-start="6347" selection-end="6347" vertical-scroll-proportion="0.33333334">
+        <state line="141" column="43" selection-start="4755" selection-end="4755" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="479" column="20" selection-start="15275" selection-end="15275" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="340" column="8" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.27222222">
           <folding />
         </state>
       </provider>

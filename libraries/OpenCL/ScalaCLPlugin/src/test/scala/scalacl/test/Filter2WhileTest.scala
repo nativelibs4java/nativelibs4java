@@ -55,8 +55,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              val cond = item1 != 0
-              if (cond) {
+              if (item1 != 0) {
                 builder1 += item1
               }
               i1 += 1
@@ -84,8 +83,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              val cond = item1 != ""
-              if (cond) {
+              if (item1 != "") {
                 builder1 += item1
               }
               i1 += 1
@@ -113,8 +111,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              val cond = item1._1 < 30
-              if (cond) {
+              if (item1._1 < 30) {
                 builder1 += item1
               }
               i1 += 1
@@ -141,8 +138,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             while (i1 < n1)
             {
               val item1 = array1(i1)
-              val cond = item1 != """ + valueStr + """
-              if (cond) {
+              if (item1 != """ + valueStr + """) {
                 builder1 += item1
               }
               i1 += 1
@@ -168,8 +164,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
             //while (!list1.isEmpty) {
             while (list1.isInstanceOf[::[Int]]) {
                 val item1 = list1.head
-                val cond = item1 != 0
-                if (cond) {
+                if (item1 != 0) {
                   builder1 += item1
                 }
                 list1 = list1.tail

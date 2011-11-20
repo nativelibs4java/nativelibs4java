@@ -337,14 +337,13 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def toString = if (not) "filterNot" else "filter"
       override def order = Unordered
       override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = {
-        val condVar = newVariable(loop.unit, "cond$", loop.currentOwner, loop.pos, false, transformedFunc(value))
-        loop.inner += condVar.definition
-          
+        val cond = transformedFunc(value)
+        
         loop.innerIf(() => {
           if (not)
-            boolNot(condVar())
+            boolNot(cond)
           else
-            condVar()
+            cond
         })
         
         value.withoutSizeInfo
