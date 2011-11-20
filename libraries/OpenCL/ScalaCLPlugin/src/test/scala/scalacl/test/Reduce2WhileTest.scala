@@ -183,15 +183,17 @@ class Reduce2WhileTest extends TestUtils {
             val a = Array(1, 2, 3)
             val n = a.length
             var i = 0//1
-            var tot = 0.0//a(0)
+            var tot = 0//a(0)
             var isDefined = false
             while (i < n) {
                 val item = a(i)
                 if (!isDefined) {
                   isDefined = true
                   tot = item
-                } else if (item < tot)
-                  tot = item
+                } else {
+                  if (item < tot)
+                    tot = item
+                }
                 i += 1
             }
             if (!isDefined)
@@ -209,8 +211,10 @@ class Reduce2WhileTest extends TestUtils {
                 if (!isDefined) {
                   isDefined = true
                   tot = item
-                } else if (item > tot)
-                  tot = item
+                } else {
+                  if (item > tot)
+                    tot = item
+                }
                 i += 1
             }
             if (!isDefined)
