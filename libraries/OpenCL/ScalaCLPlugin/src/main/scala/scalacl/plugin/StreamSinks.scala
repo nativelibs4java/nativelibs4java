@@ -40,10 +40,10 @@ trait StreamSinks extends Streams {
         case _ => false
       }
     }
-      
+
     override def wrapResultIfNeeded(result: Tree, expectedType: Type, componentType: Type) = {
       typed { result }
-      if (!isArrayType(expectedType) && isArrayType(result.tpe)) {
+      if (normalize(expectedType) == normalize(result.tpe)) {//!isArrayType(expectedType) && isArrayType(result.tpe)) {
         //println("TREE TPE IS OK : expectedType " + expectedType + ", got " + result.tpe)
         result
       } else {

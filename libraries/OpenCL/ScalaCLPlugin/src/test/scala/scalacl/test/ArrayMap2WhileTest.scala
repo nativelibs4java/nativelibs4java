@@ -139,7 +139,8 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
             while (i < n)
             {
               val item = aa(i)
-              mm(i) = item + "..."
+              val mapped = item + "..."
+              mm(i) = mapped
               i += 1
             }
             mm
