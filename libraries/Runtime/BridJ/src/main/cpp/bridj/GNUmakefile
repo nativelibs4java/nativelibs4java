@@ -74,7 +74,7 @@ CPPFLAGS += -std=c99
 CPPFLAGS += -U_FORTIFY_SOURCE
 
 ifndef BUILD_OS_sunos
-CPPFLAGS += -fno-stack-protector
+CPPFLAGS += -fno-stack-protector -funsafe-loop-optimizations
 endif
 
 #LDFLAGS += -Wl,--as-needed
@@ -124,10 +124,6 @@ ifdef BUILD_CONFIG_debug
 CPPFLAGS +=	-O0 -g
 else
 CPPFLAGS += -O3
-endif
-
-ifndef BUILD_OS_sunos
-CPPFLAGS += -funsafe-loop-optimizations
 endif
 
 #LINK_LIBS	+= stdc++
