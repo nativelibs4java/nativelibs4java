@@ -59,7 +59,7 @@ interface CallIO {
 		//@Override
 		public Pointer<?> newInstance(long address) {
 			try {
-				return (Pointer<?>) constructor.newInstance(address);
+				return address == 0 ? null : (Pointer<?>) constructor.newInstance(address);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to instantiate pointer of type " + type.getName(), ex);
 			}
