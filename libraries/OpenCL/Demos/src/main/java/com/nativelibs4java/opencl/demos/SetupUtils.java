@@ -5,6 +5,9 @@
 
 package com.nativelibs4java.opencl.demos;
 
+import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bridj.BridJ;
 import org.bridj.JNI;
 import java.io.PrintWriter;
@@ -28,12 +31,28 @@ import org.bridj.Platform;
  */
 public class SetupUtils {
 
+    public enum DownloadURL {
+        ATI("http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx"),
+        NVidia("http://www.nvidia.com/Download/Find.aspx");
+        
+        public final URL url;
+        DownloadURL(String s) {
+            URL url;
+            try {
+                url = new URL(s);
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(SetupUtils.class.getName()).log(Level.SEVERE, null, ex);
+                url = null;
+            }
+            this.url = url;
+        }
+    }
     public static void failWithDownloadProposalsIfOpenCLNotAvailable() {
         ///*
         try {
            JavaCL.listPlatforms();
            return;
-        } catch (UnsatisfiedLinkError ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         } //*/
         String title = "JavaCL Error: OpenCL library not found";
@@ -52,7 +71,7 @@ public class SetupUtils {
                 "You don't appear to have an OpenCL implementation properly configured.\n" +
                 "Please choose one of the following options to proceed to the download of an appropriate OpenCL implementation :", title, JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[2]);
         if (option >= 0 && option != 3) {
-            String urlString;
+            DownloadURL url;
             if (option == 0) {
                 /*String nvidiaVersion = "260.99";
                 boolean appendPlatform = true;
@@ -69,12 +88,12 @@ public class SetupUtils {
                 } else
                     urlString = "http://developer.nvidia.com/object/opencl-download.html";
                 */
-                urlString = "http://www.nvidia.com/Download/Find.aspx";
+                url = DownloadURL.NVidia;
             } else
-                urlString = "http://developer.amd.com/GPU/ATISTREAMSDK/Pages/default.aspx";
+                url = DownloadURL.ATI;
 
             try {
-                Platform.open(new URL(urlString));
+                Platform.open(url.url);
             } catch (Exception ex1) {
                 exception(ex1);
             }
