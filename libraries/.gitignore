@@ -3,8 +3,13 @@ project/boot
 project/target
 *~
 .DS_Store
-
+.settings
 Tests
 Akkhack
 *#Untitled-*#
-
+.idea
+.idea_modules
+.settings
+.project
+.classpath
+*.class
