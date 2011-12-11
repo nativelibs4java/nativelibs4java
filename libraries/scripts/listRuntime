@@ -9,9 +9,11 @@ function listFile {
 # unzip -l ~/nativelibs4java/Runtime/Structs/target/nl4j-runtime-structs-jna-*.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/nl4j-runtime-structs-jna.jar.files
 # unzip -l ~/nativelibs4java/Runtime/BridJ/target/bridj-0.6.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/bridj.jar.files
 
+JNA_VERSION=3.3.0
+BRIDJ_VERSION=0.7-SNAPSHOT
 
-listFile jna-jnaerator/target/jna-jnaerator-3.3.0.jar jna-runtime.jar.files
+listFile jna-jnaerator/target/jna-jnaerator-$JNA_VERSION.jar jna-runtime.jar.files
 listFile jnaerator-runtime/target/jnaerator-runtime-*-shaded.jar jnaerator-runtime.jar.files
 listFile ~/nativelibs4java/Runtime/Structs/target/nl4j-runtime-structs-jna-*.jar nl4j-runtime-structs-jna.jar.files
-listFile ~/nativelibs4java/Runtime/BridJ/target/bridj-0.6.jar bridj.jar.files
+listFile ~/nativelibs4java/Runtime/BridJ/target/bridj-$BRIDJ_VERSION.jar bridj.jar.files
 
