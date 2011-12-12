@@ -46,6 +46,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
 import org.bridj.*;
 
+import org.bridj.util.ProcessUtils;
+import org.ochafik.util.string.StringUtils;
 import static org.bridj.Pointer.*;
 
 /**
@@ -54,15 +56,20 @@ import static org.bridj.Pointer.*;
  */
 public class JavaCL {
 
-	static final boolean verbose = "true".equals(System.getProperty("javacl.verbose")) || "1".equals(System.getenv("JAVACL_VERBOSE"));
+	static final boolean debug = "true".equals(System.getProperty("javacl.debug")) || "1".equals(System.getenv("JAVACL_DEBUG"));
+    static final boolean verbose = debug || "true".equals(System.getProperty("javacl.verbose")) || "1".equals(System.getenv("JAVACL_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
+    
+    static final String JAVACL_DEBUG_COMPILER_FLAGS_PROP = "JAVACL_DEBUG_COMPILER_FLAGS";
+    static List<String> DEBUG_COMPILER_FLAGS;
+    
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
     }
 	static boolean log(Level level, String message, Throwable ex) {
         if (!shouldLog(level))
             return true;
-		Logger.getLogger(JavaCL.class.getName()).log(level, message, ex);
+		Logger.getLogger(JavaCL.class.getSimpleName()).log(level, message, ex);
         return true;
 	}
 	
@@ -118,7 +125,7 @@ public class JavaCL {
 						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
 					{
-						log(Level.INFO, "[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
+						log(Level.INFO, "Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
 						BridJ.setNativeLibraryActualName("OpenCL", alt);
 					}
 				}
@@ -128,6 +135,25 @@ public class JavaCL {
 			}
 		}
 		
+        if (debug) {
+            String debugArgs = System.getenv(JAVACL_DEBUG_COMPILER_FLAGS_PROP);
+            if (debugArgs != null)
+                DEBUG_COMPILER_FLAGS = Arrays.asList(debugArgs.split(" "));
+            else if (Platform.isMacOSX())
+                DEBUG_COMPILER_FLAGS = Arrays.asList("-g");
+            else
+                DEBUG_COMPILER_FLAGS = Arrays.asList("-O0", "-g");
+            
+            int pid = ProcessUtils.getCurrentProcessId();
+            log(Level.INFO, "Debug mode enabled with compiler flags \"" + StringUtils.implode(DEBUG_COMPILER_FLAGS, " ") + "\" (can be overridden with env. var. JAVACL_DEBUG_COMPILER_FLAGS_PROP)");
+            log(Level.INFO, "You can debug your kernels with GDB using one of the following commands :\n"
+                    + "\tsudo gdb --tui --pid=" + pid + "\n"
+                    + "\tsudo ddd --debugger \"gdb --pid=" + pid + "\"\n"
+                    + "More info here :\n"
+                    + "\thttp://suhorukov.blogspot.com/2011/12/opencl-kernel-debugging-for-java-host.html");
+            
+            
+        }
 		CL = new OpenCLLibrary();
 	}
 	

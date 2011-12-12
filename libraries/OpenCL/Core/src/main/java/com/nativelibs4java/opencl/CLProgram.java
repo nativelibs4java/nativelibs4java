@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nativelibs4java.opencl;
+import java.util.Iterator;
 import java.util.Arrays;
 import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
@@ -66,6 +67,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.IOUtils;
+import com.ochafik.util.string.StringUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -566,13 +568,37 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     		
     		extraBuildOptions.add(option);
     }
-    	
+    
     protected String getOptionsString() {
         StringBuilder b = new StringBuilder("-DJAVACL=1 ");
         
-        if (extraBuildOptions != null)
-        		for (String option : extraBuildOptions)
-    				b.append(option).append(' ');
+        if (extraBuildOptions != null) {
+            if (JavaCL.debug) {
+                boolean isCPUOnly = true;
+                for (CLDevice device : getDevices()) {
+                    if (!device.getType().contains(CLDevice.Type.CPU)) {
+                        isCPUOnly = false;
+                        break;
+                    }
+                }
+                if (!isCPUOnly)
+                    log(Level.WARNING, "Debug mode : cannot only compile with debug flags on a CPU-only context");
+                else {
+                    for (Iterator<String> it = extraBuildOptions.iterator(); it.hasNext();) {
+                        String opt = it.next();
+                        if ((opt.startsWith("-O") || opt.startsWith("-g:")) && !DEBUG_ARGS.contains(opt)) {
+                            log(Level.WARNING, "Debug mode : removed argument \"" + opt + "\" from OpenCL compiler command-line arguments");
+                            it.remove();
+                        }
+                    }
+                    extraBuildOptions.addAll(DEBUG_ARGS);
+                    log(Level.ALL, "Debug mode : added OpenCL compiler command-line arguments \"" + StringUtils.implode(DEBUG_ARGS, " ") + "\"");
+                }
+            }
+            for (String option : extraBuildOptions)
+                b.append(option).append(' ');
+            
+        }
     			
         // http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html
         //b.append("-O2 -cl-no-signed-zeros -cl-unsafe-math-optimizations -cl-finite-math-only -cl-fast-relaxed-math -cl-strict-aliasing ");
@@ -667,7 +693,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 					readBinaries = true;
 				}
         		} catch (Throwable ex) {
-        			assert log(Level.WARNING, "Failed to load cached program", ex);
+        			assert log(Level.WARNING, "Failed to load cached program : " + ex.getMessage());
         			entity = null;
         		}
         }
