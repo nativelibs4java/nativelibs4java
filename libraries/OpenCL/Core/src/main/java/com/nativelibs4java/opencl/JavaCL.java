@@ -150,7 +150,7 @@ public class JavaCL {
                     + "\tsudo gdb --tui --pid=" + pid + "\n"
                     + "\tsudo ddd --debugger \"gdb --pid=" + pid + "\"\n"
                     + "More info here :\n"
-                    + "\thttp://suhorukov.blogspot.com/2011/12/opencl-kernel-debugging-for-java-host.html");
+                    + "\thttp://code.google.com/p/javacl/wiki/DebuggingKernels");
             
             
         }
