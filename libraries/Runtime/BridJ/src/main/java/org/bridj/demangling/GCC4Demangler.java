@@ -1,10 +1,9 @@
 package org.bridj.demangling;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.bridj.demangling.Demangler;
-import org.bridj.JNI;
 import org.bridj.CLong;
 import org.bridj.NativeLibrary;
 import org.bridj.demangling.Demangler.ClassRef;
@@ -15,8 +14,9 @@ import org.bridj.demangling.Demangler.NamespaceRef;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.SpecialName;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import org.bridj.Platform;
+import java.util.Set;
 
 public class GCC4Demangler extends Demangler {
 	
@@ -24,36 +24,50 @@ public class GCC4Demangler extends Demangler {
 		super(library, symbol);
 	}
 
-    private Map<String, TypeRef> shortcuts = new HashMap<String, TypeRef>();
+        
+    private Map<String, List<IdentLike>> prefixShortcuts = new HashMap<String, List<IdentLike>>() {{
+        
+        // prefix shortcut: e.g. St is for std::
+        put("t", Arrays.asList((IdentLike) new Ident("std")));
+        put("a", Arrays.asList((IdentLike) new Ident("std"), new Ident("allocator")));
+        put("b", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_string")));
+        TypeRef chartype = classType(Byte.TYPE);
+        ClassRef charTraitsOfChar = enclosed("std", new ClassRef(new Ident("char_traits", new TemplateArg[]{chartype})));
+        ClassRef allocatorOfChar = enclosed("std", new ClassRef(new Ident("allocator", new TemplateArg[]{chartype})));
+        put("d", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_iostream", new TemplateArg[]{chartype, charTraitsOfChar})));
+        put("i", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_istream", new TemplateArg[]{chartype, charTraitsOfChar})));
+        put("o", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_ostream", new TemplateArg[]{chartype, charTraitsOfChar})));
+        // Ss == std::string == std::basic_string<char, std::char_traits<char>, std::allocator<char> >        
+        put("s", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_string", new TemplateArg[]{classType(Byte.TYPE), charTraitsOfChar, allocatorOfChar})));
+        
+        // used, as an helper: for i in a b c d e f g h i j k l m o p q r s t u v w x y z; do c++filt _Z1_S$i; done
+    }
+
+        private ClassRef enclosed(String ns, ClassRef classRef) {
+            classRef.setEnclosingType(new NamespaceRef(new Object[]{ns}));
+            return classRef;
+        }
+    };
+    private Set<String> shouldContinueAfterPrefix = new HashSet<String>(Arrays.asList("t"));
+    private Map<String, TypeRef> typeShortcuts = new HashMap<String, TypeRef>();
+    
+    private <T> T ensureOfType(Object o, Class<T> type) throws DemanglingException {
+        if (type.isInstance(o)) {
+            return type.cast(o);
+        } else {
+            throw new DemanglingException("Internal error in demangler: trying to cast to " + type.getCanonicalName() + " the object '" + o.toString() + "'");
+        }
+    }
     int nextShortcutId = -1;
     private String nextShortcutId() {
         int n = nextShortcutId++;
         return n == -1 ? "_" : Integer.toString(n, 36).toUpperCase() + "_";
     }
-
-    private TypeRef parseShortcutType() {
-        if (peekChar() == '_') {
-            return shortcuts.get(Character.toString(consumeChar()));
-        }
-        String id = "";
-        char c;
-        while ((c = peekChar()) != '_' && c != 'E' && c != 0) {
-            id += consumeChar();
-        }
-        if (c != 'E')
-            id += consumeChar();
-
-        if (id.equals("s"))
-            return classType(StdString.class);
-
-        TypeRef res = shortcuts.get(id);
-        return res;
-    }
     private TypeRef parsePointerType() throws DemanglingException {
         TypeRef pointed = parseType();
         TypeRef res = pointerType(pointed);
         String id = nextShortcutId();
-        shortcuts.put(id, res);
+        typeShortcuts.put(id, res);
         return res;
     }
 
@@ -74,17 +88,61 @@ public class GCC4Demangler extends Demangler {
     }
 	public TypeRef parseType() throws DemanglingException {
 		if (Character.isDigit(peekChar())) {
-                    Ident name = parseIdent();
-                    String id = nextShortcutId();
+                    Ident name = ensureOfType(parseNonCompoundIdent(), Ident.class);
+                    String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
                     TypeRef res = simpleType(name);
-                    shortcuts.put(id, res);
+                    typeShortcuts.put(id, res);
                     return res;
                 }
 
         char c = consumeChar();
 		switch (c) {
-		case 'S':
-			return parseShortcutType();
+                    case 'S':
+                    { // here we first check if we have a type shorcut saved, if not we fallback to the (compound) identifier case
+                        char cc = peekChar();
+                        int delta = 0;
+                        if (Character.isDigit(cc) || Character.isUpperCase(cc) || cc == '_') {
+                            String id = "";
+                            while ((c = peekChar()) != '_' && c != 0) {
+                                id += consumeChar();
+                                delta++;
+                            }
+                            if (peekChar() == 0) {
+                                throw new DemanglingException("Encountered a unexpected end in gcc mangler shortcut '" + id + "' " + prefixShortcuts.keySet());
+                            }
+                            id += consumeChar(); // the '_'
+                            delta++;
+                            if (typeShortcuts.containsKey(id)) {
+                                if (peekChar() != 'I') {
+                                    // just a shortcut
+                                    return typeShortcuts.get(id);
+                                } else {
+                                    // shortcut but templated
+                                    List<IdentLike> nsPath = new ArrayList<IdentLike>(prefixShortcuts.get(id));
+                                    String templatedId = parsePossibleTemplateArguments(nsPath);
+                                    if (templatedId != null) {
+                                        return typeShortcuts.get(templatedId);
+                                    }
+                                }
+                            }
+                            position -= delta;
+                        }
+                    }
+                    // WARNING/INFO/NB: we intentionally continue to the N case
+                    case 'N':
+                        position--; // I actually would peek()
+                    {
+                        List<IdentLike> ns = new ArrayList<IdentLike>();
+                        String newShortcutId = parseSimpleOrComplexIdentInto(ns, false);
+                        ClassRef res = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
+                        if (!ns.isEmpty()) {
+                            res.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                        }
+                        if (newShortcutId != null) {
+                            typeShortcuts.put(newShortcutId, res);
+                        }
+                        return res;
+                    }
 		case 'P':
 			return parsePointerType();
 		case 'F':
@@ -125,11 +183,10 @@ public class GCC4Demangler extends Demangler {
 			throw error("Unexpected type char '" + c + "'", -1);
 		}
 	}
-    public static class StdString {}
 
-	String parseName() throws DemanglingException {
-		StringBuilder b = new StringBuilder();
+	String parseName() throws DemanglingException { // parses a plain name, e.g. "4plop" (the 4 is the length)
 		char c;
+		StringBuilder b = new StringBuilder();
 		while (Character.isDigit(c = peekChar())) {
 			consumeChar();
 			b.append(c);
@@ -145,14 +202,138 @@ public class GCC4Demangler extends Demangler {
 			b.append(consumeChar());
 		return b.toString();
 	}
-    Ident parseIdent() throws DemanglingException {
-        String n = parseName();
-        List<TemplateArg> args = new ArrayList<TemplateArg>();
-        if (consumeCharIf('I')) {
-            while (!consumeCharIf('E'))
-                args.add(parseTemplateArg());
+    private String parseSimpleOrComplexIdentInto(List<IdentLike> res, boolean isParsingNonShortcutableElement) throws DemanglingException {
+        String newlyAddedShortcutForThisType = null;
+        boolean shouldContinue = false;
+        boolean expectEInTheEnd = false;
+        if (consumeCharIf('N')) { // complex (NB: they don't recursively nest (they actually can within a template parameter but not elsewhere))
+            if (consumeCharIf('S')) { // it uses some shortcut prefix or type
+                parseShortcutInto(res);
+            }
+            shouldContinue = true;
+            expectEInTheEnd = true;
+        } else { // simple
+            if (consumeCharIf('S')) { // it uses some shortcut prefix or type
+                shouldContinue = parseShortcutInto(res);
+            } else {
+                res.add(parseNonCompoundIdent());
+            }
         }
-        return new Ident(n, args.toArray(new TemplateArg[args.size()]));
+        if (shouldContinue) {
+            do {
+                String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
+                newlyAddedShortcutForThisType = id;
+                IdentLike part = parseNonCompoundIdent();
+                res.add(part);
+                prefixShortcuts.put(id, new ArrayList<IdentLike>(res)); // the current compound name is saved by gcc as a shortcut (we do the same)
+                parsePossibleTemplateArguments(res);
+            } while (Character.isDigit(peekChar()) || peekChar() == 'C' || peekChar() == 'D');
+            if (isParsingNonShortcutableElement) {
+                //prefixShortcuts.remove(previousShortcutId()); // correct the fact that we parsed one too much
+                nextShortcutId--;
+            }
+        }
+        parsePossibleTemplateArguments(res);
+        if (expectEInTheEnd) {
+            expectAnyChar('E');
+        }
+        return newlyAddedShortcutForThisType;
+    }
+
+    /**
+     * 
+     * @param res a list of identlikes with the namespace elements and finished with an Ident which will be replaced by a new one enriched with template info
+     * @return null if res was untouched, or the new id created because of the presence of template arguments
+     */
+    private String parsePossibleTemplateArguments(List<IdentLike> res) throws DemanglingException {
+        if (consumeCharIf('I')) {
+            List<TemplateArg> args = new ArrayList<TemplateArg>();
+            while (!consumeCharIf('E')) {
+                args.add(parseTemplateArg());
+            }
+            String id = nextShortcutId(); // we get the id after parsing the template parameters
+            // It is very important that we create a new Ident as the other one has most probably been added as a shortcut and should be immutable from then
+            Ident templatedIdent = new Ident(ensureOfType(res.remove(res.size() - 1), Ident.class).toString(), args.toArray(new TemplateArg[args.size()]));
+            res.add(templatedIdent);
+            prefixShortcuts.put(id, new ArrayList<IdentLike>(res));
+            {
+                List<IdentLike> ns = new ArrayList<IdentLike>(res);
+                ClassRef clss = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
+                if (!ns.isEmpty()) {
+                    clss.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                }
+                typeShortcuts.put(id, clss);
+            }
+            return id;
+        }
+        return null;
+    }
+
+    /**
+     * @return whether we should expect more parsing after this shortcut (e.g. std::vector<...> is actually not NSt6vectorI...EE but St6vectorI...E (without trailing N)
+     */
+    private boolean parseShortcutInto(List<IdentLike> res) throws DemanglingException{
+        char c = peekChar();
+        // GCC builds shortcuts for each encountered type, they appear in the mangling as: S_, S0_, S1_, ..., SA_, SB_, ..., SZ_, S10_
+        if (c == '_') { // we encounter S_
+            List<IdentLike> toAdd = prefixShortcuts.get(Character.toString(consumeChar()));
+            if (toAdd == null) {
+                throw new DemanglingException("Encountered a yet undefined gcc mangler shortcut S_ (first one), i.e. '_' " + prefixShortcuts.keySet());
+            }
+            res.addAll(toAdd);
+            return false;
+        } else if (Character.isDigit(c) || Character.isUpperCase(c)) { // memory shorcut S[0-9A-Z]+_
+            String id = "";
+            while ((c = peekChar()) != '_' && c != 0) {
+                id += consumeChar();
+            }
+            if (peekChar() == 0) {
+                throw new DemanglingException("Encountered a unexpected end in gcc mangler shortcut '" + id + "' " + prefixShortcuts.keySet());
+            }
+            id += consumeChar(); // the '_'
+            List<IdentLike> toAdd = prefixShortcuts.get(id);
+            if (toAdd == null) {
+                throw new DemanglingException("Encountered a unexpected gcc mangler shortcut '" + id + "' " + prefixShortcuts.keySet());
+            }
+            res.addAll(toAdd);
+            return false;
+        } else if (Character.isLowerCase(c)) { // other, single character built-in shorcuts. We suppose for now that all shortcuts are lower case (e.g. Ss, St, ...)
+            String id = Character.toString(consumeChar());
+            List<IdentLike> toAdd = prefixShortcuts.get(id);
+            if (toAdd == null) {
+                throw new DemanglingException("Encountered a unexpected gcc mangler built-in shortcut '" + id + "' " + prefixShortcuts.keySet());
+            }
+            res.addAll(toAdd);
+            return shouldContinueAfterPrefix.contains(id);
+        } else {
+            throw new DemanglingException("Encountered a unexpected gcc unknown shortcut '" + c + "' " + prefixShortcuts.keySet());
+        }
+    }
+
+    IdentLike parseNonCompoundIdent() throws DemanglingException { // This is a plain name  with possible template parameters (or special like constructor C1, C2, ...)
+        if (consumeCharIf('C')) {
+            if (consumeCharIf('1')) {
+                return SpecialName.Constructor;
+            } else if (consumeCharIf('2')) {
+                return SpecialName.SpecialConstructor;
+            } else {
+                throw error("Unknown constructor type 'C" + peekChar() + "'");
+            }
+        } else if (consumeCharIf('D')) {
+            // see http://zedcode.blogspot.com/2007/02/gcc-c-link-problems-on-small-embedded.html
+            if (consumeCharIf('0')) {
+                return SpecialName.DeletingDestructor;
+            } else if (consumeCharIf('1')) {
+                return SpecialName.Destructor;
+            } else if (consumeCharIf('2')) {
+                return SpecialName.SelfishDestructor;
+            } else {
+                throw error("Unknown destructor type 'D" + peekChar() + "'");
+            }
+        } else {
+            String n = parseName();
+            return new Ident(n);
+        }
     }
 	@Override
 	public MemberRef parseSymbol() throws DemanglingException {
@@ -166,7 +347,7 @@ public class GCC4Demangler extends Demangler {
 		
 		if (consumeCharIf('T')) {
 			if (consumeCharIf('V')) {
-				mr.setEnclosingType(new ClassRef(parseIdent()));
+				mr.setEnclosingType(ensureOfType(parseType(), ClassRef.class));
 				mr.setMemberName(SpecialName.VFTable);
 				return mr;
 			}
@@ -195,67 +376,24 @@ public class GCC4Demangler extends Demangler {
 			mr.setMemberName(SpecialName.NewArray);
 			return mr;
 		}
-		
-		List<Ident> ns = new ArrayList<Ident>();
-		if (consumeCharIf('N')) {
-			do {
-                            // TODO better than simple increment
-                            nextShortcutId++;
-				ns.add(parseIdent());
-			} while (Character.isDigit(peekChar()));
-			nextShortcutId--; // correct the fact that we parsed one too much
-			mr.setMemberName(ns.remove(ns.size() - 1));
-			if (!ns.isEmpty()) {
-				ClassRef parent = new ClassRef(ns.remove(ns.size() - 1));
-				if (!ns.isEmpty())
-					parent.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
-				mr.setEnclosingType(parent);
-			} else {
-                // for templates, for instance "_ZN24InvisibleSourcesTemplateILi10ESsEC1Ei"
-                char c = peekChar();
-				switch (c) {
-				/*case 'I':
-					List<TemplateArg> args = new ArrayList<TemplateArg>();
-					consumeChar();
-					while (!consumeCharIf('E')) {
-						args.add(parseTemplateArg());
-					}
-					//System.out.println("HEHEHEHEHEHEHE args = " + args);
-					mr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
-					break;*/
-				case 'C':
-					consumeChar();
-					mr.setEnclosingType(new ClassRef((Ident)mr.getMemberName()));
-					if (consumeCharIf('1'))
-						mr.setMemberName(SpecialName.Constructor);
-					else if (consumeCharIf('2'))
-						mr.setMemberName(SpecialName.SpecialConstructor);
-                    else
-                        error("Unknown constructor type");
-					break;
-				case 'D':
-					consumeChar();
-					mr.setEnclosingType(new ClassRef((Ident)mr.getMemberName()));
-                    // see http://zedcode.blogspot.com/2007/02/gcc-c-link-problems-on-small-embedded.html
-					if (consumeCharIf('0'))
-						mr.setMemberName(SpecialName.DeletingDestructor);
-					else if (consumeCharIf('1'))
-						mr.setMemberName(SpecialName.Destructor);
-					else if (consumeCharIf('2'))
-						mr.setMemberName(SpecialName.SelfishDestructor);
-                    else
-                        error("Unknown destructor type");
-					break;
-				}
-			}
-		} else {
-			//mr.type = SpecialName.CFunction;
-			mr.setMemberName(parseIdent());
-		}
+                
+            {
+                List<IdentLike> ns = new ArrayList<IdentLike>();
+                parseSimpleOrComplexIdentInto(ns, true);
+                mr.setMemberName(ns.remove(ns.size() - 1));
+                if (!ns.isEmpty()) {
+                    ClassRef parent = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
+                    if (!ns.isEmpty()) {
+                        parent.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                    }
+                    mr.setEnclosingType(parent);
+                }
+            }
+
 		//System.out.println("mr = " + mr + ", peekChar = " + peekChar());
 					
 		//mr.isStatic =
-		boolean isMethod = consumeCharIf('E');
+		//boolean isMethod = consumeCharIf('E');
 		
 		if (consumeCharIf('v')) {
 			if (position < length)
