@@ -52,7 +52,7 @@ public class SetupUtils {
         try {
            JavaCL.listPlatforms();
            return;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         } //*/
         String title = "JavaCL Error: OpenCL library not found";
