@@ -419,19 +419,26 @@ public class Platform {
 						ret.add(univ);
 				}
 			} 
-			else if (isAndroid()) {
-				assert root.equals("lib/");
-				ret.add(root + "armeabi/lib" + name + ".so"); // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
-			} 
-			else if (isLinux())
-				ret.add(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
-			else if (isSolaris()) {
-				if (isSparc()) {	
-					ret.add(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
-				} else {
-					ret.add(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
-				}	
-			}
+			else {
+                String path = null;
+                if (isAndroid()) {
+                    assert root.equals("lib/");
+                    path = root + "armeabi/"; // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
+                } 
+                else if (isLinux())
+                    path = root + (is64Bits() ? "linux_x64/" : "linux_x86/");
+                else if (isSolaris()) {
+                    if (isSparc()) {	
+                        path = root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/");
+                    } else {
+                        path = root + (is64Bits() ? "sunos_x64/" : "sunos_x86/");
+                    }	
+                }
+                if (path != null) {
+                    ret.add(path + "lib" + name + ".so");
+                    ret.add(path + name + ".so");
+                }
+            }
 		}
 		if (ret.isEmpty())
 			throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
