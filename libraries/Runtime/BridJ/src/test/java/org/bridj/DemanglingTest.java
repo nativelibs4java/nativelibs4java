@@ -30,7 +30,7 @@ public class DemanglingTest {
 	public void gcc() {
 		demangle(
                         null,
-			"__Z17testInPlaceSquarePdj", 
+			"__Z17testInPlaceSquarePdj", // REMARK (REMI): c++filt does not accept double underscore as a prefix, I don't know if the ones in this file are intended... in the end, it should not really hurt that our demangler is too permissive
 			null, 
             ident("testInPlaceSquare"),
 			void.class, Pointer.class, int.class
@@ -263,6 +263,36 @@ public class DemanglingTest {
         // NB: with gcc, we have no info about the return type (don't know about VC6)
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, Pointer.class, Pointer.class, Pointer.class, Pointer.class);
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, "**Void", "*Void", "***Void", "**Integer");
+    }
+
+    @Test
+    public void gccMemoryShortcuts() {
+        // does VC do something similar?
+        demangle(null, "_Z15shortcutsSimplePPPPccS_S0_S1_S2_PS2_", "null shortcutsSimple(byte****, byte, byte*, byte**, byte***, byte****, byte*****)");
+    }
+
+    @Test
+    public void gccBuiltinShortcuts() {
+        // does VC do something similar?
+        //demangle(null, "_ZN1a1bI1cI1d1eEE1f", "");
+        demangle(null, "_Z25shortcutsBuiltinStdPrefixSt9exception", "null shortcutsBuiltinStdPrefix(std.exception)");
+        String str = "std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>"; //std::basic_string<char, std::char_traits<char>, std::allocator<char> > (from c++filt)
+        demangle(null, "_Z22shortcutsBuiltinStringSs", "null shortcutsBuiltinString(" + str + ")");
+        String iostream = "std.basic_iostream<byte, std.char_traits<byte>>"; //std::basic_iostream<char, std::char_traits<char> >
+        String istream = iostream.replaceAll("iostream", "istream");
+        String ostream = iostream.replaceAll("iostream", "ostream");
+        demangle(null, "_Z7streamsSiSoSd", "null streams(" + istream + ", " + ostream + ", " + iostream + ")");
+    }
+
+    @Test
+    public void gccTrickyMemoryAndBuiltinShortcutsWithTemplates() {
+        demangle(null, "_Z3blaPN7Helping4HandE", "null bla(Helping.Hand*)"); // validate the output syntax for pointers to namespaced types
+        String vectorOfXYZ = "std.vector<XYZ, std.allocator<XYZ>>";
+        String str = "std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>";
+        demangle(null, "_ZN3bla5inputEPSt6vectorISsSaISsEEPS0_IPN7Helping4HandESaIS6_EE",
+                // bla::input(std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >*, std::vector<Helping::Hand*, std::allocator<Helping::Hand*> >*)
+                // bla::input(vectorof(string)*, vectorof(Helping::Hand*)*)
+                "null bla.input(" + vectorOfXYZ.replaceAll("XYZ", str) + "*, " + vectorOfXYZ.replaceAll("XYZ", "Helping.Hand*") + "*)");
     }
 
     static IdentLike ident(String name) {
