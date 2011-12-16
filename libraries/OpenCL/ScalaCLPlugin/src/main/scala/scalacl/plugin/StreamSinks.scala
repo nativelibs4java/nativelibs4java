@@ -192,6 +192,7 @@ trait StreamSinks extends Streams {
         
       val builderGen = createBuilderGen(value)
       import builderGen._
+
       
       val a = newVariable(unit, "out", currentOwner, pos, false, builderCreation)
       loop.preOuter += a.definition
