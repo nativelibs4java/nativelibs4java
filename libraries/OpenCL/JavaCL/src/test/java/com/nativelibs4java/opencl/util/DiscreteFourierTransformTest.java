@@ -4,7 +4,6 @@
  */
 
 package com.nativelibs4java.opencl.util;
-import org.junit.Ignore;
 import org.apache.commons.math.complex.Complex;
 import com.nativelibs4java.opencl.util.fft.*;
 import com.nativelibs4java.opencl.*;
@@ -122,8 +121,6 @@ public class DiscreteFourierTransformTest {
         }
     }
 
-    
-    @Ignore
     @Test
     public void testDoubleFFTValues() throws IOException {
         testDoubleValues("Double FFT", new DoubleFFTPow2());
@@ -148,7 +145,6 @@ public class DiscreteFourierTransformTest {
     public void testFloatDFTInverse() throws IOException, CLException {
         testFloatTransformer("Float DFT Inverse", new FloatDFT());
     }
-    @Ignore
     @Test
     public void testDoubleFFTInverse() throws IOException, CLException {
         testDoubleTransformer("Double FFT Inverse", new DoubleFFTPow2());

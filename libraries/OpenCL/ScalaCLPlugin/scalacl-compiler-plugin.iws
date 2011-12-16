@@ -59,10 +59,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="StreamOps.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TraversalOps.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TraversalOps.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="144" column="22" selection-start="4178" selection-end="4185" vertical-scroll-proportion="-6.923077">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StreamOps.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="350" column="5" selection-start="13401" selection-end="13401" vertical-scroll-proportion="-11.423077">
+            <state line="340" column="8" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.27222222">
               <folding />
             </state>
           </provider>
@@ -80,61 +89,7 @@
       <file leaf-file-name="StreamSources.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="130" column="12" selection-start="4125" selection-end="4125" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Streams.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="289" column="21" selection-start="9476" selection-end="9476" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PluginNames.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="103" column="2" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OpenCLConverter.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/OpenCLConverter.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="6" selection-start="2014" selection-end="2014" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ScalaCLFunctionsTransformComponent.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/ScalaCLFunctionsTransformComponent.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="265" column="28" selection-start="10269" selection-end="10269" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StreamSinks.scala" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="195" column="6" selection-start="6878" selection-end="6878" vertical-scroll-proportion="0.74110675">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StreamTransformComponent.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamTransformComponent.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="255" column="38" selection-start="10955" selection-end="10955" vertical-scroll-proportion="0.0">
+            <state line="141" column="43" selection-start="4755" selection-end="4755" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -144,6 +99,15 @@
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state line="479" column="20" selection-start="15275" selection-end="15275" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StreamSinks.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="198" column="38" selection-start="7060" selection-end="7073" vertical-scroll-proportion="-15.0">
               <folding />
             </state>
           </provider>
@@ -168,10 +132,10 @@
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/TraversalOps.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamTransformComponent.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala" />
       </list>
     </option>
   </component>
@@ -337,40 +301,6 @@
               <option name="myItemId" value="scalacl" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="plugin" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ScalaCLFunctionsTransformComponent.scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scalacl-compiler-plugin" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ScalaCLPlugin" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scalacl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -399,7 +329,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="recentsLimit" value="5" />
     <property name="MemberChooser.sorted" value="false" />
-    <property name="options.lastSelected" value="preferences.pluginManager" />
+    <property name="options.lastSelected" value="preferences.externalResources" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -619,12 +549,12 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="673" y="22" width="1007" height="1024" extended-state="0" />
-    <editor active="false" />
+    <frame x="0" y="22" width="1680" height="1024" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3289183" sideWeight="0.99376947" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3289183" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.126916" sideWeight="0.67108166" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.205298" sideWeight="0.0" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39955848" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -637,7 +567,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29749477" sideWeight="0.67108166" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.329859" sideWeight="0.67108166" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3289183" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -700,9 +630,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamTransformComponent.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="76" selection-start="841" selection-end="848" vertical-scroll-proportion="0.028846154">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-compiler/2.9.1/scala-compiler-2.9.1.jar!/scala/tools/nsc/symtab/StdNames.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="342" column="8" selection-start="26198" selection-end="26198" vertical-scroll-proportion="0.3666027">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="103" column="2" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -711,6 +655,22 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="187" column="6" selection-start="20857" selection-end="20862" vertical-scroll-proportion="0.34932822">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="198" column="38" selection-start="7060" selection-end="7073" vertical-scroll-proportion="-15.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="103" column="4" selection-start="2802" selection-end="2802" vertical-scroll-proportion="0.0">
+          <folding>
+            <marker date="1321830452000" expanded="true" signature="-1:-1" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -728,6 +688,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="141" column="43" selection-start="4755" selection-end="4755" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/TreeBuilders.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="479" column="20" selection-start="15275" selection-end="15275" vertical-scroll-proportion="0.0">
@@ -737,56 +704,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamOps.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="350" column="5" selection-start="13401" selection-end="13401" vertical-scroll-proportion="-11.423077">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSources.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="130" column="12" selection-start="4125" selection-end="4125" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamTransformComponent.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="255" column="38" selection-start="10955" selection-end="10955" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Streams.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="289" column="21" selection-start="9476" selection-end="9476" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/PluginNames.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="103" column="2" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/OpenCLConverter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="6" selection-start="2014" selection-end="2014" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/ScalaCLFunctionsTransformComponent.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="265" column="28" selection-start="10269" selection-end="10269" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/StreamSinks.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="6" selection-start="6878" selection-end="6878" vertical-scroll-proportion="0.74110675">
+        <state line="340" column="8" selection-start="13231" selection-end="13231" vertical-scroll-proportion="0.27222222">
           <folding />
         </state>
       </provider>

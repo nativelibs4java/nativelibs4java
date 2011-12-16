@@ -113,29 +113,6 @@
 
   <build>
   	<plugins>
-  		<!--plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>native-maven-plugin</artifactId>
-			<version>1.0-alpha-7</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>javah</goal>
-				</goals>
-			  </execution>
-			</executions>
-			<configuration>
-			<javahOutputDirectory>${basedir}/src/main/cpp/bridj</javahOutputDirectory>
-			  <javahClassNames>
-				<javahClassName>org.bridj.JNI</javahClassName>
-				<javahClassName>org.bridj.BridJ</javahClassName>
-				<javahClassName>org.bridj.Pointer</javahClassName>
-				<javahClassName>org.bridj.Platform</javahClassName>
-				<javahClassName>org.bridj.objc.ObjCJNI</javahClassName>
-			  </javahClassNames>
-			</configuration>
-		</plugin-->
-		
   		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
@@ -523,71 +500,6 @@
 
   </build>
   
-  <profiles>
-  	<profile>
-  		<id>windows</id>
-		<activation>
-			<os>
-				<family>windows</family>
-			</os>
-		</activation>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
-					<executions>
-					  <execution>
-					  	<phase>generate-resources</phase>
-						<goals>
-						  <goal>exec</goal>
-						</goals>
-					  </execution>
-					</executions>
-					<configuration>
-					  <executable>BuildNative.cmd</executable>
-					  <!--arguments>
-						<argument>clean</argument>
-					  </arguments-->
-					</configuration>
-			  </plugin>
-			</plugins>
-		</build>
-	</profile>
-	<profile>
-		<id>unix</id>
-		<activation>
-			<os>
-				<family>unix</family>
-			</os>
-		</activation>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
-					<executions>
-					  <execution>
-					  	<phase>generate-resources</phase>
-						<goals>
-						  <goal>exec</goal>
-						</goals>
-						
-						<configuration>
-						  <executable>BuildNative</executable>
-						  <!--arguments>
-							<argument>clean</argument>
-						  </arguments-->
-						</configuration>
-					  </execution>
-					</executions>
-			  </plugin>
-			</plugins>
-		</build>
-	</profile>
-  </profiles>
   <reporting>
     <plugins>
 		<plugin>
