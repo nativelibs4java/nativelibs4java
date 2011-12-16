@@ -586,13 +586,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 else {
                     for (Iterator<String> it = extraBuildOptions.iterator(); it.hasNext();) {
                         String opt = it.next();
-                        if ((opt.startsWith("-O") || opt.startsWith("-g:")) && !DEBUG_ARGS.contains(opt)) {
+                        if ((opt.startsWith("-O") || opt.startsWith("-g:")) && !JavaCL.DEBUG_COMPILER_FLAGS.contains(opt)) {
                             log(Level.WARNING, "Debug mode : removed argument \"" + opt + "\" from OpenCL compiler command-line arguments");
                             it.remove();
                         }
                     }
-                    extraBuildOptions.addAll(DEBUG_ARGS);
-                    log(Level.ALL, "Debug mode : added OpenCL compiler command-line arguments \"" + StringUtils.implode(DEBUG_ARGS, " ") + "\"");
+                    extraBuildOptions.addAll(JavaCL.DEBUG_COMPILER_FLAGS);
+                    log(Level.ALL, "Debug mode : added OpenCL compiler command-line arguments \"" + StringUtils.implode(JavaCL.DEBUG_COMPILER_FLAGS, " ") + "\"");
                 }
             }
             for (String option : extraBuildOptions)
