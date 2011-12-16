@@ -5,6 +5,7 @@
 
 package org.bridj;
 
+import org.bridj.ann.Name;
 import org.bridj.ann.Library;
 //import com.sun.jna.Native;
 import java.util.Collections;
@@ -35,6 +36,9 @@ public class FunctionTest {
 	}
     public native int testAddDyncall(int a, int b);
     
+    @Name("testAddDyncall")
+    public native int fooBar(int a, int b);
+    
     public enum ETest implements ValuedEnum<ETest> {
     	eFirst(0),
     	eSecond(1),
@@ -59,6 +63,12 @@ public class FunctionTest {
     @Test
     public void add() {
 		int res = testAddDyncall(10, 4);
+		assertEquals(14, res);
+    }
+
+    @Test
+    public void renamedAdd() {
+		int res = fooBar(10, 4);
 		assertEquals(14, res);
     }
 
