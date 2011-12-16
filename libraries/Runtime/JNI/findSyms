@@ -1,0 +1,8 @@
+DIR="/System/Library/Frameworks/JavaVM.framework/Libraries/"
+
+# for F in $DIR/*.jnilib $DIR/*.dylib ; do
+
+for F in `find $DIR -name '*.jnilib' -or -name '*.dylib'` ; do
+	echo $F
+	nm $F | grep JNI_ ;
+done
