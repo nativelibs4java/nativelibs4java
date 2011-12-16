@@ -22,6 +22,7 @@ import org.bridj.ValuedEnum;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
+import org.bridj.ann.Name;
 import org.bridj.ann.Template;
 import org.bridj.util.AnnotationUtils;
 import static org.bridj.util.AnnotationUtils.*;
@@ -203,6 +204,13 @@ public abstract class Demangler {
 		public boolean matchesParam(Object param, Annotations annotations);
 	}
 
+    public static String getMethodName(Method method) {
+        Name nameAnn = method.getAnnotation(Name.class);
+        if (nameAnn != null)
+            return nameAnn.value();
+
+        return method.getName();
+    }
 
 	public static class Symbol {
 		final String symbol;
@@ -266,8 +274,8 @@ public abstract class Demangler {
 			}
 			return style;
 		}
-		public boolean matches(Method method) {
-			if (!symbol.contains(method.getName()))
+        public boolean matches(Method method) {
+			if (!symbol.contains(getMethodName(method)))
 				return false;
 		
 			//if (!Modifier.isStatic(method.getModifiers()) && !symbol.contains(method.getDeclaringClass().getSimpleName()))
@@ -891,7 +899,7 @@ public abstract class Demangler {
 			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass(), annotations(method)))
 				return false;
 			
-			if (getMemberName() != null && !getMemberName().toString().equals(method.getName()))
+			if (getMemberName() != null && !getMemberName().toString().equals(getMethodName(method)))
 				return false;
 			
 			if (getValueType() != null && !getValueType().matches(method.getReturnType(), annotations(method)))
