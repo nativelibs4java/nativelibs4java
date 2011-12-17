@@ -37,18 +37,32 @@ BUILD_DIR=
 svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
 #svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
-echo "# Making dyncall"
+echo "# Configuring dyncall"
 cd "$DYNCALL_HOME" || ( echo "Please set DYNCALL_HOME" && exit 1 )
 
 TARGET=${TARGET:-default}
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}
+
 case $TARGET in
 	android)
 		NEEDS_TEST=0
 		SHAREDLIB_SUFFIX=so
 		
+		if [[ ! -d "$ANDROID_NDK_HOME" ]] 
+		then
+			echo "ANDROID_NDK_HOME not set and $ANDROID_NDK_HOME does not exist" 
+			exit 1
+		fi
+		
 		ANDROID_PREBUILT_DIR=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt
 		
+		if [[ ! -d "$ANDROID_PREBUILT_DIR" ]] 
+		then
+			echo "Cannot find $ANDROID_PREBUILT_DIR" 
+			exit 1
+		fi
+		
+		echo sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
 		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
 		;;
 	android-emulator)
@@ -85,16 +99,17 @@ if [[ -z "$SHAREDLIB_SUFFIX" ]] ; then
 	fi ;
 fi
 
-$MAKE_CMD $@ || exit 1
+echo "# Making dyncall with '$MAKE_CMD $@'"
+$MAKE_CMD $@ || ( echo "Failed to make dyncall" && exit 1 )
 
-echo "# Making bridj"
+echo "# Making BridJ"
 cd "$CURR"
-$MAKE_CMD $@ || exit 1
+$MAKE_CMD $@ || ( echo "Failed to make BridJ" && exit 1 )
 
 if [[ "$NEEDS_TEST" == "1" ]] ; then
 	echo "# Making test library"
 	cd "../../../test/cpp/test"
-	$MAKE_CMD $@ || exit 1 ;
+	$MAKE_CMD $@ || ( echo "Failed to make BridJ's test library" && exit 1 ) ;
 fi
 
 cd "$CURR"
