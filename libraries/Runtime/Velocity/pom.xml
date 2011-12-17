@@ -5,7 +5,7 @@
   
   <groupId>com.nativelibs4java</groupId>
   <artifactId>maven-velocity-plugin</artifactId>
-  <version>0.6</version>
+  <version>0.7-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <url>http://maven.apache.org</url>
   <name>Maven Velocity Code Generator</name>

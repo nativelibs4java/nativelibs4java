@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.List;
 import org.apache.velocity.*;
 import org.apache.velocity.app.Velocity;
@@ -40,13 +41,13 @@ import org.apache.velocity.app.Velocity;
 public class VelocityMojo
     extends AbstractMojo
 {
-	/**
-     * Executions of the velocity engine.
-	 * Each execution corresponds to one template and a set of parameters
-     * @required
+    /**
+     * Extra properties
+     * @parameter
+     * @optional
      */
-    //private List<Template> templates;
-
+    private Map<String, String> properties;
+     
 	/**
      * Source folder for velocity templates
      * @parameter expression="${project.build.directory}/../src/"
@@ -214,6 +215,12 @@ public class VelocityMojo
                 context.put("primitives", Primitive.getPrimitives());
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
                 context.put("bridJPrimitives", Primitive.getBridJPrimitives());
+                
+                if (properties != null) {
+                	for (Map.Entry<String, String> e : properties.entrySet()) {
+						context.put(e.getKey(), e.getValue());
+					}
+				}
                 
                 StringWriter out = new StringWriter();
                 template.merge(context, out);
