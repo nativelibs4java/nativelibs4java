@@ -525,49 +525,12 @@
   
   <profiles>
   	<profile>
-  		<id>windows</id>
-		<activation>
-			<property>
-				<name>native</name>
-			</property>
-			<os>
-				<family>windows</family>
-			</os>
-		</activation>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
-					<executions>
-					  <execution>
-					  	<phase>generate-resources</phase>
-						<goals>
-						  <goal>exec</goal>
-						</goals>
-					  </execution>
-					</executions>
-					<configuration>
-					  <executable>BuildNative.cmd</executable>
-					  <!--arguments>
-						<argument>clean</argument>
-					  </arguments-->
-					</configuration>
-			  </plugin>
-			</plugins>
-		</build>
-	</profile>
-	<profile>
-		<id>unix</id>
+		<id>native</id>
 		<activation>
 			<activeByDefault>false</activeByDefault>
 			<property>
 				<name>native</name>
 			</property>
-			<os>
-				<family>unix</family>
-			</os>
 		</activation>
 		<build>
 			<plugins>
@@ -583,13 +546,11 @@
 						</goals>
 						
 						<configuration>
-						  <executable>bash</executable>
+						  <executable>${basedir}/BuildNative</executable>
 						  <workingDirectory>${basedir}</workingDirectory>
-						  <!--outputFile>BuildNative.out</outputFile-->
-						  <arguments>
+						  <!--arguments>
 						  	<argument>${basedir}/BuildNative</argument>
-							<!--argument>clean</argument-->
-						  </arguments>
+						  </arguments-->
 						</configuration>
 					  </execution>
 					</executions>
