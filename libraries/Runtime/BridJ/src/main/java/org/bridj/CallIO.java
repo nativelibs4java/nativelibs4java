@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.bridj.dyncall.DyncallLibrary.DCstruct;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -10,6 +11,7 @@ import static org.bridj.util.Utils.*;
 interface CallIO {
 	Object newInstance(long address);
 	void checkArg(Object arg);
+    long getDCStruct();
 
     public static class Utils {
         public static CallIO createPointerCallIOToTargetType(Type targetType) {
@@ -26,7 +28,9 @@ interface CallIO {
                     if (!(e instanceof FlagSet))
                         enumClass.cast(e);
                 }
-                
+                public long getDCStruct() {
+                    return 0;
+                }
             };
         }
         //static final Map<Type, CallIO> instances = new HashMap<Type, CallIO>();
@@ -68,14 +72,19 @@ interface CallIO {
 		public void checkArg(Object ptr) {
 			type.cast(ptr);
 		}
+        public long getDCStruct() {
+            return 0;
+        }
 	}
 
 	public static class NativeObjectHandler implements CallIO {
-		Class<? extends NativeObject> nativeClass;
-		Type nativeType;
-		public NativeObjectHandler(Class<? extends NativeObject> type, Type t) {
+		final Class<? extends NativeObject> nativeClass;
+		final Type nativeType;
+        final Pointer<DCstruct> pStruct;
+		public NativeObjectHandler(Class<? extends NativeObject> type, Type t, Pointer<DCstruct> pStruct) {
 			this.nativeClass = type;
 			this.nativeType = t;
+            this.pStruct = pStruct;
 		}
 		//@Override
 		public NativeObject newInstance(long address) {
@@ -86,6 +95,9 @@ interface CallIO {
 			if (ptr == null)
 				throw new IllegalArgumentException("Native object of type " + nativeClass.getName() + " passed by value cannot be given a null value !");
 		}
+        public long getDCStruct() {
+            return Pointer.getPeer(pStruct);
+        }
 	}
 	
 	public static class GenericPointerHandler implements CallIO {
@@ -106,5 +118,8 @@ interface CallIO {
 			//	pointer.setIO(pointerIO);
 			// TODO check existing pointerio !
 		}
+        public long getDCStruct() {
+            return 0;
+        }
 	}
 }

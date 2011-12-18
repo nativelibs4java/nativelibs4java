@@ -335,7 +335,16 @@ public class MethodCallInfo {
         	return ValueType.eIntFlagSet;
         }
         if (NativeObject.class.isAssignableFrom(c)) {
-        	addCallIO(new CallIO.NativeObjectHandler((Class<? extends NativeObject>)c, t));
+            Pointer<DCstruct> pStruct = null;
+            if (StructObject.class.isAssignableFrom(c)) {
+                StructIO io = StructIO.getInstance(c, t);
+                try {
+                    pStruct = DyncallStruct.buildDCstruct(io);
+                } catch (Throwable th) {
+                    BridJ.log(Level.SEVERE, "Unable to create low-level struct metadata for " + Utils.toString(t) + " : won't be able to use it as a by-value function argument.", th);
+                }
+            }
+        	addCallIO(new CallIO.NativeObjectHandler((Class<? extends NativeObject>)c, t, pStruct));
         	direct = false;
         	return ValueType.eNativeObjectValue;
         }

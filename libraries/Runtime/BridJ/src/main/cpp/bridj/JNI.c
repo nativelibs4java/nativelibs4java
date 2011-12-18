@@ -36,6 +36,7 @@ jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
 //jmethodID gNewFlagSetMethod = NULL;
 jmethodID gThrowNewLastErrorMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
+jmethodID gGetCallIOStructMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
 jmethodID gLogCallMethod = NULL;
 jfieldID gLogCallsField = NULL;
@@ -195,6 +196,8 @@ void initMethods(JNIEnv* env) {
 		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(I" STRING_SIG ")V");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
+		gGetCallIOStructMethod = (*env)->GetMethodID(env, gCallIOClass, "getStruct", "()J");
+		
 		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(" METHOD_SIG ")V");
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
 		gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
@@ -282,6 +285,10 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 	addr = PTR_TO_JLONG(ptr);
 	instance = (*env)->CallObjectMethod(env, callIO, gNewCallIOInstance, addr);
 	return instance;
+}
+DCstruct* getStructFromIO(JNIEnv *env, jobject callIO) {
+	jlong peer = (*env)->CallLongMethod(env, callIO, gGetCallIOStructMethod);
+	return (DCstruct*)JLONG_TO_PTR(peer);
 }
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {

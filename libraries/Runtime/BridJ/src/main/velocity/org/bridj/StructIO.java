@@ -448,6 +448,8 @@ public class StructIO {
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
 	}
+    List<AggregatedFieldDesc> aggregatedFields;
+    
 	protected FieldDesc[] computeStructLayout() {
 		List<FieldDecl> fieldDecls = listFields();
 		orderFields(fieldDecls);
@@ -470,7 +472,7 @@ public class StructIO {
         Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
-        List<AggregatedFieldDesc> aggregatedFields = new ArrayList<AggregatedFieldDesc>();
+        aggregatedFields = new ArrayList<AggregatedFieldDesc>();
         for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
 			AggregatedFieldDesc aggregatedField = aggregateFields(fieldGroup);
 			if (aggregatedField != null)

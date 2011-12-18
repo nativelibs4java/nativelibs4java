@@ -189,6 +189,7 @@ void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject);
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
+DCstruct* getStructFromIO(JNIEnv *env, jobject callIO);
 
 void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);

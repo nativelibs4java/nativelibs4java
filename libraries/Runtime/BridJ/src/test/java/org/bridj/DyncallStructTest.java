@@ -33,15 +33,19 @@ public class DyncallStructTest {
     @Test
     public void testSimpleStruct() {
         Pointer<DCstruct> s = dcNewStruct(5, DEFAULT_ALIGNMENT);
-        dcStructField(s, DC_SIGCHAR_INT, DEFAULT_ALIGNMENT, 1);
-        dcStructField(s, DC_SIGCHAR_LONGLONG, DEFAULT_ALIGNMENT, 2);
-        dcStructField(s, DC_SIGCHAR_SHORT, DEFAULT_ALIGNMENT, 1);
-        dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 3);
-        dcStructField(s, DC_SIGCHAR_FLOAT, DEFAULT_ALIGNMENT, 1);
-        dcCloseStruct(s);
-        
-        long size = dcStructSize(s);
-        assertEquals(BridJ.sizeOf(SimpleStruct.class), size);
+        try {
+            dcStructField(s, DC_SIGCHAR_INT, DEFAULT_ALIGNMENT, 1);
+            dcStructField(s, DC_SIGCHAR_LONGLONG, DEFAULT_ALIGNMENT, 2);
+            dcStructField(s, DC_SIGCHAR_SHORT, DEFAULT_ALIGNMENT, 1);
+            dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 3);
+            dcStructField(s, DC_SIGCHAR_FLOAT, DEFAULT_ALIGNMENT, 1);
+            dcCloseStruct(s);
+
+            long size = dcStructSize(s);
+            assertEquals(BridJ.sizeOf(SimpleStruct.class), size);
+        } finally {
+            dcFreeStruct(s);
+        }
     }
             
 }
