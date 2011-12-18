@@ -5,17 +5,17 @@ then
 	admin/checkout_and_patch_dyncall.sh dyncall src/main/cpp/bridj/dyncall.diff || ( echo "Failed to checkout and patch dyncall" && exit 1 )
 fi
 
-if [[ -z "$TARGETS" ]] ; then
+if [[ -z "$BRIDJ_TARGETS" ]] ; then
 	if [[ -d /Applications ]] ; then
-		TARGETS="default ios android" ;
+		BRIDJ_TARGETS="default ios android" ;
 	else
-		TARGETS="default" ;
+		BRIDJ_TARGETS="default" ;
 	fi ;
 fi
 
 cd src/main/cpp/bridj
 
-for TARGET in $TARGETS ; do
+for TARGET in $BRIDJ_TARGETS ; do
 	if [[ "$DEBUG" == "1" ]] ; then
 		TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || exit 1 ;
 	else 
