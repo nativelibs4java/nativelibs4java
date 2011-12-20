@@ -339,7 +339,7 @@ public class MethodCallInfo {
             if (StructObject.class.isAssignableFrom(c)) {
                 StructIO io = StructIO.getInstance(c, t);
                 try {
-                    pStruct = DyncallStruct.buildDCstruct(io);
+                    pStruct = DyncallStructs.buildDCstruct(io);
                 } catch (Throwable th) {
                     BridJ.log(Level.SEVERE, "Unable to create low-level struct metadata for " + Utils.toString(t) + " : won't be able to use it as a by-value function argument.", th);
                 }
@@ -450,13 +450,13 @@ public class MethodCallInfo {
                 direct = false;
             	break;
             case eNativeObjectValue:
-                if (parameterType.equals(declaringClass)) {
-                    dcChar = DC_SIGCHAR_POINTER;
-                    javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
-                    // javaChar = "Lorg/bridj/Pointer;";
-                    direct = false;
-                    break;
-                }
+                dcChar = DC_SIGCHAR_STRUCT; // TODO : unroll struct signature ?
+                javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
+                direct = false;
+//              if (parameterType.equals(declaringClass)) {
+//                    // special case of self-returning pointers
+//                    dcChar = DC_SIGCHAR_POINTER;
+                break;
 			case eEllipsis:
 				javaChar = "[Ljava/lang/Object;";
 				dcChar = '?';

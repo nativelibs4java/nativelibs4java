@@ -219,7 +219,7 @@ public class NativeLibrary {
         } catch (Exception ex) {
             assert BridJ.log(Level.SEVERE, "Failed to scan symbols of library '" + path + "'", ex);
         }
-		return Collections.unmodifiableCollection(nameToSym.values());
+		return nameToSym == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(nameToSym.values());
 	}
 	public String getSymbolName(long address) {
 		if (addrToName == null && getSymbolsHandle() != 0)//Platform.isUnix())
@@ -251,7 +251,10 @@ public class NativeLibrary {
 					return symbol;		
 				}
 			}
-			scanSymbols();
+            scanSymbols();
+            if (nameToSym == null)
+                return null;
+            
 			symbol = nameToSym.get(name);
 			if (addrToName == null) {
 				if (symbol == null) {

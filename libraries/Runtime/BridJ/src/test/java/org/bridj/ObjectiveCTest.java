@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
@@ -157,7 +158,7 @@ public class ObjectiveCTest {
         test_NSNonExistentTestClass_add(new ObjCProxy(proxy));
     }
     
-    
+    @Ignore
     @Test
     public void testProxyFloat() {
         if (!mac) return;
@@ -180,8 +181,9 @@ public class ObjectiveCTest {
 		public abstract void callback(Pointer<NSEvent> event);
 	}
 
-   @Test
-   public void testGlobalNSEventHook() throws Exception {
+    @Ignore
+    @Test
+    public void testGlobalNSEventHook() throws Exception {
     	if (!mac) return;
         BridJ.register(NSEvent.class);
 

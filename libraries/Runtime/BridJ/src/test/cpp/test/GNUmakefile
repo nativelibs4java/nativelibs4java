@@ -28,6 +28,7 @@ INSTALL_LIB	 = 1
 # uses some dyncall headers - no other dependencies.
 
 UNITS += test 
+UNITS += structs 
 UNITS += templates
 ifdef BUILD_OS_darwin
 UNITS += objctest

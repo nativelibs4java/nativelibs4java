@@ -98,6 +98,9 @@ public class StructIO {
 		}
 		return c;
     }
+    public static StructIO getInstance(Type structType) {
+        return getInstance(Utils.getClass(structType), structType);
+    }
     public static StructIO getInstance(Class structClass, Type structType) {
     	synchronized (structIOs) {
             StructIO io = structIOs.get(structType == null ? structClass : structType);
@@ -278,6 +281,10 @@ public class StructIO {
 			synchronized (this) {
 				if (fields == null) {
 					fields = computeStructLayout();
+                    if (fields.length == 0) {
+                        if (BridJ.verbose)
+                            BridJ.log(Level.INFO, "No fields found in " + Utils.toString(structType) + " (maybe they weren't declared as public ?)");
+                    }
 					customizer.afterBuild(this);
 					if (BridJ.debug)
 						BridJ.log(Level.INFO, describe());
@@ -448,7 +455,14 @@ public class StructIO {
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
 	}
-    List<AggregatedFieldDesc> aggregatedFields;
+    private List<AggregatedFieldDesc> aggregatedFields;
+
+    public List<AggregatedFieldDesc> getAggregatedFields() {
+        build();
+        return aggregatedFields;
+    }
+    
+    
     
 	protected FieldDesc[] computeStructLayout() {
 		List<FieldDecl> fieldDecls = listFields();

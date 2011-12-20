@@ -37,6 +37,7 @@ jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
 jmethodID gThrowNewLastErrorMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 jmethodID gGetCallIOStructMethod = NULL;
+jmethodID gCallIOGetPeerMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
 jmethodID gLogCallMethod = NULL;
 jfieldID gLogCallsField = NULL;
@@ -196,7 +197,8 @@ void initMethods(JNIEnv* env) {
 		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(I" STRING_SIG ")V");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
-		gGetCallIOStructMethod = (*env)->GetMethodID(env, gCallIOClass, "getStruct", "()J");
+		gGetCallIOStructMethod = (*env)->GetMethodID(env, gCallIOClass, "getDCStruct", "()J");
+		gCallIOGetPeerMethod = (*env)->GetMethodID(env, gCallIOClass, "getPeer", "(" OBJECT_SIG ")J");
 		
 		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(" METHOD_SIG ")V");
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
@@ -288,6 +290,10 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 }
 DCstruct* getStructFromIO(JNIEnv *env, jobject callIO) {
 	jlong peer = (*env)->CallLongMethod(env, callIO, gGetCallIOStructMethod);
+	return (DCstruct*)JLONG_TO_PTR(peer);
+}
+DCstruct* getNativeObjectPointerWithIO(JNIEnv *env, jobject instance, jobject callIO) {
+	jlong peer = (*env)->CallLongMethod(env, callIO, gCallIOGetPeerMethod, instance);
 	return (DCstruct*)JLONG_TO_PTR(peer);
 }
 
@@ -406,13 +412,19 @@ void JNICALL Java_org_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 
 jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jstring libPath)
 {
-	DLSyms* pSyms;
+	// Force protection (override global protection switch)
+	jboolean gProtected = JNI_TRUE;
+	BEGIN_TRY_CALL(env);
+	
+	DLSyms* pSyms = NULL;
 	const char* libPathStr;
 	libPathStr = GET_CHARS(libPath);
 	pSyms = dlSymsInit(libPathStr);
 	RELEASE_CHARS(libPath, libPathStr);
 	
+	END_TRY_CALL(env);	
 	return PTR_TO_JLONG(pSyms);
+	
 }
 void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {

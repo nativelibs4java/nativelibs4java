@@ -12,6 +12,7 @@ interface CallIO {
 	Object newInstance(long address);
 	void checkArg(Object arg);
     long getDCStruct();
+    long getPeer(Object o);
 
     public static class Utils {
         public static CallIO createPointerCallIOToTargetType(Type targetType) {
@@ -31,6 +32,11 @@ interface CallIO {
                 public long getDCStruct() {
                     return 0;
                 }
+
+                public long getPeer(Object o) {
+                    return 0;
+                }
+                
             };
         }
         //static final Map<Type, CallIO> instances = new HashMap<Type, CallIO>();
@@ -75,6 +81,10 @@ interface CallIO {
         public long getDCStruct() {
             return 0;
         }
+
+        public long getPeer(Object o) {
+            return Pointer.getPeer((Pointer)o);
+        }
 	}
 
 	public static class NativeObjectHandler implements CallIO {
@@ -98,6 +108,9 @@ interface CallIO {
         public long getDCStruct() {
             return Pointer.getPeer(pStruct);
         }
+        public long getPeer(Object o) {
+            return Pointer.getAddress((NativeObject)o, nativeClass);
+        }
 	}
 	
 	public static class GenericPointerHandler implements CallIO {
@@ -120,6 +133,10 @@ interface CallIO {
 		}
         public long getDCStruct() {
             return 0;
+        }
+
+        public long getPeer(Object o) {
+            return Pointer.getPeer((Pointer)o);
         }
 	}
 }
