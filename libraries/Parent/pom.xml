@@ -256,7 +256,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<removeExistingSignatures>true</removeExistingSignatures>
 				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
 			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
-			  <alias>ochafik2009</alias>
+			  <alias>ochafik2012</alias>
 			  <!--   
 				  mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package  
 				  <storepass>yourstorepassword</storepass>

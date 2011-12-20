@@ -15,8 +15,8 @@
 	<resources>
 		<j2se version="1.5+"/>
 		<extension name="OpenCL4Java-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/OpenCL4Java.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-core/1.0-SNAPSHOT/javacl-core-1.0-SNAPSHOT.jar"/>
 		
 		<!--<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils-bridj/1.0-SNAPSHOT/javacl-bridj-utils-1.0-SNAPSHOT.jar"/>-->
 	</resources>

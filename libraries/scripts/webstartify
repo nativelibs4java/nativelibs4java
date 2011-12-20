@@ -42,7 +42,7 @@ rm -fR $TMP_DIR
 
 for J in `ls $OUT_DIR/$NAME/$PROJECT_VERSION/*.jar` ; do
 	echo Signing $J...
-	jarsigner `if [[ "$KEYSTORE_PASS" != "" ]] ; then echo "-storepass $KEYSTORE_PASS" ; fi`  -keystore ~/security/ochafik.keystore $J ochafik2009 ;
+	jarsigner `if [[ "$KEYSTORE_PASS" != "" ]] ; then echo "-storepass $KEYSTORE_PASS" ; fi`  -keystore ~/security/ochafik.keystore $J ochafik2012 ;
 done
 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>

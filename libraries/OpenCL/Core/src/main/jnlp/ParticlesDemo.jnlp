@@ -19,10 +19,10 @@
 	</security>
 	<update check="background" policy="prompt-update"/>
 	<resources>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos-bridj/1.0-SNAPSHOT/javacl-opengl-demos-bridj-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl/1.0-SNAPSHOT/javacl-opengl-1.0-SNAPSHOT-shaded.jar"/>
 		<!--
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos-bridj/1.0-SNAPSHOT/javacl-demos-bridj-1.0-SNAPSHOT.jar"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos-bridj/1.0-SNAPSHOT/javacl-opengl-demos-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos/1.0-SNAPSHOT/javacl-opengl-demos-1.0-SNAPSHOT.jar"/>
 		<jar href="http://nativelibs4java.sourceforge.net/webstart/thirdparty/swing-layout-1.0.3.jar"/>
 		
 		<property name="sun.java2d.noddraw" value="true"/>

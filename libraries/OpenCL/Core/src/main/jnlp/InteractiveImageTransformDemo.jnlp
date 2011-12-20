@@ -19,10 +19,10 @@
 	</security>
 	<update check="background" policy="prompt-update"/>
 	<resources>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo-bridj/1.0-SNAPSHOT/javacl-interactive-image-demo-bridj-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo/1.0-SNAPSHOT/javacl-interactive-image-demo-1.0-SNAPSHOT-shaded.jar"/>
 		<!--
 		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo-bridj/1.0-SNAPSHOT/javacl-interactive-image-demo-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo/1.0-SNAPSHOT/javacl-interactive-image-demo-1.0-SNAPSHOT.jar"/>
 		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
       	<property name="sun.java2d.noddraw" value="true"/>
       	-->

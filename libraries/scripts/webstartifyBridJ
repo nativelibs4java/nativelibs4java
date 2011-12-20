@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export ARCHS="linux_x86 linux_x64 win32 win64 darwin_universal"
-export ARCHS_ROOT=""
+export ARCHS_ROOT="org/bridj/lib/"
 
 export PROJECT_TITLE="BridJ"
 export PROJECT_VENDOR="Olivier Chafik"
@@ -9,5 +9,5 @@ export PROJECT_URL="http://bridj.googlecode.com/"
 export PROJECT_DESCRIPTION="Native interoperability layer that lets Java call C, C++ and Objective C efficiently yet in a very flexible way."	
 export PROJECT_VERSION="`cat Runtime/BridJ/pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
 
-sh jnaerator/scripts/webstartify Runtime/BridJ/target/bridj-$PROJECT_VERSION-shaded.jar bridj
+sh `dirname $0`/webstartify Runtime/BridJ/target/bridj-$PROJECT_VERSION.jar bridj
 

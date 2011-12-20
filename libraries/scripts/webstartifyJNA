@@ -7,7 +7,8 @@ export PROJECT_TITLE="JNA"
 export PROJECT_VENDOR="JNA (repackaged by ochafik)"
 export PROJECT_URL="http://jna.java.net/"
 export PROJECT_DESCRIPTION="Dynamic C interoperability layer for Java with many supported platforms."	
-export PROJECT_VERSION="3.2.7"
+export PROJECT_VERSION="3.3.0"
 
-sh jnaerator/scripts/webstartify ~/.m2/repository/net/java/dev/jna/jna/$PROJECT_VERSION/jna-$PROJECT_VERSION.jar jna
+sh `dirname $0`/webstartify ~/.m2/repository/net/java/dev/jna/jna/$PROJECT_VERSION/jna-$PROJECT_VERSION.jar jna
 
+mv webstart/jna/$PROJECT_VERSION/jna-darwin.jar webstart/jna/$PROJECT_VERSION/jna-darwin_universal.jar
