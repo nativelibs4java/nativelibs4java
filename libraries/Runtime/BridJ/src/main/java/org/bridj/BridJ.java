@@ -667,12 +667,17 @@ public class BridJ {
         if (libraryName == null)
             return null;
         
-        synchronized (nativeLibraryFiles) {
-            File nativeLibraryFile = nativeLibraryFiles.get(libraryName);
-            if (nativeLibraryFile == null) {
-                nativeLibraryFiles.put(libraryName, nativeLibraryFile = findNativeLibraryFile(libraryName));
+        try {
+            synchronized (nativeLibraryFiles) {
+                File nativeLibraryFile = nativeLibraryFiles.get(libraryName);
+                if (nativeLibraryFile == null) {
+                    nativeLibraryFiles.put(libraryName, nativeLibraryFile = findNativeLibraryFile(libraryName));
+                }
+                return nativeLibraryFile;
             }
-            return nativeLibraryFile;
+        } catch (Throwable th) {
+            log(Level.WARNING, "Library not found : " + libraryName);
+            return null;
         }
     }
     /**
