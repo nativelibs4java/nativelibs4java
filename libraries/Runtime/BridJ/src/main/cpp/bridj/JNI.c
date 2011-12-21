@@ -392,11 +392,11 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring 
 	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
 	if (!ret) {
 #if defined(DC_UNIX)
-		printf("# BridJ: dlopen error : %s\n", dlerror());
+		printf("# BridJ: dlopen error when loading %s : %s\n", path, dlerror());
 #elif defined(DC_WINDOWS)
 		jstring message = formatWin32ErrorMessage(env, GetLastError());
 		const char* msg = GET_CHARS(message);
-		printf("# BridJ: LoadLibrary error : %s\n", msg);
+		printf("# BridJ: LoadLibrary error when loading %s : %s\n", path, msg);
 		RELEASE_CHARS(message, msg);
 #endif
 	}
@@ -412,12 +412,13 @@ void JNICALL Java_org_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 
 jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jstring libPath)
 {
+	DLSyms* pSyms = NULL;
+	const char* libPathStr;
+
 	// Force protection (override global protection switch)
 	jboolean gProtected = JNI_TRUE;
 	BEGIN_TRY_CALL(env);
 	
-	DLSyms* pSyms = NULL;
-	const char* libPathStr;
 	libPathStr = GET_CHARS(libPath);
 	pSyms = dlSymsInit(libPathStr);
 	RELEASE_CHARS(libPath, libPathStr);
