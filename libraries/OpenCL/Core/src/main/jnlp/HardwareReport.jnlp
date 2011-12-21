@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/javacl/"
   href="HardwareReport.jnlp"
 >
 	<information>
@@ -23,7 +23,7 @@
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT-shaded.jar"/>
 		
 		<!--
-		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
+		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/javacl/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
 		<jar href="http://nativelibs4java.sourceforge.net/webstart/thirdparty/swing-layout-1.0.3.jar"/>
 		-->

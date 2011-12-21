@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/javacl/"
   href="InteractiveImageTransformDemo.jnlp"
 >
 	<information>
@@ -20,12 +20,6 @@
 	<update check="background" policy="prompt-update"/>
 	<resources>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo/1.0-SNAPSHOT/javacl-interactive-image-demo-1.0-SNAPSHOT-shaded.jar"/>
-		<!--
-		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo/1.0-SNAPSHOT/javacl-interactive-image-demo-1.0-SNAPSHOT.jar"/>
-		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
-      	<property name="sun.java2d.noddraw" value="true"/>
-      	-->
 		<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
 	</resources>
 	<application-desc 

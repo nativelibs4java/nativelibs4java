@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/javacl/"
   href="JavaCL.jnlp"
 >
 	<information>
@@ -14,11 +14,11 @@
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<extension name="OpenCL4Java-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/OpenCL4Java.jnlp"/>
+		<extension name="OpenCL4Java-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/javacl/OpenCL4Java.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-core/1.0-SNAPSHOT/javacl-core-1.0-SNAPSHOT.jar"/>
 		
-		<!--<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils-bridj/1.0-SNAPSHOT/javacl-bridj-utils-1.0-SNAPSHOT.jar"/>-->
+		<!--<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils/1.0-SNAPSHOT/javacl-utils-1.0-SNAPSHOT.jar"/>-->
 	</resources>
 	
 	<component-desc/>

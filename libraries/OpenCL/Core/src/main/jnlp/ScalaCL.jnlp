@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/javacl/"
   href="ScalaCL.jnlp"
 >
 	<information>
@@ -14,7 +14,7 @@
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
+		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/javacl/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/scalacl/0.3-SNAPSHOT/scalacl-0.3-SNAPSHOT.jar"/>
 	</resources>
 	

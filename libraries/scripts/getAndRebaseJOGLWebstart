@@ -1,0 +1,51 @@
+#!/bin/bash
+
+CODEBASE=http://nativelibs4java.sourceforge.net/webstart/thirdparty/jogamp/
+PLATFORMS="linux-amd64 linux-i586 macosx-universal solaris-amd64 solaris-i586 windows-amd64 windows-i586"
+JOGAMP_WEBSTART=http://jogamp.org/deployment/webstart
+
+OUTPUT_DIR=jogamp
+
+rm -fR $OUTPUT_DIR
+mkdir -p $OUTPUT_DIR/jar
+
+
+# Download JNLPs
+wget -P $OUTPUT_DIR \
+	$JOGAMP_WEBSTART/jogl-all-awt.jnlp \
+	$JOGAMP_WEBSTART/gluegen-rt.jnlp \
+|| ( echo "Failed to download JNLPs" && exit 1 )
+
+# Rebase JNLPs
+for F in `ls $OUTPUT_DIR/*.jnlp` ; do
+	echo "Rebasing '$F'..."
+	ESCAPED_CODEBASE=`echo $CODEBASE | sed -E 's/\\//\\\\\//g'`
+	cat $F | sed -E "s/codebase=\".*\"/codebase=\"$ESCAPED_CODEBASE\"/" > $F.rebased \
+	|| ( echo "Failed to rebase $F" && exit 1 )
+	rm $F
+	mv $F.rebased $F
+done
+
+# Download JARs
+wget -P $OUTPUT_DIR/jar \
+	$JOGAMP_WEBSTART/jar/jogl.all.jar \
+	$JOGAMP_WEBSTART/jar/gluegen-rt.jar \
+|| ( echo "Failed to download non-native JARs" && exit 1 )
+for P in $PLATFORMS
+do 
+	wget -P $OUTPUT_DIR/jar \
+		$JOGAMP_WEBSTART/jar/jogl-all-natives-$P.jar \
+		$JOGAMP_WEBSTART/jar/gluegen-rt-natives-$P.jar \
+	|| ( echo "Failed to download natives for $P" && exit 1 )
+done
+
+# Sign all JARs
+for J in `ls $OUTPUT_DIR/jar/*.jar`
+do
+	echo Signing $J...
+	jarsigner `if [[ "$KEYSTORE_PASS" != "" ]] ; then echo "-storepass $KEYSTORE_PASS" ; fi`  -keystore ~/security/ochafik.keystore $J ochafik2012 \
+	|| ( echo "Failed to sign $J" && exit 1 )
+done
+
+echo "Now should upload directory $OUTPUT_DIR as $CODEBASE"
+open $OUTPUT_DIR/..
