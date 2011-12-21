@@ -140,7 +140,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* jvm, void* x) {
 JNIEnv* GetEnv() {
   JNIEnv* env = NULL;
   if ((*gJVM)->GetEnv(gJVM, (void*)&env, JNI_VERSION) != JNI_OK) {
-    if ((*gJVM)->AttachCurrentThread(gJVM, (void*)&env, NULL) != JNI_OK) {
+    if ((*gJVM)->AttachCurrentThreadAsDaemon(gJVM, (void*)&env, NULL) != JNI_OK) {
 	  printf("BridJ: Cannot attach current JVM thread !\n");
       return NULL;
     }
