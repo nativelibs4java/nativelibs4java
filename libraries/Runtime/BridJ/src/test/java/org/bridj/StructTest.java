@@ -751,7 +751,7 @@ public class StructTest {
     }
     	
     
-    @Library("SmallPt") 
+//    @Library("SmallPt") 
     public static class S extends StructObject {
         @Field(0)
         public int a;

@@ -867,22 +867,23 @@ public class BridJ {
 	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getInheritableAnnotation(Library.class, m);
-        if (lib == null) {
-        		Class c = null;
-        		if (m instanceof Class)
-        			c = (Class)m;
-        		else if (m instanceof Member)
-        			c = ((Member)m).getDeclaringClass();
-        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null) {
-                    Package p = c.getPackage();
-                    if (p != null && p.getName().matches("(java|org\\.bridj)(\\..*)?"))
-                        return null;
-                    
-        			return c.getSimpleName();
-                } else
-        			return null;
-        }
-        return lib.value();
+//        if (lib == null) {
+//        		Class c = null;
+//        		if (m instanceof Class)
+//        			c = (Class)m;
+//        		else if (m instanceof Member)
+//        			c = ((Member)m).getDeclaringClass();
+//        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null) {
+//                    Package p = c.getPackage();
+//                    if (p != null && p.getName().matches("(java|org\\.bridj)(\\..*)?"))
+//                        return null;
+//                    
+//        			return c.getSimpleName();
+//                } 
+//                else
+//        			return null;
+//        }
+        return lib == null ? null : lib.value();
     }
 
 	public static Symbol getSymbolByAddress(long peer) {
