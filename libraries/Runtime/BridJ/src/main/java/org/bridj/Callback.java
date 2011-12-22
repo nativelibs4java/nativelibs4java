@@ -9,7 +9,9 @@ import org.bridj.Pointer;
 import org.bridj.ann.Runtime;
 
 /**
- * Native C callback (Java object with a only one abstract method exposed as a C function pointer to the native world).<br>
+ * Native C callback (beware : don't let your callbacks be GC'd before they're used).<br>
+ * To protect a callback against the GC, you can keep a reference to your callback or use {@link BridJ#protectFromGC(org.bridj.NativeObject) } / {@link BridJ#unprotectFromGC(org.bridj.NativeObject) }.<br>
+ * A callback is a Java object with only one abstract method exposed as a C function pointer to the native world.<br>
  * Here's an example of callback definition (use JNAerator to generate them automatically) :
  * <pre>{@code
  *  // typedef int (*MyCallback)(int a, int b);
