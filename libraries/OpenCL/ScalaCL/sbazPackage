@@ -49,7 +49,7 @@ echo "# Copied the following libraries :"
 ls -l $LIB_JAR_OUT
 
 echo "# Copying compiler plugin libraries"
-cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
+cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT/scalacl-compiler-plugin.jar
 
 echo "# Packing for sbaz"
 sbaz pack scalacl $TEMP_OUT \
