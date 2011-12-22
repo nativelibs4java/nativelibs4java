@@ -87,6 +87,25 @@ For more info, please visit http://code.google.com/p/scalacl
   
   <build>
   	<plugins>
+  		
+  		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>0.7-SNAPSHOT</version>
+			<executions>
+			  <execution>
+				<goals>
+				  <goal>generate</goal>
+				</goals>
+			  </execution>
+			</executions>
+            <configuration>
+                <properties>
+                    <project_version>${project.version}</project_version>
+                    <project_name>${project.artifactId}</project_name>
+                </properties>
+            </configuration>
+		</plugin>
 		<plugin>
 			<groupId>org.scala-tools</groupId>
 			<artifactId>maven-scala-plugin</artifactId>
