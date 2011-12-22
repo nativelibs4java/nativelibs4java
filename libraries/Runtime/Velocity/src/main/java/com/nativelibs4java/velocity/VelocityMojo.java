@@ -216,9 +216,13 @@ public class VelocityMojo
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
                 context.put("bridJPrimitives", Primitive.getBridJPrimitives());
                 
+                getLog().info("Got properties : " + properties);
                 if (properties != null) {
                 	for (Map.Entry<String, String> e : properties.entrySet()) {
-						context.put(e.getKey(), e.getValue());
+                		String propName = e.getKey(), propValue = e.getValue();
+                		getLog().info("Got property : " + propName + " = " + propValue);
+                
+						context.put(propName, propValue);
 					}
 				}
                 
