@@ -105,6 +105,8 @@ trait MiscMatchers extends PluginNames with WithOptions {
       case Apply(f @ Select(left, name), args) =>
         if (isPackageReference(left, "scala.math"))
           Some((f.tpe, name, args))
+        else if (tree.symbol.owner == ScalaMathCommonClass)
+          Some((f.tpe, name, args))
         else
           None
       /*case

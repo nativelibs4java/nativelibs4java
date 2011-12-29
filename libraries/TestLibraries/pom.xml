@@ -26,10 +26,10 @@
   
   </dependencies>
   
-  <repositories>
+  <!--repositories>
     <repository>
       <id>nativelibs4java</id>
       <url>http://nativelibs4java.sourceforge.net/maven</url>
     </repository>
-  </repositories>
+  </repositories-->
 </project>

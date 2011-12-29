@@ -11,7 +11,7 @@
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>javacl-parent</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -19,7 +19,7 @@
   <dependencies>
   	
 	<dependency>
-	  <groupId>com.jnaerator</groupId>
+	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>jnaerator</artifactId>
 	  <version>${jnaerator.version}</version>
 	  <scope>compile</scope>
@@ -29,7 +29,7 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-core</artifactId>
-	  <version>${opencl4java.version}</version>
+	  <version>${javacl.version}</version>
 	  <scope>compile</scope>
 	</dependency>
   </dependencies>

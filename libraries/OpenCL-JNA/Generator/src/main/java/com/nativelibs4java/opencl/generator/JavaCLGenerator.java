@@ -230,7 +230,7 @@ public class JavaCLGenerator extends JNAerator {
                                         varRef(kernelVarName), Expression.AssignmentOperator.Equal,
                                         methodCall(
                                             "createKernel",
-                                            new Expression.Constant(Expression.Constant.Type.String, functionName)
+                                            new Expression.Constant(Expression.Constant.Type.String, functionName, null)
                                         )
                                     )
                                 ),

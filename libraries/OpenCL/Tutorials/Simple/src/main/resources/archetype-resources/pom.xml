@@ -8,21 +8,21 @@
   <version>${version}</version>
   <packaging>jar</packaging>
   
-  <repositories>
+  <!--repositories>
     <repository>
       <id>nativelibs4java</id>
       <name>nativelibs4java Maven2 Repository</name>
       <url>http://nativelibs4java.sourceforge.net/maven</url>
     </repository>
-  </repositories>
+  </repositories-->
   
-  <pluginRepositories>
+  <!--pluginRepositories>
     <pluginRepository>
       <id>nativelibs4java</id>
       <name>nativelibs4java Maven2 Repository</name>
       <url>http://nativelibs4java.sourceforge.net/maven</url>
     </pluginRepository>
-  </pluginRepositories>
+  </pluginRepositories-->
 
   <dependencies>
     <dependency>

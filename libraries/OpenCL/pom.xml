@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
-    <artifactId>opencl4java-root</artifactId>
+    <artifactId>javacl-root</artifactId>
     <version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>OpenCL4Java Root Project / BridJ</name>
+	<name>JavaCL Root Project</name>
    
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>javacl-parent</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>Parent</relativePath>
   </parent>
@@ -34,7 +34,7 @@
   </modules>
   
   
-  <build>
+  <!--build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -55,6 +55,6 @@
         </executions>
       </plugin>
     </plugins>
-  </build>
+  </build-->
   
 </project>

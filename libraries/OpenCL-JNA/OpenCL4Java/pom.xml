@@ -20,7 +20,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent-jna</artifactId>
+	  <artifactId>javacl-parent-jna</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -28,7 +28,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <dependencies>
   	
 	<dependency>
-	  <groupId>com.jnaerator</groupId>
+	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>jnaerator-runtime</artifactId>
 	  <!--classifier>shaded</classifier-->
 	  <version>${jnaerator.version}</version>
@@ -41,7 +41,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   	<plugins>
 
 		<plugin>
-			<groupId>com.jnaerator</groupId>
+			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
 			<version>${jnaerator.version}</version>
 			<configuration>

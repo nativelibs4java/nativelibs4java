@@ -9,9 +9,9 @@
    
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.6</version>
-	  <relativePath>Parent</relativePath>
+	  <artifactId>nativelibs4java-parent</artifactId>
+	  <version>1.7-SNAPSHOT</version>
+	  <relativePath>../Parent</relativePath>
   </parent>
 
   <modules>
@@ -20,7 +20,6 @@
     <module>Velocity</module>
     <module>JarShrinker</module>
     <!--module>JNI</module-->
-    <module>Parent</module>
   </modules>
   
 </project>

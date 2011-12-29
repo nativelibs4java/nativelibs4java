@@ -14,7 +14,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.6</version>
+	  <version>1.7-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
@@ -33,7 +33,7 @@
   	<plugins>
 
 		<plugin>
-			<groupId>com.jnaerator</groupId>
+			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
 			<version>${jnaerator.version}</version>
 			<configuration>

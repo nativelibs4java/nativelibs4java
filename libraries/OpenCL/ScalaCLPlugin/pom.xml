@@ -16,22 +16,13 @@ It will also soon feature some limited OpenCL-backed autovectorization.
 For more info, please visit http://code.google.com/p/scalacl
 	</description>
 	
-	
-	<properties>
-	<!--
-	<scala.version>2.8.1</scala.version>
-	  	-->
-	  	<scala.version>2.9.1</scala.version>
-		<junit.version>4.10</junit.version>
-	</properties>
-	<!--
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>../Parent</relativePath>
+	  <artifactId>nativelibs4java-parent</artifactId>
+	  <version>1.7-SNAPSHOT</version>
+	  <relativePath>../../Parent</relativePath>
   </parent>
-  -->
+  
   <dependencies>
 	<dependency>
 		<groupId>junit</groupId>
@@ -91,7 +82,7 @@ For more info, please visit http://code.google.com/p/scalacl
   		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
-			<version>0.7-SNAPSHOT</version>
+			<version>${maven-velocity-plugin.version}</version>
 			<executions>
 			  <execution>
 				<goals>

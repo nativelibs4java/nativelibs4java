@@ -20,7 +20,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>javacl-parent</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -30,8 +30,8 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
-	  <classifier>c-only</classifier>
-	  <version>0.7-SNAPSHOT<!--${bridj.version}--></version>
+	  <!--classifier>c-only</classifier-->
+	  <version>${bridj.version}</version>
 	  <scope>compile</scope>
 	</dependency>
 	
@@ -41,7 +41,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   	<plugins>
 
 		<plugin>
-			<groupId>com.jnaerator</groupId>
+			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
 			<version>${jnaerator.version}</version>
 			<configuration>

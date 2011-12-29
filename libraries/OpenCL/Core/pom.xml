@@ -18,7 +18,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>javacl-parent</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -28,16 +28,9 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java</artifactId>
-	  <version>${opencl4java.version}</version>
+	  <version>${javacl.version}</version>
 	  <scope>compile</scope>
 	</dependency>
-	
-	<!--dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-utils</artifactId>
-	  <version>1.4-SNAPSHOT</version>
-	  <scope>compile</scope>
-	</dependency-->
 	
   </dependencies>
   
@@ -57,7 +50,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${bridj.version}</version>
+			<version>${maven-velocity-plugin.version}</version>
 			<executions>
 			  <execution>
 				<goals>

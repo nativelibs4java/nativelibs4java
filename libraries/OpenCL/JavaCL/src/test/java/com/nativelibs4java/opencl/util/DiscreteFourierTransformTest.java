@@ -70,7 +70,7 @@ public class DiscreteFourierTransformTest {
     
     static Collection<double[]> createTestDoubleInputs() {
         Collection<double[]> ret = new ArrayList<double[]>();
-        for (int n : new int[] { 1024, 1, 2, 4, 8, 16 }) {
+        for (int n : new int[] { 1, 2, 4, 8, 16, 1024 }) {
             double[] in = new double[2 * n];
 
             for (int i = 0; i < n; i++) {
