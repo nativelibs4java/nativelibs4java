@@ -83,7 +83,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		public native ValuedEnum<THUMBBUTTONFLAGS> dwFlags();
 		public native void dwFlags(ValuedEnum<THUMBBUTTONFLAGS> dwFlags);
 	}
-	@Virtual(0) public native int SetProgressValue(Pointer<Integer> hWnd, int Completed, int Total);
+	@Virtual(0) public native int SetProgressValue(Pointer<Integer> hWnd, long Completed, long Total);
 
     public enum TbpFlag implements IntValuedEnum<TbpFlag>  {
         TBPF_NOPROGRESS(0),
