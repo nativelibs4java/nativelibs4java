@@ -9,10 +9,6 @@
 	<inceptionYear>2009</inceptionYear>
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
 	
-	<properties>
-		<javacl.version>1.0-SNAPSHOT</javacl.version>
-	</properties>
-	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
@@ -20,5 +16,103 @@
 		<relativePath>../../Parent</relativePath>
 	</parent>
 	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>opencl4java</artifactId>
+				<version>${project.version}</version>
+  			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-blas</artifactId>
+				<version>${project.version}</version>
+  			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-demos</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-root</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-numerical-benchmark</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-generator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-opengl-demos</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-tutorials-root</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-dft-tutorial</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-simple-tutorial</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>libcl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>jnaerator</artifactId>
+				<version>${jnaerator.version}</version>
+				<scope>compile</scope>
+				<!--classifier>shaded</classifier-->
+			</dependency>
+			
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.nativelibs4java</groupId>
+					<artifactId>maven-javacl-plugin</artifactId>
+					<version>${project.version}</version>
+					<executions>
+					  <execution>
+						<phase>generate-sources</phase>
+						<goals>
+						  <goal>compile</goal>
+						  <!--goal>test-compile</goal-->
+						</goals>
+					  </execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>
 

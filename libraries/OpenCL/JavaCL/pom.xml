@@ -6,7 +6,6 @@
   <artifactId>javacl</artifactId>
   <name>JavaCL / BridJ</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   
@@ -28,8 +27,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-core</artifactId>
-	  <version>${javacl.version}</version>
-	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
@@ -37,12 +34,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <version>2.2</version>
 	  <scope>test</scope>
 	</dependency>
-  	<!--dependency>
-	  <groupId>velocity</groupId>
-	  <artifactId>velocity</artifactId>
-	  <version>1.5</version>
-	</dependency-->
-	
   </dependencies>
 
   <build>
@@ -51,21 +42,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-javacl-plugin</artifactId>
-			<version>${javacl.version}</version>
-			
-			<!--configuration>
-				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
-			</configuration-->
-			<executions>
-			  <execution>
-				<phase>generate-sources</phase>
-				<goals>
-				  <goal>compile</goal>
-				  <!--goal>test-compile</goal-->
-				</goals>
-
-			  </execution>
-			</executions>
 		</plugin>
 
    	   <plugin>

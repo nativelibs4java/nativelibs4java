@@ -6,7 +6,6 @@
   <artifactId>javacl-numerical-benchmark</artifactId>
   <name>JavaCL Numerical Benchmark</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <properties>
@@ -25,8 +24,6 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl</artifactId>
-	  <!--artifactId>javacl</artifactId-->
-	  <version>1.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
