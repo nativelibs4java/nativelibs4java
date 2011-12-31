@@ -77,7 +77,10 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
           
         </plugin>
 		-->
-		
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+		</plugin>
 		<plugin>
 			<groupId>org.scala-tools</groupId>
 			<artifactId>maven-scala-plugin</artifactId>
