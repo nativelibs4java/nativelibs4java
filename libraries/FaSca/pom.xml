@@ -14,7 +14,6 @@
   </parent>
 
   <modules>
-	<!--<module>Common</module>-->
     <module>Core</module>
     <module>Plugin</module>
   </modules>
