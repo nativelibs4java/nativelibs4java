@@ -548,20 +548,20 @@ public class BridJ {
             
             
             if (isUnix()) {
-            		String bits = is64Bits() ? "64" : "32";
-            		if (isLinux()) {
-            			// First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
+                String bits = is64Bits() ? "64" : "32";
+                if (isLinux()) {
+                    // First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
 					String abi = isArm() ? "gnueabi" : "gnu";
 					String multiArch = getMachine() + "-linux-" + abi;
 					paths.add("/lib/" + multiArch);
 					paths.add("/usr/lib/" + multiArch);
 				
 					// Add /usr/lib32 and /lib32
-            			paths.add("/usr/lib" + bits);
+                    paths.add("/usr/lib" + bits);
 					paths.add("/lib" + bits);
 				} else if (isSolaris()) {
 					// Add /usr/lib/32 and /lib/32
-            			paths.add("/usr/lib/" + bits);
+                    paths.add("/usr/lib/" + bits);
 					paths.add("/lib/" + bits);
 				}
 				

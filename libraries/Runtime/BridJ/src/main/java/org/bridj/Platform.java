@@ -113,11 +113,28 @@ public class Platform {
         canonicalFile.deleteOnExit();
     }
     
+    
+    private static final String arch;
+    private static final boolean is64Bits;
+	
     static {
+    	arch = System.getProperty("os.arch");
+        {
+            String dataModel = System.getProperty("sun.arch.data.model", System.getProperty("com.ibm.vm.bitmode"));
+            if ("32".equals(dataModel))
+                is64Bits = false;
+            else if ("64".equals(dataModel))
+                is64Bits = true;
+            else {
+                is64Bits = 
+                    arch.contains("64") ||
+                    arch.equalsIgnoreCase("sparcv9");
+            }
+        }
         
-        	addEmbeddedLibraryResourceRoot("lib/");
+        addEmbeddedLibraryResourceRoot("lib/");
         if (!isAndroid())
-        		addEmbeddedLibraryResourceRoot("org/bridj/lib/");
+            addEmbeddedLibraryResourceRoot("org/bridj/lib/");
         	
         try {
             initLibrary();
@@ -258,57 +275,61 @@ public class Platform {
 			value = defaultValue;
 		return value;
 	}
+
     public static void initLibrary() {
-        if (inited)
+        if (inited) {
             return;
-		
+        }
+
         try {
-        		boolean loaded = false;
-	        		
-        		String forceLibFile = getenvOrProperty("BRIDJ_LIBRARY", "bridj.library", null);
-        		
-        		String lib = null;
-        		
-        		if (forceLibFile != null) {
-        			try {
-        				System.load(lib = forceLibFile);
-        				loaded = true;
-        			} catch (Throwable ex) {
-        				BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
-        			}
-        		}
-        			
-        		if (!loaded) {
-				if (!loaded) {
-					if (!Platform.isAndroid())
-						try {
-							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
-                            if (libFile == null)
-                                throw new FileNotFoundException(BridJLibraryName);
-                            
-							BridJ.log(Level.INFO, "Loading library " + libFile);
-							System.load(lib = libFile.toString());
-                            BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
-                            loaded = true;
-						} catch (IOException ex) {
-                            BridJ.log(Level.SEVERE, "Failed to load '" + BridJLibraryName + "'", ex);
+            boolean loaded = false;
+
+            String forceLibFile = getenvOrProperty("BRIDJ_LIBRARY", "bridj.library", null);
+
+            String lib = null;
+
+            if (forceLibFile != null) {
+                try {
+                    System.load(lib = forceLibFile);
+                    loaded = true;
+                } catch (Throwable ex) {
+                    BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
+                }
+            }
+
+            if (!loaded) {
+                if (!Platform.isAndroid()) {
+                    try {
+                        File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+                        if (libFile == null) {
+                            throw new FileNotFoundException(BridJLibraryName);
                         }
-					if (!loaded)
-						System.loadLibrary("bridj");
-	        		}
-	        }
-	        BridJ.log(Level.INFO, "Loaded library " + lib);
-	        
-	        init();
-	        inited = true;
-	        
-	        //if (BridJ.protectedMode)
-	        //		BridJ.log(Level.INFO, "Protected mode enabled");
-	        if (BridJ.logCalls)
-	        		BridJ.log(Level.INFO, "Calls logs enabled");
-	        	
+
+                        BridJ.log(Level.INFO, "Loading library " + libFile);
+                        System.load(lib = libFile.toString());
+                        BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
+                        loaded = true;
+                    } catch (IOException ex) {
+                        BridJ.log(Level.SEVERE, "Failed to load '" + BridJLibraryName + "'", ex);
+                    }
+                }
+                if (!loaded) {
+                    System.loadLibrary("bridj");
+                }
+            }
+            BridJ.log(Level.INFO, "Loaded library " + lib);
+
+            init();
+            inited = true;
+
+            //if (BridJ.protectedMode)
+            //		BridJ.log(Level.INFO, "Protected mode enabled");
+            if (BridJ.logCalls) {
+                BridJ.log(Level.INFO, "Calls logs enabled");
+            }
+
         } catch (Throwable ex) {
-        	throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
+            throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
         }
     }
     private static native void init();
@@ -352,23 +373,20 @@ public class Platform {
     		"0".equals(System.getenv("BRIDJ_USE_UNICODE_VERSION_OF_WINDOWS_APIS"))
 	);
     
-	private static volatile String arch;
 	private static String getArch() {
-		if (Platform.arch == null) {
-            String arch = System.getProperty("os.arch");
-			if (arch == null)
-				arch = System.getProperty("sun.arch.data.model");
-            Platform.arch = arch;
-		}
-		return Platform.arch;
+		return arch;
 	}
 	/**
-	 * Machine (as returned by `uname -m`, except for i686 which is actually i386)
+	 * Machine (as returned by `uname -m`, except for i686 which is actually i386), adjusted to the JVM platform (32 or 64 bits)
 	 */
 	public static String getMachine() {
 		String arch = getArch();
-		if (arch.equals("amd64"))
-			return "x86_64";
+		if (arch.equals("amd64") || arch.equals("x86_64")) {
+            if (is64Bits())
+                return "x86_64";
+            else
+                return "i386"; // we are running a 32 bits JVM on a 64 bits platform
+        }
 		return arch;
 	}
 	
@@ -386,10 +404,7 @@ public class Platform {
 			"sparcv9".equals(arch);
 	}
     public static boolean is64Bits() {
-    		String arch = getArch();
-        return
-			arch.contains("64") ||
-			arch.equalsIgnoreCase("sparcv9");
+        return is64Bits;
     }
     public static boolean isAmd64Arch() {
     		String arch = getArch();
