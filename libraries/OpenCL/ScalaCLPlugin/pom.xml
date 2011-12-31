@@ -1,106 +1,79 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <modelVersion>4.0.0</modelVersion>
-  <groupId>com.nativelibs4java</groupId>
-  <artifactId>scalacl-compiler-plugin</artifactId>
-  <name>ScalaCL Compiler Plugin</name>
-  <url>http://code.google.com/p/scalacl/</url>
-  <version>0.3-SNAPSHOT</version>
-  <packaging>jar</packaging>
-
-	  <description>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>scalacl-compiler-plugin</artifactId>
+	<name>ScalaCL Compiler Plugin</name>
+	<url>http://code.google.com/p/scalacl/</url>
+	<version>0.3-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+	<description>
 ScalaCL provides data structures that leverage the OpenCL library to execute operations on GPUs.
 This plugin transforms some Scala functions into OpenCL kernels so they can effectively execute in the OpenCL land instead of in the JVM.
 It will also soon feature some limited OpenCL-backed autovectorization.
 For more info, please visit http://code.google.com/p/scalacl
 	</description>
-	
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.7-SNAPSHOT</version>
-	  <relativePath>../../Parent</relativePath>
-  </parent>
-  
-  <dependencies>
-	<dependency>
-		<groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<version>${junit.version}</version>
-		<scope>test</scope>
-	</dependency>
-	
-  	<dependency>
-  		<groupId>com.nativelibs4java</groupId>
-  		<artifactId>scalacl</artifactId>
-  		<version>0.3-SNAPSHOT</version>
-		<!--scope>test</scope-->
-		<classifier>shaded</classifier>
-    </dependency>
-    
-  	<!--<scope>provided</scope>-->
-    
-  	<dependency>
-		<groupId>org.scala-lang</groupId>
-		<artifactId>scala-compiler</artifactId>
-		<version>${scala.version}</version>
-		<!--<scope>provided</scope>-->
-	</dependency>
-  	<dependency>
-  		<groupId>org.scala-lang</groupId>
-  		<artifactId>scala-library</artifactId>
-  		<version>${scala.version}</version>
-    </dependency>
-  </dependencies>
-  <repositories>
-    <repository>
-      <id>scala-tools.org</id>
-      <name>Scala-tools Maven2 Repository</name>
-      <url>http://scala-tools.org/repo-releases</url>
-    </repository>
-    <repository>
-      <id>nativelibs4java</id>
-      <name>nativelibs4java Maven2 Repository</name>
-      <url>http://nativelibs4java.sourceforge.net/maven</url>
-    </repository>
-  </repositories>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-			<version>${scala.version}</version>
-      </plugin>
-    </plugins>
-  </reporting>
-  
-  <build>
-  	<plugins>
-  		
-  		<plugin>
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<dependencies>
+		<dependency>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${maven-velocity-plugin.version}</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>generate</goal>
-				</goals>
-			  </execution>
-			</executions>
-            <configuration>
-                <properties>
-                    <project_version>${project.version}</project_version>
-                    <project_name>${project.artifactId}</project_name>
-                </properties>
-            </configuration>
-		</plugin>
-		<plugin>
-			<groupId>org.scala-tools</groupId>
-			<artifactId>maven-scala-plugin</artifactId>
-			<configuration>
+			<artifactId>scalacl</artifactId>
+			<version>0.3-SNAPSHOT</version>
+			<classifier>shaded</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+	</dependencies>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<version>${scala.version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-velocity-plugin</artifactId>
+				<version>${maven-velocity-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<properties>
+						<project_version>${project.version}</project_version>
+						<project_name>${project.artifactId}</project_name>
+					</properties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<configuration>
 				<!--<compilerPlugins>
 				  <compilerPlugin>
 					<groupId>com.nativelibs4java</groupId>
@@ -108,41 +81,25 @@ For more info, please visit http://code.google.com/p/scalacl
 					<version>1.0-SNAPSHOT</version>
 				  </compilerPlugin>
 				</compilerPlugins>-->
-				<args>
-					<arg>-optimise</arg>
-				</args>
-			  <jvmArgs>
-				<jvmArg>-Xms64m</jvmArg>
-				<jvmArg>-Xmx1024m</jvmArg>
-			  </jvmArgs>
-			</configuration>
-			<executions>
-				<execution>
-					<goals>
-						<goal>compile</goal>
-						<goal>testCompile</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-  	</plugins>
-  </build>
-
-  
-	<distributionManagement>
-		<site>
-			<id>nativelibs4java-sites</id>
-			<name>NativeLibs4Java Sourceforge Sites</name>
-		    <url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/sites</url>
-		</site>
-		<repository>
-			<id>nativelibs4java-repo</id>
-			<uniqueVersion>false</uniqueVersion>
-			<name>NativeLibs4Java Sourceforge Maven Repository</name>
-			<url>sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
-		</repository>
-	</distributionManagement>
-
+					<args>
+						<arg>-optimise</arg>
+					</args>
+					<jvmArgs>
+						<jvmArg>-Xms64m</jvmArg>
+						<jvmArg>-Xmx1024m</jvmArg>
+					</jvmArgs>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
 
 

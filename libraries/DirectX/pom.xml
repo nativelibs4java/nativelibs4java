@@ -1,44 +1,42 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <modelVersion>4.0.0</modelVersion>
-  <groupId>com.nativelibs4java</groupId>
-  <artifactId>directx4java</artifactId>
-  <name>DirectX4Java</name>
-  <url>http://code.google.com/p/nativelibs4java/wiki/DirectX</url>
-  <version>0.2-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  
-  <parent>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
-	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.7-SNAPSHOT</version>
-	<relativePath>../Parent</relativePath>
-  </parent>
-	
-  <dependencies>
-  	
-	<dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>bridj</artifactId>
-	  <version>${bridj.version}</version>
-	  <scope>compile</scope>
-	</dependency>
-	
-  </dependencies>
+	<artifactId>directx4java</artifactId>
+	<name>DirectX4Java</name>
+	<url>http://code.google.com/p/nativelibs4java/wiki/DirectX</url>
+	<version>0.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <build>
-  	<plugins>
-		<plugin>
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+
+	<dependencies>
+	
+		<dependency>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>${jnaerator.version}</version>
-			<configuration>
-				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-			</configuration>
-		</plugin>
-  	</plugins>
-  </build>
+			<artifactId>bridj</artifactId>
+			<version>${bridj.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-jnaerator-plugin</artifactId>
+				<version>${jnaerator.version}</version>
+				<configuration>
+					<javaOutputDirectory>src/main/java</javaOutputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
 
 

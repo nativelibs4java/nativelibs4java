@@ -20,7 +20,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent-jna</artifactId>
 	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>../Parent</relativePath>
+	  <relativePath>..</relativePath>
   </parent>
 
   <dependencies>
@@ -28,8 +28,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-core-jna</artifactId>
-	  <version>${javacl-jna.version}</version>
-	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
@@ -51,10 +49,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator-jna</artifactId>
-			<version>${javacl-jna.version}</version>
-			<!--configuration>
-				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
-			</configuration-->
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>

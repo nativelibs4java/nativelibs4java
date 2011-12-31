@@ -19,7 +19,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent</artifactId>
 	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>../Parent</relativePath>
+	  <relativePath>..</relativePath>
   </parent>
 
   <dependencies>

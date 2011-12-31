@@ -13,3 +13,4 @@ Akkhack
 .project
 .classpath
 *.class
+velocity.log

@@ -13,7 +13,7 @@
   	  <groupId>com.nativelibs4java</groupId>
   	  <artifactId>javacl-parent-jna</artifactId>
   	  <version>1.0-SNAPSHOT</version>
-  	  <relativePath>../Parent</relativePath>
+  	  <relativePath>..</relativePath>
     </parent>
 
   <dependencies>
@@ -21,19 +21,14 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-core-jna</artifactId>
-	  <version>${javacl-jna.version}</version>
-	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-demos-jna</artifactId>
-	  <version>${javacl-jna.version}</version>
-	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>libcl</artifactId>
-	  <version>${javacl-jna.version}</version>
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>

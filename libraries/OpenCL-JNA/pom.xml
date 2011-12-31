@@ -1,28 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nativelibs4java</groupId>
-    <artifactId>javacl-root-jna</artifactId>
-    <version>1.0-SNAPSHOT</version>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>javacl-parent-jna</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Legacy JavaCL-JNA Root Project</name>
-   
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-parent-jna</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>Parent</relativePath>
-  </parent>
+	<name>Legacy JavaCL-JNA Parent Project</name>
+	<inceptionYear>2009</inceptionYear>
+	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
+    
+	<properties>
+		<javacl-jna.version>1.0-SNAPSHOT</javacl-jna.version>
+	</properties>
+	
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	
+	<description>
+		OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platform.
+	</description>
 
-  <modules>
-    <module>InteractiveImageDemo</module>
-    <module>Generator</module>
-    <module>OpenCL4Java</module>
-    <module>Demos</module>
-    <module>JavaCL</module>
-    <module>Core</module>
-    <module>Parent</module>
-    <module>OpenGLDemos</module>
-  </modules>
-  
+	<modules>
+		<module>InteractiveImageDemo</module>
+		<module>Generator</module>
+		<module>OpenCL4Java</module>
+		<module>Demos</module>
+		<module>JavaCL</module>
+		<module>Core</module>
+		<module>OpenGLDemos</module>
+	</modules>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>libcl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>opencl4java-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-blas-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-core-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-demos-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-numerical-benchmark-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-generator-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-opengl-demos-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-tutorials-root-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-dft-tutorial-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>javacl-simple-tutorial-jna</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>jnaerator</artifactId>
+				<version>${jnaerator.version}</version>
+			</dependency>
+		
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.nativelibs4java</groupId>
+					<artifactId>maven-javacl-plugin</artifactId>
+					<version>${project.version}</version>
+					<executions>
+						<execution>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>compile</goal>
+						  <!--goal>test-compile</goal-->
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
 </project>

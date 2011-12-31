@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nativelibs4java</groupId>
-    <artifactId>mono-root</artifactId>
-    <version>0.2-SNAPSHOT</version>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>mono4java-parent</artifactId>
+	<version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Mono4Java Root Project</name>
-   
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>mono4java-parent</artifactId>
-	  <version>0.2-SNAPSHOT</version>
-	  <relativePath>Parent</relativePath>
-  </parent>
+	<name>Mono4Java Common Configuration</name>
+	<inceptionYear>2009</inceptionYear>
+	<url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
 
-  <modules>
-    <module>Mono4Java</module>
-    <module>Parent</module>
-  </modules>
-  
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+
+	<modules>
+		<module>Mono4Java</module>
+	</modules>
+
 </project>
