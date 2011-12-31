@@ -21,11 +21,11 @@
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 	</properties>
 	
-	<!--parent>
+	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
-	</parent-->
+	</parent>
 	  
 	<developers>
 		<developer>
@@ -313,11 +313,11 @@ Most of these wrappers are created automatically by JNAerator.
 	
 	
 	<issueManagement>
-		<system>googlecode</system>
-		<url>http://code.google.com/p/nativelibs4java/issues/list</url>
+		<system>github</system>
+		<url>https://github.com/ochafik/nativelibs4java/issues</url>
 	</issueManagement>
 	
-	<distributionManagement>
+	<!--distributionManagement>
 		<site>
 			<id>nativelibs4java-sites</id>
 			<name>NativeLibs4Java Sourceforge Sites</name>
@@ -329,7 +329,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<name>NativeLibs4Java Sourceforge Maven Repository</name>
 			<url>sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
 		</repository>
-	</distributionManagement>
+	</distributionManagement-->
 
 	<!--pluginRepositories>
 		<pluginRepository>
