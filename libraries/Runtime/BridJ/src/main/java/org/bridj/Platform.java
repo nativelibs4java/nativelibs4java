@@ -115,7 +115,7 @@ public class Platform {
     
     
     private static final String arch;
-    private static final boolean is64Bits;
+    private static boolean is64Bits;
 	
     static {
     	arch = System.getProperty("os.arch");
@@ -147,6 +147,8 @@ public class Platform {
 		SIZE_T_SIZE = sizeOf_size_t();
 		TIME_T_SIZE = sizeOf_time_t();
 		CLONG_SIZE = sizeOf_long();
+        
+        is64Bits = POINTER_SIZE == 8;
         
         systemClassLoader = createClassLoader();
         
