@@ -1,9 +1,6 @@
-package scalacl ; package test
-import plugin._
-import com.nativelibs4java.scalaxy._
-import test._
+package com.nativelibs4java.scalaxy ; package test
 import pluginBase._
-import components._
+import plugin._
 
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
@@ -31,20 +28,8 @@ import scala.tools.nsc.Settings
 import scala.actors.Futures._
 import Function.{tupled, untupled}
 
-trait ScalaCLTestUtils extends BaseTestUtils {
+trait ScalaxyTestUtils extends BaseTestUtils {
   def pluginDef: PluginDef =
-    ScalaCLPluginDef
-    
-  override def getAdditionalClassPath = {
-    def getPath(c: Class[_]): String = {
-      c.getProtectionDomain.getCodeSource.getLocation.getFile
-    }
-    Some(Set(
-      getPath(classOf[CLArray[_]]),
-      getPath(classOf[com.nativelibs4java.opencl.CLBuffer[_]]),
-      getPath(classOf[com.nativelibs4java.opencl.library.OpenCLLibrary]),
-      getPath(classOf[org.bridj.BridJ]),
-      getPath(classOf[org.objectweb.asm.ClassVisitor])
-    ).toSeq)
-  }
+    ScalaxyPluginDef
 }
+

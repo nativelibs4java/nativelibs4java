@@ -28,11 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl ; package plugin
-import com.nativelibs4java.scalaxy._
-import plugin._
-import pluginBase._
-import components._
+package com.nativelibs4java.scalaxy ; package pluginBase
 
 import java.io.File
 import scala.collection.immutable.Stack
@@ -45,49 +41,28 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.util.parsing.input.Position
 
-/**
- * http://www.scala-lang.org/node/140
- * http://lamp.epfl.ch/~emir/bqbase/2005/06/02/nscTutorial.html
- * http://code.google.com/p/simple-build-tool/wiki/CompilerPlugins
- * mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=-d|out|examples/Toto.scala|-Xprint:scalacl-functionstransform|-classpath|../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar"
- * scala -cp target/scalacl-compiler-1.0-SNAPSHOT-shaded.jar scalacl.plugin.Compile -d out src/examples/BasicExample.scala
- * javap -c -classpath out/ scalacl.examples.BasicExample
- */
-object ScalaCLPluginDef extends PluginDef {
-  override val name = "ScalaCL"
-  override val description =
-    "This plugin transforms some Scala functions into OpenCL kernels (for CLCollection[T].map and filter's arguments), so they can run on a GPU."
+import scala.collection.JavaConversions._
+import java.io.BufferedReader
+import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import scala.concurrent.ops
+import scala.io.Source
+import scala.tools.nsc.CompilerCommand
+import scala.tools.nsc.Global
+import scala.tools.nsc.Settings
+import scala.tools.nsc.reporters.ConsoleReporter
+import scala.tools.nsc.reporters.Reporter
 
-  override def envVarPrefix = "SCALACL_"
+trait PluginDef {
+  def name: String
+  def description: String
+  def createOptions(settings: Settings): PluginOptions
+  def createComponents(global: Global, options: PluginOptions): List[PluginComponent]
+  def getCopyrightMessage: String
+  def envVarPrefix: String
   
-  override def createOptions(settings: Settings): PluginOptions =
-    new PluginOptions(this, settings)
-    
-  override def createComponents(global: Global, options: PluginOptions): List[PluginComponent] =
-    ScalaxyPluginDef.createComponents(global, options) ++
-    List(
-      try {
-        new ScalaCLFunctionsTransformComponent(global, options)
-      } catch { 
-        case ex: scala.tools.nsc.MissingRequirementError =>
-          if (options.verbose)
-            println("[scalacl] ScalaCL Collections library not in the classpath : won't perform Scala -> OpenCL transforms.")
-          //if (options.trace)
-          //  ex.printStackTrace
-          null
-        case _ =>
-          null // TODO
-      }
-    )
-      
-  override def getCopyrightMessage: String =
-    "ScalaCL Plugin\nCopyright Olivier Chafik 2010-2012"
-}
-
-class ScalaCLPlugin(override val global: Global) 
-extends PluginBase(global, ScalaxyPluginDef)
-
-object Compile extends CompilerMain {
-  override def pluginDef = ScalaCLPluginDef
-  override def commandName = "scalacl"
+  lazy val printCopyrightMessageOnce: Unit =
+    println(getCopyrightMessage)
 }

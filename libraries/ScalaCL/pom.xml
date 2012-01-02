@@ -24,7 +24,7 @@
 	
 	<properties>
 		<javacl.version>1.0-SNAPSHOT</javacl.version>
-		<scalace.version>0.3-SNAPSHOT</scalace.version>
+		<scalaxy.version>0.3-SNAPSHOT</scalaxy.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -36,14 +36,14 @@
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalace</artifactId>
-				<version>${scalace.version}</version>
+				<artifactId>scalaxy</artifactId>
+				<version>${scalaxy.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalace</artifactId>
+				<artifactId>scalaxy</artifactId>
 				<type>test-jar</type>
-				<version>${scalace.version}</version>
+				<version>${scalaxy.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.scala-lang</groupId>

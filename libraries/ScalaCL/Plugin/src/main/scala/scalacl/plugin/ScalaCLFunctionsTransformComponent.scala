@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl ; package plugin
-import com.nativelibs4java.scalace._
+import com.nativelibs4java.scalaxy._
 import common._
 import pluginBase._
 import components._

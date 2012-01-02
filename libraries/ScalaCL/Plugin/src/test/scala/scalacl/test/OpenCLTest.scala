@@ -5,7 +5,7 @@
 
 package scalacl ; package test
 import plugin._
-import com.nativelibs4java.scalace._
+import com.nativelibs4java.scalaxy._
 import plugin._
 import pluginBase._
 import components._
