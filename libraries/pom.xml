@@ -252,19 +252,19 @@ Most of these wrappers are created automatically by JNAerator.
 		<url>https://github.com/ochafik/nativelibs4java/issues</url>
 	</issueManagement>
 	
-	<!--distributionManagement>
+	<distributionManagement>
 		<site>
 			<id>nativelibs4java-sites</id>
 			<name>NativeLibs4Java Sourceforge Sites</name>
 		    <url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/sites</url>
 		</site>
-		<repository>
+		<!--repository>
 			<id>nativelibs4java-repo</id>
 			<uniqueVersion>false</uniqueVersion>
 			<name>NativeLibs4Java Sourceforge Maven Repository</name>
 			<url>sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
-		</repository>
-	</distributionManagement-->
+		</repository-->
+	</distributionManagement>
 	
 	<profiles>
 		<profile>
