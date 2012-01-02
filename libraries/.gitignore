@@ -13,4 +13,5 @@ Akkhack
 .project
 .classpath
 *.class
-velocity.log
+velocity.log*
+tmpTestClasses*
