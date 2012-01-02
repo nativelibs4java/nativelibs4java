@@ -47,7 +47,10 @@ import scala.util.parsing.input.Position
  * http://www.scala-lang.org/node/140
  * http://lamp.epfl.ch/~emir/bqbase/2005/06/02/nscTutorial.html
  * http://code.google.com/p/simple-build-tool/wiki/CompilerPlugins
- * mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=-d|out|examples/Toto.scala|-Xprint:scalacl-functionstransform|-classpath|../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar"
+ 
+ * mvn scala:run -DmainClass=com.nativelibs4java.scalace.plugin.Compile "-DaddArgs=-d|out|examples/Test.scala|-Xprint:scalacl-stream"
+ 
+ |-classpath|../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar"
  * scala -cp target/scalacl-compiler-1.0-SNAPSHOT-shaded.jar scalacl.plugin.Compile -d out src/examples/BasicExample.scala
  * javap -c -classpath out/ scalacl.examples.BasicExample
  */

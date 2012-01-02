@@ -35,6 +35,7 @@ trait StreamSinks extends Streams {
     def wrapResultIfNeeded(result: Tree, expectedType: Type, componentType: Type): Tree = result
   }
   trait WithArrayResultWrapper extends WithResultWrapper {
+    def isResultWrapped: Boolean// = false
     def isArrayType(tpe: Type) = {
       tpe match {
         case TypeRef(_, ArrayClass, List(_)) => true
@@ -44,8 +45,8 @@ trait StreamSinks extends Streams {
 
     override def wrapResultIfNeeded(result: Tree, expectedType: Type, componentType: Type) = {
       typed { result }
-      if (normalize(expectedType) == normalize(result.tpe)) {//!isArrayType(expectedType) && isArrayType(result.tpe)) {
-        //println("TREE TPE IS OK : expectedType " + expectedType + ", got " + result.tpe)
+      if (!isResultWrapped && normalize(expectedType) == normalize(result.tpe)) {//!isArrayType(expectedType) && isArrayType(result.tpe)) {
+        //println("TREE TPE IS OK : isResultWrapped = " + isResultWrapped + ", expectedType " + expectedType + ", got " + result.tpe)
         result
       } else {
         //println("TREE TPE NEEDS ARRAY WRAPPER : expected " + expectedType + ", got " + result.tpe)
@@ -56,6 +57,7 @@ trait StreamSinks extends Streams {
   }
   trait ArrayStreamSink extends WithArrayResultWrapper {
     def tree: Tree
+    //def isResultWrapped: Boolean
     def outputArray(expectedType: Type, value: StreamValue, index: TreeGen, size: TreeGen)(implicit loop: Loop): Unit = {
       import loop.{ unit, currentOwner }
       val pos = loop.pos
@@ -213,12 +215,14 @@ trait StreamSinks extends Streams {
   }
   trait CanCreateArraySink extends CanCreateStreamSink {
     def tree: Tree
+    def isResultWrapped: Boolean
     
     override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       with ArrayStreamSink 
       with ArrayBuilderStreamSink
       {
+        override def isResultWrapped = CanCreateArraySink.this.isResultWrapped
         override def tree = CanCreateArraySink.this.tree
         
         override def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit = {

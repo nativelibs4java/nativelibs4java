@@ -407,7 +407,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
     }
   }
 
-  object ArrayTree {
+  object WrappedArrayTree {
     def unapply(tree: Tree) = tree match {
       case Apply(ArrayOps(componentType), List(array)) => Some(array, componentType)
       case _ => None

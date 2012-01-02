@@ -61,8 +61,8 @@ extends PluginNames
       ToListOp(tree)
     case toArrayName() =>
       ToArrayOp(tree)
-    //case toSeqName() =>
-    //  ToSeqOp(tree) // TODO !!!
+    case toSeqName() =>
+      ToSeqOp(tree) // TODO !!!
     case toIndexedSeqName() =>
       ToIndexedSeqOp(tree)
     case toVectorName() =>
@@ -217,7 +217,7 @@ extends PluginNames
       case TypeApply(Select(collection, toSetName()), List(resultType)) =>
         Some(new TraversalOp(ToSetOp(tree), collection, resultType.tpe, tree.tpe, true, null))        
       case // reverse, toList, toSeq, toIndexedSeq
-        Select(collection, n @ (reverseName() | toListName() | toSeqName() | toIndexedSeqName() | toVectorName())) =>
+        Select(collection, n @ (reverseName() | toListName() /*| toSeqName()*/ | toIndexedSeqName() | toVectorName())) =>
         traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
         //Some(new TraversalOp(Reverse, collection, null, null, true, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists

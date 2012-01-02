@@ -75,10 +75,13 @@ trait StreamSources extends Streams with StreamSinks {
       )
     }
   }
-  case class ArrayStreamSource(tree: Tree, array: Tree, componentType: Type) 
+  case class WrappedArrayStreamSource(tree: Tree, array: Tree, componentType: Type) 
   extends AbstractArrayStreamSource 
   with CanCreateArraySink
-  with SideEffectFreeStreamComponent 
+  with SideEffectFreeStreamComponent
+  {
+    override def isResultWrapped = true 
+  }
   
   abstract class ExplicitCollectionStreamSource(val tree: Tree, items: List[Tree], val componentType: Type) 
   extends AbstractArrayStreamSource {
@@ -245,7 +248,11 @@ trait StreamSources extends Streams with StreamSinks {
   }
   
   case class ArrayApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
-  extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateArraySink
+  extends ExplicitCollectionStreamSource(tree, components, componentType) 
+  with CanCreateArraySink
+  {
+    override def isResultWrapped = false 
+  }
   
   case class SeqApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
   extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink // default Seq implementation is List
@@ -276,8 +283,8 @@ trait StreamSources extends Streams with StreamSinks {
         new IndexedSeqApplyStreamSource(tree, components, componentType)
       case ListApply(components, componentType) =>
         new ListApplyStreamSource(tree, components, componentType)
-      case ArrayTree(array, componentType) =>
-        ArrayStreamSource(tree, array, componentType)
+      case WrappedArrayTree(array, componentType) =>
+        WrappedArrayStreamSource(tree, array, componentType)
       case ListTree(componentType) =>
         ListStreamSource(tree, componentType)
       case TreeWithType(_, TypeRef(_, ListClass | ImmutableListClass, List(componentType))) =>

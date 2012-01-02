@@ -89,11 +89,12 @@ extends PluginComponent
               ops = trans :: ops
               colTree = traversalOp.collection
             case StreamSource(cr) =>
-              //println("found streamSource " + cr + " (ops = " + ops + ")")
+              //println("found streamSource " + cr.getClass + " (ops = " + ops + ")")
               source = cr
-              if (colTree != cr.unwrappedTree)
+              if (colTree != cr.unwrappedTree) {
+                //println("Unwrapping " + colTree.tpe + " into " + cr.unwrappedTree.tpe)
                 colTree = cr.unwrappedTree
-              else
+              } else
                 finished = true
             case _ =>
               //if (!ops.isEmpty) println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
@@ -307,7 +308,7 @@ extends PluginComponent
     (transformers, closuresCount, source) match {
       case (Seq(), _, _) =>
         throw CodeWontBenefitFromOptimization("No operations chain : " + sourceAndOps)
-      case (_, _, _: ArrayStreamSource) if !transformers.isEmpty =>
+      case (_, _, _: AbstractArrayStreamSource) if !transformers.isEmpty =>
         // ok to transform any stream that starts with an array
       case (Seq(_), 0, _) =>
         throw CodeWontBenefitFromOptimization("Only one operations without closure is not enough to optimize : " + sourceAndOps)
