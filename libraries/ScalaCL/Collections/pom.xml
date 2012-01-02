@@ -1,0 +1,40 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>scalacl</artifactId>
+	<name>ScalaCL Collections</name>
+	<url>http://code.google.com/p/scalacl/</url>
+	<packaging>jar</packaging>
+	
+	<description>
+ScalaCL Collections are GPGPU-stored collections which execute some of their operations (filter, map...) straight on the GPU.
+	</description>
+
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>scalacl-parent</artifactId>
+		<version>0.3-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>javacl</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+

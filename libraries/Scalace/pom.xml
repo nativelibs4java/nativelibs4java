@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>scalace</artifactId>
+	<name>Scalace</name>
+	<version>0.3-SNAPSHOT</version>
+	<url>http://code.google.com/p/scalacl/</url>
+	<packaging>jar</packaging>
+	
+	<description>
+Scal♤ce makes Scala faster and hopefully safer to use in production, through compilation optimizations and warnings.
+	</description>
+	
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	
+	<properties>
+		<shadedArtifactAttached>false</shadedArtifactAttached>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<version>${scala.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<args>
+						<arg>-optimise</arg>
+					</args>
+					<jvmArgs>
+						<jvmArg>-Xms64m</jvmArg>
+						<jvmArg>-Xmx1024m</jvmArg>
+					</jvmArgs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-velocity-plugin</artifactId>
+				<version>${maven-velocity-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<properties>
+						<project_version>${project.version}</project_version>
+						<project_name>${project.artifactId}</project_name>
+					</properties>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<version>${scala.version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
+</project>

@@ -1,0 +1,27 @@
+<availablePackage>
+  <package><name>scalacl-compiler-plugin</name><version>1.0-20101013-2</version><depends></depends><description>ScalaCL Plugin is a compiler plugin that optimizes general Scala programs and ScalaCL / OpenCL programs in particular.
+(see http://scalacl.googlecode.com/)
+Author: Olivier Chafik &lt;olivier.chafik@gmail.com&gt;
+
+Current general optimizations include :
+- Rewrite of int range foreach loops into faster while loops
+- Rewrite of Array[T].foreach into while loops (for T being primitive or AnyRef)
+- Rewrite of Array[T].map into while loops
+- Rewrite of Array[T].foldLeft / foldRight into while loops
+- Rewrite of Array[T].reduceLeft / reduceRight into while loops
+- Rewrite of Array[T].scanLeft / scanRight into while loops
+
+Current ScalaCL / OpenCL-specific optimizations include :
+- Transforming Scala functions given to CLCol[T].map, foreach and filter into OpenCL kernels (supports only limited inline lambdas)
+
+More optimizations are scheduled, such as :
+- Autovectorization of ScalaCL loops
+- Auto-ScalaCL-ization of general code (upon explicit demand via a compiler option, as this introduces runtime dependency on ScalaCL)
+- Support for external references in ScalaCL functions, including external calls (when target is invariant and can be converted to OpenCL)
+
+Please use NativeLibs4Java's user group and bug-tracker for feedback or help about ScalaCL and its compiler plugin :
+http://groups.google.fr/group/nativelibs4java/
+http://code.google.com/p/nativelibs4java/issues/list
+</description></package>
+  <link>http://nativelibs4java.sourceforge.net/sbaz/scalacl/scalacl-compiler-plugin-1.0-20101013-2.sbp</link>
+</availablePackage>

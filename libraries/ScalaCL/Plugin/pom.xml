@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>scalacl-compiler-plugin</artifactId>
+	<name>ScalaCL Compiler Plugin</name>
+	<url>http://code.google.com/p/scalacl/</url>
+	<packaging>jar</packaging>
+	
+	<description>
+ScalaCL provides data structures that leverage the OpenCL library to execute operations on GPUs.
+This plugin transforms some Scala functions into OpenCL kernels so they can effectively execute in the OpenCL land instead of in the JVM.
+It will also soon feature some limited OpenCL-backed autovectorization.
+For more info, please visit http://code.google.com/p/scalacl
+	</description>
+	
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>scalacl-parent</artifactId>
+		<version>0.3-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	
+	<properties>
+		<shadedArtifactAttached>false</shadedArtifactAttached>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>scalacl</artifactId>
+			<classifier>shaded</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>scalace</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>scalace</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-velocity-plugin</artifactId>
+				<version>${maven-velocity-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<properties>
+						<project_version>${project.version}</project_version>
+						<project_name>${project.artifactId}</project_name>
+					</properties>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+
+
+

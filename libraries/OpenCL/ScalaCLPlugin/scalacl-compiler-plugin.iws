@@ -58,22 +58,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Compile.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Compile.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Compile.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="145" column="4" selection-start="5619" selection-end="5619" vertical-scroll-proportion="0.0">
+            <state line="145" column="4" selection-start="5619" selection-end="5619" vertical-scroll-proportion="2.3235295">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MiscMatchers.scala" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/MiscMatchers.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="107" column="59" selection-start="4533" selection-end="4533" vertical-scroll-proportion="0.83116883">
-              <folding />
             </state>
           </provider>
         </entry>
@@ -637,17 +628,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/Compile.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="145" column="4" selection-start="5619" selection-end="5619" vertical-scroll-proportion="0.0">
+        <state line="145" column="4" selection-start="5619" selection-end="5619" vertical-scroll-proportion="2.3235295">
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/plugin/MiscMatchers.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="59" selection-start="4533" selection-end="4533" vertical-scroll-proportion="0.83116883">
-          <folding />
         </state>
       </provider>
     </entry>

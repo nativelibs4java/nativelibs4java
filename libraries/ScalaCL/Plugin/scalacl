@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export SCALACL_TRACE=1
+export SCALACL_VERBOSE=1
+export SCALACL_STREAM=1
+
+
+SCALA_LIB_DIR=project/boot/scala-2.9.0/lib
+#SCALA_LIB_DIR=$SCALA_HOME/lib
+
+COMPILER_JAR=$SCALA_LIB_DIR/scala-compiler.jar
+LIBRARY_JAR=$SCALA_LIB_DIR/scala-library.jar
+
+SCALACL_JAR=../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar
+
+CLASSES_DIR=target/classes
+#CLASSES_DIR=target/scala-2.9.0.final/classes
+
+COMPILE_CLASS=scalacl.plugin.Compile
+
+
+
+mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=$1|-cp|$SCALACL_JAR" -o || exit 1
+
+#scala -cp $COMPILER_JAR:$SCALACL_JAR:$CLASSES_DIR $COMPILE_CLASS "$@"
+
+java -cp $COMPILER_JAR:$LIBRARY_JAR:$SCALACL_JAR:$CLASSES_DIR $COMPILE_CLASS "$@"

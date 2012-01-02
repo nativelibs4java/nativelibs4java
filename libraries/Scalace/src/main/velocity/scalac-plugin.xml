@@ -1,0 +1,4 @@
+<plugin>
+  <name>${project_name}-${project_version}</name>
+  <classname>com.nativelibs4java.scalace.plugin.ScalacePlugin</classname>
+</plugin>

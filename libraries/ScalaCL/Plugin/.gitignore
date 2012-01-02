@@ -1,0 +1,10 @@
+target
+project/boot
+project/target
+*~
+out
+tmpTestClassesNormal
+tmpTestClassesOptimized
+*.perf.properties
+test.scala
+test2.scala

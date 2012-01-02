@@ -1,0 +1,217 @@
+setting 'ivy.default.settings.dir' to 'jar:file:/Users/ochafik/bin/sbt-launch-0.10.1.jar!/org/apache/ivy/core/settings'
+setting 'ivy.basedir' to '/Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/.'
+setting 'ivy.default.conf.dir' to 'jar:file:/Users/ochafik/bin/sbt-launch-0.10.1.jar!/org/apache/ivy/core/settings'
+impossible to define new type: class not found: org.apache.ivy.plugins.version.PatternVersionMatcher in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.trigger.LogTrigger in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.DualResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.VsftpResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.conflict.RegexpConflictManager in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.SshResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.VfsResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.signer.bouncycastle.OpenPGPSignatureGenerator in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.SFTPResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.packager.PackagerResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.ant.AntCallTrigger in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.IvyRepResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.ant.AntBuildTrigger in [] nor Ivy classloader
+impossible to define glob matcher: org.apache.ivy.plugins.matcher.GlobPatternMatcher was not found.
+setting 'java.runtime.name' to 'Java(TM) SE Runtime Environment'
+setting 'sun.boot.library.path' to '/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Libraries'
+setting 'java.vm.version' to '20.1-b02-383'
+setting 'awt.nativeDoubleBuffering' to 'true'
+setting 'gopherProxySet' to 'false'
+setting 'mrj.build' to '11A511'
+setting 'java.vm.vendor' to 'Apple Inc.'
+setting 'java.vendor.url' to 'http://www.apple.com/'
+setting 'path.separator' to ':'
+setting 'java.vm.name' to 'Java HotSpot(TM) 64-Bit Server VM'
+setting 'file.encoding.pkg' to 'sun.io'
+setting 'sun.java.launcher' to 'SUN_STANDARD'
+setting 'user.country' to 'FR'
+setting 'sun.os.patch.level' to 'unknown'
+setting 'java.vm.specification.name' to 'Java Virtual Machine Specification'
+setting 'user.dir' to '/Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL'
+setting 'java.runtime.version' to '1.6.0_26-b03-383-11A511'
+setting 'java.awt.graphicsenv' to 'apple.awt.CGraphicsEnvironment'
+setting 'java.endorsed.dirs' to '/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/lib/endorsed'
+setting 'os.arch' to 'x86_64'
+setting 'java.io.tmpdir' to '/var/folders/2w/_9jzy4jd1fs2px9l2yjkmwfc0000gp/T/'
+setting 'line.separator' to '
+'
+setting 'java.vm.specification.vendor' to 'Sun Microsystems Inc.'
+setting 'os.name' to 'Mac OS X'
+setting 'sun.jnu.encoding' to 'MacRoman'
+setting 'java.library.path' to '.:/Users/ochafik/Library/Java/Extensions:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java'
+setting 'java.specification.name' to 'Java Platform API Specification'
+setting 'java.class.version' to '50.0'
+setting 'sun.management.compiler' to 'HotSpot 64-Bit Tiered Compilers'
+setting 'os.version' to '10.7.1'
+setting 'http.nonProxyHosts' to 'local|*.local|169.254/16|*.169.254/16'
+setting 'user.home' to '/Users/ochafik'
+setting 'user.timezone' to 'Europe/London'
+setting 'java.awt.printerjob' to 'apple.awt.CPrinterJob'
+setting 'file.encoding' to 'MacRoman'
+setting 'java.specification.version' to '1.6'
+setting 'java.class.path' to '/Users/ochafik/bin/sbt-launch-0.10.1.jar'
+setting 'user.name' to 'ochafik'
+setting 'java.vm.specification.version' to '1.0'
+setting 'sun.java.command' to '/Users/ochafik/bin/sbt-launch-0.10.1.jar'
+setting 'java.home' to '/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home'
+setting 'sun.arch.data.model' to '64'
+setting 'user.language' to 'fr'
+setting 'java.specification.vendor' to 'Sun Microsystems Inc.'
+setting 'awt.toolkit' to 'apple.awt.CToolkit'
+setting 'java.vm.info' to 'mixed mode'
+setting 'java.version' to '1.6.0_26'
+setting 'java.ext.dirs' to '/Users/ochafik/Library/Java/Extensions:/Library/Java/Extensions:/System/Library/Java/Extensions:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/lib/ext'
+setting 'sun.boot.class.path' to '/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jsfd.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Frameworks/JavaRuntimeSupport.framework/Resources/Java/JavaRuntimeSupport.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/ui.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/laf.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/sunrsasign.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jsse.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/jce.jar:/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/charsets.jar'
+setting 'java.vendor' to 'Apple Inc.'
+setting 'file.separator' to '/'
+setting 'java.vendor.url.bug' to 'http://bugreport.apple.com/'
+setting 'sun.io.unicode.encoding' to 'UnicodeLittle'
+setting 'sun.cpu.endian' to 'little'
+setting 'mrj.version' to '1070.1.6.0_26-383'
+setting 'socksNonProxyHosts' to 'local|*.local|169.254/16|*.169.254/16'
+setting 'ftp.nonProxyHosts' to 'local|*.local|169.254/16|*.169.254/16'
+setting 'sun.cpu.isalist' to ''
+setting 'ivy.default.ivy.user.dir' to '/Users/ochafik/.ivy2'
+setting 'ivy.home' to '/Users/ochafik/.ivy2'
+setting 'ivy.cache.dir' to '/Users/ochafik/.ivy2/cache'
+no default cache defined: set to /Users/ochafik/.ivy2/cache
+setting 'ivy.checksums' to 'sha1,md5'
+setting 'ivy.basedir' to '/Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot'
+setting 'basedir' to '/Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot'
+setting 'scala' to '2.9.1'
+:: resolving dependencies :: org.scala-tools.sbt#boot-scala;1.0
+	confs: [default]
+	validate = true
+	refresh = false
+resolving dependencies for configuration 'default'
+== resolving dependencies for org.scala-tools.sbt#boot-scala;1.0 [default]
+loadData of org.scala-tools.sbt#boot-scala;1.0 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.9.1 [default->default]
+loadData of org.scala-lang#scala-compiler;2.9.1 of rootConf=default
+	using redefined-public to resolve org.scala-lang#scala-compiler;2.9.1
+redefined-public: Checking cache for: dependency: org.scala-lang#scala-compiler;2.9.1 {default=[default, optional(default)]}
+redefined-public: no namespace defined: using system
+No entry is found in the ModuleDescriptorCache : /Users/ochafik/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.9.1.xml
+post 1.3 ivy file: using exact as default matcher
+	found ivy file in cache for org.scala-lang#scala-compiler;2.9.1 (resolved by Scala-Tools Maven2 Repository): /Users/ochafik/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.9.1.xml
+redefined-public: module revision found in cache: org.scala-lang#scala-compiler;2.9.1
+redefined-public: no latest strategy defined: using default
+	found org.scala-lang#scala-compiler;2.9.1 in Scala-Tools Maven2 Repository
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.9.1 [default->runtime]
+loadData of org.scala-lang#scala-compiler;2.9.1 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.9.1 [default->compile]
+loadData of org.scala-lang#scala-compiler;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->master(*)]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+	using redefined-public to resolve org.scala-lang#scala-library;2.9.1
+redefined-public: Checking cache for: dependency: org.scala-lang#scala-library;2.9.1 {compile=[compile(*), master(*)], runtime=[runtime(*)]}
+No entry is found in the ModuleDescriptorCache : /Users/ochafik/.ivy2/cache/org.scala-lang/scala-library/ivy-2.9.1.xml
+post 1.3 ivy file: using exact as default matcher
+	found ivy file in cache for org.scala-lang#scala-library;2.9.1 (resolved by Scala-Tools Maven2 Repository): /Users/ochafik/.ivy2/cache/org.scala-lang/scala-library/ivy-2.9.1.xml
+redefined-public: module revision found in cache: org.scala-lang#scala-library;2.9.1
+	found org.scala-lang#scala-library;2.9.1 in Scala-Tools Maven2 Repository
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->compile(*)]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->default]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->runtime]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->compile]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [compile->master]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [runtime->runtime(*)]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#scala-library;2.9.1 [runtime->compile]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.9.1 [default->master]
+loadData of org.scala-lang#scala-compiler;2.9.1 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.9.1 [default->optional(default)]
+loadData of org.scala-lang#scala-compiler;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#jline;2.9.1 [optional->master(*)]
+loadData of org.scala-lang#jline;2.9.1 of rootConf=default
+	using redefined-public to resolve org.scala-lang#jline;2.9.1
+redefined-public: Checking cache for: dependency: org.scala-lang#jline;2.9.1 {optional=[compile(*), master(*)]}
+No entry is found in the ModuleDescriptorCache : /Users/ochafik/.ivy2/cache/org.scala-lang/jline/ivy-2.9.1.xml
+post 1.3 ivy file: using exact as default matcher
+	found ivy file in cache for org.scala-lang#jline;2.9.1 (resolved by Scala-Tools Maven2 Repository): /Users/ochafik/.ivy2/cache/org.scala-lang/jline/ivy-2.9.1.xml
+redefined-public: module revision found in cache: org.scala-lang#jline;2.9.1
+	found org.scala-lang#jline;2.9.1 in Scala-Tools Maven2 Repository
+== resolving dependencies org.scala-lang#scala-compiler;2.9.1->org.scala-lang#jline;2.9.1 [optional->compile(*)]
+loadData of org.scala-lang#jline;2.9.1 of rootConf=default
+== resolving dependencies org.scala-lang#jline;2.9.1->org.fusesource.jansi#jansi;1.4 [compile->master(*)]
+loadData of org.fusesource.jansi#jansi;1.4 of rootConf=default
+	using redefined-public to resolve org.fusesource.jansi#jansi;1.4
+redefined-public: Checking cache for: dependency: org.fusesource.jansi#jansi;1.4 {compile=[compile(*), master(*)], runtime=[runtime(*)]}
+No entry is found in the ModuleDescriptorCache : /Users/ochafik/.ivy2/cache/org.fusesource.jansi/jansi/ivy-1.4.xml
+post 1.3 ivy file: using exact as default matcher
+	found ivy file in cache for org.fusesource.jansi#jansi;1.4 (resolved by redefined-public): /Users/ochafik/.ivy2/cache/org.fusesource.jansi/jansi/ivy-1.4.xml
+redefined-public: module revision found in cache: org.fusesource.jansi#jansi;1.4
+	found org.fusesource.jansi#jansi;1.4 in redefined-public
+== resolving dependencies org.scala-lang#jline;2.9.1->org.fusesource.jansi#jansi;1.4 [compile->compile(*)]
+loadData of org.fusesource.jansi#jansi;1.4 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.9.1 [default->default]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.9.1 [default->runtime]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.9.1 [default->compile]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.9.1 [default->master]
+loadData of org.scala-lang#scala-library;2.9.1 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+Nbr of module to sort : 4
+Sort dependencies of : org.scala-lang#scala-compiler;2.9.1 / Number of dependencies = 2
+Sort dependencies of : org.scala-lang#scala-library;2.9.1 / Number of dependencies = 0
+Sort done for : org.scala-lang#scala-library;2.9.1
+Sort dependencies of : org.scala-lang#jline;2.9.1 / Number of dependencies = 1
+Sort dependencies of : org.fusesource.jansi#jansi;1.4 / Number of dependencies = 1
+Sort done for : org.fusesource.jansi#jansi;1.4
+Sort done for : org.scala-lang#jline;2.9.1
+Sort done for : org.scala-lang#scala-compiler;2.9.1
+Module descriptor is processed : org.scala-lang#scala-library;2.9.1
+Module descriptor is processed : org.scala-lang#jline;2.9.1
+Module descriptor is processed : org.fusesource.jansi#jansi;1.4
+	resolved ivy file produced in /Users/ochafik/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+:: downloading artifacts ::
+	[NOT REQUIRED] org.scala-lang#scala-compiler;2.9.1!scala-compiler.jar
+	[NOT REQUIRED] org.scala-lang#scala-library;2.9.1!scala-library.jar
+	[NOT REQUIRED] org.scala-lang#jline;2.9.1!jline.jar
+	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar
+:: resolution report :: resolve 155ms :: artifacts dl 3ms
+Nbr of module to sort : 4
+Sort dependencies of : org.scala-lang#scala-compiler;2.9.1 / Number of dependencies = 2
+Sort dependencies of : org.scala-lang#scala-library;2.9.1 / Number of dependencies = 0
+Sort done for : org.scala-lang#scala-library;2.9.1
+Sort dependencies of : org.scala-lang#jline;2.9.1 / Number of dependencies = 1
+Sort dependencies of : org.fusesource.jansi#jansi;1.4 / Number of dependencies = 1
+Sort done for : org.fusesource.jansi#jansi;1.4
+Sort done for : org.scala-lang#jline;2.9.1
+Sort done for : org.scala-lang#scala-compiler;2.9.1
+Module descriptor is processed : org.scala-lang#scala-library;2.9.1
+Module descriptor is processed : org.scala-lang#jline;2.9.1
+Module descriptor is processed : org.fusesource.jansi#jansi;1.4
+	report for org.scala-tools.sbt#boot-scala;1.0 default produced in /Users/ochafik/.ivy2/cache/org.scala-tools.sbt-boot-scala-default.xml
+	resolve done (155ms resolve - 3ms download)
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	checkUpToDate=true
+no explicit confs given for retrieve, using ivy file: /Users/ochafik/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+using ivy parser to parse /Users/ochafik/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+post 1.3 ivy file: using exact as default matcher
+	confs: [default]
+	retrieving /Users/ochafik/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.9.1.jar
+		to /Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot/scala-2.9.1/lib/scala-library.jar
+	retrieving /Users/ochafik/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.9.1.jar
+		to /Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot/scala-2.9.1/lib/scala-compiler.jar
+	retrieving /Users/ochafik/.ivy2/cache/org.scala-lang/jline/jars/jline-2.9.1.jar
+		to /Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot/scala-2.9.1/lib/jline.jar
+	retrieving /Users/ochafik/.ivy2/cache/org.fusesource.jansi/jansi/jars/jansi-1.4.jar
+		to /Users/ochafik/github/nativelibs4java/libraries/OpenCL/ScalaCL/project/boot/scala-2.9.1/lib/jansi.jar
+	4 artifacts copied, 0 already retrieved (19939kB/53ms)
+	retrieve done (53ms)

@@ -1,0 +1,17 @@
+= Project =
+
+Project home :
+http://code.google.com/p/scalacl/
+
+= Compiling =
+
+To compile, test and package ScalaCL Plugin :
+mvn clean install
+
+To compile only :
+mvn compile -Dmaven.test.skip=true
+
+= Using =
+
+Please see :
+http://code.google.com/p/scalacl/wiki/ScalaCLPlugin

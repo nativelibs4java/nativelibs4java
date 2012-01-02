@@ -1,0 +1,4 @@
+<plugin>
+  <name>${project_name}-${project_version}</name>
+  <classname>scalacl.plugin.ScalaCLPlugin</classname>
+</plugin>

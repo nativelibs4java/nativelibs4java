@@ -18,6 +18,8 @@
 		<module>Velocity</module>
 		<module>BridJ</module>
 		<module>jnaerator</module>
+		<module>ScalaCL</module>
+		<module>Scalace</module>
 		<module>OpenCL</module>
 		<module>OpenCL-JNA</module>
 		<module>Mono</module>
@@ -111,6 +113,7 @@ Most of these wrappers are created automatically by JNAerator.
 								<artifactSet>
 									<excludes>
 										<exclude>org.scala-lang:scala-library</exclude>
+										<exclude>org.scala-lang:scala-compiler</exclude>
 									</excludes>
 								</artifactSet>
 									
