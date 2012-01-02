@@ -1,5 +1,9 @@
 package scalacl ; package test
 import plugin._
+import com.nativelibs4java.scalace._
+import test._
+import pluginBase._
+import components._
 
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
@@ -27,13 +31,7 @@ import scala.tools.nsc.Settings
 import scala.actors.Futures._
 import Function.{tupled, untupled}
 
-object SharedCompilerWithPlugins extends SharedCompiler(true)
-object SharedCompilerWithoutPlugins extends SharedCompiler(false)
-//object SharedCompilerWithoutPlugins1 extends SharedCompiler(false)
-//object SharedCompilerWithoutPlugins2 extends SharedCompiler(false)
-
-
-trait ScalaceTestUtils extends BaseTestUtils {
+trait ScalaCLTestUtils extends BaseTestUtils {
   def pluginDef: PluginDef =
     ScalaCLPluginDef
     
