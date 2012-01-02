@@ -77,7 +77,6 @@ Most of these wrappers are created automatically by JNAerator.
 		<developerConnection>scm:git:git@github.com:ochafik/nativelibs4java.git</developerConnection>
 		<url>git@github.com:ochafik/nativelibs4java.git</url>
 	</scm>
-	
 		
 	<dependencies>
 		<dependency>
@@ -147,6 +146,18 @@ Most of these wrappers are created automatically by JNAerator.
 						<phase>package</phase>
 						<goals>
 							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
