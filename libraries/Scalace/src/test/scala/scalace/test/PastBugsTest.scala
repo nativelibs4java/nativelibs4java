@@ -112,18 +112,20 @@ class PastBugsTest extends ScalaceTestUtils {
     ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array(1, 2)
-          for (v <- a) yield (v, v)
+          val r: Array[(Int, Int)] = 
+            for (v <- a) yield (v, v)
       """,
       """
           val a = Array(1, 2);
-          {
+          val r: Array[(Int, Int)] = {
             val array = a
             val n = array.length
             var i = 0
             val m = new Array[(Int, Int)](n)
             while (i < n) {
               val item = array(i)
-              m(i) = (item, item)
+              val mapped = (item, item)
+              m(i) = mapped
               i += 1
             }
             m
@@ -147,35 +149,38 @@ class PastBugsTest extends ScalaceTestUtils {
     ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array(1, 2)
-          a.map(xx => a.map(x => { def f = x ; f }))
+          val r: Array[Array[Int]] =
+            a.map(xx => a.map(x => { def f = x ; f }))
       """,
       """
           val a = Array(1, 2);
-          {
+          val r: Array[Array[Int]] = {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            val m1 = new Array[Array[Int]](n1)
+            val out2 = new Array[Array[Int]](n1)
             while (i1 < n1) {
               val item1 = array1(i1)
-              m1(i1) = {
+              val mapped2: Array[Int] = {
                 val array2 = a
                 val n2 = array2.length
                 var i2 = 0
-                val m2 = new Array[Int](n2)
+                val out1 = new Array[Int](n2)
                 while (i2 < n2) {
                   val item2 = array2(i2)
-                  m2(i2) = {
+                  val mapped1 = {
                     def f = item2
                     f
                   }
+                  out1(i2) = mapped1
                   i2 += 1
                 }
-                m2
+                out1
               }
+              out2(i1) = mapped2
               i1 += 1
             }
-            m1
+            out2
           }
       """
     )

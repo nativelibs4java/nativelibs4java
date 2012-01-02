@@ -18,7 +18,7 @@ class SharedCompiler(enablePlugins: Boolean, pluginDef: PluginDef) {
     val pluginOptions = pluginDef.createOptions(settings)
     pluginOptions.test = true
     
-    val runner = new PluginRunner(pluginDef, pluginOptions, settings, new ConsoleReporter(settings))
+    val runner = new PluginRunner(if (enablePlugins) Some(pluginDef) else None, pluginOptions, settings, new ConsoleReporter(settings))
     Compiler(CompilerMain.extraArgs, settings, pluginOptions, runner) 
   }
 

@@ -45,13 +45,15 @@ trait StreamSinks extends Streams {
 
     override def wrapResultIfNeeded(result: Tree, expectedType: Type, componentType: Type) = {
       typed { result }
-      if (!isResultWrapped && normalize(expectedType) == normalize(result.tpe)) {//!isArrayType(expectedType) && isArrayType(result.tpe)) {
-        //println("TREE TPE IS OK : isResultWrapped = " + isResultWrapped + ", expectedType " + expectedType + ", got " + result.tpe)
-        result
-      } else {
-        //println("TREE TPE NEEDS ARRAY WRAPPER : expected " + expectedType + ", got " + result.tpe)
+      if (//isResultWrapped || 
+        normalize(expectedType) != normalize(result.tpe)) 
+      {//!isArrayType(expectedType) && isArrayType(result.tpe)) {
+        //println("TREE TPE NEEDS ARRAY WRAPPER : isResultWrapped = " + isResultWrapped + ", expected " + normalize(expectedType) + ", got " + normalize(result.tpe))
         val opsType = getArrayWrapperTpe(componentType)
         newInstance(opsType, List(result))
+      } else {
+        //println("TREE TPE IS OK : isResultWrapped = " + isResultWrapped + ", expectedType " + expectedType + ", got " + result.tpe)
+        result
       }
     }
   }

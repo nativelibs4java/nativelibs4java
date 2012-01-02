@@ -55,10 +55,10 @@ import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.reporters.Reporter
 
-class PluginRunner(pluginDef: PluginDef, options: PluginOptions, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
+class PluginRunner(pluginDefOpt: Option[PluginDef], options: PluginOptions, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
   override protected def computeInternalPhases() {
     super.computeInternalPhases
-    for (phase <- pluginDef.createComponents(this, options); if phase != null)
+    for (pluginDef <- pluginDefOpt; phase <- pluginDef.createComponents(this, options); if phase != null)
       phasesSet += phase
   }
 }

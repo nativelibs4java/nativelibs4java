@@ -96,7 +96,7 @@ trait CompilerMain {
       override val cmdName = commandName
     }
     val pluginOptions = pluginDef.createOptions(settings)
-    val runner = new PluginRunner(pluginDef, pluginOptions, settings, new ConsoleReporter(settings))
+    val runner = new PluginRunner(Some(pluginDef), pluginOptions, settings, new ConsoleReporter(settings))
     val run = new runner.Run
 
     if (command.ok) {

@@ -171,8 +171,10 @@ with CodeAnalysis
     def subValue(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): IdentGen =
       if (fiberLength == 1 && fiberOffset == 0 && hasOneFiber)
         elements(0)
+      else if (fiberLength == fibersCount && fiberOffset == 0 && elements.size == 1)
+        elements.head
       else
-        throw new RuntimeException("not implemented")
+        throw new RuntimeException("not implemented : fibersCount = " + fibersCount + ", fiberOffset = " + fiberOffset + ", fiberLength = " + fiberLength + ", tpe = " + tpe + ", elements = " + elements.map(_()).mkString(", "))
     def subTuple(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): TupleValue =
       if (fiberLength == fibersCount && fiberOffset == 0)
         this

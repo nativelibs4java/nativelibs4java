@@ -167,9 +167,14 @@ extends MiscMatchers
       symbol.isGetter ||
       isSideEffectFreeOwner(target.tpe.typeSymbol) || 
       isSideEffectFreeOwner(owner) || 
-      name == (applyName: Name) && {
-        owner == SeqModule ||
-        owner == ArrayModule //||
+      name == (applyName: Name) && owner != null && {
+        SeqModule.toString == owner.toString ||
+        ArrayModule.toString == owner.toString 
+        /*|| {
+          println("Apply method not recognized as side-effect-free with owner " + owner + " (ArrayModule = " + ArrayModule + ") : " + symbol)
+          false 
+        }*/
+        //||
         //owner == SetModule ||
         //owner == MapModule
       }
