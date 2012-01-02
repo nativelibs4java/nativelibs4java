@@ -290,7 +290,7 @@ with CodeAnalysis
   def warnSideEffect(unit: CompilationUnit, tree: Tree) = {
     unit.warning(tree.pos, "Beware of side-effects in operations streams." + (if (options.debug) " (" + tree + ")" else ""))
   }
-  def assembleStream(stream: Stream, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
+  def assembleStream(stream: Stream, outerTree: Tree, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
     val Stream(source, transformers) = stream
     
     val sourceAndOps = source +: transformers
@@ -346,7 +346,7 @@ with CodeAnalysis
       value = transformer.transform(value)
       
     for (sinkCreator <- sinkCreatorOpt) {
-      val expectedType = sourceAndOps.last.tree.tpe
+      val expectedType = outerTree.tpe//sourceAndOps.last.tree.tpe
       val sink = sinkCreator.createStreamSink(expectedType, value.value.tpe, value.valuesCount)
       sink.output(value, expectedType)
     }

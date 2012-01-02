@@ -256,7 +256,7 @@ extends PluginComponent
                 try {
                   val stream = Stream(source, ops)
                   checkStreamWillBenefitFromOptimization(stream)
-                  val asm = assembleStream(stream, this.transform _, unit, tree.pos, currentOwner, localTyper)
+                  val asm = assembleStream(stream, tree, this.transform _, unit, tree.pos, currentOwner, localTyper)
                   //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
                   //println("### TRANSFORMED : ###\n" + nodeToString(asm))
                   asm
