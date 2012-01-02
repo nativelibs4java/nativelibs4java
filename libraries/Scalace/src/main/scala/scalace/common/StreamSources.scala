@@ -165,7 +165,7 @@ trait StreamSources extends Streams with StreamSinks {
       loop.preOuter += toVar.definition
       loop.preOuter += itemVar.definition
       loop.preOuter += (sizeVal.defIfUsed _)
-      loop.preOuter += (iVar.defIfUsed _)
+      loop.preOuter += (() => if (iVal.identUsed) Some(iVar.definition) else None)
       loop.tests += (
         binOp(
           itemVar(),

@@ -100,21 +100,21 @@ class IntRangeForeach2WhileTest extends ScalaceTestUtils with TypeUtils {
   def simpleRangeFilter: Unit = {
     ensurePluginCompilesSnippetsToSameByteCode( 
       """
-          (0 until 100).filter(_ != 50)
+          val r: IndexedSeq[Int] = 
+            (0 until 100).filter(_ != 50)
       """,
       """
-          {
+          val r: IndexedSeq[Int] = {
             val from = 0
             val to = 100
-            val n = to
-            var i = from
+            var item = from
             val builder1 = new scala.collection.immutable.VectorBuilder[Int]
-            while (i < n)
+            while (item < to)
             {
-              val iVal = i
-              if (iVal != 50)
-                builder1 += iVal
-              i += 1
+              val itemVal = item
+              if (itemVal != 50)
+                builder1 += itemVal
+              item += 1
             }
             builder1.result
           }
