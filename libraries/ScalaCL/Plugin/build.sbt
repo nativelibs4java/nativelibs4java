@@ -19,5 +19,6 @@ resolvers += "NativeLibs4Java Repository" at "http://nativelibs4java.sourceforge
 
 libraryDependencies ++= Seq(
 	"com.nativelibs4java" % "scalaxy" % "0.3-SNAPSHOT",
+	"com.nativelibs4java" % "scalacl" % "0.3-SNAPSHOT",
 	"com.novocode" % "junit-interface" % "0.5" % "test->default"
 )
