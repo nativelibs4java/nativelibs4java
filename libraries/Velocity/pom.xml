@@ -36,6 +36,12 @@
       <version>3.0-alpha-2</version>
     </dependency>
   </dependencies>
-
+  <build>
+	<resources>
+		<resource>
+			<directory>${basedir}/target/generated-sources/main</directory>
+		</resource>
+	</resources>
+  </build>
 </project>
 

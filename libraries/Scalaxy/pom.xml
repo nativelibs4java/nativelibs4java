@@ -36,6 +36,11 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/target/generated-sources/main</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
