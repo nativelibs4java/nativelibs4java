@@ -13,6 +13,8 @@ organization := "com.nativelibs4java"
 
 scalaVersion := "2.9.1"
 
+resolvers += "Sonatype OSS Snapshots Repository" at "http://oss.sonatype.org/content/groups/public/"
+
 resolvers += "NativeLibs4Java Repository" at "http://nativelibs4java.sourceforge.net/maven/"
 
 libraryDependencies ++= Seq(

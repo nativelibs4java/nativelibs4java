@@ -1,5 +1,5 @@
 /*
-SCALACL_VERBOSE=1 sbt '~run examples/Toto.scala -d examples/classes -classpath ../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar'
+SCALACL_VERBOSE=1 sbt '~run examples/Toto.scala -d examples/classes -classpath ../Collections/target/scalacl-0.3-SNAPSHOT-shaded.jar'
 
 -Xprint:scalacl-functionstransform",
           "-Xprint:typer",
