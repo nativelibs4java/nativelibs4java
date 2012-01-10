@@ -35,8 +35,6 @@
 		<maven-velocity-plugin.version>0.7-SNAPSHOT</maven-velocity-plugin.version>
 		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
 		
-		<scala.version>2.9.1</scala.version>
-		
 		<jarsigner.skip>true</jarsigner.skip>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
@@ -153,6 +151,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>

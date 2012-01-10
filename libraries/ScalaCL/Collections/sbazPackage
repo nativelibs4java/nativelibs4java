@@ -16,7 +16,7 @@ echo "###################################################"
 echo "# Building ScalaCL Collections"
 mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests                    
 
-cd ../ScalaCLPlugin
+cd ../Plugin
 echo "# Building ScalaCL Compiler Plugin"
 mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
 cd $SCALACL_HOME
@@ -49,7 +49,7 @@ echo "# Copied the following libraries :"
 ls -l $LIB_JAR_OUT
 
 echo "# Copying compiler plugin libraries"
-cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
+cp ../Plugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
 echo "# Packing for sbaz"
 sbaz pack scalacl $TEMP_OUT \

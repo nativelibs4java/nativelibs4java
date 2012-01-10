@@ -23,6 +23,7 @@
 	</modules>
 	
 	<properties>
+		<scala.version>2.9.1</scala.version>
 		<javacl.version>1.0-SNAPSHOT</javacl.version>
 		<scalaxy.version>0.3-SNAPSHOT</scalaxy.version>
 	</properties>
@@ -97,6 +98,7 @@
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
+				<version>${scala.version}</version>
 				<executions>
 					<execution>
 						<goals>
