@@ -56,7 +56,7 @@ sbaz pack scalacl $TEMP_OUT \
 	--linkbase $LINK_BASE \
 	--version $SBAZ_VERSION \
 	--outdir src/main/sbaz \
-	--descfile ABOUT
+	--descfile ABOUT || ( echo "sbaz pack failed" && exit 1 )
 
 mkdir -p src/main/sbaz
 

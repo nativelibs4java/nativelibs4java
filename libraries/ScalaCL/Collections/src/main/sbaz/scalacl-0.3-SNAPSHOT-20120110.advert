@@ -1,0 +1,32 @@
+<availablePackage>
+  <package><name>scalacl</name><version>0.3-SNAPSHOT-20120110</version><depends></depends><description>
+	ScalaCL makes Scala faster and GPGPU trivial.
+	It features :
+	- a compiler plugin that optimizes regular Scala code without adding any dependency
+	- a library of OpenCL-backed collections that execute Scala code (map, filter...) on GPUs transparently, thanks to the compiler plugin
+	
+Website:
+	http://scalacl.googlecode.com/
+	
+Author: 
+	Olivier Chafik &lt;olivier.chafik@gmail.com&gt;
+	http://ochafik.free.fr/blog/
+	http://twitter.com/ochafik
+
+Current features :
+- CLArray[T], CLRange (create with CLArray(1, 2, 3...), new CLArray[Int](n), Seq.cl or Seq.toCLArray) with accelerated .map, .filter, .zip and .zipWithIndex operations (when the inline closures are convertible by the compiler plugin)
+	-&gt; For more details, see http://code.google.com/p/scalacl/wiki/CLConvertibleLanguageSubset 
+- Transformation of regular Scala operations on Array[T] and inline ranges : .map, .foreach, .reduce/fold/scan|Left/Right, .sum...
+	-&gt; For more details, see http://code.google.com/p/scalacl/wiki/ScalaCLPlugin
+
+Planned features :
+- better translation of Scala functions to OpenCL kernels to support more Scala constructs
+- rewrite of operation streams into loops when functions are side-effect-free (a.map(f1).map(f2).filter(f3).takeWhile(f4)...)
+- auto-vectorization of OpenCL code
+
+Please use NativeLibs4Java's user group and bug-tracker for feedback or help about ScalaCL and its compiler plugin :
+http://groups.google.fr/group/nativelibs4java/
+http://code.google.com/p/nativelibs4java/issues/list
+</description></package>
+  <link>http://nativelibs4java.sourceforge.net/sbaz/scalacl/scalacl-0.3-SNAPSHOT-20120110.sbp</link>
+</availablePackage>
