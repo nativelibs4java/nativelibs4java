@@ -27,12 +27,10 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
-			<version>${scala.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -49,42 +47,10 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<args>
-						<arg>-optimise</arg>
-					</args>
-					<jvmArgs>
-						<jvmArg>-Xms64m</jvmArg>
-						<jvmArg>-Xmx1024m</jvmArg>
-					</jvmArgs>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
-				<version>${maven-velocity-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<properties>
-						<project_version>${project.version}</project_version>
-						<project_name>${project.artifactId}</project_name>
-					</properties>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -94,7 +60,6 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
 			</plugin>
 		</plugins>
 	</reporting>

@@ -32,6 +32,7 @@
 		<module>JavaCL</module>
 		<module>Core</module>
 		<module>OpenGLDemos</module>
+		<module>JavaCLTutorial</module>
 	</modules>
 	
 	<dependencyManagement>
@@ -83,20 +84,9 @@
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>javacl-tutorials-root-jna</artifactId>
+				<artifactId>javacl-tutorial-jna</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.nativelibs4java</groupId>
-				<artifactId>javacl-dft-tutorial-jna</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.nativelibs4java</groupId>
-				<artifactId>javacl-simple-tutorial-jna</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>jnaerator</artifactId>

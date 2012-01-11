@@ -14,15 +14,10 @@
   	  <relativePath>../..</relativePath>
     </parent>
 	
-	<properties>
-		<scala.version>2.9.1</scala.version>
-	</properties>
-    
   <dependencies>
   	<dependency>
   		<groupId>org.scala-lang</groupId>
   		<artifactId>scala-library</artifactId>
-  		<version>${scala.version}</version>
     </dependency>
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>

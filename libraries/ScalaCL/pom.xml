@@ -23,7 +23,6 @@
 	</modules>
 	
 	<properties>
-		<scala.version>2.9.1</scala.version>
 		<javacl.version>1.0-SNAPSHOT</javacl.version>
 		<scalaxy.version>0.3-SNAPSHOT</scalaxy.version>
 	</properties>
@@ -98,24 +97,6 @@
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<args>
-						<arg>-optimise</arg>
-					</args>
-					<jvmArgs>
-						<jvmArg>-Xms64m</jvmArg>
-						<jvmArg>-Xmx1024m</jvmArg>
-					</jvmArgs>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -131,7 +112,6 @@
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -141,7 +121,6 @@
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
 			</plugin>
 		</plugins>
 	</reporting>

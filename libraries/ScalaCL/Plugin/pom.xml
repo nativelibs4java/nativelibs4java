@@ -55,19 +55,8 @@ For more info, please visit http://code.google.com/p/scalacl
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
-				<version>${maven-velocity-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
-					<properties>
-						<project_version>${project.version}</project_version>
-						<project_name>${project.artifactId}</project_name>
-					</properties>
+					<outputDirectory>${basedir}/src/main/resources</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -34,6 +34,7 @@
 		<bridj.version>0.7-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.7-SNAPSHOT</maven-velocity-plugin.version>
 		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
+		<scala.version>2.9.1</scala.version>
 		
 		<jarsigner.skip>true</jarsigner.skip>
 		<maven.compiler.debug>true</maven.compiler.debug>
@@ -85,10 +86,63 @@ Most of these wrappers are created automatically by JNAerator.
 		</dependency>
 	</dependencies>
 	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.scala-lang</groupId>
+				<artifactId>scala-library</artifactId>
+				<version>${scala.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.scala-lang</groupId>
+				<artifactId>scala-compiler</artifactId>
+				<version>${scala.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<pluginManagement>
 			<plugins>
-				
+				<plugin>
+					<groupId>org.scala-tools</groupId>
+					<artifactId>maven-scala-plugin</artifactId>
+					<version>${scala.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>compile</goal>
+								<goal>testCompile</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<args>
+							<arg>-optimise</arg>
+						</args>
+						<jvmArgs>
+							<jvmArg>-Xms64m</jvmArg>
+							<jvmArg>-Xmx1024m</jvmArg>
+						</jvmArgs>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.nativelibs4java</groupId>
+					<artifactId>maven-velocity-plugin</artifactId>
+					<version>${maven-velocity-plugin.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<properties>
+							<project_version>${project.version}</project_version>
+							<project_name>${project.artifactId}</project_name>
+						</properties>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
