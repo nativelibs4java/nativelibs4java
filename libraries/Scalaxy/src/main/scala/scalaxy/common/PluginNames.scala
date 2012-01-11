@@ -115,7 +115,7 @@ trait PluginNames {
 
   lazy val ArrayIndexOutOfBoundsExceptionClass = C("java.lang.ArrayIndexOutOfBoundsException")
   
-  val primArrayNames = Array(
+  lazy val primArrayNames = Array(
     (IntClass.tpe, "ofInt"),
     (LongClass.tpe, "ofLong"),
     (ShortClass.tpe, "ofShort"),
