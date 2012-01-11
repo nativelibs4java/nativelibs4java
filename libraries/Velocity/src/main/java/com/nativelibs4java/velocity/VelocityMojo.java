@@ -50,21 +50,21 @@ public class VelocityMojo
      
 	/**
      * Source folder for velocity templates
-     * @parameter expression="${project.build.directory}/../src/"
+     * @parameter expression="${basedir}/src/"
      * @required
      */
     private File sourcePathRoot;
 
     /**
      * Source folder for velocity templates
-     * @parameter expression="${project.build.directory}/../src/main/velocity/"
+     * @parameter expression="${basedir}/src/main/velocity/"
      * @required
      */
     private File velocitySources;
 
 	/**
      * Source folder for velocity test templates
-     * @parameter expression="${project.build.directory}/../src/test/velocity/"
+     * @parameter expression="${basedir}/src/test/velocity/"
      * @required
      */
     private File velocityTestSources;
