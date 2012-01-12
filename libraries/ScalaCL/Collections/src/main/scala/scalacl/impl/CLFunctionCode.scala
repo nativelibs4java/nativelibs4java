@@ -228,7 +228,9 @@ object CLFunctionCode {
     declarations: Array[String],
     expressions: Array[String],
     includedSources: Array[String],
-    extraArgsIOs: CapturedIOs = CapturedIOs()
+    extraArgsIOs: CapturedIOs = CapturedIOs(),
+    bodyPrefix: Array[String] = Array(),
+    bodySuffix: Array[String] = Array()
   )(implicit aIO: CLDataIO[A], bIO: CLDataIO[B]): SourceData = 
   {
     assert(!expressions.isEmpty)
@@ -298,10 +300,12 @@ object CLFunctionCode {
       "__kernel void array_array",
       Seq(sizeParam, kernelParams),
       Seq(
+        bodyPrefix,
         indexHeader, 
         sizeHeader,
         kernDeclsArray,
-        assigntArray
+        assigntArray,
+        bodySuffix
       ),
       kernelsSource
     )
@@ -309,11 +313,13 @@ object CLFunctionCode {
       "__kernel void filteredArray_filteredArray",
       Seq(sizeParam, presenceParam, kernelParams), 
       Seq(
+        bodyPrefix,
         indexHeader,
         sizeHeader,
         presenceHeader,
         kernDeclsArray,
-        assigntArray
+        assigntArray,
+        bodySuffix
       ),
       kernelsSource
     )
@@ -323,10 +329,12 @@ object CLFunctionCode {
         "__kernel void range_array",
         Seq(sizeParam, kernelParams),
         Seq(
+          bodyPrefix,
           indexHeader,
           sizeHeader,
           kernDeclsRange,
-          assigntRange
+          assigntRange,
+          bodySuffix
         ),
         kernelsSource
       )
