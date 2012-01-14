@@ -85,7 +85,7 @@ object ScalaCLPluginDef extends PluginDef {
 }
 
 class ScalaCLPlugin(override val global: Global) 
-extends PluginBase(global, ScalaxyPluginDef)
+extends PluginBase(global, ScalaCLPluginDef)
 
 object Compile extends CompilerMain {
   override def pluginDef = ScalaCLPluginDef
