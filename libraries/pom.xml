@@ -223,10 +223,10 @@ Most of these wrappers are created automatically by JNAerator.
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
+							<goal>aggregate</goal>
 							<goal>jar</goal>
 						</goals>
 						<configuration>
-							<aggregate>true</aggregate>
 							<minmemory>128m</minmemory>
 							<maxmemory>512</maxmemory>
 							<breakiterator>true</breakiterator>
@@ -240,6 +240,65 @@ Most of these wrappers are created automatically by JNAerator.
 								<link>http://nativelibs4java.sourceforge.net/bridj/api/stable/</link>
 								<link>http://nativelibs4java.sourceforge.net/javacl/api/stable/</link>
 							</links>
+					          <tags>
+					            <tag>
+					              <name>aggregator</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>description</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>execute</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>goal</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>phase</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>requiresDirectInvocation</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>requiresDependencyResolution</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>requiresProject</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>requiresReports</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>requiresOnline</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>parameter</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>component</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>required</name>
+					              <placement>t</placement>
+					            </tag>
+					          	<tag>
+					              <name>readonly</name>
+					              <placement>t</placement>
+					            </tag>
+					           </tags>
+					
 						</configuration>
 					</execution>
 				</executions>
