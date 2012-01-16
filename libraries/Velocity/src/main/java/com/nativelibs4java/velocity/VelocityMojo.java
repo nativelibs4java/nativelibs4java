@@ -173,6 +173,7 @@ public class VelocityMojo
 
 			canoPath = sourcePathRoot.getCanonicalPath();
             getLog().info("Velocity root path = " + canoPath);
+            Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
 			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
 			Velocity.init();
 					
@@ -246,5 +247,4 @@ public class VelocityMojo
 		
         return true;
     }
-
 }
