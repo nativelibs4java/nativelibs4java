@@ -172,7 +172,8 @@ public class VelocityMojo
 			listVeloFiles(velocitySources, files);
 
 			canoPath = sourcePathRoot.getCanonicalPath();
-            System.out.println("Velocity root path = " + canoPath);
+            getLog().info("Velocity root path = " + canoPath);
+            Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
 			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
 			Velocity.init();
 					
@@ -182,6 +183,7 @@ public class VelocityMojo
 		}
 
         getLog().info("Found " + files.size() + " files in '" + velocitySources + "'...");
+        getLog().info("Got properties : " + properties);
 
         if (files.isEmpty())
             return false;
@@ -216,11 +218,10 @@ public class VelocityMojo
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
                 context.put("bridJPrimitives", Primitive.getBridJPrimitives());
                 
-                getLog().info("Got properties : " + properties);
                 if (properties != null) {
                 	for (Map.Entry<String, String> e : properties.entrySet()) {
                 		String propName = e.getKey(), propValue = e.getValue();
-                		getLog().info("Got property : " + propName + " = " + propValue);
+                		getLog().debug("Got property : " + propName + " = " + propValue);
                 
 						context.put(propName, propValue);
 					}
@@ -246,5 +247,4 @@ public class VelocityMojo
 		
         return true;
     }
-
 }
