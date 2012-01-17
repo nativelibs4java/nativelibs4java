@@ -210,7 +210,7 @@ Most of these wrappers are created automatically by JNAerator.
 					<execution>
 						<id>attach-sources</id>
 						<goals>
-							<goal>jar</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
