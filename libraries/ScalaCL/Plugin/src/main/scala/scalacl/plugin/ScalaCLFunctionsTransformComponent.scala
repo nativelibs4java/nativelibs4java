@@ -210,8 +210,10 @@ extends PluginComponent
       var ioTree = analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
       if (ioTree == null)
         null
-      else
-        (ioTree.AS(anyCLDataIOTpe), getDataIO(tpe))
+      else {
+        val dataIO = getDataIO(tpe)
+        (ioTree, dataIO)
+      }
     }
     def conversionError(pos: Position, msg: String) = {
       unit.error(pos, msg)
