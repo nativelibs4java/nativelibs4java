@@ -267,7 +267,6 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
     val ioStr = if (ioStrs.length == 0) "<no CLDataIOs!>" else ioStrs.reduceLeft(_ + ", " + _)
     "(" + ioStr + ")"
   }
-
 }
 
 abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
@@ -384,6 +383,8 @@ object CLShortDataIO extends CLValDataIO[Short] {
 
 object CLByteDataIO extends CLValDataIO[Byte] {
   override def reductionType = (OpenCLType.Byte, 1)
+  
+  override def clType = "char"
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Byte =
     pointers(offset).getByteAtOffset(index * 1)
