@@ -104,21 +104,30 @@ extends PluginComponent
     else
       new CLTupleDataIO[Any](ios = ti.components.toArray.map(getDataIOByTupleInfo _), null, null) // TODO
   }
+  
   def getDataIO(tpe: Type): CLDataIO[Any] = {
-    try { 
-      getDataIOByTupleInfo(getTupleInfo(tpe))
-    } catch { case _ => 
-      (tpe.typeSymbol match {
-        case IntClass => CLIntDataIO
-        case ShortClass => CLShortDataIO
-        case ByteClass => CLByteDataIO
-        case CharClass => CLCharDataIO
-        case LongClass => CLLongDataIO
-        case BooleanClass => CLBooleanDataIO
-        case FloatClass => CLFloatDataIO
-        case DoubleClass => CLDoubleDataIO
-      }).asInstanceOf[CLDataIO[Any]]
+    val dataIO = tpe.typeSymbol match {
+	    case IntClass => CLIntDataIO
+	    case ShortClass => CLShortDataIO
+	    case ByteClass => CLByteDataIO
+	    case CharClass => CLCharDataIO
+	    case LongClass => CLLongDataIO
+	    case BooleanClass => CLBooleanDataIO
+	    case FloatClass => CLFloatDataIO
+	    case DoubleClass => CLDoubleDataIO
+	    case _ => {
+	        try {
+			    val tupleInfo = getTupleInfo(tpe)
+			    val tupleDataIO = getDataIOByTupleInfo(tupleInfo)
+			    //println("ScalaCLFunctionsTransform: dataIO=" + tupleDataIO.toString + "  tupleInfo=" + tupleInfo.toString)
+			    tupleDataIO
+			} catch { case e => 
+			    println("ScalaCLFunctionsTransform: Exception getting CLDataIO for tuple.  e=" + e.getStackTraceString)
+			    throw e
+			}
+	    }
     }
+    dataIO.asInstanceOf[CLDataIO[Any]]
   }
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
@@ -210,8 +219,10 @@ extends PluginComponent
       var ioTree = analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
       if (ioTree == null)
         null
-      else
-        (ioTree.AS(anyCLDataIOTpe), getDataIO(tpe))
+      else {
+        val dataIO = getDataIO(tpe)
+        (ioTree, dataIO)
+      }
     }
     def conversionError(pos: Position, msg: String) = {
       unit.error(pos, msg)
