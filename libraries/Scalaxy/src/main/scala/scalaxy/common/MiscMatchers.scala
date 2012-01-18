@@ -106,7 +106,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
       case Apply(f @ Select(left, name), args) =>
         if (isPackageReference(left, "scala.math"))
           Some((f.tpe, name, args))
-        else if (tree.symbol.owner == ScalaMathCommonClass)
+        else if (tree.symbol != NoSymbol && tree.symbol.owner == ScalaMathCommonClass)
           Some((f.tpe, name, args))
         else
           None
@@ -206,7 +206,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
       case Select(target, tupleComponentName(n)) =>
         //fieldName.toString match {
         //  case rx(n) =>
-            if (isTupleSymbol(tree.symbol.owner) || isTupleSymbol(target.tpe.typeSymbol)) {
+            if (tree.symbol != NoSymbol && isTupleSymbol(tree.symbol.owner) || isTupleSymbol(target.tpe.typeSymbol)) {
               Some(target, n - 1)
             } else {
               println("ISSUE with tuple target symbol \n\t" + target.symbol + "\n\t" + target.tpe.typeSymbol)
@@ -435,7 +435,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
         case Some(s) =>
           Some(s)
         case None =>
-          if ((tree ne null) && (tree.symbol ne null))
+          if ((tree ne null) && (tree.symbol ne null) && tree.symbol != NoSymbol)
             unapply(tree.symbol.tpe)
           else
             None
