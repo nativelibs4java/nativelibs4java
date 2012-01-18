@@ -10,7 +10,7 @@ SCALACL_VERBOSE=1 SCALACL_TRACE=1 scalac -Xplugin:target/scalacl-compiler-plugin
 
 scala -cp .:../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar:/Users/ochafik/.m2/repository/junit/junit/4.10/junit-4.10.jar scalacltests.Test209
 */
-object Test209 {
+class Issue209 {
   private implicit val context = Context.best
   println(context)
 
