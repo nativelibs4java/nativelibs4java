@@ -117,6 +117,8 @@ object CLTupleDataIO {
 }
 class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple: Array[Any] => T)(implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
 
+  assert(!ios.isEmpty)
+    
   override lazy val pointerIO: PointerIO[T] =
     error("Cannot create PointerIO for tuples !")
 
@@ -262,11 +264,8 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override def exprs(arrayExpr: String): Seq[String] =
     ios.zipWithIndex.flatMap { case (io, i) => io.exprs(arrayExpr + "._" + (i + 1)) }
 
-  override def toString = {
-    val ioStrs = ios.map(_.toString)
-    val ioStr = if (ioStrs.length == 0) "<no CLDataIOs!>" else ioStrs.reduceLeft(_ + ", " + _)
-    "(" + ioStr + ")"
-  }
+  override def toString =
+    "(" + ios.mkString(", ") + ")"
 }
 
 abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
