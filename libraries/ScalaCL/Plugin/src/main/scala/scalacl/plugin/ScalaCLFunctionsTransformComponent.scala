@@ -231,8 +231,8 @@ extends PluginComponent
     
     case class Capture(symbol: Symbol, io: (Tree, CLDataIO[Any]), isArray: Boolean, arg: Tree)
       
-    val anyCLDataIOTpe = TypeRef(NoPrefix, CLDataIOClass, List(AnyClass.tpe))
-    val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(AnyClass.tpe))
+    val anyCLDataIOTpe = TypeRef(NoPrefix, CLDataIOClass, List(WildcardType))
+    val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(WildcardType))
       
     def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): (Seq[Capture], Boolean) = {
       val externalSymbolInfo = 
