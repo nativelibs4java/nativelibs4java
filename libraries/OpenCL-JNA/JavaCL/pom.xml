@@ -51,7 +51,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			<artifactId>javacl-generator-jna</artifactId>
 			<executions>
 			  <execution>
-				<phase>generate-sources</phase>
 				<goals>
 				  <goal>compile</goal>
 				  <!--goal>test-compile</goal-->

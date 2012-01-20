@@ -29,13 +29,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.List;
 import org.apache.velocity.*;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.app.Velocity;
 
 /**
  * Generates source code with velocity templates
  * @goal generate
  * @phase generate-sources
- * @requiresDependencyResolution compile
  * @description Generates source code with velocity templates
  */
 public class VelocityMojo
@@ -165,6 +165,8 @@ public class VelocityMojo
     }
 
     private boolean executeAll(File velocitySources, File outputDirectory) throws MojoExecutionException {
+    	VelocityEngine ve = new VelocityEngine();
+    	
         List<File> files = new ArrayList<File>();
 		String canoPath;
 		try {
@@ -173,9 +175,9 @@ public class VelocityMojo
 
 			canoPath = sourcePathRoot.getCanonicalPath();
             getLog().info("Velocity root path = " + canoPath);
-            Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
-			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
-			Velocity.init();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
+			ve.setProperty("file.resource.loader.path", canoPath);//file.getParent());
+			ve.init();
 					
 			
 		} catch (Exception ex) {
@@ -211,7 +213,7 @@ public class VelocityMojo
 				if (cano.startsWith(File.separator))
 					cano = cano.substring(File.separator.length());
 				
-                org.apache.velocity.Template template = Velocity.getTemplate(cano);//file.getName());
+                org.apache.velocity.Template template = ve.getTemplate(cano);//file.getName());
 
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 context.put("primitives", Primitive.getPrimitives());

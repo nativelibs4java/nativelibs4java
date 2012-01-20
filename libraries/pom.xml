@@ -138,6 +138,7 @@ Most of these wrappers are created automatically by JNAerator.
 					</executions>
 					<configuration>
 						<properties>
+							<version>${project.version}</version>
 							<project_version>${project.version}</project_version>
 							<project_name>${project.artifactId}</project_name>
 						</properties>

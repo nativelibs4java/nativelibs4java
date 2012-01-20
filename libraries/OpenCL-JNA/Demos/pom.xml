@@ -39,7 +39,6 @@
 			<artifactId>javacl-generator-jna</artifactId>
 			<executions>
 			  <execution>
-				<phase>generate-sources</phase>
 				<goals>
 				  <goal>compile</goal>
 				  <!--goal>test-compile</goal-->

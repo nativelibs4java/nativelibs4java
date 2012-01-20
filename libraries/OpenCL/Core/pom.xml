@@ -43,7 +43,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   
   <build>
   	<plugins>
-  		
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
