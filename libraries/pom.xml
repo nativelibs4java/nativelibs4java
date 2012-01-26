@@ -13,7 +13,15 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	
+
+	<repositories>
+		<repository>
+			<id>nativelibs4java</id>
+			<name>nativelibs4java Maven2 Repository</name>
+			<url>http://nativelibs4java.sourceforge.net/maven</url>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>Velocity</module>
 		<module>BridJ</module>
