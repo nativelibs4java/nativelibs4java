@@ -238,7 +238,8 @@ public class JavaCL {
 	}
 
     /**
-     * Creates an OpenCL context with the "best" device based on the comparison of the provided prioritized device feature (see {@link JavaCL#getBestDevice(CLPlatform.DeviceFeature) })
+     * Creates an OpenCL context with the "best" device based on the comparison of the provided 
+	 * prioritized device feature (see {@link JavaCL#getBestDevice(CLPlatform.DeviceFeature...) })
      */
 	public static CLContext createBestContext(CLPlatform.DeviceFeature... preferredFeatures) {
 		CLDevice device = getBestDevice(preferredFeatures);
