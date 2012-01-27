@@ -10,7 +10,7 @@ public class User32 {
 	}
 	/**
 	 * Contains the time of the last input.
-	 * @see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/keyboardinput/keyboardinputreference/keyboardinputstructures/lastinputinfo.asp
+	 * @see <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/keyboardinput/keyboardinputreference/keyboardinputstructures/lastinputinfo.asp">MSDN LASTINPUTINFO structure</a>
 	 */
 	public static class LASTINPUTINFO extends StructObject {
 		@Field(0)
@@ -26,7 +26,7 @@ public class User32 {
 	
 	/**
 	 * Retrieves the time of the last input event.
-	 * @see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/keyboardinput/keyboardinputreference/keyboardinputfunctions/getlastinputinfo.asp
+	 * @see <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/keyboardinput/keyboardinputreference/keyboardinputfunctions/getlastinputinfo.asp">MSDN GetLastInputInfo function</a>
 	 * @return time of the last input event, in milliseconds
 	 */
 	public static native boolean GetLastInputInfo(Pointer<LASTINPUTINFO> result);
