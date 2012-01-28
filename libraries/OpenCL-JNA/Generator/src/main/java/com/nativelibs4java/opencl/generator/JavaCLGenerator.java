@@ -151,7 +151,7 @@ public class JavaCLGenerator extends JNAerator {
                 declarationsConverter = new DeclarationsConverter(this) {
 
                     @Override
-                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName) {
+                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName, int unused) {
                         if (isCallback)
                             return;
 
