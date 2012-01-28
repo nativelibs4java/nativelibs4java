@@ -233,7 +233,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices with the greatest variety of supported image formats (see {@link CLContext#getSupportedImageFormats() })
+         * Prefer devices with the greatest variety of supported image formats (see {@link CLContext#getSupportedImageFormats(CLMem.Flags, CLMem.ObjectType) })
          */
         MostImageFormats {
             Comparable extractValue(CLDevice device) {

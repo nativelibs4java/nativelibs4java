@@ -41,8 +41,8 @@ public class NIOUtils
 	}
 	
 	/**
-	 * Bulk-copy all of the input buffer into output byte buffer
-	 * @param inputBytes
+	 * Bulk-copy all of the input buffer into the output buffer
+	 * @param input
 	 * @param output
 	 */
 	public static void put(Buffer input, Buffer output) {
@@ -67,9 +67,9 @@ public class NIOUtils
 	}
 		
 	/**
-	 * Bulk-copy all of the input buffer into output byte buffer
-	 * @param inputBytes
-	 * @param output
+	 * Bulk-copy all of the input buffer into the output buffer
+	 * @param input
+	 * @param outputBytes
 	 */
 	public static void put(Buffer input, ByteBuffer outputBytes) {
 			

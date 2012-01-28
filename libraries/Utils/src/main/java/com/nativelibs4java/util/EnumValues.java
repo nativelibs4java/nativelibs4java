@@ -87,7 +87,7 @@ public class EnumValues {
      * Get the integer value associated with an enum item
      * @see EnumValue
      * @param enumItem
-     * @return
+     * @return the numeric value of the enum
      */
     @SuppressWarnings("unchecked")
     public static <E extends Enum<?>> long getValue(E enumItem) {
@@ -98,8 +98,8 @@ public class EnumValues {
      * Get the integer value resulting from ORing all the values of all the enum items present in the enum set.
      * @see EnumValues#getValue(java.lang.Enum)
      * @see EnumValue
-     * @param enumItem
-     * @return
+     * @param set the EnumSet to process
+     * @return the OR of all the values of the enums in the set
      */
     public static <E extends Enum<E>> long getValue(EnumSet<E> set) {
         long v = 0;
