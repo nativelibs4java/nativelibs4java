@@ -73,6 +73,7 @@ class OpenCLTest extends ScalaCLTestUtils {
     assertArrayEquals(a, cla)
   }
   
+  @Ignore
   @Test
   def testMatrixMult {
     val cla = compileCodeWithPlugin(
