@@ -105,7 +105,8 @@ import static org.bridj.Pointer.*;
  *
  * A program can be compiled on the fly (costly) but its binaries can be stored and
  * loaded back in subsequent executions to avoid recompilation.<br>
- * By default, program binaries are automatically cached on stable platforms (which currently exclude ATI Stream), but the caching can be forced on/off with * see {@link CLContext#setCached(boolean) }.<br>
+ * By default, program binaries are automatically cached on stable platforms (which currently exclude ATI Stream), 
+ * but the caching can be forced on/off with * see {@link CLContext#setCacheBinaries(boolean) }.<br>
  * To create a program from sources, please use see {@link CLContext#createProgram(java.lang.String[]) } 
  * @author Olivier Chafik
  */

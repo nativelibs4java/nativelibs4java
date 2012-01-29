@@ -10,7 +10,7 @@ public class Kernel32 {
 	}
 	/**
 	 * Retrieves the number of milliseconds that have elapsed since the system was started.
-	 * @see http://msdn2.microsoft.com/en-us/library/ms724408.aspx
+	 * @see <a href="http://msdn2.microsoft.com/en-us/library/ms724408.aspx">MSDN GetTickCount function</a>
 	 * @return number of milliseconds that have elapsed since the system was started.
 	 */
 	public static native int GetTickCount();

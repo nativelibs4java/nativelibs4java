@@ -199,7 +199,7 @@ public class ParallelRandom {
 	}
 	
     /**
-     * Number of random numbers generated at each call of {@link ParallelRandom#next() } or {@link ParallelRandom#next(IntBuffer) }<br>
+     * Number of random numbers generated at each call of {@link ParallelRandom#next() } or {@link ParallelRandom#next(Pointer) }<br>
      * The numbers might not all be generated exactly in parallel, the level of parallelism is implementation-dependent.
      * @return size of each buffer returned by {@link ParallelRandom#next() }
      */
@@ -234,7 +234,7 @@ public class ParallelRandom {
     /**
      * Returns a direct NIO buffer containing the next {@link ParallelRandom#getParallelSize() } random integers.<br>
      * This buffer is read only and will only be valid until any of the "next" method is called again.
-     * @param output buffer of capacity ; see {@link ParallelRandom#getParallelSize() }
+     * @return output buffer of capacity ; see {@link ParallelRandom#getParallelSize() }
      */
     public synchronized Pointer<Integer> next() {
         CLEvent evt = doNext();
