@@ -446,7 +446,7 @@ extends MiscMatchers
                 vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
               case _ =>
                 Seq(
-                  If(conditionVar(), Block(vt.toList, newUnit), Block(vo.toList, newUnit))
+                  If(conditionVar(), Block(st.toList ++ vt.toList, newUnit), Block(so.toList ++ vo.toList, newUnit))
                 )
             }
           )
