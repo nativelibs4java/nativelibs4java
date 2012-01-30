@@ -382,7 +382,7 @@ extends CLCode
   //override def isOnlyInScalaSpace = sourceData == null
   
   protected def throwIfCapture(f: CLFunctionCode[_, _]) = {
-    if (!extraArgsIOs.isEmpty || !extraArgsIOs.isEmpty)
+    if (!extraArgsIOs.isEmpty)
       throw new UnsupportedOperationException("Cannot compose functions that capture external variables !")
   }
   
