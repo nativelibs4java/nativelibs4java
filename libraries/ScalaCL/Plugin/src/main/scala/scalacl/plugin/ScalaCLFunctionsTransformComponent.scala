@@ -300,6 +300,13 @@ extends PluginComponent
         val (tpe: Type, isArray: Boolean) = s.tpe match {
           case TypeRef(_, CLArrayClass, List(tpe)) =>
             (tpe, true)
+          case NullaryMethodType(result) => 
+            result match {
+              case TypeRef(_, CLArrayClass, List(tpe)) =>
+                (tpe, true)
+              case _ =>
+                (result, false)
+            }
           case _ =>
             (s.tpe, false)
         }
