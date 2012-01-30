@@ -568,6 +568,10 @@ extends MiscMatchers
               throw new RuntimeException("Unable to connect the matched pattern with its corresponding single case")
               //FlatCode[Tree](Seq(), Seq(), Seq())
           }
+        case EmptyTree => {
+          println("CodeFlattening  -  WARNING EmptyTree! Should this ever happen?")
+          FlatCode[Tree](Seq(), Seq(), Seq())
+        }
         case _ =>
           assert(false, "Case not handled in tuples and blocks flattening : " + tree + " (" + tree.getClass.getName + ") :\n\t" + nodeToString(tree))
           FlatCode[Tree](Seq(), Seq(), Seq())
