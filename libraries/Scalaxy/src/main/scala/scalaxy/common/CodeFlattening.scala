@@ -359,6 +359,12 @@ extends MiscMatchers
         case Ident(_) | Literal(_) =>
           // this ident has no known replacement !
           FlatCode[Tree](Seq(), Seq(), Seq(tree))
+        case s @ Select(This(targetClass), name) => {
+          FlatCode[Tree](
+            Seq(),
+            Seq(),
+            Seq(Ident(name).setSymbol(s.symbol)) )
+         }
         case Select(target, name) =>
           val FlatCode(defs, stats, vals) = flattenTuplesAndBlocks(target, sideEffectFree = target.tpe != null)
           FlatCode[Tree](
