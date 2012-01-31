@@ -335,8 +335,10 @@ extends PluginComponent
         val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
         
         val extraInputBufferArgs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
-        val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg.AS(anyCLArrayTpe))
-        val extraScalarArgs = captures.filter(!_.isArray).map(_.arg)
+        
+        val (capturedOutputBuffers, capturedScalars) = captures.partition(_.isArray)
+        val extraOutputBufferArgs = capturedOutputBuffers.map(_.arg.AS(anyCLArrayTpe))
+        val extraScalarArgs = capturedScalars.map(_.arg)
         
         assert(f.id != originalFunction.id)
         var Function(List(uniqueParam), body) = f
@@ -360,7 +362,7 @@ extends PluginComponent
         // Symbols replacement map : replace function param by "_" and captured symbols by "_1", "_2"...
         val symsMap =
           Map(uniqueParam.symbol -> "_") ++
-          (captures.zipWithIndex.map { case (c, i) => c.symbol -> ("_" + (i + 1)) })
+          ((capturedOutputBuffers ++ capturedScalars).zipWithIndex.map { case (c, i) => c.symbol -> ("_" + (i + 1)) })
         
         //println("symsMap = " + symsMap)
   
