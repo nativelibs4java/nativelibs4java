@@ -28,7 +28,11 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java</artifactId>
 	</dependency>
-	
+	<dependency>
+      <groupId>com.nativelibs4java</groupId>
+      <artifactId>nativelibs4java-utils</artifactId>
+      <version>1.4-SNAPSHOT</version>
+	</dependency>
   </dependencies>
   
   <reporting>
