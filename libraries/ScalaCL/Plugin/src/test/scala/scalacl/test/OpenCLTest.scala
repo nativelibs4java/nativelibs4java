@@ -15,7 +15,7 @@ import org.junit._
 import Assert._
 import scala.math._
 
-class OpenCLTest extends ScalaCLTestUtils {
+object OpenCLTest {
 
   val stdImportsAndContext = """
     import scalacl._
@@ -23,6 +23,10 @@ class OpenCLTest extends ScalaCLTestUtils {
 
     implicit val context = Context.best(DoubleSupport)
   """
+}
+
+class OpenCLTest extends ScalaCLTestUtils {
+  import OpenCLTest._
   
   @Test
   def testMath {
@@ -73,45 +77,74 @@ class OpenCLTest extends ScalaCLTestUtils {
     assertArrayEquals(a, cla)
   }
   
-  @Ignore
+  //@Ignore
   @Test
   def testMatrixMult {
-    val cla = compileCodeWithPlugin(
-      stdImportsAndContext ++ """
-        type Matrix =
-          CLArray[Double]
-          
-        def newMatrix(rows: Int, columns: Int)(implicit context: Context) =
-          new Matrix(rows * columns)
-          
-        def fill(m: Matrix, rows: Int, columns: Int) = {
-          for (idx <- (0 until (rows * columns)).cl) {
-            val i = idx / columns
-            val j = idx - i * columns
-            m(idx) = i - j
-          }
-        }
-        
-        def multiply(a: Matrix, aRows: Int, aCols: Int, b: Matrix, bRows: Int, bCols: Int)(implicit context: Context): Matrix = {
-          assert(aCols == bRows)
-          
-          val outRows = aRows
-          val outCols = bCols
-          val out = newMatrix(outRows, outCols)
-          for (idx <- (0 until (outRows * outCols)).cl) {
-            val i = idx / outCols
-            val j = idx - i * outCols
-            
-            out(idx) = 
-              (0 until aCols).map(
-                k => a(i * aCols + k) * b(k * bCols + j)
-              ).sum
-          }
-          out
-        }
-      """,
-      """
+    type Matrix =
+      Array[Double]
       
+    def newMatrix(rows: Int, columns: Int) =
+      new Matrix(rows * columns)
+      
+    def fill(m: Matrix, rows: Int, columns: Int) = {
+      for (idx <- (0 until (rows * columns))) {
+        val i = idx / columns
+        val j = idx - i * columns
+        m(idx) = i - j
+      }
+    }
+    def multiply(a: Matrix, aRows: Int, aCols: Int, b: Matrix, bRows: Int, bCols: Int): Matrix = {
+      assert(aCols == bRows)
+      
+      val outRows = aRows
+      val outCols = bCols
+      val out = newMatrix(outRows, outCols)
+      for (idx <- (0 until (outRows * outCols))) {
+        val i = idx / outCols
+        val j = idx - i * outCols
+        
+        out(idx) = 
+          (0 until aCols).map(
+            k => a(i * aCols + k) * b(k * bCols + j)
+          ).sum
+      }
+      out
+    }
+    
+    val clDecls = """
+      type Matrix =
+        CLArray[Double]
+        
+      def newMatrix(rows: Int, columns: Int)(implicit context: Context) =
+        new Matrix(rows * columns)
+        
+      def fill(m: Matrix, rows: Int, columns: Int) = {
+        for (idx <- (0 until (rows * columns)).cl) {
+          val i = idx / columns
+          val j = idx - i * columns
+          m(idx) = i - j
+        }
+      }
+      
+      def multiply(a: Matrix, aRows: Int, aCols: Int, b: Matrix, bRows: Int, bCols: Int)(implicit context: Context): Matrix = {
+        assert(aCols == bRows)
+        
+        val outRows = aRows
+        val outCols = bCols
+        val out = newMatrix(outRows, outCols)
+        for (idx <- (0 until (outRows * outCols)).cl) {
+          val i = idx / outCols
+          val j = idx - i * outCols
+          
+          out(idx) = 
+            (0 until aCols).map(
+              k => a(i * aCols + k) * b(k * bCols + j)
+            ).sum
+        }
+        out
+      }
+    """
+    val program = """
       val m = 3
       val n = 4
       val o = 5
@@ -121,19 +154,41 @@ class OpenCLTest extends ScalaCLTestUtils {
       val b = newMatrix(n, o)
       fill(b, n, o)
       
-      val out = Array.tabulate[Double](n, n)((i, j) => {
-        (0 until n).map(k => a(i)(k) * b(k)(j)).sum
-      })
+      val out = multiply(a, m, n, b, n, o)
+      //val out = Array.tabulate[Double](n, n)((i, j) => {
+      //  (0 until n).map(k => a(i)(k) * b(k)(j)).sum
+      //})
         
       (a.toSeq, b.toSeq, out.toSeq)
-      """
-    ).newInstance()().asInstanceOf[Array[Int]]
+    """
     
-    val arr = (0 to 10).toArray
-    val a = 
-         (0 to 10).map(i => arr(i / 2) * 2).toArray
-      
-    assertArrayEquals(a, cla)
+    type ReturnType = (Seq[Double], Seq[Double], Seq[Double])
+    
+    val clret @ (cla, clb, clout) = compileCodeWithPlugin(
+      stdImportsAndContext ++ 
+      clDecls,
+      program
+    ).newInstance()().asInstanceOf[ReturnType]
+    
+    val ret @ (a, b, out) = compileCodeWithPlugin(
+      stdImportsAndContext ++ 
+      clDecls.replaceAll("""\bCLArray\b""", "Array").replaceAll("""\.cl\b""", ""),
+      program
+    ).newInstance()().asInstanceOf[ReturnType]
+    
+    /*
+    def println(r: ReturnType, prefix: String) = {
+      val (a, b, out) = r
+      println(prefix + "a = " + a)
+      println(prefix + "b = " + b)
+      println(prefix + "out = " + out)
+    }
+    print(clret, "cl")
+    print(ret, "")
+    */
+    assertArrayEquals(a.toArray, cla.toArray, 0.0001)
+    assertArrayEquals(b.toArray, clb.toArray, 0.0001)
+    assertArrayEquals(out.toArray, clout.toArray, 0.0001)
   }
 
 }
