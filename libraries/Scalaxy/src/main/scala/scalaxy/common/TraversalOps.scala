@@ -86,7 +86,7 @@ extends PluginNames
           mapName(), 
           List(mappedComponentType), 
           Seq(
-            List(function)
+            List(function @ Func(List(_), _))
           )
         ) =>
         Some(new TraversalOp(MapOp(tree, function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
@@ -95,7 +95,7 @@ extends PluginNames
           mapName(), 
           List(mappedComponentType, mappedCollectionType), 
           Seq(
-            List(function),
+            List(function @ Func(List(_), _)),
             List(canBuildFrom @ CanBuildFromArg())
           )
         ) =>
