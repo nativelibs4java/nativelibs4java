@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_TEX3D_SRV extends StructObject {
-	public D3D10_TEX3D_SRV() {
-		super();
-	}
-	public D3D10_TEX3D_SRV(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int MostDetailedMip() {
 		return this.io.getIntField(this, 0);

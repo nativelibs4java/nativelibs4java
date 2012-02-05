@@ -33,12 +33,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C01-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10Resource extends ID3D10DeviceChild {
-	public ID3D10Resource() {
-		super();
-	}
-	public ID3D10Resource(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetType(Pointer<ValuedEnum<D3D10_RESOURCE_DIMENSION > > rType);
 	@Virtual(1) 

@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("2B4B1CC8-A4AD-41f8-8322-CA86FC3EC675") 
 @Library("d3d10") 
 public class ID3D10DepthStencilState extends ID3D10DeviceChild {
-	public ID3D10DepthStencilState() {
-		super();
-	}
-	public ID3D10DepthStencilState(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_DEPTH_STENCIL_DESC > pDesc);
 }

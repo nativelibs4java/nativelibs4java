@@ -30,10 +30,4 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C0A-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10VertexShader extends ID3D10DeviceChild {
-	public ID3D10VertexShader() {
-		super();
-	}
-	public ID3D10VertexShader(Pointer pointer) {
-		super(pointer);
-	}
 }

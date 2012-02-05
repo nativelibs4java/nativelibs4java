@@ -13,12 +13,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C00-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10DeviceChild extends org.bridj.cpp.com.IUnknown {
-	public ID3D10DeviceChild() {
-		super();
-	}
-	public ID3D10DeviceChild(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDevice(Pointer<Pointer<ID3D10Device > > ppDevice);
 	@Virtual(1) 

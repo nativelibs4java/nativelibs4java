@@ -30,10 +30,4 @@ import org.bridj.cpp.com.IID;
 @IID("6316BE88-54CD-4040-AB44-20461BC81F68") 
 @Library("d3d10") 
 public class ID3D10GeometryShader extends ID3D10DeviceChild {
-	public ID3D10GeometryShader() {
-		super();
-	}
-	public ID3D10GeometryShader(Pointer pointer) {
-		super(pointer);
-	}
 }

@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_SHADER_RESOURCE_VIEW_DESC extends StructObject {
-	public D3D10_SHADER_RESOURCE_VIEW_DESC() {
-		super();
-	}
-	public D3D10_SHADER_RESOURCE_VIEW_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	/// Conversion Error : DXGI_FORMAT (Unsupported type)
 	/// C type : D3D10_SRV_DIMENSION
 	@Field(0) 

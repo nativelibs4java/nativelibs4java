@@ -30,10 +30,4 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C10-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10Predicate extends ID3D10Query {
-	public ID3D10Predicate() {
-		super();
-	}
-	public ID3D10Predicate(Pointer pointer) {
-		super(pointer);
-	}
 }

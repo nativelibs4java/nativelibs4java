@@ -10,10 +10,4 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_BUFFER_RTV extends StructObject {
-	public D3D10_BUFFER_RTV() {
-		super();
-	}
-	public D3D10_BUFFER_RTV(Pointer pointer) {
-		super(pointer);
-	}
 }

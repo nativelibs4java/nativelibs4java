@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C08-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10RenderTargetView extends ID3D10View {
-	public ID3D10RenderTargetView() {
-		super();
-	}
-	public ID3D10RenderTargetView(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_RENDER_TARGET_VIEW_DESC > pDesc);
 }

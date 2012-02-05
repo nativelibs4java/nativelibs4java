@@ -14,12 +14,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_RASTERIZER_DESC extends StructObject {
-	public D3D10_RASTERIZER_DESC() {
-		super();
-	}
-	public D3D10_RASTERIZER_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : D3D10_FILL_MODE
 	@Field(0) 
 	public ValuedEnum<D3D10_FILL_MODE > FillMode() {

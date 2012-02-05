@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_MAPPED_TEXTURE3D extends StructObject {
-	public D3D10_MAPPED_TEXTURE3D() {
-		super();
-	}
-	public D3D10_MAPPED_TEXTURE3D(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : void*
 	@Field(0) 
 	public Pointer<? > pData() {

@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_TEX2D_ARRAY_RTV extends StructObject {
-	public D3D10_TEX2D_ARRAY_RTV() {
-		super();
-	}
-	public D3D10_TEX2D_ARRAY_RTV(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int MipSlice() {
 		return this.io.getIntField(this, 0);

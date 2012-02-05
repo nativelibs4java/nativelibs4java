@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_INPUT_ELEMENT_DESC extends StructObject {
-	public D3D10_INPUT_ELEMENT_DESC() {
-		super();
-	}
-	public D3D10_INPUT_ELEMENT_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : LPCSTR
 	@Field(0) 
 	public Pointer<Byte > SemanticName() {

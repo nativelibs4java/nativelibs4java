@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_BOX extends StructObject {
-	public D3D10_BOX() {
-		super();
-	}
-	public D3D10_BOX(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int left() {
 		return this.io.getIntField(this, 0);

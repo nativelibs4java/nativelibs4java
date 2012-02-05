@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_TEX2DMS_RTV extends StructObject {
-	public D3D10_TEX2DMS_RTV() {
-		super();
-	}
-	public D3D10_TEX2DMS_RTV(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int UnusedField_NothingToDefine() {
 		return this.io.getIntField(this, 0);
