@@ -67,8 +67,9 @@ extends PluginComponent
    with WithOptions
    with CodeFlattening
    with TupleAnalysis
-   with CodeAnalysis
+   with CLCodeAnalysis
    with WorkaroundsForOtherPhases
+   with CLPluginNames
 {
   import global._
   import global.definitions._
@@ -83,35 +84,6 @@ extends PluginComponent
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
   import impl._
-  
-  val ScalaCLPackage       = getModule("scalacl")
-  val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
-  val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
-  val CLArrayClass = definitions.getClass("scalacl.CLArray")
-  val CLFunctionClass = definitions.getClass("scalacl.impl.CLFunction")
-  val CLRangeClass = definitions.getClass("scalacl.CLRange")
-  val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
-  val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
-  val scalacl_ = N("scalacl")
-  val getCachedFunctionName = N("getCachedFunction")
-  val Function2CLFunctionName = N("Function2CLFunction")
-  val withCaptureName = N("withCapture")
-  
-  override protected def createSideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) = {
-    new SideEffectsEvaluator(tree, cached, preKnownSymbols) {
-      override protected def isSideEffectFreeMethod(target: Tree, symbol: MethodSymbol): Boolean = {
-        super.isSideEffectFreeMethod(target, symbol) || {
-          val owner = symbol.owner
-          val name = symbol.name
-          
-          CLArrayClass == owner &&
-          name == (applyName: Name) 
-          
-          //CLArrayClass.toString == owner.toString
-        }
-      }
-    }
-  }   
   
   def getDataIOByTupleInfo(ti: TupleInfo): CLDataIO[Any] = {
     if (ti.components.size == 1)

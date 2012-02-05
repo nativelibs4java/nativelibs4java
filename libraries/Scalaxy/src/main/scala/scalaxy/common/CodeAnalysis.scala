@@ -144,6 +144,7 @@ extends MiscMatchers
   
   
   protected def createSideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) = {
+    //println("Creating original SideEffectsEvaluator")
     new SideEffectsEvaluator(tree, cached, preKnownSymbols)
   }
   
@@ -174,16 +175,15 @@ extends MiscMatchers
       isSideEffectFreeOwner(owner) ||
       owner != null && {
         name == (applyName: Name) && {
-          ArrayClass == owner ||
-          SeqClass == owner ||
-          SeqModule.toString == owner.toString ||
-          ArrayModule.toString == owner.toString || {
-            println("Apply method not recognized as side-effect-free with owner " + owner + " : " + symbol)
+          owner == ArrayClass ||
+          owner == SeqClass ||
+          owner == ArrayModule ||
+          owner == SeqModule ||
+          {
+            if (options.verbose)
+              println("Apply method not recognized as side-effect-free with owner " + owner + " : " + symbol)
             false 
           }
-          //||
-          //owner == SetModule ||
-          //owner == MapModule
         }
       }
     }

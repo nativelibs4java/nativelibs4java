@@ -64,7 +64,8 @@ object ScalaCLPluginDef extends PluginDef {
     new PluginOptions(this, settings)
     
   override def createComponents(global: Global, options: PluginOptions): List[PluginComponent] =
-    ScalaxyPluginDef.createComponents(global, options) ++
+    List(new StreamTransformComponent(global, options) with CLCodeAnalysis) ++
+    //ScalaxyPluginDef.createComponents(global, options) ++
     List(
       try {
         new ScalaCLFunctionsTransformComponent(global, options)

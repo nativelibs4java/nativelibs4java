@@ -1,0 +1,34 @@
+- add Immutable trait for case classes, and enforce it with the compiler plugin
+	-> error on var fields
+	
+- coding guidelines : wrapping POJOs vs. pimps
+	-> write a guide
+	
+- warn about dependent typing (?)
+	-> in some circumstances, can use reflection
+	
+- warn about numeric code without azavea's specialized-numeric
+
+- warn if appears to switch (named-)argument names with same type or similar, suggest to use named args (hamming distance ? subword ?) :
+	def f(a: Int, b: Int)
+	f(b, a)
+	-> rationale: potential error
+	
+- warn if any public method does not define return value
+	-> rationale: readability, early surprises
+
+- warn about Unit vals
+	-> rationale: confusing, favours tricks of returning Unit instead of value
+	
+- warn about structural types / type refinements { def some: Unit } usage (call site ?)
+	-> rationale: speed
+	
+- warn about weird (unicode) method names
+	-> rationale: readability
+	
+- warn about non-local returns
+	-> rationale: speed issues
+	
+- warn about intermediate collections (excluding views)
+	-> cf. ScalaCL
+

@@ -229,7 +229,7 @@ with CodeAnalysis
   class SideEffectsAnalyzer {
     
     def analyzeSideEffects(base: Tree, trees: Tree*): SideEffects = {
-      val flagger = new SideEffectsEvaluator(base, cached = false)
+      val flagger = createSideEffectsEvaluator(base, cached = false)
       trees.map(flagger.evaluate(_)).foldLeft(sideEffectFreeAnalysis)(_ ++ _)
     }
       

@@ -1,0 +1,4 @@
+<plugin>
+  <name>scalacl-compiler-plugin-0.3-SNAPSHOT</name>
+  <classname>scalacl.plugin.ScalaCLPlugin</classname>
+</plugin>
