@@ -175,14 +175,17 @@ extends MiscMatchers
       isSideEffectFreeOwner(owner) ||
       owner != null && {
         name == (applyName: Name) && {
-          owner == ArrayClass ||
-          owner == SeqClass ||
-          owner == ArrayModule ||
-          owner == SeqModule ||
+          ArrayClass == owner ||
+          SeqClass == owner ||
           {
-            if (options.verbose)
-              println("Apply method not recognized as side-effect-free with owner " + owner + " : " + symbol)
-            false 
+            val ownerStr = owner.toString
+            ownerStr == ArrayModule.toString ||
+            ownerStr == SeqModule.toString ||
+            {
+              if (options.verbose)
+                println("Apply method not recognized as side-effect-free with owner " + owner + " : " + symbol)
+              false 
+            }
           }
         }
       }
