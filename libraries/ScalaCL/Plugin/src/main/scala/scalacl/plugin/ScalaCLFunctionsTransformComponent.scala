@@ -97,6 +97,21 @@ extends PluginComponent
   val Function2CLFunctionName = N("Function2CLFunction")
   val withCaptureName = N("withCapture")
   
+  override protected def createSideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) = {
+    new SideEffectsEvaluator(tree, cached, preKnownSymbols) {
+      override protected def isSideEffectFreeMethod(target: Tree, symbol: MethodSymbol): Boolean = {
+        super.isSideEffectFreeMethod(target, symbol) || {
+          val owner = symbol.owner
+          val name = symbol.name
+          
+          CLArrayClass == owner &&
+          name == (applyName: Name) 
+          
+          //CLArrayClass.toString == owner.toString
+        }
+      }
+    }
+  }   
   
   def getDataIOByTupleInfo(ti: TupleInfo): CLDataIO[Any] = {
     if (ti.components.size == 1)
@@ -433,10 +448,11 @@ extends PluginComponent
           )
         }
         
+        /*
         val sourceData = {
           val aIO = sourceDataIO._2
           val bIO = mappedDataIO._2
-          println("aIO = " + aIO + ", bIO = " + bIO)
+          //println("aIO = " + aIO + ", bIO = " + bIO)
           CLFunctionCode.buildSourceData[Any, Any](
             outerDeclarations = outerDefinitions,
             declarations = statements.toArray,
@@ -450,7 +466,8 @@ extends PluginComponent
           )(aIO, bIO)
         }
         
-        println("sourceData = " + sourceData)
+        //println("sourceData = " + sourceData)
+        */
         
         /*
         if (System.getenv("SCALACL_VERIFY") != "0") {

@@ -140,7 +140,12 @@ extends MiscMatchers
     getSideEffects(tree).isEmpty
     
   def getSideEffects(tree: Tree) =
-    new SideEffectsEvaluator(tree, cached = false).evaluate(tree)
+    createSideEffectsEvaluator(tree, cached = false).evaluate(tree)
+  
+  
+  protected def createSideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) = {
+    new SideEffectsEvaluator(tree, cached, preKnownSymbols)
+  }
   
   type SideEffects = Seq[Tree]
   class SideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) 
@@ -166,21 +171,25 @@ extends MiscMatchers
       
       symbol.isGetter ||
       isSideEffectFreeOwner(target.tpe.typeSymbol) || 
-      isSideEffectFreeOwner(owner) || 
-      name == (applyName: Name) && owner != null && {
-        SeqModule.toString == owner.toString ||
-        ArrayModule.toString == owner.toString 
-        /*|| {
-          println("Apply method not recognized as side-effect-free with owner " + owner + " (ArrayModule = " + ArrayModule + ") : " + symbol)
-          false 
-        }*/
-        //||
-        //owner == SetModule ||
-        //owner == MapModule
+      isSideEffectFreeOwner(owner) ||
+      owner != null && {
+        name == (applyName: Name) && {
+          ArrayClass == owner ||
+          SeqClass == owner ||
+          SeqModule.toString == owner.toString ||
+          ArrayModule.toString == owner.toString || {
+            println("Apply method not recognized as side-effect-free with owner " + owner + " : " + symbol)
+            false 
+          }
+          //||
+          //owner == SetModule ||
+          //owner == MapModule
+        }
       }
     }
     protected def isSideEffectFreeOwner(symbol: Symbol): Boolean = {
-      symbol match {
+      RichWrappers.contains(symbol) ||
+      (symbol match {
         case IntClass | ShortClass | LongClass | ByteClass | CharClass | BooleanClass | DoubleClass | IntClass =>
           true
         case PredefModule =>
@@ -192,7 +201,7 @@ extends MiscMatchers
         case _ =>
           //println("NOT A SIDE-EFFECT-FREE OWNER : " + symbol)
           false
-      }
+      })
     }
     def isPureCaseClass(tpe: Type) = 
       false // TODO 

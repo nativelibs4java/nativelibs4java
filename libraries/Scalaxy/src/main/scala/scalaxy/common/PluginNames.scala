@@ -111,6 +111,10 @@ trait PluginNames {
   lazy val RefArrayOpsClass           = C("scala.collection.mutable.ArrayOps.ofRef")
   lazy val SetBuilderClass            = C("scala.collection.mutable.SetBuilder")
   
+  lazy val RichWrappers: Set[Symbol] = 
+    Array("Byte", "Short", "Int", "Char", "Long", "Float", "Double", "Boolean").
+    map(n => C("scala.runtime.Rich" + n)).toSet
+  
   lazy val CanBuildFromClass = C("scala.collection.generic.CanBuildFrom")
 
   lazy val ArrayIndexOutOfBoundsExceptionClass = C("java.lang.ArrayIndexOutOfBoundsException")
