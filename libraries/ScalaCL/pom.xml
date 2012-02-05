@@ -102,6 +102,12 @@
 	
 	
 	<dependencies>
+	
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>bridj</artifactId>
+			<version>0.6</version>
+		</dependency>
   	
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
@@ -120,6 +126,7 @@
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
+				<version>${scala.version}</version>
 			</plugin>
 		</plugins>
 	</reporting>
