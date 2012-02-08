@@ -394,7 +394,7 @@ extends MiscMatchers
           val tpes = flattenTypes(tree.tpe)
           // TODO assign vals to new vars before the calls, to ensure a correct evaluation order !
           FlatCode[Tree](
-            defs1 ++ defs1,
+            defs1 ++ defs2,
             stats1 ++ stats2,
             vals1.zip(vals2).zip(tpes).map { case ((v1, v2), tpe) => Apply(v1, List(v2)).setType(tpe) }
           )
