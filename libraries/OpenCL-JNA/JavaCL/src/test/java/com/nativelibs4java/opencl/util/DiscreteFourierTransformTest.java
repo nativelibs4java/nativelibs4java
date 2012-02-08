@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.nio.*;
 import org.apache.commons.math.transform.FastFourierTransformer;
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 /**
@@ -121,6 +121,7 @@ public class DiscreteFourierTransformTest {
         }
     }
 
+    @Ignore
     @Test
     public void testDoubleFFTValues() throws IOException {
         testDoubleValues("Double FFT", new DoubleFFTPow2());
@@ -145,6 +146,7 @@ public class DiscreteFourierTransformTest {
     public void testFloatDFTInverse() throws IOException, CLException {
         testFloatTransformer("Float DFT Inverse", new FloatDFT());
     }
+    @Ignore
     @Test
     public void testDoubleFFTInverse() throws IOException, CLException {
         testDoubleTransformer("Double FFT Inverse", new DoubleFFTPow2());
