@@ -81,23 +81,29 @@ extends MiscMatchers
     }
   }
   private val tupleInfos = new scala.collection.mutable.HashMap[Type, TupleInfo]
+  
   def getTupleInfo(tpe: Type): TupleInfo = {
     val actualTpe = normalize(tpe)
-    tupleInfos.getOrElseUpdate(actualTpe, {
-      actualTpe match {
-        case t: TypeRef =>
-          if (isTupleSymbol(t.sym))
-            TupleInfo(t, t.args.map(getTupleInfo))
-          else
-            TupleInfo(t, Seq())
-        case NoType => 
-          TupleInfo(NoType, Seq())
-        case _ =>
-          throw new RuntimeException("Unhandled type : " + tpe + " (" + actualTpe + ": " + actualTpe.getClass.getName + ")")
-          //System.exit(0)
-          null
+    tupleInfos.getOrElseUpdate(
+      actualTpe, 
+      if (isUnit(actualTpe)) 
+        TupleInfo(UnitClass.tpe, Seq()) 
+      else {
+        actualTpe match {
+          case t: TypeRef =>
+            if (isTupleSymbol(t.sym))
+              TupleInfo(t, t.args.map(getTupleInfo))
+            else
+              TupleInfo(t, Seq())
+          case NoType => 
+            TupleInfo(NoType, Seq())
+          case _ =>
+            throw new RuntimeException("Unhandled type : " + tpe + " (" + actualTpe + ": " + actualTpe.getClass.getName + ")")
+            //System.exit(0)
+            null
+        }
       }
-    })
+    )
   }
   def flattenTypes(tpe: Type): Seq[Type] = 
     getTupleInfo(tpe).flattenTypes
