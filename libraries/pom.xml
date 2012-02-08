@@ -47,6 +47,7 @@
 		<jarsigner.skip>true</jarsigner.skip>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
+		<shadedClassifierName>shaded</shadedClassifierName>
 	</properties>
 	
 	<developers>
@@ -171,7 +172,7 @@ Most of these wrappers are created automatically by JNAerator.
 							</goals>
 							<configuration>
 								<shadedArtifactAttached>true</shadedArtifactAttached>
-								<shadedClassifierName>full-package</shadedClassifierName>
+								<shadedClassifierName>${shadedClassifierName}</shadedClassifierName>
 								<artifactSet>
 									<excludes>
 										<exclude>org.scala-lang:scala-library</exclude>
