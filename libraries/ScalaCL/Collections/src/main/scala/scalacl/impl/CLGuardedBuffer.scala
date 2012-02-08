@@ -40,7 +40,10 @@ extends CLEventBound
   def clear = {
     write(evts => dataIO.clear(buffer, evts:_*))
   }
-  def release = buffer.release
+  def release =  {
+    releaseEvents
+    buffer.release
+  }
   
   def args = Seq(buffer)
 

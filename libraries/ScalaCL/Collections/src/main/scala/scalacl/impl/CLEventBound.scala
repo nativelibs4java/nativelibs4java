@@ -15,6 +15,15 @@ trait CLEventBound extends CLEventBoundContainer {
   protected var lastWriteEvent: CLEvent = null
   protected val readEvents = new ArrayBuffer[CLEvent]
 
+  protected def releaseEvents = this.synchronized {
+    if (lastWriteEvent == null) {
+      lastWriteEvent.release
+      lastWriteEvent = null
+    }
+    readEvents.map(_.release)
+    readEvents.clear
+  }
+    
   protected def allEvents = this.synchronized {
     val rea = readEvents.toArray
     if (lastWriteEvent == null)
