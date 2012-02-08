@@ -62,7 +62,11 @@ extends CodeAnalysis
     //println("Creating CL-modified SideEffectsEvaluator")
     new SideEffectsEvaluator(tree, cached, preKnownSymbols) {
       override protected def isSideEffectFreeMethod(target: Tree, symbol: MethodSymbol): Boolean = {
-        symbol.name == (applyName: Name) && symbol.owner == CLArrayClass ||
+        val name = symbol.name
+        symbol.owner == CLArrayClass && {
+          name == (applyName: Name) ||
+          name == (updateName: Name)
+        } ||
         super.isSideEffectFreeMethod(target, symbol)
       }
     }
