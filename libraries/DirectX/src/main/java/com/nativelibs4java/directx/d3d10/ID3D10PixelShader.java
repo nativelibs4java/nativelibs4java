@@ -30,10 +30,4 @@ import org.bridj.cpp.com.IID;
 @IID("4968B601-9D00-4cde-8346-8E7F675819B6") 
 @Library("d3d10") 
 public class ID3D10PixelShader extends ID3D10DeviceChild {
-	public ID3D10PixelShader() {
-		super();
-	}
-	public ID3D10PixelShader(Pointer pointer) {
-		super(pointer);
-	}
 }

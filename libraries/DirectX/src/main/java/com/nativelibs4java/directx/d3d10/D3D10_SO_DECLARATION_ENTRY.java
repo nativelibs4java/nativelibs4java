@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_SO_DECLARATION_ENTRY extends StructObject {
-	public D3D10_SO_DECLARATION_ENTRY() {
-		super();
-	}
-	public D3D10_SO_DECLARATION_ENTRY(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : LPCSTR
 	@Field(0) 
 	public Pointer<Byte > SemanticName() {

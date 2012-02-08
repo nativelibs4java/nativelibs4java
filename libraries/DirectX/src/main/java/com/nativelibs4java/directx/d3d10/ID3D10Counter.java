@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C11-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10Counter extends ID3D10Asynchronous {
-	public ID3D10Counter() {
-		super();
-	}
-	public ID3D10Counter(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_COUNTER_DESC > pDesc);
 }

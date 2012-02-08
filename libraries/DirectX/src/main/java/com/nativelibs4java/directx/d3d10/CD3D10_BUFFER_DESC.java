@@ -9,11 +9,5 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class CD3D10_BUFFER_DESC extends D3D10_BUFFER_DESC {
-	public CD3D10_BUFFER_DESC() {
-		super();
-	}
-	public CD3D10_BUFFER_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	public native Pointer<D3D10_BUFFER_DESC > operator();
 }

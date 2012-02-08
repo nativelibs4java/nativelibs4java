@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_QUERY_DATA_SO_STATISTICS extends StructObject {
-	public D3D10_QUERY_DATA_SO_STATISTICS() {
-		super();
-	}
-	public D3D10_QUERY_DATA_SO_STATISTICS(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : UINT64
 	@Field(0) 
 	public long NumPrimitivesWritten() {

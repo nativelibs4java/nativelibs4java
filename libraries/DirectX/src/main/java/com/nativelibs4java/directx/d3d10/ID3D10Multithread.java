@@ -13,12 +13,6 @@ import org.bridj.cpp.com.IUnknown;
 @IID("9B7E4E00-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10Multithread extends IUnknown {
-	public ID3D10Multithread() {
-		super();
-	}
-	public ID3D10Multithread(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void Enter();
 	@Virtual(1) 

@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_SUBRESOURCE_DATA extends StructObject {
-	public D3D10_SUBRESOURCE_DATA() {
-		super();
-	}
-	public D3D10_SUBRESOURCE_DATA(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : const void*
 	@Field(0) 
 	public Pointer<? > pSysMem() {

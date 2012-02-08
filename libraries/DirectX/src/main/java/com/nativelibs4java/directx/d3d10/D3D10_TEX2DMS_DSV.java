@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_TEX2DMS_DSV extends StructObject {
-	public D3D10_TEX2DMS_DSV() {
-		super();
-	}
-	public D3D10_TEX2DMS_DSV(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int UnusedField_NothingToDefine() {
 		return this.io.getIntField(this, 0);

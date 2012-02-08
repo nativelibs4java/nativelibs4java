@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_BUFFER_DESC extends StructObject {
-	public D3D10_BUFFER_DESC() {
-		super();
-	}
-	public D3D10_BUFFER_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int ByteWidth() {
 		return this.io.getIntField(this, 0);

@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("A2A07292-89AF-4345-BE2E-C53D9FBB6E9F") 
 @Library("d3d10") 
 public class ID3D10RasterizerState extends ID3D10DeviceChild {
-	public ID3D10RasterizerState() {
-		super();
-	}
-	public ID3D10RasterizerState(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_RASTERIZER_DESC > pDesc);
 }

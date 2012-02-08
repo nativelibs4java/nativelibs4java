@@ -15,12 +15,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_BLEND_DESC extends StructObject {
-	public D3D10_BLEND_DESC() {
-		super();
-	}
-	public D3D10_BLEND_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int AlphaToCoverageEnable() {
 		return this.io.getIntField(this, 0);

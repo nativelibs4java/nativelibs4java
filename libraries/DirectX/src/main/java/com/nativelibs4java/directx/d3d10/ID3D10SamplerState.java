@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C0C-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10SamplerState extends ID3D10DeviceChild {
-	public ID3D10SamplerState() {
-		super();
-	}
-	public ID3D10SamplerState(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_SAMPLER_DESC > pDesc);
 }

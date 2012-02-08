@@ -14,12 +14,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_DEPTH_STENCIL_DESC extends StructObject {
-	public D3D10_DEPTH_STENCIL_DESC() {
-		super();
-	}
-	public D3D10_DEPTH_STENCIL_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int DepthEnable() {
 		return this.io.getIntField(this, 0);

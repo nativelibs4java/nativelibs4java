@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_QUERY_DATA_TIMESTAMP_DISJOINT extends StructObject {
-	public D3D10_QUERY_DATA_TIMESTAMP_DISJOINT() {
-		super();
-	}
-	public D3D10_QUERY_DATA_TIMESTAMP_DISJOINT(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : UINT64
 	@Field(0) 
 	public long Frequency() {

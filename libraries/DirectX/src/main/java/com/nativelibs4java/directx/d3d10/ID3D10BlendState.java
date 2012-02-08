@@ -31,12 +31,6 @@ import org.bridj.cpp.com.IID;
 @IID("EDAD8D19-8A35-4d6d-8566-2EA276CDE161") 
 @Library("d3d10") 
 public class ID3D10BlendState extends ID3D10DeviceChild {
-	public ID3D10BlendState() {
-		super();
-	}
-	public ID3D10BlendState(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native void GetDesc(Pointer<D3D10_BLEND_DESC > pDesc);
 }

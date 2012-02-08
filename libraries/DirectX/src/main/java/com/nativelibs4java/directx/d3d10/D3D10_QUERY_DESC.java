@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_QUERY_DESC extends StructObject {
-	public D3D10_QUERY_DESC() {
-		super();
-	}
-	public D3D10_QUERY_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : D3D10_QUERY
 	@Field(0) 
 	public ValuedEnum<D3D10_QUERY > Query() {

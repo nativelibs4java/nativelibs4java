@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class D3D10_VIEWPORT extends StructObject {
-	public D3D10_VIEWPORT() {
-		super();
-	}
-	public D3D10_VIEWPORT(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int TopLeftX() {
 		return this.io.getIntField(this, 0);

@@ -9,11 +9,5 @@ import org.bridj.ann.Library;
  */
 @Library("d3d10") 
 public class CD3D10_TEXTURE1D_DESC extends D3D10_TEXTURE1D_DESC {
-	public CD3D10_TEXTURE1D_DESC() {
-		super();
-	}
-	public CD3D10_TEXTURE1D_DESC(Pointer pointer) {
-		super(pointer);
-	}
 	public native Pointer<D3D10_TEXTURE1D_DESC > operator();
 }

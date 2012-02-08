@@ -33,12 +33,6 @@ import org.bridj.cpp.com.IID;
 @IID("9B7E4C02-342C-4106-A19F-4F2704F689F0") 
 @Library("d3d10") 
 public class ID3D10Buffer extends ID3D10Resource {
-	public ID3D10Buffer() {
-		super();
-	}
-	public ID3D10Buffer(Pointer pointer) {
-		super(pointer);
-	}
 	@Virtual(0) 
 	public native int Map(ValuedEnum<D3D10_MAP > MapType, int MapFlags, Pointer<Pointer<? > > ppData);
 	@Virtual(1) 
