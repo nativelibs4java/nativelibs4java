@@ -380,7 +380,7 @@ extends MiscMatchers
             f.flatMap(_.statements),
             Seq(Apply(Ident(functionName).setType(ident.tpe).setSymbol(ident.symbol), f.flatMap(_.values)).setSymbol(tree.symbol).setType(tree.tpe))
           )
-        case Apply(target, List(arg)) =>
+        case Apply(target, args) =>
           /*
           val convArgs = args.map(flattenTuplesAndBlocks(_, symbolOwner))
           target match { 
@@ -390,13 +390,13 @@ extends MiscMatchers
                   Some(out("(", left, " ", op, " ", args(0), ")")
           */
           val FlatCode(defs1, stats1, vals1) = flattenTuplesAndBlocks(target, sideEffectFree = target.tpe != null)
-          val FlatCode(defs2, stats2, vals2) = flattenTuplesAndBlocks(arg)
+          val argsConv = args.map(flattenTuplesAndBlocks(_))
           val tpes = flattenTypes(tree.tpe)
           // TODO assign vals to new vars before the calls, to ensure a correct evaluation order !
           FlatCode[Tree](
-            defs1 ++ defs2,
-            stats1 ++ stats2,
-            vals1.zip(vals2).zip(tpes).map { case ((v1, v2), tpe) => Apply(v1, List(v2)).setType(tpe) }
+            defs1 ++ argsConv.flatMap(_.outerDefinitions),
+            stats1 ++ argsConv.flatMap(_.statements),
+            vals1.zip(argsConv.flatMap(_.values)).zip(tpes).map { case ((v1, v2), tpe) => Apply(v1, List(v2)).setType(tpe) }
           )
         case f: DefDef =>
           FlatCode[Tree](Seq(f), Seq(), Seq())
