@@ -171,8 +171,8 @@ Most of these wrappers are created automatically by JNAerator.
 								<goal>shade</goal>
 							</goals>
 							<configuration>
-								<shadedArtifactAttached>true</shadedArtifactAttached>
-								<shadedClassifierName>${shadedClassifierName}</shadedClassifierName>
+								<shadedArtifactAttached>${shadedArtifactAttached}</shadedArtifactAttached>
+								<!--shadedClassifierName>${shadedClassifierName}</shadedClassifierName-->
 								<artifactSet>
 									<excludes>
 										<exclude>org.scala-lang:scala-library</exclude>
