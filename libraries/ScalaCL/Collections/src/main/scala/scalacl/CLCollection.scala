@@ -76,7 +76,8 @@ trait CLCollectionLike[A, +Repr]
   override def map[B, That](f: A => B)(implicit bf: CanBuildFrom[Repr, B, That]): That =
     map(f, null.asInstanceOf[That])
 
-  def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]): Unit
+  protected def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]): Unit
+  
   //def filter[That](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]): That = {
   def filter[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]): That = {
       val result = reuse(out, ff.newFilterResult(this.asInstanceOf[Repr]))//new CLFilteredArray[A](length))

@@ -44,6 +44,7 @@ extends IndexedSeq[A]
   with CLIndexedSeq[A]
   //with IndexedSeqLike[A, CLFilteredArray[A]]
   with CLIndexedSeqLike[A, CLFilteredArray[A]]
+  with CLWithForeach[A, CLFilteredArray[A]]
 {
   def this(array: CLArray[A])(implicit context: Context, dataIO: CLDataIO[A]) =
       this(array, if (array.length > 0) new CLGuardedBuffer[PresenceType](array.length + 1) else null)
@@ -146,23 +147,28 @@ extends IndexedSeq[A]
             dims = Array(array.length)
           )
         case _ =>
-          import scala.concurrent.ops._
-          
-          val copyPres = if (result == this) null else future {
-            presence.copyTo(result.presence)
-          }
-          val presenceArr = presence.toArray
-          for (i <- 0 until length) {
-            if (toBool(presenceArr(i)))
-              result.array(i) = f(array(i))
-          }
-          Option(copyPres).foreach(_())
+          mapFallback(f, result)
       }
     result.asInstanceOf[That]
   }
-
+  
+  protected def mapFallback[B](f: A => B, result: CLFilteredArray[B]): Unit = {
+    import scala.concurrent.ops._
+    executingScalaFallbackOperation("mapFallback")
+      
+    val copyPres = if (result == this) null else future {
+      presence.copyTo(result.presence)
+    }
+    val presenceArr = presence.toArray
+    for (i <- 0 until length) {
+      if (toBool(presenceArr(i)))
+        result.array(i) = f(array(i))
+    }
+    Option(copyPres).foreach(_())
+  }
   override def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLFilteredArray[A], A, That]) = {
     import scala.concurrent.ops._
+    executingScalaFallbackOperation("mapFallback")
     if (presence != null)
       out match {
         case filteredOut: CLFilteredArray[A] =>
@@ -182,8 +188,8 @@ extends IndexedSeq[A]
       }
   }
 
-  /// Overridden because apply and update are just terribly slow
-  override def foreach[U](f: A =>  U): Unit = if (presence != null) {
+  protected override def foreachFallback[U](f: A =>  U): Unit = if (presence != null) {
+    executingScalaFallbackOperation("foreachFallback")
     val presenceArr = presence.toArray
     for (i <- 0 until length) {
       if (toBool(presenceArr(i)))

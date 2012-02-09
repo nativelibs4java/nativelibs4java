@@ -47,7 +47,7 @@ import scala.Predef._
 object ScalaCLFunctionsTransformComponent {
   val runsAfter = List[String](
     "namer",
-    LoopsTransformComponent.phaseName,
+    //LoopsTransformComponent.phaseName,
     StreamTransformComponent.phaseName
   )
   val runsBefore = List[String](
@@ -175,6 +175,7 @@ extends PluginComponent
 
     def canCaptureSymbol(s: Symbol) = {
       //(System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
+      s.owner == CLArrayClass || // TODO check / refine / warn
       s.isValue && s.isStable && !s.isMutable &&
       s.isInstanceOf[TermSymbol] && s.isEffectivelyFinal && // this rules out captured fields !
       {
@@ -202,13 +203,18 @@ extends PluginComponent
     }
     
     def getDataIOImplicit(tpe: Type, context: analyzer.Context, enclosingTree: Tree): (Tree, CLDataIO[Any]) = {
-      val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
-      var ioTree = analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
-      if (ioTree == null)
+      //println("getDataIOImplicit(" + tpe + ", ...) ; UnitClass.tpe = " + UnitClass.tpe)
+      if (isUnit(tpe))
         null
       else {
-        val dataIO = getDataIO(tpe)
-        (ioTree, dataIO)
+        val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
+        var ioTree = analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
+        if (ioTree == null)
+          null
+        else {
+          val dataIO = getDataIO(tpe)
+          (ioTree, dataIO)
+        }
       }
     }
     def conversionError(pos: Position, msg: String) = {
@@ -257,6 +263,7 @@ extends PluginComponent
                 val t = normalize(s.tpe)
                 t + " (" + t.getClass.getName + ")"
               },
+              "owner" -> s.owner,
               "isMutable" -> s.isMutable,
               "isFinal" -> s.isFinal,
               "isEffectivelyFinal" -> s.isEffectivelyFinal,
@@ -284,7 +291,7 @@ extends PluginComponent
       
       val captures = for (s <- capturableSymbols) yield {
         val refs = externalRefsBySymbol(s)
-        val (tpe: Type, isArray: Boolean) = s.tpe match {
+        val (rawTpe: Type, isArray: Boolean) = normalize(s.tpe) match {
           case TypeRef(_, CLArrayClass, List(tpe)) =>
             (tpe, true)
           case NullaryMethodType(result) => 
@@ -297,11 +304,15 @@ extends PluginComponent
           case _ =>
             (s.tpe, false)
         }
+        val tpe = normalize(rawTpe)
         
-        var io = getDataIOImplicit(tpe, context, enclosingTree)
-        if (io == null) {
-          for (ref <- refs)
-            unit.error(ref.pos, "Cannot infer CLDataIO instance for type " + tpe + " of captured " + (if (isArray) "array" else "") + " variable !")
+        var io = if (isUnit(tpe)) null else {
+          val io = getDataIOImplicit(tpe, context, enclosingTree)
+          if (io == null) {
+            for (ref <- refs)
+              unit.error(ref.pos, "Cannot infer CLDataIO instance for type " + tpe + " of captured " + (if (isArray) "array" else "") + " variable !")
+          }
+          io
         }
         val arg = ident(s, N(refs.first.toString))
         Capture(symbol = s, io = io, isArray = isArray, arg = arg)
@@ -478,13 +489,13 @@ extends PluginComponent
                   newArrayApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
                   newArrayApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
                   newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs.map(_._1):_*),
-                  newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs.map(_._1):_*),
-                  newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs.map(_._1):_*)
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs.filter(_ != null).map(_._1):_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs.filter(_ != null).map(_._1):_*)
                 )
               ).setSymbol(getCachedFunctionSym),
               List(
                 sourceDataIO._1,
-                mappedDataIO._1
+                Option(mappedDataIO).map(_._1).getOrElse(newNull(anyCLDataIOTpe))
               )
             ).setSymbol(getCachedFunctionSym)
           }
@@ -518,14 +529,22 @@ extends PluginComponent
               import traversalOp._
               val colTpe = normalize(collection.tpe)
               //if (colTpe <:< CLCollectionClass.tpe) {
-              if (colTpe.toString.startsWith("scalacl.")) { // TODO
+              println("colTpe = " + colTpe)
+              println("colTpe.typeSymbol.typeConstructor = " + colTpe.typeSymbol.typeConstructor)
+              println("colTpe.typeSymbol.typeConstructor == CLArray = " + (colTpe.typeSymbol.typeConstructor == CLArrayClass.tpe))
+              val colTpeStr = colTpe.toString
+              
+              if (colTpeStr.contains("scalacl.") || colTpeStr.contains("CLArray")) { // TODO
+                println("OpenCL colTpe ; op = " + op)
                 op match {
-                  case opType @ (TraversalOps.MapOp(_, _, _) | TraversalOps.FilterOp(_, _, false)) =>
+                  case opType @ (TraversalOps.MapOp(_, _, _) | TraversalOps.ForeachOp(_, _) | TraversalOps.FilterOp(_, _, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
                       val clFunction = convertFunctionToCLFunction(op.f)
                       replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
                     }
                   case _ =>
+                    if (verbose)
+                      println("Operation " + op + " on " + colTpeStr + " is not optimized by ScalaCL yet")
                     super.transform(tree)
                 }
               } else {
@@ -556,6 +575,7 @@ extends PluginComponent
           }
         } catch {
           case ex =>
+            ex.printStackTrace
             super.transform(tree)
         }
       }

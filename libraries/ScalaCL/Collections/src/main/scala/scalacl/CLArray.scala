@@ -47,7 +47,33 @@ object CLArray {
 }
 import CLFilteredArray.{PresenceType, toBool, toPresence}
 
-trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] {
+trait CLWithForeach[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] {
+  //self =>
+  this: Repr =>
+
+  override def foreach[U](f: A => U): Unit = {
+    f match {
+      case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
+        clf.run(
+          args = Array(this),
+          reads = Array(this), // TODO handle captured arrays
+          writes = Array() // TODO handle captured arrays
+        )(
+          dims = Array(length)
+        )(context)
+      case _ =>
+        foreachFallback(f)
+    }
+  }
+  protected def foreachFallback[U](f: A => U): Unit = {
+    executingScalaFallbackOperation("foreachFallback")
+    for (i <- 0 until length)
+      f(this(i))
+  }
+}
+trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] 
+extends CLWithForeach[A, Repr]
+{
   //self =>
   this: Repr =>
   //this: CLIndexedSeq[A] with CLIndexedSeqLike[A, Repr] => //with WithContext with CLEventBoundContainer => // CLIndexedSeqLike[A, Repr] =>
@@ -266,19 +292,21 @@ class CLArray[A](
   override def size = length
 
   protected override def mapFallback[B](f: A => B, result: CLArray[B]) = {
+    executingScalaFallbackOperation("mapFallback")
     for (i <- 0 until length)
       result(i) = f(this(i))
   }
 
-  override def foreach[U](f: A => U): Unit =
-    toArray(dataIO.t) foreach f
+  //override def foreach[U](f: A => U): Unit =
+  //  toArray(dataIO.t) foreach f
 
   override def filter(p: A => Boolean) =
     filter(p, new CLFilteredArray[A](length))//.toCLArray
 
   override def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]) = {
     import scala.concurrent.ops._
-
+    executingScalaFallbackOperation("filterFallback")
+    
     out match {
       case filteredOut: CLFilteredArray[A] =>
         val copy = if (filteredOut.array == this) null else future {

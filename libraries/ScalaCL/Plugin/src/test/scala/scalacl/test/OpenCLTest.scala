@@ -21,6 +21,7 @@ object OpenCLTest {
     import scalacl._
     import scala.math._
 
+    enforceUsingOpenCL = true
     implicit val context = Context.best(DoubleSupport)
   """
 }
@@ -77,7 +78,7 @@ class OpenCLTest extends ScalaCLTestUtils {
     assertArrayEquals(a, cla)
   }
   
-  //@Ignore
+  @Ignore
   @Test
   def testMatrixMult {
     type Matrix =

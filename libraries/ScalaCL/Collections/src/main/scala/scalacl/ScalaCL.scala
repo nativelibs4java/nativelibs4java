@@ -58,6 +58,9 @@ package object scalacl {
   var useScalaFunctions =
     "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
   
+  var enforceUsingOpenCL =
+    "1" == System.getenv("SCALACL_ENFORCE_OPENCL")
+    
   type Device = CLDevice
   
   // backward compatibility
@@ -84,6 +87,13 @@ package object scalacl {
       compilerArguments,
       macros
     )
+  }
+  
+  private[scalacl] def executingScalaFallbackOperation(opName: => String) = {
+    if (enforceUsingOpenCL)
+      throw new RuntimeException("Not using OpenCL !")
+    if (verbose)
+      println("Running " + opName + " instead of OpenCL version")
   }
   
   private[scalacl] def reuse[T](value: Any, create: => T): T =

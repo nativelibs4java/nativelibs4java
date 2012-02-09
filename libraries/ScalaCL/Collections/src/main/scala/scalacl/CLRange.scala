@@ -86,10 +86,18 @@ class CLRange(
   }
 
   protected override def mapFallback[B](f: Int => B, result: CLArray[B]) = {
+    executingScalaFallbackOperation("mapFallback")
     var offset = 0
     for (i <- toRange) {
       result(offset) = f(i)
       offset += 1
+    }
+  }
+  
+  protected override def foreachFallback[U](f: Int => U) = {
+    executingScalaFallbackOperation("foreachFallback")
+    for (i <- toRange) {
+      f(i)
     }
   }
 
@@ -98,7 +106,7 @@ class CLRange(
 
   override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLIndexedSeq[Int], Int, That]) = {
     import scala.concurrent.ops._
-
+    executingScalaFallbackOperation("filterFallback")
     out match {
       case filteredOut: CLFilteredArray[Int] =>
         val copy = future {
