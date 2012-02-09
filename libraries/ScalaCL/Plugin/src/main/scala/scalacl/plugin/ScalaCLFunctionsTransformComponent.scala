@@ -134,18 +134,31 @@ extends PluginComponent
      * Hit Java verifier exceptions (Scala compiler bug) when letting this function definition where it's used, so lifted it up manually :-S
      */
     private def removeSymbolsExceptParamSymbolAsUnderscore(symbolReplacements: Map[Symbol, String], t: Tree) = {
+      
+      def replace(tree: Tree) = {
+        //paramSymbol: Symbol
+        symbolReplacements.get(tree.symbol) match {
+          case Some(rep) =>
+            treeCopy.Ident(tree, N(rep))
+          case None =>
+            tree.setSymbol(NoSymbol) // to make renaming effective
+            super.transform(tree)
+        }
+      }
+      
       val trans = new Transformer { 
         override def transform(tree: Tree) = tree match {
+          case s @ Select(This(targetClass), name) if tree.hasSymbol =>
+            println("Replacing name=" + name + " with _X using This(..)")
+            replace(tree)
+          case s @ Select(Select(target, target2), name) if tree.hasSymbol =>
+            println("Replacing name=" + name + " with _X using Select(..)")
+            replace(tree)
           case Ident(name) if tree.hasSymbol =>
-            //paramSymbol: Symbol
-            symbolReplacements.get(tree.symbol) match {
-              case Some(rep) =>
-                treeCopy.Ident(tree, N(rep))
-              case None =>
-                tree.setSymbol(NoSymbol) // to make renaming effective
-                super.transform(tree)
-            }
+            println("Replacing name=" + name + " with _X using Ident(..)")
+            replace(tree)
           case _ =>
+            println("NOT Replacing anything!  tree=" + tree)
             super.transform(tree)
         }
       }
@@ -177,7 +190,7 @@ extends PluginComponent
       //(System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
       s.owner == CLArrayClass || // TODO check / refine / warn
       s.isValue && s.isStable && !s.isMutable &&
-      s.isInstanceOf[TermSymbol] && s.isEffectivelyFinal && // this rules out captured fields !
+      s.isInstanceOf[TermSymbol] && //s.isEffectivelyFinal && // this rules out captured fields !
       {
         val tpe = normalize(s.tpe) match {
           case NullaryMethodType(result) =>
@@ -235,15 +248,17 @@ extends PluginComponent
             case s: MethodSymbol =>
               !(s.owner == CLArrayClass && s.toString == "method apply") &&
               !primitiveTypeSymbols.contains(s.owner) && 
-              s.owner != ScalaMathCommonClass &&
+              !(s.owner == ScalaMathCommonClass && s.toString.startsWith("method ")) &&
               !s.toString.matches("value _\\d+") &&
               !s.toString.matches("method to(Double|Int|Float|Long|Short|Byte|Boolean|Char)") &&
               !(s.toString == "method apply" && s.owner != null && s.owner.toString.matches("object Tuple\\d+")) // TODO cleanup hack
             case s: ModuleSymbol =>
               false
             case s: TermSymbol =>
-              t.isInstanceOf[Ident]
-            case _ =>
+              println("TermSymbol: " + s + "  t.isInstanceOf[Ident] = " + t.isInstanceOf[Ident] + "  t.isInstanceOf[Select] = " + t.isInstanceOf[Select])
+              t.isInstanceOf[Ident] || t.isInstanceOf[Select]
+            case s =>
+              println("Unmatched symbol: " + s)
               false
           }
         })
