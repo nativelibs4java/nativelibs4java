@@ -346,7 +346,10 @@ public class CLBuffer<T> extends CLMem {
     		return writeBytes(queue, offset, length, pointerToBuffer(in), blocking, eventsToWaitFor);
     }
     public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
-        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+        if (in == null)
+			throw new IllegalArgumentException("Null input pointer !");
+		
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
