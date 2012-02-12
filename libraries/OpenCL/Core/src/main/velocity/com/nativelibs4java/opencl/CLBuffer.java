@@ -225,6 +225,9 @@ public class CLBuffer<T> extends CLMem {
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (out == null)
+			throw new IllegalArgumentException("Null output buffer !");
+		
 		if (out.isReadOnly())
             throw new IllegalArgumentException("Output buffer for read operation is read-only !");
         boolean indirect = !out.isDirect();
@@ -243,6 +246,9 @@ public class CLBuffer<T> extends CLMem {
 	}
 	
 	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (out == null)
+			throw new IllegalArgumentException("Null output pointer !");
+		
 		if (length < 0) {
 			if (isGL) {
 				length = out.getValidElements();
@@ -287,6 +293,9 @@ public class CLBuffer<T> extends CLMem {
      */
     @Deprecated
 	public CLEvent write(CLQueue queue, long offset, long length, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (in == null)
+			throw new IllegalArgumentException("Null input buffer !");
+		
 		boolean indirect = !in.isDirect();
         Pointer<T> ptr = null;
 		if (indirect) {
@@ -301,6 +310,12 @@ public class CLBuffer<T> extends CLMem {
 	
 	
 	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (length == 0)
+			return null;
+		
+		if (in == null)
+			throw new IllegalArgumentException("Null input pointer !");
+		
 		if (length < 0) {
 			if (isGL)
 				length = in.getValidElements();
