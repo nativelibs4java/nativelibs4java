@@ -397,7 +397,7 @@ extends MiscMatchers
 
   type IdentGen = () => Ident
   
-  private val anyValTypeInfos = Seq[(Class[_], Type, AnyVal)](
+  private lazy val anyValTypeInfos = Seq[(Class[_], Type, AnyVal)](
     ( classOf[java.lang.Boolean], BooleanClass.tpe, false ),
     ( classOf[java.lang.Integer], IntClass.tpe, 0),
     ( classOf[java.lang.Long], LongClass.tpe, 0: Long),
