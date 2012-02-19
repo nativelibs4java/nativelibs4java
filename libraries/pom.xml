@@ -26,7 +26,18 @@
 			<url>http://nativelibs4java.sourceforge.net/maven</url>
 		</repository>
 	</repositories>
-
+	<pluginRepositories>
+    	<pluginRepository>
+    		<id>sonatype</id>
+		  <name>Sonatype OSS Snapshots Repository</name>
+		  <url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>nativelibs4java</id>
+			<name>nativelibs4java Maven2 Repository</name>
+			<url>http://nativelibs4java.sourceforge.net/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<modules>
 		<module>Velocity</module>
 		<module>BridJ</module>

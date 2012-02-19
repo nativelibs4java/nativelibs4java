@@ -89,6 +89,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-javacl-plugin</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nativelibs4java</groupId>
 				<artifactId>libcl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
