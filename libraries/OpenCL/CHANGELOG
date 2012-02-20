@@ -6,6 +6,7 @@ Current development version (1.0-SNAPSHOT)
 - Enhanced LocalSize API (added static factory methods for all primitive types)
 - Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
 - Fixed many Javadoc typos
+- Added more informative exceptions when passing null pointers to CLBuffer.writeBytes (issue #257)
 
 Version 1.0.0-RC1 (r2130, 20110621)
 
