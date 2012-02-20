@@ -6,22 +6,6 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>jar</packaging>
-  
-  <!--repositories>
-    <repository>
-      <id>nativelibs4java</id>
-      <name>nativelibs4java Maven2 Repository</name>
-      <url>http://nativelibs4java.sourceforge.net/maven</url>
-    </repository>
-  </repositories-->
-  
-  <!--pluginRepositories>
-    <pluginRepository>
-      <id>nativelibs4java</id>
-      <name>nativelibs4java Maven2 Repository</name>
-      <url>http://nativelibs4java.sourceforge.net/maven</url>
-    </pluginRepository>
-  </pluginRepositories-->
 
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
