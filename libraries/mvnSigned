@@ -1,1 +1,1 @@
-mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS -DskipTests $@
+mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests $@

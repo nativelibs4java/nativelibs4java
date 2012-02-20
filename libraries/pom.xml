@@ -60,7 +60,6 @@
 		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
 		<scala.version>2.9.1</scala.version>
 		
-		<jarsigner.skip>true</jarsigner.skip>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
@@ -297,28 +296,6 @@ Most of these wrappers are created automatically by JNAerator.
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>1.2</version>
-				<executions>
-					<execution>
-						<id>sign</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<removeExistingSignatures>true</removeExistingSignatures>
-					<keystore>/Users/ochafik/security/ochafik.keystore</keystore>
-					<alias>ochafik2012</alias>
-						<!--alias>nativelibs4java</alias-->
-						<!-- mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package -->
-					<storepass>${storepass}</storepass>
-				</configuration>
-			</plugin>
 				
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -362,6 +339,42 @@ Most of these wrappers are created automatically by JNAerator.
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>webstart</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<maven.compiler.debug>false</maven.compiler.debug>
+				<shadedArtifactAttached>false</shadedArtifactAttached>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>1.2</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<removeExistingSignatures>true</removeExistingSignatures>
+							<keystore>/Users/ochafik/security/ochafik.keystore</keystore>
+							<alias>ochafik2012</alias>
+								<!--alias>nativelibs4java</alias-->
+								<!-- mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package -->
+							<storepass>${storepass}</storepass>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
