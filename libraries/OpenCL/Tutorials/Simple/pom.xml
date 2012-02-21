@@ -6,7 +6,7 @@
   <name>JavaCL Simple Tutorial Archetype</name>
   
   <!--
-  mvn archetype:create -DarchetypeGroupId=com.nativelibs4java -DarchetypeArtifactId=javacl-simple-tutorial -DarchetypeVersion=1.0.0-RC1 -DremoteRepositories=http://nativelibs4java.sourceforge.net/maven -DgroupId=test  -DartifactId=test3
+  mvn archetype:create -DarchetypeGroupId=com.nativelibs4java -DarchetypeArtifactId=javacl-simple-tutorial -DarchetypeVersion=1.0.0-RC1 -DremoteRepositories=http://oss.sonatype.org/content/groups/public -DgroupId=test  -DartifactId=test3
 
   -->
   
