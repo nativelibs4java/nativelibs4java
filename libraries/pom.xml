@@ -38,21 +38,6 @@
 			<url>http://nativelibs4java.sourceforge.net/maven</url>
 		</pluginRepository>
 	</pluginRepositories>
-	<modules>
-		<module>Velocity</module>
-		<module>BridJ</module>
-		<module>jnaerator</module>
-		<module>ScalaCL</module>
-		<module>Scalaxy</module>
-		<module>OpenCL</module>
-		<module>OpenCL-JNA</module>
-		<module>Mono</module>
-		<module>DirectX</module>
-		<module>PThread</module>
-		<module>Utils</module>
-		<module>IdleTime</module>
-		<module>JarShrinker</module>
-	</modules>
 	
 	<properties>
 		<bridj.version>0.7-SNAPSHOT</bridj.version>
@@ -319,6 +304,75 @@ Most of these wrappers are created automatically by JNAerator.
 	</distributionManagement-->
 	
 	<profiles>
+		<profile>
+			<id>devel</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>Velocity</module>
+				<module>BridJ</module>
+				<module>jnaerator</module>
+				<module>ScalaCL</module>
+				<module>Scalaxy</module>
+				<module>OpenCL</module>
+				<module>OpenCL-JNA</module>
+				<module>Mono</module>
+				<module>DirectX</module>
+				<module>PThread</module>
+				<module>Utils</module>
+				<module>IdleTime</module>
+				<module>JarShrinker</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>coordinated-release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>Velocity</module>
+				<module>BridJ</module>
+				<module>jnaerator</module>
+				<module>ScalaCL</module>
+				<module>Scalaxy</module>
+				<module>OpenCL</module>
+				<module>OpenCL-JNA</module>
+				<module>Utils</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>bridj-jnaerator-release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>Velocity</module>
+				<module>BridJ</module>
+				<module>jnaerator</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>javacl-release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>OpenCL</module>
+				<module>OpenCL-JNA</module>
+				<module>Utils</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>scalacl-release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>Scalaxy</module>
+				<module>ScalaCL</module>
+			</modules>
+		</profile>
 		<profile>
 			<id>gpg</id>
 			<activation>
