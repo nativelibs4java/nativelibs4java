@@ -45,7 +45,6 @@
 		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
 		<scala.version>2.9.1</scala.version>
 		
-		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
 	</properties>
@@ -309,6 +308,9 @@ Most of these wrappers are created automatically by JNAerator.
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
+			<properties>
+				<maven.compiler.debug>true</maven.compiler.debug>
+			</properties>
 			<modules>
 				<module>Velocity</module>
 				<module>BridJ</module>
