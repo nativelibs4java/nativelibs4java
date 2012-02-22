@@ -176,6 +176,7 @@ Most of these wrappers are created automatically by JNAerator.
 									<excludes>
 										<exclude>org.scala-lang:scala-library</exclude>
 										<exclude>org.scala-lang:scala-compiler</exclude>
+										<!--exclude>junit:junit</exclude-->
 									</excludes>
 								</artifactSet>
 									
@@ -194,6 +195,43 @@ Most of these wrappers are created automatically by JNAerator.
 						</execution>
 						
 					</executions>
+				</plugin>
+				<plugin>
+				  <groupId>org.eclipse.m2e</groupId>
+				  <artifactId>lifecycle-mapping</artifactId>
+				  <version>1.0.0</version>
+				  <configuration>
+					<lifecycleMappingMetadata>
+					  <pluginExecutions>
+						<pluginExecution>
+						  <pluginExecutionFilter>
+							<groupId>com.nativelibs4java</groupId>
+							<artifactId>maven-velocity-plugin</artifactId>
+							<versionRange>[0.0.0,)</versionRange>
+							<goals>
+							  <goal>generate</goal>
+							</goals>
+						  </pluginExecutionFilter>
+						  <action>
+							<execute />
+						  </action>
+						</pluginExecution>
+						<pluginExecution>
+						  <pluginExecutionFilter>
+							<groupId>com.nativelibs4java</groupId>
+							<artifactId>maven-javacl-plugin</artifactId>
+							<versionRange>[0.0.0,)</versionRange>
+							<goals>
+							  <goal>compile</goal>
+							</goals>
+						  </pluginExecutionFilter>
+						  <action>
+							<execute />
+						  </action>
+						</pluginExecution>
+					  </pluginExecutions>
+					</lifecycleMappingMetadata>
+				  </configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
