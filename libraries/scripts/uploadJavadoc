@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# uploadJavadoc development bridj/api
+# uploadJavadoc 0.6.1 bridj/api
+
+VERSION=$1
+REMOTE_PATH=$2
+REMOTE_BASE=/home/project-web/nativelibs4java/htdocs
+ZIP_NAME=$VERSION.zip
+DIR_NAME=$VERSION
+
+
+if [[ -z "$VERSION" || -z "$REMOTE_PATH" || "$VERSION" == "apidocs" ]] ; then
+	echo "Syntax : $0 version remote-path" && exit 1 ;
+fi
+
+if [[ ! -d target/site/apidocs ]] ; then
+	mvn clean compile javadoc:aggregate ;
+	#echo "Didn't find target/site/apidocs !" && exit 1 ;
+fi
+
+cd target/site
+
+rm -fR $DIR_NAME
+cp -R apidocs $DIR_NAME
+
+rm -fR $ZIP_NAME
+zip -r $ZIP_NAME $DIR_NAME
+
+ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $ZIP_NAME" || echo "Please open a session with :
+ssh -t opentator,nativelibs4java@shell.sourceforge.net create
+"
+
+scp $ZIP_NAME opentator,nativelibs4java@shell.sourceforge.net:$REMOTE_BASE/$REMOTE_PATH/$ZIP_NAME
+
+ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $DIR_NAME ; unzip $ZIP_NAME ; rm $ZIP_NAME"
+
