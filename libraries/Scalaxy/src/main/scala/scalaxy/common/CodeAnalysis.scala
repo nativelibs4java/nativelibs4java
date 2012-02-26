@@ -193,6 +193,8 @@ extends MiscMatchers
     protected def isSideEffectFreeOwner(symbol: Symbol): Boolean = {
       RichWrappers.contains(symbol) ||
       (symbol match {
+        case StringClass | StringOpsClass =>
+          true
         case IntClass | ShortClass | LongClass | ByteClass | CharClass | BooleanClass | DoubleClass | IntClass =>
           true
         case PredefModule =>

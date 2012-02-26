@@ -102,6 +102,7 @@ trait PluginNames {
   lazy val OptionClass        = C("scala.Option")
   lazy val SomeModule         = M("scala.Some")
   lazy val NoneModule         = M("scala.None")
+  lazy val StringOpsClass     = C("scala.collection.immutable.StringOps")
   
   lazy val VectorBuilderClass         = C("scala.collection.immutable.VectorBuilder")
   lazy val ListBufferClass            = C("scala.collection.mutable.ListBuffer")
