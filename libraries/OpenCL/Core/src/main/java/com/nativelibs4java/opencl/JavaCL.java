@@ -47,7 +47,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
 import org.bridj.*;
 
 import org.bridj.util.ProcessUtils;
-import org.ochafik.util.string.StringUtils;
+import org.bridj.util.StringUtils;
 import static org.bridj.Pointer.*;
 
 /**
