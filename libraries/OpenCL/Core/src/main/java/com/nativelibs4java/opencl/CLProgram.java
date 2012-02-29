@@ -597,7 +597,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 }
             }
             for (String option : extraBuildOptions)
-                b.append(option).append(' ');
+                b.append(option.contains(" ") || option.contains("\"") ? "\"" + option.replaceAll("\"", "\\\"") + "\"" : option).append(' ');
             
         }
     			
