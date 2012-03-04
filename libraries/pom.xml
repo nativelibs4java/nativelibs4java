@@ -352,6 +352,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<maven.compiler.debug>true</maven.compiler.debug>
 			</properties>
 			<modules>
+				<module>InteropIntegration</module>
 				<module>Velocity</module>
 				<module>BridJ</module>
 				<module>jnaerator</module>
