@@ -2,51 +2,24 @@ package com.nativelibs4java.opencl.generator;
 
 import com.nativelibs4java.opencl.*;
 import com.ochafik.io.IOUtils;
-import com.ochafik.lang.jnaerator.ClassOutputter;
-import com.ochafik.lang.jnaerator.DeclarationsConverter;
-import com.ochafik.lang.jnaerator.GlobalsGenerator;
-import com.ochafik.lang.jnaerator.JNAerator;
-import com.ochafik.lang.jnaerator.JNAeratorConfig;
-import com.ochafik.lang.jnaerator.JNAeratorParser;
-import com.ochafik.lang.jnaerator.ObjectiveCGenerator;
+import com.ochafik.lang.jnaerator.*;
 import com.ochafik.lang.jnaerator.PreprocessorUtils.MacroUseCallback;
-import com.ochafik.lang.jnaerator.Result;
-import com.ochafik.lang.jnaerator.Signatures;
-import com.ochafik.lang.jnaerator.SourceFiles;
-import com.ochafik.lang.jnaerator.TypeConversion;
 import com.ochafik.lang.jnaerator.TypeConversion.JavaPrimitive;
 import com.ochafik.lang.jnaerator.TypeConversion.TypeConversionMode;
 import com.ochafik.lang.jnaerator.UniversalReconciliator;
 import com.ochafik.lang.jnaerator.UnsupportedConversionException;
-import com.ochafik.lang.jnaerator.parser.Arg;
-import com.ochafik.lang.jnaerator.parser.DeclarationsHolder;
-import com.ochafik.lang.jnaerator.parser.Declarator;
-import com.ochafik.lang.jnaerator.parser.Expression;
-import com.ochafik.lang.jnaerator.parser.Function;
-import com.ochafik.lang.jnaerator.parser.Identifier;
-import com.ochafik.lang.jnaerator.parser.Modifier;
-import com.ochafik.lang.jnaerator.parser.ModifierType;
-import com.ochafik.lang.jnaerator.parser.SourceFile;
-import com.ochafik.lang.jnaerator.parser.Statement;
-import com.ochafik.lang.jnaerator.parser.Struct;
-import com.ochafik.lang.jnaerator.parser.TypeRef;
-import com.ochafik.lang.jnaerator.parser.VariablesDeclaration;
+import com.ochafik.lang.jnaerator.parser.*;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.util.listenable.Adapter;
 import com.ochafik.util.listenable.Pair;
 import com.ochafik.util.string.RegexUtils;
 import com.ochafik.util.string.StringUtils;
 import java.io.File;
-import java.nio.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
+import java.io.PrintStream;
 
 import java.util.regex.Pattern;
 import org.anarres.cpp.LexerException;
@@ -87,19 +60,20 @@ public class JavaCLGenerator extends JNAerator {
 	}
 
     Map<String, Set<String>> macrosByFile = new HashMap<String, Set<String>>();
-    public SourceFiles parseSources(Feedback feedback, TypeConversion typeConverter) throws IOException, LexerException {
-		feedback.setStatus("Parsing native headers...");
-		return JNAeratorParser.parse(config, typeConverter, null/*new MacroUseCallback() {
+
+    @Override
+    protected JNAeratorParser createJNAeratorParser() {
+        return new JNAeratorParser() {
 
             @Override
-            public void macroUsed(String path, String macroName) {
-                Set<String> macros = macrosByFile.get(path);
-                if (macros == null)
-                    macrosByFile.put(path, macros = new HashSet<String>());
-                macros.add(macroName);
+            protected com.ochafik.lang.jnaerator.parser.ObjCppParser newObjCppParser(TypeConversion typeConverter, String s, boolean verbose, PrintStream errorOut) throws IOException {
+                com.ochafik.lang.jnaerator.parser.ObjCppParser parser = super.newObjCppParser(typeConverter, s, verbose, errorOut);
+                parser.allowKinds(ModifierKind.OpenCL);
+                return parser;
             }
-        }*/);
-	}
+            
+        };
+    }
 
     static Set<String> openclPrimitives = new HashSet<String>();
     static {
@@ -116,7 +90,7 @@ public class JavaCLGenerator extends JNAerator {
 
             @Override
             public void init() {
-                typeConverter = new TypeConversion(this) {
+                typeConverter = new BridJTypeConversion(this) {
 
                     @Override
                     public void initTypes() {
@@ -148,7 +122,7 @@ public class JavaCLGenerator extends JNAerator {
                     }
 
                 };
-                declarationsConverter = new DeclarationsConverter(this) {
+                declarationsConverter = new BridJDeclarationsConverter(this) {
 
                     @Override
                     public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName, int iConstructor) {
@@ -262,7 +236,7 @@ public class JavaCLGenerator extends JNAerator {
                         		out.addDeclaration(method);
                     }
                 };
-                globalsGenerator = new GlobalsGenerator(this);
+                globalsGenerator = new BridJGlobalsGenerator(this);
                 objectiveCGenerator = new ObjectiveCGenerator(this);
                 universalReconciliator = new UniversalReconciliator();
             }
