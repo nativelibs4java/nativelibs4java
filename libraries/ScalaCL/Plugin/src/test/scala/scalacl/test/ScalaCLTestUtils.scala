@@ -44,7 +44,7 @@ trait ScalaCLTestUtils extends BaseTestUtils {
       getPath(classOf[com.nativelibs4java.opencl.CLBuffer[_]]),
       getPath(classOf[com.nativelibs4java.opencl.library.OpenCLLibrary]),
       getPath(classOf[org.bridj.BridJ]),
-      getPath(classOf[org.objectweb.asm.ClassVisitor])
+      getPath(classOf[org.bridj.relocated.org.objectweb.asm.ClassVisitor])
     ).toSeq)
   }
 }
