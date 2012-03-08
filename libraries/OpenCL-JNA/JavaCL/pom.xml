@@ -23,6 +23,10 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <relativePath>..</relativePath>
   </parent>
 
+  <properties>
+	<packageName>com.nativelibs4java.opencl</packageName>
+  </properties>
+  
   <dependencies>
   	
 	<dependency>
@@ -63,15 +67,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
    	   <plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-jar-plugin</artifactId>
-		  <version>2.3.2</version>
-		  <configuration>
-			<archive>
-			  <manifest>
-				<mainClass>com.nativelibs4java.opencl.HardwareReport</mainClass>
-				<packageName>com.nativelibs4java.opencl</packageName>
-			  </manifest>
-			</archive>
-		  </configuration>
 	  </plugin>
 	  
 	</plugins>

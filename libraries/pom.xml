@@ -40,6 +40,9 @@
 	</pluginRepositories>
 	
 	<properties>
+		<mainClass></mainClass>
+		<packageName></packageName>
+		
 		<versionSpecificSubPackage></versionSpecificSubPackage>
 		<bridj.version>0.7-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.7-SNAPSHOT</maven-velocity-plugin.version>
@@ -48,6 +51,7 @@
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
+		<exportedPackages></exportedPackages>
 	</properties>
 	
 	<developers>
@@ -235,24 +239,45 @@ Most of these wrappers are created automatically by JNAerator.
 					</lifecycleMappingMetadata>
 				  </configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+					<executions>
+						<execution>
+							<id>test-jar</id>
+							<phase>package</phase>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<archive>
+							<addMavenDescriptor>false</addMavenDescriptor>
+							<manifest>
+								<mainClass>${mainClass}</mainClass>
+								<packageName>${packageName}</packageName>
+							</manifest>
+							<manifestEntries>
+								<!-- 
+									http://fusesource.com/docs/esb/4.1/osgi/manifest.html 
+								-->
+								<!--Manifest-Version>2</Manifest-Version-->
+								<Export-Package>${exportedPackages}</Export-Package>
+								<!--Bundle-Activator></Bundle-Activator-->	
+								<Bundle-Version>${pom.version}</Bundle-Version>
+								<Bundle-Name>${pom.name}</Bundle-Name>
+								<!--Bundle-Description>${pom.description}</Bundle-Description-->
+								<Bundle-DocURL>${pom.url}</Bundle-DocURL>
+								<Bundle-ManifestVersion>NativeLibs4Java / Olivier Chafik</Bundle-ManifestVersion>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
-				
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
-				<executions>
-					<execution>
-						<id>test-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>

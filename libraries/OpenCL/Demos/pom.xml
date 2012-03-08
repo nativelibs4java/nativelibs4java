@@ -15,6 +15,11 @@
 	  <relativePath>..</relativePath>
   </parent>
 
+  <properties>
+    <mainClass>com.nativelibs4java.opencl.HardwareReport</mainClass>
+	<packageName>com.nativelibs4java.opencl</packageName>
+  </properties>
+  
   <dependencies>
   	
 	<dependency>

@@ -1,65 +1,65 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <modelVersion>4.0.0</modelVersion>
-  <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl</artifactId>
-  <name>JavaCL / BridJ</name>
-  <url>http://code.google.com/p/javacl/</url>
-  <packaging>jar</packaging>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>javacl</artifactId>
+	<name>JavaCL / BridJ</name>
+	<url>http://code.google.com/p/javacl/</url>
+	<packaging>jar</packaging>
   
-  
-	  <description>
+	
+	<description>
 JavaCL is an Object-Oriented API that makes the C OpenCL API available to Java in a very natural way.
 It hides away the complexity of cross-platform C bindings, has a clean OO design (with generics, Java enums, NIO buffers, fully typed exceptions...), provides high-level features (OpenGL-interop, array reductions) and comes with samples and demos.
 For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL.
 	</description>
+
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>javacl-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 	
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>..</relativePath>
-  </parent>
+	<properties>
+		<exportedPackages>com.nativelibs4java.opencl,com.nativelibs4java.opencl.util,com.nativelibs4java.opencl.util.fft</exportedPackages>
+		<packageName>com.nativelibs4java.opencl</packageName>
+	</properties>
 
-  <dependencies>
-  	
-	<dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-core</artifactId>
-	</dependency>
-	<dependency>
-	  <groupId>org.apache.commons</groupId>
-	  <artifactId>commons-math</artifactId>
-	  <version>2.2</version>
-	  <scope>test</scope>
-	</dependency>
-  </dependencies>
-
-  <build>
-  	<plugins>
-
-		<plugin>
+	<dependencies>
+	
+		<dependency>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-javacl-plugin</artifactId>
-		</plugin>
+			<artifactId>javacl-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-   	   <plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-jar-plugin</artifactId>
-		  <version>2.3.2</version>
-		  <configuration>
-			<archive>
-			  <manifest>
-				<mainClass>com.nativelibs4java.opencl.HardwareReport</mainClass>
-				<packageName>com.nativelibs4java.opencl</packageName>
-			  </manifest>
-			</archive>
-		  </configuration>
-	  </plugin>
-	  
-	</plugins>
-  </build>
+	<build>
+		<plugins>
+	
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-javacl-plugin</artifactId>
+			</plugin>
+   	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+			</plugin>
+			
+		</plugins>
+	</build>
 </project>
 
 

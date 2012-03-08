@@ -11,6 +11,7 @@
 
   <properties>
   	<maven.compiler.debug>false</maven.compiler.debug>
+	<mainClass>Packager</mainClass>
   </properties>
 
   <parent>
@@ -20,25 +21,6 @@
 	  <relativePath>..</relativePath>
   </parent>
   
-  <build>
-  	<plugins>
-
-		 <plugin>
-			  <groupId>org.apache.maven.plugins</groupId>
-			  <artifactId>maven-jar-plugin</artifactId>
-			  <version>2.3.2</version>
-			  <configuration>
-			<archive>
-			  <manifest>
-				<mainClass>Packager</mainClass>
-			  </manifest>
-			</archive>
-			  </configuration>
-		  </plugin>
-		  
-	</plugins>
-   
-  </build>
 </project>
 
 
