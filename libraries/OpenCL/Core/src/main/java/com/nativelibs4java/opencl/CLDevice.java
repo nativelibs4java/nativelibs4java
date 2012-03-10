@@ -102,15 +102,19 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return ret;
     }
 
-
+    private volatile ByteOrder byteOrder;
     public ByteOrder getByteOrder() {
-        return isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    	if (byteOrder == null)
+    		byteOrder = isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    	return byteOrder;
     }
 
-    ByteOrder kernelsDefaultByteOrder;
+    /**
+     * @deprecated Use {@link CLDevice#getByteOrder()}
+     */
+    @Deprecated
     public synchronized ByteOrder getKernelsDefaultByteOrder() {
-        if (kernelsDefaultByteOrder == null) {
-            kernelsDefaultByteOrder = getByteOrder();//ByteOrder.nativeOrder();
+    	return getByteOrder();
             /*
             CLPlatform platform = getPlatform();
             if (platform != null && platform.getVendor().toLowerCase().contains("nvidia"))
@@ -158,8 +162,6 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
                     context.release();
                 }
             }//*/
-        }
-        return kernelsDefaultByteOrder;
     }
 
     /** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */

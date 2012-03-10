@@ -13,7 +13,7 @@ public class JavaCLTutorial2 {
     public static void main(String[] args) throws IOException {
         CLContext context = JavaCL.createBestContext();
         CLQueue queue = context.createDefaultQueue();
-        ByteOrder byteOrder = context.getKernelsDefaultByteOrder();
+        ByteOrder byteOrder = context.getByteOrder();
         
         int n = 1024;
         Pointer<Float>

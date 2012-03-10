@@ -650,19 +650,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
     /**
-     * The OpenCL specification states that the default endianness of kernel arguments is that of the device.<br/>
-     * However, there are implementations where this does not appear to be respected, so it is compulsory to perform a runtime test on those platforms.
-     * @return byte order needed for pointer kernel arguments that do not have any <code>__attribute__ ((endian(device))</code> or <code>__attribute__ ((endian(host))</code> attribute.
+     * @deprecated Use {@link CLContext#getByteOrder()}
      */
+    @Deprecated
     public ByteOrder getKernelsDefaultByteOrder() {
-        ByteOrder order = null;
-        for (CLDevice device : getDevices()) {
-            ByteOrder devOrder = device.getKernelsDefaultByteOrder();
-            if (order != null && devOrder != order)
-                return null;
-            order = devOrder;
-        }
-        return order;
+        return getByteOrder();
     }
 
     /**

@@ -104,63 +104,19 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
 
+    private volatile ByteOrder byteOrder;
     public ByteOrder getByteOrder() {
-        return isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    	if (byteOrder == null)
+    		byteOrder = isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    	return byteOrder;
     }
 
-    ByteOrder kernelsDefaultByteOrder;
+    /**
+     * @deprecated Use {@link CLDevice#getByteOrder()}
+     */
+    @Deprecated
     public synchronized ByteOrder getKernelsDefaultByteOrder() {
-        if (kernelsDefaultByteOrder == null) {
-            kernelsDefaultByteOrder = getByteOrder();//ByteOrder.nativeOrder();
-            /*
-            CLPlatform platform = getPlatform();
-            if (platform != null && platform.getVendor().toLowerCase().contains("nvidia"))
-                kernelsDefaultByteOrder = getByteOrder();
-            else {
-                CLContext context = JavaCL.createContext((Map)null, this);
-                CLQueue queue = context.createDefaultQueue();
-                try {
-                    int n = 16;
-
-                    CLIntBuffer inputMatchResult = context.createIntBuffer(CLMem.Usage.Output, n);
-                    float testValue = 12;
-                    CLFloatBuffer inPtr = context.createFloatBuffer(CLMem.Usage.Input, n);
-                    inPtr.write(queue, FloatBuffer.wrap(new float[] { testValue }), true);
-                    CLProgram program =
-                        context.createProgram(IOUtils.readText(CLDevice.class.getResourceAsStream("EndiannessTest.cl")))
-                        .defineMacro("TEST_VALUE", testValue)
-                        .build();
-
-                    CLKernel test = program.createKernel("testEndianness", inPtr, inPtr, inPtr, inputMatchResult);
-                    test.enqueueNDRange(queue, new int[] { n }, new int[] { 1 });
-                    queue.finish();
-
-                    IntBuffer b = NIOUtils.directInts(n, getByteOrder());
-                    inputMatchResult.read(queue, b, true);
-                    switch (b.get(0)) {
-                        case 1: // device endianness
-                            kernelsDefaultByteOrder = getByteOrder();
-                            break;
-                        case 2: // host endianness
-                            kernelsDefaultByteOrder = ByteOrder.nativeOrder();
-                            break;
-                        default:
-                            throw new RuntimeException("Default kernel argument endianness of this device couldn't be guessed out.");
-                    }
-
-                } catch (CLBuildException ex) {
-                    throw new RuntimeException("Default kernel argument endianness of this device couldn't be guessed out.", ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException("Couldn't find internal resources needed to guess this device's kernel argument endianness.", ex);
-                } finally {
-                    queue.finish();
-                    System.gc();
-                    queue.release();
-                    context.release();
-                }
-            }//*/
-        }
-        return kernelsDefaultByteOrder;
+        return getByteOrder();
     }
 
     /** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
