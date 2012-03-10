@@ -13,11 +13,12 @@ public class JavaCLTutorial2 {
     public static void main(String[] args) throws IOException {
         CLContext context = JavaCL.createBestContext();
         CLQueue queue = context.createDefaultQueue();
-
+        ByteOrder byteOrder = context.getKernelsDefaultByteOrder();
+        
         int n = 1024;
         Pointer<Float>
-            aPtr = allocateFloats(n),
-            bPtr = allocateFloats(n);
+            aPtr = allocateFloats(n).order(byteOrder),
+            bPtr = allocateFloats(n).order(byteOrder);
 
         for (int i = 0; i < n; i++) {
             aPtr.set(i, (float)cos(i));
