@@ -52,6 +52,7 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.*;
 
 import com.nativelibs4java.opencl.CLDevice.QueueProperties;
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
@@ -165,6 +166,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
+		
+		if (getByteOrder() == null) {
+			JavaCL.log(Level.WARNING, "The devices in this context have mismatching byte orders. This mandates the use of __attribute__((endian(host))) in kernel sources or *very* careful use of buffers to avoid facing endianness issues");   
+		}
 	}
 	
 	/**
@@ -622,6 +627,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		if (byteCount > getMaxMemAllocSize())
             throw new OutOfMemoryError("Requested size for buffer allocation is more than the maximum for this context : " + byteCount + " > " + getMaxMemAllocSize());
 
+        if (data != null) {
+			ByteOrder contextOrder = getByteOrder();
+			ByteOrder dataOrder = data.order();
+			if (contextOrder != null && !dataOrder.equals(contextOrder))
+				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getKernelsDefaultByteOrder())).");
+		}
+        
 		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;

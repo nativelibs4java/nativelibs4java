@@ -372,5 +372,22 @@ public class NIOUtils
             return (B)DoubleBuffer.wrap((double[])a);
         throw new UnsupportedOperationException("Cannot wrap primitive arrays of type " + a.getClass().getName());
 	}
-
+	@SuppressWarnings("unchecked")
+	public static ByteOrder getByteOrder(Buffer buffer) {
+        if (buffer instanceof IntBuffer) {
+            return ((IntBuffer)buffer).order();
+        } else if (buffer instanceof LongBuffer) {
+            return ((LongBuffer)buffer).order();
+        } else if (buffer instanceof ShortBuffer) {
+            return ((ShortBuffer)buffer).order();
+        } else if (buffer instanceof ByteBuffer) {
+            return ((ByteBuffer)buffer).order();
+        } else if (buffer instanceof DoubleBuffer) {
+            return ((DoubleBuffer)buffer).order();
+        } else if (buffer instanceof FloatBuffer) {
+            return ((FloatBuffer)buffer).order();
+        } else
+            throw new UnsupportedOperationException();
+    }
+    
 }
