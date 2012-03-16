@@ -19,6 +19,7 @@ package com.nativelibs4java.velocity;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.model.Resource;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -74,14 +75,28 @@ public class VelocityMojo
      * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
-    private File outputDirectory;
+    private File sourcesOutputDirectory;
 
     /**
      * Output directory for generated test sources.
      * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
-    private File testOutputDirectory;
+    private File testSourcesOutputDirectory;
+
+    /**
+     * Output directory for resources.
+     * @parameter expression="${project.build.directory}/generated-resources/"
+     * @optional
+     */
+    private File resourcesOutputDirectory;
+
+    /**
+     * Output directory test resources.
+     * @parameter expression="${project.build.directory}/generated-test-resources/"
+     * @optional
+     */
+    private File testResourcesOutputDirectory;
 
     /**
      * @parameter expression="${project}"
@@ -90,13 +105,6 @@ public class VelocityMojo
      * @since 1.0
      */
     private MavenProject project;
-
-	public File getVelocitySources() {
-		return velocitySources;
-	}
-    public File getOutputDirectory() {
-		return outputDirectory;
-	}
 
 	static void listVeloFiles(File f, Collection<File> out) throws IOException {
         if (f.isHidden())
@@ -141,18 +149,24 @@ public class VelocityMojo
     public void execute()
         throws MojoExecutionException
     {
-        if (executeAll(velocitySources, outputDirectory)) {
+        if (executeAll(velocitySources, false)) {
 			//File jf = new File(outputDirectory, "java");
 			//if (jf.exists())
 			//	outputDirectory = jf;
-			project.addCompileSourceRoot(outputDirectory.toString());
+			project.addCompileSourceRoot(sourcesOutputDirectory.toString());
+			Resource res = new Resource();
+			res.setDirectory(resourcesOutputDirectory.getAbsolutePath());
+			project.addResource(res);
 		}
         
-        if (executeAll(velocityTestSources, testOutputDirectory)) {
+        if (executeAll(velocityTestSources, true)) {
 			//File jf = new File(testOutputDirectory, "java");
 			//if (jf.exists())
 			//	testOutputDirectory = jf;
-			project.addTestCompileSourceRoot(testOutputDirectory.toString());
+			project.addTestCompileSourceRoot(testSourcesOutputDirectory.toString());
+			Resource res = new Resource();
+			res.setDirectory(testResourcesOutputDirectory.getAbsolutePath());
+			project.addTestResource(res);
 		}
         
 		/*if (templates == null)
@@ -164,7 +178,7 @@ public class VelocityMojo
 		}*/
     }
 
-    private boolean executeAll(File velocitySources, File outputDirectory) throws MojoExecutionException {
+    private boolean executeAll(File velocitySources, boolean isTest) throws MojoExecutionException {
     	VelocityEngine ve = new VelocityEngine();
     	
         List<File> files = new ArrayList<File>();
@@ -177,6 +191,7 @@ public class VelocityMojo
             getLog().info("Velocity root path = " + canoPath);
             ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
 			ve.setProperty("file.resource.loader.path", canoPath);//file.getParent());
+			
 			ve.init();
 					
 			
@@ -184,9 +199,11 @@ public class VelocityMojo
 			throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
 		}
 
+		
         getLog().info("Found " + files.size() + " files in '" + velocitySources + "'...");
+        getLog().info("Got Maven properties : " + project.getProperties());
         getLog().info("Got properties : " + properties);
-
+        
         if (files.isEmpty())
             return false;
 
@@ -199,7 +216,16 @@ public class VelocityMojo
 					getLog().info("Skipping: '" + name + "'");
                     continue;
 				}
-					
+				String lowName = name.toLowerCase();
+				
+				File outputDirectory;
+				boolean isSource = name.endsWith(".java") || name.endsWith(".scala");
+				if (isSource) {
+					outputDirectory = isTest ? testSourcesOutputDirectory : sourcesOutputDirectory;
+				} else {
+					outputDirectory = isTest ? testResourcesOutputDirectory : resourcesOutputDirectory;
+				}
+				
                 File outFile = getOutputFile(file, velocitySources, outputDirectory);
                 if (outFile.exists() && outFile.lastModified() > file.lastModified()) {
                     getLog().info("Up-to-date: '" + name + "'");
@@ -219,6 +245,14 @@ public class VelocityMojo
                 context.put("primitives", Primitive.getPrimitives());
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
                 context.put("bridJPrimitives", Primitive.getBridJPrimitives());
+                context.put("pom", project);
+		
+                for (Map.Entry<Object, Object> e : project.getProperties().entrySet()) {
+					String propName = ((String)e.getKey()).replace('.', '_'), propValue = (String)e.getValue();
+					getLog().debug("Got property : " + propName + " = " + propValue);
+			
+					context.put(propName, propValue);
+				}
                 
                 if (properties != null) {
                 	for (Map.Entry<String, String> e : properties.entrySet()) {
