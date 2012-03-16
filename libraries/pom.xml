@@ -13,13 +13,18 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-
+	
 	<repositories>
 		<repository>
-		  <id>sonatype</id>
-		  <name>Sonatype OSS Snapshots Repository</name>
-		  <url>http://oss.sonatype.org/content/groups/public</url>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
 		</repository>
+		<!--repository>
+			<id>eclipse-indigo</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/indigo</url>
+		</repository-->
 		<!--repository>
 			<id>nativelibs4java</id>
 			<name>nativelibs4java Maven2 Repository</name>
@@ -27,10 +32,10 @@
 		</repository-->
 	</repositories>
 	<pluginRepositories>
-    	<pluginRepository>
-    		<id>sonatype</id>
-		  <name>Sonatype OSS Snapshots Repository</name>
-		  <url>http://oss.sonatype.org/content/groups/public</url>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 		<!--pluginRepository>
 			<id>nativelibs4java</id>
@@ -40,6 +45,7 @@
 	</pluginRepositories>
 	
 	<properties>
+		<tycho-version>0.14.0</tycho-version>
 		<mainClass></mainClass>
 		<packageName></packageName>
 		
@@ -47,11 +53,15 @@
 		<bridj.version>0.7-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.7-SNAPSHOT</maven-velocity-plugin.version>
 		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
+		<jna.version></jna.version>
+		<rococoa.version></rococoa.version>
 		<scala.version>2.9.1</scala.version>
+		<osgiBundleVersion>${project.version}</osgiBundleVersion>
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
 		<exportedPackages></exportedPackages>
+		<importedPackages></importedPackages>
 	</properties>
 	
 	<developers>
@@ -89,7 +99,7 @@ Most of these wrappers are created automatically by JNAerator.
 		<developerConnection>scm:git:git@github.com:ochafik/nativelibs4java.git</developerConnection>
 		<url>git@github.com:ochafik/nativelibs4java.git</url>
 	</scm>
-		
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -116,6 +126,49 @@ Most of these wrappers are created automatically by JNAerator.
 	<build>
 		<pluginManagement>
 			<plugins>
+				<!--
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-maven-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<extensions>true</extensions>
+				</plugin>
+			
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>target-platform-configuration</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<environments>
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>x86</arch>
+							</environment>
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>x86_64</arch>
+							</environment>
+							<environment>
+								<os>win32</os>
+								<ws>win32</ws>
+								<arch>x86</arch>
+							</environment>
+							<environment>
+								<os>win32</os>
+								<ws>win32</ws>
+								<arch>x86_64</arch>
+							</environment>
+							<environment>
+								<os>macosx</os>
+								<ws>cocoa</ws>
+								<arch>x86_64</arch>
+							</environment>
+						</environments>
+					</configuration>
+				</plugin>
+				-->
 				<plugin>
 					<groupId>org.scala-tools</groupId>
 					<artifactId>maven-scala-plugin</artifactId>
@@ -144,6 +197,7 @@ Most of these wrappers are created automatically by JNAerator.
 					<version>${maven-velocity-plugin.version}</version>
 					<executions>
 						<execution>
+							<phase>generate-sources</phase>
 							<goals>
 								<goal>generate</goal>
 							</goals>
@@ -154,9 +208,25 @@ Most of these wrappers are created automatically by JNAerator.
 							<version>${project.version}</version>
 							<project_version>${project.version}</project_version>
 							<project_name>${project.artifactId}</project_name>
+							<bridj_version>${bridj.version}</bridj_version>
+							<jnaerator_version>${jnaerator.version}</jnaerator_version>
+							<jna_version>${jna.version}</jna_version>
+							<rococoa_version>${rococoa.version}</rococoa_version>
 							<versionSpecificSubPackage>${versionSpecificSubPackage}</versionSpecificSubPackage>
 						</properties>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.nativelibs4java</groupId>
+					<artifactId>maven-jnaerator-plugin</artifactId>
+					<version>${jnaerator.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -168,7 +238,7 @@ Most of these wrappers are created automatically by JNAerator.
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>1.4</version>
 					<executions>
-							
+						
 						<execution>
 							<id>full-package</id>
 							<phase>package</phase>
@@ -185,7 +255,7 @@ Most of these wrappers are created automatically by JNAerator.
 										<!--exclude>junit:junit</exclude-->
 									</excludes>
 								</artifactSet>
-									
+								
 								<filters>
 									<filter>
 										<artifact>*:*</artifact>
@@ -199,45 +269,45 @@ Most of these wrappers are created automatically by JNAerator.
 								</filters>
 							</configuration>
 						</execution>
-						
+					
 					</executions>
 				</plugin>
 				<plugin>
-				  <groupId>org.eclipse.m2e</groupId>
-				  <artifactId>lifecycle-mapping</artifactId>
-				  <version>1.0.0</version>
-				  <configuration>
-					<lifecycleMappingMetadata>
-					  <pluginExecutions>
-						<pluginExecution>
-						  <pluginExecutionFilter>
-							<groupId>com.nativelibs4java</groupId>
-							<artifactId>maven-velocity-plugin</artifactId>
-							<versionRange>[0.0.0,)</versionRange>
-							<goals>
-							  <goal>generate</goal>
-							</goals>
-						  </pluginExecutionFilter>
-						  <action>
-							<execute />
-						  </action>
-						</pluginExecution>
-						<pluginExecution>
-						  <pluginExecutionFilter>
-							<groupId>com.nativelibs4java</groupId>
-							<artifactId>maven-javacl-plugin</artifactId>
-							<versionRange>[0.0.0,)</versionRange>
-							<goals>
-							  <goal>compile</goal>
-							</goals>
-						  </pluginExecutionFilter>
-						  <action>
-							<execute />
-						  </action>
-						</pluginExecution>
-					  </pluginExecutions>
-					</lifecycleMappingMetadata>
-				  </configuration>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.nativelibs4java</groupId>
+										<artifactId>maven-velocity-plugin</artifactId>
+										<versionRange>[0.0.0,)</versionRange>
+										<goals>
+											<goal>generate</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.nativelibs4java</groupId>
+										<artifactId>maven-javacl-plugin</artifactId>
+										<versionRange>[0.0.0,)</versionRange>
+										<goals>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -265,12 +335,15 @@ Most of these wrappers are created automatically by JNAerator.
 								-->
 								<!--Manifest-Version>2</Manifest-Version-->
 								<Export-Package>${exportedPackages}</Export-Package>
-								<!--Bundle-Activator></Bundle-Activator-->	
-								<Bundle-Version>${pom.version}</Bundle-Version>
-								<Bundle-Name>${pom.name}</Bundle-Name>
+								<Import-Package>${importedPackages}</Import-Package>
+								<!--Bundle-Activator></Bundle-Activator-->
+								<Bundle-Version>${osgiBundleVersion}</Bundle-Version>
+								<Bundle-Name>${project.name}</Bundle-Name>
 								<!--Bundle-Description>${pom.description}</Bundle-Description-->
-								<Bundle-DocURL>${pom.url}</Bundle-DocURL>
-								<Bundle-ManifestVersion>NativeLibs4Java / Olivier Chafik</Bundle-ManifestVersion>
+								<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+								<Bundle-DocURL>${project.url}</Bundle-DocURL>
+								<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+								<Bundle-Vendor>NativeLibs4Java / Olivier Chafik</Bundle-Vendor>
 							</manifestEntries>
 						</archive>
 					</configuration>
@@ -345,7 +418,7 @@ Most of these wrappers are created automatically by JNAerator.
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-				
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -494,18 +567,18 @@ Most of these wrappers are created automatically by JNAerator.
 								</goals>
 							</execution>
 						</executions>
-									
+						
 						<dependencies>
-						  <dependency>
-							<groupId>ant</groupId>
-							<artifactId>ant-jsch</artifactId>
-							<version>1.6.5</version>
-						  </dependency>
-						  <dependency>
-							<groupId>com.jcraft</groupId>
-							<artifactId>jsch</artifactId>
-							<version>0.1.42</version>
-						  </dependency>
+							<dependency>
+								<groupId>ant</groupId>
+								<artifactId>ant-jsch</artifactId>
+								<version>1.6.5</version>
+							</dependency>
+							<dependency>
+								<groupId>com.jcraft</groupId>
+								<artifactId>jsch</artifactId>
+								<version>0.1.42</version>
+							</dependency>
 						</dependencies>
 					</plugin>
 					<plugin>
