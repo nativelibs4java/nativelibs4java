@@ -8,6 +8,7 @@ package com.nativelibs4java.opencl.generator;
 import com.ochafik.io.IOUtils;
 import com.ochafik.lang.jnaerator.JNAerator.Feedback;
 import com.ochafik.lang.jnaerator.JNAeratorConfig;
+import com.ochafik.lang.jnaerator.JNAeratorConfig.OutputMode;
 import com.ochafik.lang.jnaerator.SourceFiles;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
@@ -124,7 +125,8 @@ public class JavaCLGeneratorMojo
         for (File file : sources) {
             final JNAeratorConfig config = new JNAeratorConfig();
             config.autoConf = true;
-            config.compile = false;
+            config.forceOverwrite = true;
+            config.outputMode = OutputMode.Directory;
             config.outputJar = null;
             if (!javaOutDir.exists())
                 javaOutDir.mkdirs();

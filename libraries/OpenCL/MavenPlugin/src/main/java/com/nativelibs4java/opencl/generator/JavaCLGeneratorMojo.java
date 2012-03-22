@@ -124,7 +124,8 @@ public class JavaCLGeneratorMojo
         for (File file : sources) {
             final JNAeratorConfig config = new JNAeratorConfig();
             config.autoConf = true;
-            config.compile = false;
+            config.forceOverwrite = true;
+            config.outputMode = JNAeratorConfig.OutputMode.Directory;
             config.outputJar = null;
             if (!javaOutDir.exists())
                 javaOutDir.mkdirs();
