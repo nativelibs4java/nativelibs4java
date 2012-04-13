@@ -57,6 +57,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -555,6 +556,39 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public void setUnsafeMathOptimizations() {
     		addBuildOption("-cl-unsafe-math-optimizations");
     }
+    /**
+     * Add the <a href="http://www.cs.cmu.edu/afs/cs/academic/class/15668-s11/www/cuda-doc/OpenCL_Extensions/cl_nv_compiler_options.txt">-cl-nv-verbose</a> compilation option (<b><i>NVIDIA GPUs only</i></b>)<br>
+     * Enable verbose mode. Output will be reported in JavaCL's log at the INFO level
+     */
+    public void setNVVerbose() {
+		addBuildOption("-cl-nv-verbose");
+    }
+    /**
+     * Add the <a href="http://www.cs.cmu.edu/afs/cs/academic/class/15668-s11/www/cuda-doc/OpenCL_Extensions/cl_nv_compiler_options.txt">-cl-nv-maxrregcount=N</a> compilation option (<b><i>NVIDIA GPUs only</i></b>)<br>
+     * Specify the maximum number of registers that GPU functions can use.
+     * Until a function-specific limit, a higher value will generally increase
+     * the performance of individual GPU threads that execute this function.
+     * However, because thread registers are allocated from a global register
+     * pool on each GPU, a higher value of this option will also reduce the
+     * maximum thread block size, thereby reducing the amount of thread
+     * parallelism. Hence, a good maxrregcount value is the result of a
+     * trade-off.
+     * If this option is not specified, then no maximum is assumed. Otherwise
+     * the specified value will be rounded to the next multiple of 4 registers
+     * until the GPU specific maximum of 128 registers.
+     * @param N positive integer
+     */
+    public void setNVMaximumRegistryCount(int N) {
+		addBuildOption("-cl-nv-maxrregcount=" + N);
+    }
+    /**
+     * Add the <a href="http://www.cs.cmu.edu/afs/cs/academic/class/15668-s11/www/cuda-doc/OpenCL_Extensions/cl_nv_compiler_options.txt">-cl-nv-opt-level</a> compilation option (<b><i>NVIDIA GPUs only</i></b>)<br>
+     * Specify optimization level (default value: 3)
+     * @param N positive integer, or 0 (no optimization).
+     */
+    public void setNVOptimizationLevel(int N) {
+		addBuildOption("-cl-nv-opt-level=" + N);
+    }
     
     /**
      * Please see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">OpenCL's clBuildProgram documentation</a> for details on supported build options.
@@ -666,6 +700,25 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		"os.name"
 	};
     
+	protected Set<String> getProgramBuildInfo(cl_program pgm, Pointer<cl_device_id> deviceIds) {
+		Pointer<SizeT> len = allocateSizeT();
+		int bufLen = 2048 * 32; //TODO find proper size
+		Pointer<?> buffer = allocateBytes(bufLen);
+
+		Set<String> errs = new HashSet<String>();
+		if (deviceIds == null) {
+			error(CL.clGetProgramBuildInfo(pgm, null, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+			String s = buffer.getCString();
+			errs.add(s);
+		} else {
+			for (cl_device_id device : deviceIds) {
+				error(CL.clGetProgramBuildInfo(pgm, device, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+				String s = buffer.getCString();
+				errs.add(s);
+			}
+		}
+		return errs;
+	}
     boolean built;
 	/**
 	 * Returns the context of this program
@@ -719,24 +772,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
         int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, pointerToCString(getOptionsString()), null, null);
         //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
+        Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
+        
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
-            Pointer<SizeT> len = allocateSizeT();
-            int bufLen = 2048 * 32; //TODO find proper size
-            Pointer<?> buffer = allocateBytes(bufLen);
-
-            HashSet<String> errs = new HashSet<String>();
-            if (deviceIds == null) {
-                error(CL.clGetProgramBuildInfo(getEntity(), null, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
-                String s = buffer.getCString();
-                errs.add(s);
-            } else
-                for (cl_device_id device : deviceIds) {
-                    error(CL.clGetProgramBuildInfo(getEntity(), device, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
-                    String s = buffer.getCString();
-                    errs.add(s);
-                }
-                
-            throw new CLBuildException(this, "Compilation failure : " + errorString(err), errs);
+            throw new CLBuildException(this, "Compilation failure : " + errorString(err), errors);
+        } else {
+        	if (!errors.isEmpty())
+        		JavaCL.log(Level.INFO, "Build info :\n\t" + StringUtils.implode(errors, "\n\t"));	
         }
         built = true;
         if (deleteTempFiles != null)
