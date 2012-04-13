@@ -190,7 +190,7 @@ public class JavaCLGenerator extends JNAerator {
 
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
-                        if (signatures.variablesSignatures.add(kernelVarName))
+                        if (signatures.addVariable(kernelVarName))
                         		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(ModifierType.Public, ModifierType.Synchronized);
@@ -234,7 +234,7 @@ public class JavaCLGenerator extends JNAerator {
                             ))
                         );
                         method.setBody(block(statements.toArray(new Statement[statements.size()])));
-                        if (signatures.methodsSignatures.add(method.computeSignature(false)))
+                        if (signatures.addMethod(method))
                         		out.addDeclaration(method);
                     }
                 };

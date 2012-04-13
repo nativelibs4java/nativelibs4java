@@ -339,7 +339,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         Pointer<Pointer<?>> mem = allocatePointer();
         if (Platform.isMacOSX())
             error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.CGLGetCurrentContext(),
-                    //CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
+                    CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
                     Pointer.SIZE, mem, pCount));
         else
             error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));

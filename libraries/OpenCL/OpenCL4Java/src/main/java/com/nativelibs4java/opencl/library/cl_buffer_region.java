@@ -14,9 +14,6 @@ public class cl_buffer_region extends StructObject {
 	public cl_buffer_region() {
 		super();
 	}
-	public cl_buffer_region(Pointer pointer) {
-		super(pointer);
-	}
 	@Ptr 
 	@Field(0) 
 	public long origin() {
@@ -38,5 +35,8 @@ public class cl_buffer_region extends StructObject {
 	public cl_buffer_region size(long size) {
 		this.io.setSizeTField(this, 1, size);
 		return this;
+	}
+	public cl_buffer_region(Pointer pointer) {
+		super(pointer);
 	}
 }
