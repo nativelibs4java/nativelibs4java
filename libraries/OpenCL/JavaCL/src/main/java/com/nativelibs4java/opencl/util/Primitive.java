@@ -59,4 +59,9 @@ public enum Primitive {
     public String clTypeName() {
         return name().toLowerCase();
     }
+    public String getRequiredPragmas() {
+    	if (primitiveType == Double.class)
+    		return "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n";
+    	return "";
+    }
 }
