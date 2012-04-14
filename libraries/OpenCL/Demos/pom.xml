@@ -16,8 +16,8 @@
   </parent>
 
   <properties>
+	<shadedArtifactAttached>true</shadedArtifactAttached>
     <mainClass>com.nativelibs4java.opencl.HardwareReport</mainClass>
-	<packageName>com.nativelibs4java.opencl</packageName>
   </properties>
   
   <dependencies>
@@ -40,6 +40,10 @@
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-javacl-plugin</artifactId>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
 		</plugin>
 
 	</plugins>

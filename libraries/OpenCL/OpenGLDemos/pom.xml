@@ -8,6 +8,11 @@
   <url>http://code.google.com/p/javacl/</url>
   <packaging>jar</packaging>
   
+  <properties>
+	<shadedArtifactAttached>true</shadedArtifactAttached>
+    <mainClass>com.nativelibs4java.opencl.demos.particles.ParticlesDemo</mainClass>
+  </properties>
+  
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent</artifactId>
@@ -35,6 +40,10 @@
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-javacl-plugin</artifactId>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
 		</plugin>
 
 	</plugins>
