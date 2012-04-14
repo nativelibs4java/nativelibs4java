@@ -6,12 +6,14 @@ Current development version (1.0-SNAPSHOT)
 - Fixed handling compiler options containing spaces (issue #274)
 - Fixed tutorial artifact pom repositories (issue #279)
 - Fixed many Javadoc typos
+- Fixed support of Intel's OpenCL Windows runtime 
 - Enhanced LocalSize API (added static factory methods for all primitive types)
 - Deprecated CLContext.getKernelsDefaultByteOrder() and CLDevice.getKernelsDefaultByteOrder()
 - Added more informative exceptions when passing null pointers to CLBuffer.writeBytes (issue #257)
 - Updated to OpenCL 1.2 headers
 - Added -cl-nv-verbose, -cl-nv-maxrregcount, -cl-nv-opt-level + proper log even without error when nv-verbose is set
 - Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
+- Changed signature of CLPlatform.listDevices (now takes a single CLDevice.Type, including All, instead of an EnumSet thereof)
 - Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
 - Moved Maven artifacts to Sonatype OSS repository
 
