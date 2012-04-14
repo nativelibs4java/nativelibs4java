@@ -120,12 +120,12 @@ public class CLKernels {
             kernel = containsValueKernels.get(primitive);
             if (kernel == null) {
                 kernel = context.createProgram((
-                	PRAGMA_DOUBLE +
+                	(primitive.primitiveType == double.class ? Primitive. PRAGMA_DOUBLE : "") +
                     "__kernel void containsValue(   \n" +
                     "	__global const double* a,   \n" +
                     "	int length,              \n" +
                     "	double value,               \n" +
-                    "	__global char* pOut          \n" +
+                    "	__global int* pOut          \n" +
                     ") {                            \n" +
                     "	int i = get_global_id(0);\n" +
                     "	if (i >= length)            \n" +
@@ -139,10 +139,10 @@ public class CLKernels {
             }
         }
         synchronized(kernel) {
-            CLBuffer<Byte> pOut = context.createBuffer(Usage.Output, Byte.class, 1);
+            CLBuffer<Integer> pOut = context.createBuffer(Usage.Output, Integer.class, 1);
             kernel.setArgs(buffer, (int)length, value, pOut);
             kernel.enqueueNDRange(queue, new int[] { (int)length }, eventsToWaitFor).waitFor();
-            return pOut.read(queue).getBoolean();
+            return pOut.read(queue).getInt() != 0;
         }
     }
 
@@ -153,7 +153,7 @@ public class CLKernels {
             kernel = clearKernels.get(primitive);
             if (kernel == null) {
                 kernel = context.createProgram((
-                    PRAGMA_DOUBLE +
+                	(primitive.primitiveType == double.class ? Primitive. PRAGMA_DOUBLE : "") +
                     "__kernel void clear_buffer(    \n" +
                     "	__global double* a,         \n" +
                     "	int length                  \n" +
@@ -188,7 +188,7 @@ public class CLKernels {
             kernel = matrixMultiplyKernels.get(prim);
             if (kernel == null) {
                 String src =
-                    PRAGMA_DOUBLE +
+                	(prim.primitiveType == double.class ? Primitive. PRAGMA_DOUBLE : "") +
                     "__kernel void mulMat(                                  " +
                     "   __global const double* a, int aRows, int aColumns,   " +
                     "   __global const double* b, int bColumns,                 " +
@@ -231,7 +231,7 @@ public class CLKernels {
             kernels = matrixTransposeKernels.get(prim);
             if (kernels == null) {
                 String src =
-                    PRAGMA_DOUBLE +
+                	(prim.primitiveType == double.class ? Primitive. PRAGMA_DOUBLE : "") +
                     "__kernel void transposeSelf(                                   \n" +
                     "   __global double* a, int aRows, int aColumns                 \n" +
                     ") {                                                            \n" +
