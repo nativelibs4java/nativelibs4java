@@ -37,6 +37,8 @@ public class CLKernels {
 
     private static volatile CLKernels instance;
     
+    private static final String PRAGMA_DOUBLE = "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n";
+                    
     public static synchronized void setInstance(CLKernels kernels) {
         instance = kernels;
     }
@@ -118,6 +120,7 @@ public class CLKernels {
             kernel = containsValueKernels.get(primitive);
             if (kernel == null) {
                 kernel = context.createProgram((
+                	PRAGMA_DOUBLE +
                     "__kernel void containsValue(   \n" +
                     "	__global const double* a,   \n" +
                     "	int length,              \n" +
@@ -150,6 +153,7 @@ public class CLKernels {
             kernel = clearKernels.get(primitive);
             if (kernel == null) {
                 kernel = context.createProgram((
+                    PRAGMA_DOUBLE +
                     "__kernel void clear_buffer(    \n" +
                     "	__global double* a,         \n" +
                     "	int length                  \n" +
@@ -184,6 +188,7 @@ public class CLKernels {
             kernel = matrixMultiplyKernels.get(prim);
             if (kernel == null) {
                 String src =
+                    PRAGMA_DOUBLE +
                     "__kernel void mulMat(                                  " +
                     "   __global const double* a, int aRows, int aColumns,   " +
                     "   __global const double* b, int bColumns,                 " +
@@ -208,7 +213,7 @@ public class CLKernels {
             }
         }
         synchronized (kernel) {
-            kernel.setArgs(a, aRows, aColumns, b, bColumns, out);
+            kernel.setArgs(a, (int)aRows, (int)aColumns, b, (int)bColumns, out);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, eventsToWaitFor);
             return evt;
         }
@@ -226,6 +231,7 @@ public class CLKernels {
             kernels = matrixTransposeKernels.get(prim);
             if (kernels == null) {
                 String src =
+                    PRAGMA_DOUBLE +
                     "__kernel void transposeSelf(                                   \n" +
                     "   __global double* a, int aRows, int aColumns                 \n" +
                     ") {                                                            \n" +
