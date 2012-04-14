@@ -31,7 +31,6 @@ public class JavaCLGenerator extends JNAerator {
     public JavaCLGenerator(JNAeratorConfig config) {
 		super(config);
 
-        config.noMangling = true;
         config.forceOverwrite = true;
         config.outputMode = JNAeratorConfig.OutputMode.Directory;
         config.noCPlusPlus = true;
