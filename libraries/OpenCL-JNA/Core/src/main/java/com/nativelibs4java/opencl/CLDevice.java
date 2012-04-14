@@ -54,7 +54,7 @@ import java.util.logging.Logger;
 /**
  * OpenCL device (CPU, GPU...).<br/>
  * Devices are retrieved from a CLPlatform through 
- * {@link CLPlatform#listDevices(java.util.EnumSet, boolean) },
+ * {@link CLPlatform#listDevices(CLDevice.Type, boolean) },
  * {@link CLPlatform#listAllDevices(boolean) },
  * {@link CLPlatform#listCPUDevices(boolean) },
  * {@link CLPlatform#listGPUDevices(boolean) }
@@ -153,7 +153,8 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         CPU(CL_DEVICE_TYPE_CPU),
         GPU(CL_DEVICE_TYPE_GPU),
         Accelerator(CL_DEVICE_TYPE_ACCELERATOR),
-        Default(CL_DEVICE_TYPE_DEFAULT);
+        Default(CL_DEVICE_TYPE_DEFAULT),
+        All(CL_DEVICE_TYPE_ALL);
 
         Type(long value) { this.value = value; }
         long value;

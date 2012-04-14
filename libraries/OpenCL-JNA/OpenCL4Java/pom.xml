@@ -38,7 +38,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <build>
   	<plugins>
-
+  		<!--
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
@@ -48,7 +48,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
 			</configuration>
 		</plugin>
-		
+		-->
 	</plugins>
   </build>
 </project>

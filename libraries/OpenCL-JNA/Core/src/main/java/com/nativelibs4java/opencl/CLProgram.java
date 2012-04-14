@@ -717,8 +717,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         	if (isCached() && !readBinaries) {
         		JavaCL.userCacheDir.mkdirs();
         		try {
-        			writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
-        			assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
+                    Map<CLDevice, byte[]> binaries = getBinaries();
+                    if (!binaries.isEmpty()) {
+                        writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
+                        assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
+                    }
         		} catch (Exception ex) {
         			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
         		}
