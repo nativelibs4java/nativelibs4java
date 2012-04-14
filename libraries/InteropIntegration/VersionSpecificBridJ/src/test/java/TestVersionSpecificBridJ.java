@@ -5,6 +5,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 public class TestVersionSpecificBridJ {
+	@Ignore
     @Test
     public void checkPointersWork() {
 		assertEquals(2, (int)pointerToInts(1, 2, 3).get(1));
