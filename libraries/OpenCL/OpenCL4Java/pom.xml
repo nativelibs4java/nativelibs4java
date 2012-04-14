@@ -44,7 +44,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			<version>${jnaerator.version}</version>
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
 			</configuration>
 		</plugin>
 		
