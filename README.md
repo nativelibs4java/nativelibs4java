@@ -5,10 +5,10 @@ This repository hosts source code for the following (related) projects :
     [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/jnaerator/CHANGELOG) | [FAQ](http://code.google.com/p/jnaerator/wiki/JNAeratorFAQ) | [Credits and License](http://code.google.com/p/jnaerator/wiki/CreditsAndLicense)
 *   [BridJ](http://code.google.com/p/bridj/) is a runtime library that lets Java developers use C/C++ with dynamic bindings (no need to compile any native bindings)
 
-    [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/BridJ/CHANGELOG) | [FAQ](http://code.google.com/p/bridj/wiki/FAQ) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
+    [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/BridJ/CHANGELOG) | [FAQ](http://code.google.com/p/bridj/wiki/FAQ) | [JavaDoc](http://nativelibs4java.sourceforge.net/bridj/api/development/) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 *   [JavaCL](http://code.google.com/p/javacl/) provides OpenCL bindings + a high-level object-oriented API that hides away much of the complexity of GPGPU + useful utilities
 
-    [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/OpenCL/CHANGELOG) | [FAQ](http://code.google.com/p/javacl/wiki/FAQ) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
+    [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/OpenCL/CHANGELOG) | [FAQ](http://code.google.com/p/javacl/wiki/FAQ) | [JavaDoc](http://nativelibs4java.sourceforge.net/javacl/api/stable/) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 *   [ScalaCL](http://code.google.com/p/scalacl/) provides GPGPU-powered collections for Scala, with map/filter operations running straight on the GPU (effectively converts Scala code to OpenCL)
 
     [FAQ](http://code.google.com/p/scalacl/wiki/FAQ) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
