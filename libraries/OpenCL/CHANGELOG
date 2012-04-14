@@ -3,10 +3,17 @@ Current development version (1.0-SNAPSHOT)
 - Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
 - Fixed endianness issues with CLBuffer (issue #80)
 - Fixed migration of cached binaries to newer versions of OS (e.g. upgrading from Snow Leopard to Lion) (issue #81)
-- Enhanced LocalSize API (added static factory methods for all primitive types)
-- Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Fixed handling compiler options containing spaces (issue #274)
+- Fixed tutorial artifact pom repositories (issue #279)
 - Fixed many Javadoc typos
+- Enhanced LocalSize API (added static factory methods for all primitive types)
+- Deprecated CLContext.getKernelsDefaultByteOrder() and CLDevice.getKernelsDefaultByteOrder()
 - Added more informative exceptions when passing null pointers to CLBuffer.writeBytes (issue #257)
+- Updated to OpenCL 1.2 headers
+- Added -cl-nv-verbose, -cl-nv-maxrregcount, -cl-nv-opt-level + proper log even without error when nv-verbose is set
+- Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
+- Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Moved Maven artifacts to Sonatype OSS repository
 
 Version 1.0.0-RC1 (r2130, 20110621)
 
