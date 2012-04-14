@@ -85,20 +85,20 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /**
      * Lists all the devices of the platform
      * @param onlyAvailable if true, only returns devices that are available
-     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
+     * see {@link CLPlatform#listDevices(CLDevice.Type, boolean) }
      */
     public CLDevice[] listAllDevices(boolean onlyAvailable) {
-        return listDevices(EnumSet.allOf(CLDevice.Type.class), onlyAvailable);
+        return listDevices(CLDevice.Type.All, onlyAvailable);
     }
 
     /**
      * Lists all the GPU devices of the platform
      * @param onlyAvailable if true, only returns GPU devices that are available
-     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
+     * see {@link CLPlatform#listDevices(CLDevice.Type, boolean) }
      */
     public CLDevice[] listGPUDevices(boolean onlyAvailable) {
         try {
-            return listDevices(EnumSet.of(CLDevice.Type.GPU), onlyAvailable);
+            return listDevices(CLDevice.Type.GPU, onlyAvailable);
         } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND) {
                 return new CLDevice[0];
@@ -110,11 +110,11 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /**
      * Lists all the CPU devices of the platform
      * @param onlyAvailable if true, only returns CPU devices that are available
-     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
+     * see {@link CLPlatform#listDevices(CLDevice.Type, boolean) }
      */
     public CLDevice[] listCPUDevices(boolean onlyAvailable) {
         try {
-            return listDevices(EnumSet.of(CLDevice.Type.CPU), onlyAvailable);
+            return listDevices(CLDevice.Type.CPU, onlyAvailable);
         } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND) {
                 return new CLDevice[0];
@@ -399,11 +399,9 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      * List all the devices of the specified types, with only the ones declared as available if onlyAvailable is true.
      */
     @SuppressWarnings("deprecation")
-    public CLDevice[] listDevices(EnumSet<CLDevice.Type> types, boolean onlyAvailable) {
-        int flags = (int) CLDevice.Type.getValue(types);
-
+    public CLDevice[] listDevices(CLDevice.Type type, boolean onlyAvailable) {
         Pointer<Integer> pCount = allocateInt();
-        error(CL.clGetDeviceIDs(getEntity(), flags, 0, null, pCount));
+		error(CL.clGetDeviceIDs(getEntity(), type.value(), 0, null, pCount));
 
         int nDevs = pCount.get();
         if (nDevs <= 0) {
@@ -412,7 +410,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
         Pointer<cl_device_id> ids = allocateTypedPointers(cl_device_id.class, nDevs);
 
-        error(CL.clGetDeviceIDs(getEntity(), flags, nDevs, ids, pCount));
+        error(CL.clGetDeviceIDs(getEntity(), type.value(), nDevs, ids, pCount));
         return getDevices(ids, onlyAvailable);
     }
 
