@@ -22,6 +22,173 @@ public class cl_ushort4 extends StructObject {
 	public Pointer<Short > s() {
 		return this.io.getPointerField(this, 0);
 	}
+	/// C type : field1_struct
+	@Field(1) 
+	public com.nativelibs4java.opencl.library.cl_char2.field1_struct field1() {
+		return this.io.getNativeObjectField(this, 1);
+	}
+	/// C type : field1_struct
+	@Field(1) 
+	public cl_ushort4 field1(com.nativelibs4java.opencl.library.cl_char2.field1_struct field1) {
+		this.io.setNativeObjectField(this, 1, field1);
+		return this;
+	}
+	/// C type : field2_struct
+	@Field(2) 
+	public com.nativelibs4java.opencl.library.cl_char2.field2_struct field2() {
+		return this.io.getNativeObjectField(this, 2);
+	}
+	/// C type : field2_struct
+	@Field(2) 
+	public cl_ushort4 field2(com.nativelibs4java.opencl.library.cl_char2.field2_struct field2) {
+		this.io.setNativeObjectField(this, 2, field2);
+		return this;
+	}
+	/// C type : field3_struct
+	@Field(3) 
+	public com.nativelibs4java.opencl.library.cl_char2.field3_struct field3() {
+		return this.io.getNativeObjectField(this, 3);
+	}
+	/// C type : field3_struct
+	@Field(3) 
+	public cl_ushort4 field3(com.nativelibs4java.opencl.library.cl_char2.field3_struct field3) {
+		this.io.setNativeObjectField(this, 3, field3);
+		return this;
+	}
+	public static class field1_struct extends StructObject {
+		public field1_struct() {
+			super();
+		}
+		/// C type : cl_ushort
+		@Field(0) 
+		public short x() {
+			return this.io.getShortField(this, 0);
+		}
+		/// C type : cl_ushort
+		@Field(0) 
+		public field1_struct x(short x) {
+			this.io.setShortField(this, 0, x);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(1) 
+		public short y() {
+			return this.io.getShortField(this, 1);
+		}
+		/// C type : cl_ushort
+		@Field(1) 
+		public field1_struct y(short y) {
+			this.io.setShortField(this, 1, y);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(2) 
+		public short z() {
+			return this.io.getShortField(this, 2);
+		}
+		/// C type : cl_ushort
+		@Field(2) 
+		public field1_struct z(short z) {
+			this.io.setShortField(this, 2, z);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(3) 
+		public short w() {
+			return this.io.getShortField(this, 3);
+		}
+		/// C type : cl_ushort
+		@Field(3) 
+		public field1_struct w(short w) {
+			this.io.setShortField(this, 3, w);
+			return this;
+		}
+		public field1_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
+	public static class field2_struct extends StructObject {
+		public field2_struct() {
+			super();
+		}
+		/// C type : cl_ushort
+		@Field(0) 
+		public short s0() {
+			return this.io.getShortField(this, 0);
+		}
+		/// C type : cl_ushort
+		@Field(0) 
+		public field2_struct s0(short s0) {
+			this.io.setShortField(this, 0, s0);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(1) 
+		public short s1() {
+			return this.io.getShortField(this, 1);
+		}
+		/// C type : cl_ushort
+		@Field(1) 
+		public field2_struct s1(short s1) {
+			this.io.setShortField(this, 1, s1);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(2) 
+		public short s2() {
+			return this.io.getShortField(this, 2);
+		}
+		/// C type : cl_ushort
+		@Field(2) 
+		public field2_struct s2(short s2) {
+			this.io.setShortField(this, 2, s2);
+			return this;
+		}
+		/// C type : cl_ushort
+		@Field(3) 
+		public short s3() {
+			return this.io.getShortField(this, 3);
+		}
+		/// C type : cl_ushort
+		@Field(3) 
+		public field2_struct s3(short s3) {
+			this.io.setShortField(this, 3, s3);
+			return this;
+		}
+		public field2_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
+	public static class field3_struct extends StructObject {
+		public field3_struct() {
+			super();
+		}
+		/// C type : cl_ushort2
+		@Field(0) 
+		public cl_ushort2 lo() {
+			return this.io.getNativeObjectField(this, 0);
+		}
+		/// C type : cl_ushort2
+		@Field(0) 
+		public field3_struct lo(cl_ushort2 lo) {
+			this.io.setNativeObjectField(this, 0, lo);
+			return this;
+		}
+		/// C type : cl_ushort2
+		@Field(1) 
+		public cl_ushort2 hi() {
+			return this.io.getNativeObjectField(this, 1);
+		}
+		/// C type : cl_ushort2
+		@Field(1) 
+		public field3_struct hi(cl_ushort2 hi) {
+			this.io.setNativeObjectField(this, 1, hi);
+			return this;
+		}
+		public field3_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
 	public cl_ushort4(Pointer pointer) {
 		super(pointer);
 	}

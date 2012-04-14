@@ -490,7 +490,7 @@ public class OpenCLLibrary {
 	public static final double CL_M_E = 2.718281828459045090796;
 	public static final int CL_INVALID_SAMPLER = -41;
 	public static abstract class clGetGLContextInfoKHR_fn extends Callback<clGetGLContextInfoKHR_fn > {
-		public abstract int apply(Pointer<SizeT > properties, int param_name, @Ptr long param_value_size, Pointer<? > param_value, Pointer<SizeT > param_value_size_ret);
+		public abstract int apply(Pointer<Pointer<Integer > > properties, int param_name, @Ptr long param_value_size, Pointer<? > param_value, Pointer<SizeT > param_value_size_ret);
 	};
 	public static abstract class clIcdGetPlatformIDsKHR_fn extends Callback<clIcdGetPlatformIDsKHR_fn > {
 		public abstract int apply(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
@@ -554,7 +554,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clGetDeviceInfo(cl_device_id, cl_device_info, size_t, void*, size_t*)</code>
 	public static synchronized native int clGetDeviceInfo(OpenCLLibrary.cl_device_id cl_device_id1, int cl_device_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_int clCreateSubDevices(cl_device_id, const cl_device_partition_property*, cl_uint, cl_device_id*, cl_uint*)</code>
-	public static synchronized native int clCreateSubDevices(OpenCLLibrary.cl_device_id cl_device_id1, Pointer<SizeT > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1);
+	public static synchronized native int clCreateSubDevices(OpenCLLibrary.cl_device_id cl_device_id1, Pointer<Pointer<Integer > > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1);
 	/// Original signature : <code>cl_int clRetainDevice(cl_device_id)</code>
 	public static synchronized native int clRetainDevice(OpenCLLibrary.cl_device_id cl_device_id1);
 	/// Original signature : <code>cl_int clReleaseDevice(cl_device_id)</code>
@@ -563,9 +563,9 @@ public class OpenCLLibrary {
 	 * Context APIs<br>
 	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, clCreateContext_arg1_callback, void*, cl_int*)</code>
 	 */
-	public static synchronized native OpenCLLibrary.cl_context clCreateContext(Pointer<SizeT > cl_context_propertiesPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
+	public static synchronized native OpenCLLibrary.cl_context clCreateContext(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	/// Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, clCreateContextFromType_arg1_callback, void*, cl_int*)</code>
-	public static synchronized native OpenCLLibrary.cl_context clCreateContextFromType(Pointer<SizeT > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
+	public static synchronized native OpenCLLibrary.cl_context clCreateContextFromType(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainContext(cl_context)</code>
 	public static synchronized native int clRetainContext(OpenCLLibrary.cl_context cl_context1);
 	/// Original signature : <code>cl_int clReleaseContext(cl_context)</code>
@@ -790,7 +790,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_mem clCreateFromGLTexture3D(cl_context, cl_mem_flags, cl_GLenum, cl_GLint, cl_GLuint, cl_int*)</code>
 	public static synchronized native OpenCLLibrary.cl_mem clCreateFromGLTexture3D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, Pointer<Integer > cl_intPtr1);
 	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
-	public static synchronized native int clGetGLContextInfoKHR(Pointer<SizeT > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+	public static synchronized native int clGetGLContextInfoKHR(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_event clCreateEventFromGLsyncKHR(cl_context, cl_GLsync, cl_int*)</code>
 	public static synchronized native OpenCLLibrary.cl_event clCreateEventFromGLsyncKHR(OpenCLLibrary.cl_context cl_context1, OpenCLLibrary.cl_GLsync cl_GLsync1, Pointer<Integer > cl_intPtr1);
 	/**
@@ -846,6 +846,14 @@ public class OpenCLLibrary {
 			super(address);
 		}
 	};
+	public static class cl_mem extends TypedPointer {
+		public cl_mem(long address) {
+			super(address);
+		}
+		public cl_mem(Pointer address) {
+			super(address);
+		}
+	};
 	public static class cl_GLsync extends TypedPointer {
 		public cl_GLsync(long address) {
 			super(address);
@@ -859,30 +867,6 @@ public class OpenCLLibrary {
 			super(address);
 		}
 		public cl_event(Pointer address) {
-			super(address);
-		}
-	};
-	public static class cl_sampler extends TypedPointer {
-		public cl_sampler(long address) {
-			super(address);
-		}
-		public cl_sampler(Pointer address) {
-			super(address);
-		}
-	};
-	public static class cl_kernel extends TypedPointer {
-		public cl_kernel(long address) {
-			super(address);
-		}
-		public cl_kernel(Pointer address) {
-			super(address);
-		}
-	};
-	public static class cl_mem extends TypedPointer {
-		public cl_mem(long address) {
-			super(address);
-		}
-		public cl_mem(Pointer address) {
 			super(address);
 		}
 	};
@@ -910,11 +894,27 @@ public class OpenCLLibrary {
 			super(address);
 		}
 	};
+	public static class cl_sampler extends TypedPointer {
+		public cl_sampler(long address) {
+			super(address);
+		}
+		public cl_sampler(Pointer address) {
+			super(address);
+		}
+	};
 	public static class cl_program extends TypedPointer {
 		public cl_program(long address) {
 			super(address);
 		}
 		public cl_program(Pointer address) {
+			super(address);
+		}
+	};
+	public static class cl_kernel extends TypedPointer {
+		public cl_kernel(long address) {
+			super(address);
+		}
+		public cl_kernel(Pointer address) {
 			super(address);
 		}
 	};

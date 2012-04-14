@@ -22,6 +22,217 @@ public class cl_int8 extends StructObject {
 	public Pointer<Integer > s() {
 		return this.io.getPointerField(this, 0);
 	}
+	/// C type : field1_struct
+	@Field(1) 
+	public com.nativelibs4java.opencl.library.cl_char2.field1_struct field1() {
+		return this.io.getNativeObjectField(this, 1);
+	}
+	/// C type : field1_struct
+	@Field(1) 
+	public cl_int8 field1(com.nativelibs4java.opencl.library.cl_char2.field1_struct field1) {
+		this.io.setNativeObjectField(this, 1, field1);
+		return this;
+	}
+	/// C type : field2_struct
+	@Field(2) 
+	public com.nativelibs4java.opencl.library.cl_char2.field2_struct field2() {
+		return this.io.getNativeObjectField(this, 2);
+	}
+	/// C type : field2_struct
+	@Field(2) 
+	public cl_int8 field2(com.nativelibs4java.opencl.library.cl_char2.field2_struct field2) {
+		this.io.setNativeObjectField(this, 2, field2);
+		return this;
+	}
+	/// C type : field3_struct
+	@Field(3) 
+	public com.nativelibs4java.opencl.library.cl_char2.field3_struct field3() {
+		return this.io.getNativeObjectField(this, 3);
+	}
+	/// C type : field3_struct
+	@Field(3) 
+	public cl_int8 field3(com.nativelibs4java.opencl.library.cl_char2.field3_struct field3) {
+		this.io.setNativeObjectField(this, 3, field3);
+		return this;
+	}
+	public static class field1_struct extends StructObject {
+		public field1_struct() {
+			super();
+		}
+		/// C type : cl_int
+		@Field(0) 
+		public int x() {
+			return this.io.getIntField(this, 0);
+		}
+		/// C type : cl_int
+		@Field(0) 
+		public field1_struct x(int x) {
+			this.io.setIntField(this, 0, x);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(1) 
+		public int y() {
+			return this.io.getIntField(this, 1);
+		}
+		/// C type : cl_int
+		@Field(1) 
+		public field1_struct y(int y) {
+			this.io.setIntField(this, 1, y);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(2) 
+		public int z() {
+			return this.io.getIntField(this, 2);
+		}
+		/// C type : cl_int
+		@Field(2) 
+		public field1_struct z(int z) {
+			this.io.setIntField(this, 2, z);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(3) 
+		public int w() {
+			return this.io.getIntField(this, 3);
+		}
+		/// C type : cl_int
+		@Field(3) 
+		public field1_struct w(int w) {
+			this.io.setIntField(this, 3, w);
+			return this;
+		}
+		public field1_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
+	public static class field2_struct extends StructObject {
+		public field2_struct() {
+			super();
+		}
+		/// C type : cl_int
+		@Field(0) 
+		public int s0() {
+			return this.io.getIntField(this, 0);
+		}
+		/// C type : cl_int
+		@Field(0) 
+		public field2_struct s0(int s0) {
+			this.io.setIntField(this, 0, s0);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(1) 
+		public int s1() {
+			return this.io.getIntField(this, 1);
+		}
+		/// C type : cl_int
+		@Field(1) 
+		public field2_struct s1(int s1) {
+			this.io.setIntField(this, 1, s1);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(2) 
+		public int s2() {
+			return this.io.getIntField(this, 2);
+		}
+		/// C type : cl_int
+		@Field(2) 
+		public field2_struct s2(int s2) {
+			this.io.setIntField(this, 2, s2);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(3) 
+		public int s3() {
+			return this.io.getIntField(this, 3);
+		}
+		/// C type : cl_int
+		@Field(3) 
+		public field2_struct s3(int s3) {
+			this.io.setIntField(this, 3, s3);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(4) 
+		public int s4() {
+			return this.io.getIntField(this, 4);
+		}
+		/// C type : cl_int
+		@Field(4) 
+		public field2_struct s4(int s4) {
+			this.io.setIntField(this, 4, s4);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(5) 
+		public int s5() {
+			return this.io.getIntField(this, 5);
+		}
+		/// C type : cl_int
+		@Field(5) 
+		public field2_struct s5(int s5) {
+			this.io.setIntField(this, 5, s5);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(6) 
+		public int s6() {
+			return this.io.getIntField(this, 6);
+		}
+		/// C type : cl_int
+		@Field(6) 
+		public field2_struct s6(int s6) {
+			this.io.setIntField(this, 6, s6);
+			return this;
+		}
+		/// C type : cl_int
+		@Field(7) 
+		public int s7() {
+			return this.io.getIntField(this, 7);
+		}
+		/// C type : cl_int
+		@Field(7) 
+		public field2_struct s7(int s7) {
+			this.io.setIntField(this, 7, s7);
+			return this;
+		}
+		public field2_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
+	public static class field3_struct extends StructObject {
+		public field3_struct() {
+			super();
+		}
+		/// C type : cl_int4
+		@Field(0) 
+		public cl_int4 lo() {
+			return this.io.getNativeObjectField(this, 0);
+		}
+		/// C type : cl_int4
+		@Field(0) 
+		public field3_struct lo(cl_int4 lo) {
+			this.io.setNativeObjectField(this, 0, lo);
+			return this;
+		}
+		/// C type : cl_int4
+		@Field(1) 
+		public cl_int4 hi() {
+			return this.io.getNativeObjectField(this, 1);
+		}
+		/// C type : cl_int4
+		@Field(1) 
+		public field3_struct hi(cl_int4 hi) {
+			this.io.setNativeObjectField(this, 1, hi);
+			return this;
+		}
+		public field3_struct(Pointer pointer) {
+			super(pointer);
+		}
+	};
 	public cl_int8(Pointer pointer) {
 		super(pointer);
 	}

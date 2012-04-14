@@ -342,7 +342,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
                     CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
                     Pointer.SIZE, mem, pCount));
         else
-            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
+            error(CL.clGetGLContextInfoKHR((Pointer)propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
 
         if (pCount.get().intValue() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.get().intValue());

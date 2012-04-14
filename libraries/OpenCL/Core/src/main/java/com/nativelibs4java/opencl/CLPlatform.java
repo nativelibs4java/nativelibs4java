@@ -381,7 +381,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Pointer<SizeT> propsRef = props == null ? null : pointerToSizeTs(props);
         //Pointer<clCreateContext_arg1_callback> errCb = null;//pointerTo(errorCallback);
         //System.out.println("ERROR CALLBACK " + Long.toHexString(errCb.getPeer()));
-        cl_context context = CL.clCreateContext(propsRef, nDevs, ids, null, null, errRef);
+        cl_context context = CL.clCreateContext((Pointer)propsRef, nDevs, ids, null, null, errRef);
         error(errRef.get());
         return new CLContext(this, ids, context);
     }
