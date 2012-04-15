@@ -226,7 +226,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>1.4</version>
+					<version>1.6</version>
 					<executions>
 						
 						<execution>
@@ -243,6 +243,7 @@ Most of these wrappers are created automatically by JNAerator.
 										<exclude>org.scala-lang:scala-library</exclude>
 										<exclude>org.scala-lang:scala-compiler</exclude>
 										<exclude>junit:junit</exclude>
+										<exclude>com.google.android.tools:dx</exclude>
 									</excludes>
 								</artifactSet>
 								
@@ -250,6 +251,7 @@ Most of these wrappers are created automatically by JNAerator.
 									<filter>
 										<artifact>*:*</artifact>
 										<excludes>
+										    <!--<exclude>junit/**</exclude>-->
 											<exclude>META-INF/*.SF</exclude>
 											<exclude>META-INF/*.DSA</exclude>
 											<exclude>META-INF/*.RSA</exclude>
