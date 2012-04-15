@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0.0-RC2 (20120415)
+
 - Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
 - Fixed endianness issues with CLBuffer (issue #80)
 - Fixed migration of cached binaries to newer versions of OS (e.g. upgrading from Snow Leopard to Lion) (issue #81)

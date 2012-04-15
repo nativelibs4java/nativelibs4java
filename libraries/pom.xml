@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.7-SNAPSHOT</version>
+	<version>1.7</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2009</inceptionYear>
 	<name>NativeLibs4Java Common Configuration</name>
@@ -45,9 +45,9 @@
 		<packageName></packageName>
 		
 		<versionSpecificSubPackage></versionSpecificSubPackage>
-		<bridj.version>0.7-SNAPSHOT</bridj.version>
-		<maven-velocity-plugin.version>0.7-SNAPSHOT</maven-velocity-plugin.version>
-		<jnaerator.version>0.9.10-SNAPSHOT</jnaerator.version>
+		<bridj.version>0.6.1</bridj.version>
+		<maven-velocity-plugin.version>0.7</maven-velocity-plugin.version>
+		<jnaerator.version>0.10</jnaerator.version>
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
 		<scala.version>2.9.1</scala.version>
