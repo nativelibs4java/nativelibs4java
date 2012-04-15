@@ -381,6 +381,8 @@ Most of these wrappers are created automatically by JNAerator.
 								<link>http://nativelibs4java.sourceforge.net/bridj/api/stable/</link>
 								<link>http://nativelibs4java.sourceforge.net/javacl/api/stable/</link>
 							</links>
+							<excludePackageNames>com.nativelibs4java.opencl.library</excludePackageNames>
+          
 						</configuration>
 					</execution>
 				</executions>

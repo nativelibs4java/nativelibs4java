@@ -49,7 +49,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <build>
   	<plugins>
-
+  		<!--
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator-jna</artifactId>
@@ -57,17 +57,21 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			  <execution>
 				<goals>
 				  <goal>compile</goal>
-				  <!--goal>test-compile</goal-->
 				</goals>
 
 			  </execution>
 			</executions>
 		</plugin>
-
+		-->
    	   <plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-jar-plugin</artifactId>
 	  </plugin>
+	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+			</plugin>
 	  
 	</plugins>
   </build>
