@@ -2,7 +2,7 @@ Current development version (1.0-SNAPSHOT)
 
 ...
 
-Version 1.0.0-RC2 (20120415)
+Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 
 - Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
 - Fixed endianness issues with CLBuffer (issue #80)
