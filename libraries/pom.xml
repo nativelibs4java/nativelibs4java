@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.7</version>
+	<version>1.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2009</inceptionYear>
 	<name>NativeLibs4Java Common Configuration</name>
@@ -40,23 +40,18 @@
 	</pluginRepositories>
 	
 	<properties>
-		<tycho-version>0.14.0</tycho-version>
 		<mainClass></mainClass>
-		<packageName></packageName>
-		
 		<versionSpecificSubPackage></versionSpecificSubPackage>
-		<bridj.version>0.6.1</bridj.version>
-		<maven-velocity-plugin.version>0.7</maven-velocity-plugin.version>
-		<jnaerator.version>0.10</jnaerator.version>
+		<bridj.version>0.6.2-SNAPSHOT</bridj.version>
+		<maven-velocity-plugin.version>0.8-SNAPSHOT</maven-velocity-plugin.version>
+		<jnaerator.version>0.11-SNAPSHOT</jnaerator.version>
+		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
 		<scala.version>2.9.1</scala.version>
-		<osgiBundleVersion>${project.version}</osgiBundleVersion>
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
-		<exportedPackages></exportedPackages>
-		<importedPackages></importedPackages>
 	</properties>
 	
 	<developers>
@@ -301,45 +296,28 @@ Most of these wrappers are created automatically by JNAerator.
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.4</version>
-					<executions>
-						<execution>
-							<id>test-jar</id>
-							<phase>package</phase>
-							<goals>
-								<goal>test-jar</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<archive>
-							<addMavenDescriptor>false</addMavenDescriptor>
-							<manifest>
-								<mainClass>${mainClass}</mainClass>
-								<packageName>${packageName}</packageName>
-							</manifest>
-							<manifestEntries>
-								<!-- 
-									http://fusesource.com/docs/esb/4.1/osgi/manifest.html 
-								-->
-								<!--Manifest-Version>2</Manifest-Version-->
-								<Export-Package>${exportedPackages}</Export-Package>
-								<Import-Package>${importedPackages}</Import-Package>
-								<!--Bundle-Activator></Bundle-Activator-->
-								<Bundle-Version>${osgiBundleVersion}</Bundle-Version>
-								<Bundle-Name>${project.name}</Bundle-Name>
-								<!--Bundle-Description>${pom.description}</Bundle-Description-->
-								<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-								<Bundle-DocURL>${project.url}</Bundle-DocURL>
-								<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
-								<Bundle-Vendor>NativeLibs4Java / Olivier Chafik</Bundle-Vendor>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</plugin>
+					<plugin>
+					   <groupId>org.apache.maven.plugins</groupId>
+					   <artifactId>maven-jar-plugin</artifactId>
+					   <version>2.4</version>
+					   <executions>
+							   <execution>
+									   <id>test-jar</id>
+									   <phase>package</phase>
+									   <goals>
+											   <goal>test-jar</goal>
+									   </goals>
+							   </execution>
+					   </executions>
+					   <configuration>
+							   <archive>
+									   <addMavenDescriptor>false</addMavenDescriptor>
+									   <manifest>
+											   <mainClass>${mainClass}</mainClass>
+									   </manifest>
+							   </archive>
+					   </configuration>
+			   </plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -447,6 +425,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>InteropIntegration</module>
 				<module>Velocity</module>
 				<module>BridJ</module>
+				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 				<module>ScalaCL</module>
 				<module>Scalaxy</module>
@@ -468,6 +447,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<modules>
 				<module>Velocity</module>
 				<module>BridJ</module>
+				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 				<module>ScalaCL</module>
 				<module>Scalaxy</module>
@@ -484,6 +464,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<modules>
 				<module>Velocity</module>
 				<module>BridJ</module>
+				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 			</modules>
 		</profile>

@@ -6,7 +6,7 @@
   <artifactId>javacl-jna</artifactId>
   <name>JavaCL / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0.0-RC2</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   
@@ -19,7 +19,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent-jna</artifactId>
-	  <version>1.0.0-RC2</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>..</relativePath>
   </parent>
 
@@ -49,7 +49,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <build>
   	<plugins>
-  		<!--
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator-jna</artifactId>
@@ -62,7 +61,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			  </execution>
 			</executions>
 		</plugin>
-		-->
    	   <plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-jar-plugin</artifactId>

@@ -6,13 +6,13 @@
   <artifactId>javacl-opengl-demos-jna</artifactId>
   <name>JavaCL OpenGL Demos / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0.0-RC2</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent-jna</artifactId>
-	  <version>1.0.0-RC2</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>..</relativePath>
   </parent>
 

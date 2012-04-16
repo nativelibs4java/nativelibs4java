@@ -3,20 +3,20 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>javacl-parent-jna</artifactId>
-	<version>1.0.0-RC2</version>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Legacy JavaCL-JNA Parent Project</name>
 	<inceptionYear>2009</inceptionYear>
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
     
 	<properties>
-		<javacl-jna.version>1.0.0-RC2</javacl-jna.version>
+		<javacl-jna.version>1.0-SNAPSHOT</javacl-jna.version>
 	</properties>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.7</version>
+		<version>1.8-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
