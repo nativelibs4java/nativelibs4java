@@ -6,7 +6,7 @@
   <artifactId>jni</artifactId>
   <name>JNI BridJ Bindings</name>
   <url>http://code.google.com/p/bridj</url>
-  <version>0.6</version>
+  <version>0.7-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <!--
