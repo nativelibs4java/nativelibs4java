@@ -86,13 +86,15 @@ extends PluginComponent
   import impl._
   
   def getDataIOByTupleInfo(ti: TupleInfo): CLDataIO[Any] = {
-    if (ti.components.size == 1)
+    //println("ti.tpe = " + ti.tpe + ", ti.components = " + ti.components)
+    if (ti.components.size <= 1)
       getDataIO(ti.tpe)
     else
       new CLTupleDataIO[Any](ios = ti.components.toArray.map(getDataIOByTupleInfo _), null, null) // TODO
   }
   
   def getDataIO(tpe: Type): CLDataIO[Any] = {
+    //println("getDataIO(" + tpe + ")")
     val dataIO = tpe.typeSymbol match {
 	    case IntClass => CLIntDataIO
 	    case ShortClass => CLShortDataIO
