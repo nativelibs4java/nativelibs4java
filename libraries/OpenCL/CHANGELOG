@@ -4,13 +4,14 @@ Current development version (1.0-SNAPSHOT)
 
 Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 
+- Release artifacts are available in Maven Central
 - Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
 - Fixed endianness issues with CLBuffer (issue #80)
 - Fixed migration of cached binaries to newer versions of OS (e.g. upgrading from Snow Leopard to Lion) (issue #81)
 - Fixed handling compiler options containing spaces (issue #274)
 - Fixed tutorial artifact pom repositories (issue #279)
 - Fixed many Javadoc typos
-- Fixed support of Intel's OpenCL Windows runtime 
+- Fixed support of Intel's OpenCL Windows runtime (issue #297)
 - Enhanced LocalSize API (added static factory methods for all primitive types)
 - Deprecated CLContext.getKernelsDefaultByteOrder() and CLDevice.getKernelsDefaultByteOrder()
 - Added more informative exceptions when passing null pointers to CLBuffer.writeBytes (issue #257)
@@ -19,7 +20,6 @@ Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 - Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
 - Changed signature of CLPlatform.listDevices (now takes a single CLDevice.Type, including All, instead of an EnumSet thereof)
 - Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
-- Moved Maven artifacts to Sonatype OSS repository
 
 Version 1.0.0-RC1 (r2130, 20110621)
 
