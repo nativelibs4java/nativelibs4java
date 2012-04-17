@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.util.*;
 import org.bridj.Pointer;
+import java.nio.ByteOrder;
 import static org.bridj.Pointer.*;
 import static java.lang.Math.*;
 import java.io.IOException;
