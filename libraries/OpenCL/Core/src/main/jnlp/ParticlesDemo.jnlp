@@ -19,7 +19,7 @@
 	</security>
 	<update check="background" policy="prompt-update"/>
 	<resources>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos/1.0-SNAPSHOT/javacl-opengl-demos-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/webstart/javacl/javacl-opengl-demos-1.0-SNAPSHOT-shaded.jar"/>
       	<extension name="jogl-all-awt" href="http://nativelibs4java.sourceforge.net/webstart/thirdparty/jogamp/jogl-all-awt.jnlp" />
       	<!--extension name="jogl-all-awt" href="http://jogamp.org/deployment/webstart/jogl-all-awt.jnlp" /-->
       	<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
