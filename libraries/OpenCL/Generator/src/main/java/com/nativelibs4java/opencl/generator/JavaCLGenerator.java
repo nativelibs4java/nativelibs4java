@@ -317,6 +317,16 @@ public class JavaCLGenerator extends JNAerator {
                 }
             }
         }
+        data = new Object[] {
+            "image2d_t", CLImage2D.class,
+            "image3d_t", CLImage3D.class
+        };
+        for (int i = 0; i < data.length; i+=2) {
+            String type = (String) data[i];
+            Class<?> scalClass = (Class<?>)data[i + 1];
+            Pair<Integer, Class<?>> arrPair = new Pair<Integer, Class<?>>(1, scalClass);
+            arraysAndArityByType.put(type, arrPair);
+        }
     }
     private Conversion convertTypeToJavaCL(Result result, String argName, TypeRef valueType, TypeConversionMode typeConversionMode, Identifier libraryClassName) throws UnsupportedConversionException {
         Conversion ret = new Conversion();
