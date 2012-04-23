@@ -21,11 +21,10 @@ sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER
 #define MY_S 	0
 #define MY_SE 	-1
 
-#define PIXEL_TO_INTENSITIES(pixel, coefX, coefY) (uint2)(coefX, coefY) * (uint2)((pixel.x + (int)pixel.y + (int)pixel.z) * pixel.w / 256 / 3) 
+#define PIXEL_TO_INTENSITIES(pixel, coefX, coefY) (uint2)(coefX, coefY) * (uint2)((pixel.x + pixel.y + pixel.z) * pixel.w / 255 / 3) 
 
 __kernel void simpleSobel(
-		//__read_only image_t inputImage,
-		__global const uchar4* input,
+		__read_only image2d_t input,
 		uint width, uint height,
 		__global float* gradientOutput,
 		__global float* directionOutput
@@ -44,24 +43,24 @@ __kernel void simpleSobel(
     bool allowEast = x < width - 1, allowSouth = y < height - 1, allowNorth = y, allowWest = x;
     if (allowNorth) {
     		if (allowWest)
-    			total += PIXEL_TO_INTENSITIES(input[in - 1], MX_NW, MY_NW);
-    		total += PIXEL_TO_INTENSITIES(input[in], MX_N, MY_N);
+    			total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x-1, y-1)), MX_NW, MY_NW);
+    		total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x, y-1)), MX_N, MY_N);
     		if (allowEast)
-    			total += PIXEL_TO_INTENSITIES(input[in + 1], MX_NE, MY_NE);
+    			total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x+1, y-1)), MX_NE, MY_NE);
     }
     
     if (allowWest)
-		total += PIXEL_TO_INTENSITIES(input[i - 1], MX_W, MY_W);
-	total += PIXEL_TO_INTENSITIES(input[i], MX_C, MY_C);
+		total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x-1, y)), MX_W, MY_W);
+	total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x, y)), MX_C, MY_C);
 	if (allowEast)
-		total += PIXEL_TO_INTENSITIES(input[i + 1], MX_E, MY_E);
+		total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x+1, y)), MX_E, MY_E);
     	
     if (allowSouth) {
     		if (allowWest)
-    			total += PIXEL_TO_INTENSITIES(input[is - 1], MX_SW, MY_SW);
-    		total += PIXEL_TO_INTENSITIES(input[is], MX_S, MY_S);
+    			total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x-1, y+1)), MX_SW, MY_SW);
+    		total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x, y+1)), MX_S, MY_S);
     		if (allowEast)
-    			total += PIXEL_TO_INTENSITIES(input[is + 1], MX_SE, MY_SE);
+    			total += PIXEL_TO_INTENSITIES(read_imageui(input, sampler, (int2)(x+1, y+1)), MX_SE, MY_SE);
     }
     
     uint2 square = total * total;

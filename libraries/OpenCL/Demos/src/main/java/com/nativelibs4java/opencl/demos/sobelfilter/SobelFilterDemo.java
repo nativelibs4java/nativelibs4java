@@ -136,13 +136,15 @@ public class SobelFilterDemo {
 
         int dataSize = height * width;
         Pointer<Integer> pixels = Pointer.pointerToInts(img.getRGB(0, 0, width, height, null, 0, width));
+        CLImage2D inputImage = context.createImage2D(CLMem.Usage.Input, new CLImageFormat(CLImageFormat.ChannelOrder.ARGB, CLImageFormat.ChannelDataType.UnsignedInt8), width, height, width * 4, pixels.getBuffer(), true);
+        //CLImage2D inputImage = context.createImage2D(CLMem.Usage.Input, img, false);
 
         CLBuffer<Float>
             gradients = context.createBuffer(CLMem.Usage.InputOutput, Float.class, dataSize),
             directions = context.createBuffer(CLMem.Usage.InputOutput, Float.class, dataSize);
 
         CLEvent evt = sobel.simpleSobel(queue,
-            (CLBuffer)context.createBuffer(CLMem.Usage.Input, pixels, true),
+            inputImage,
             width,
             height,
             gradients,
