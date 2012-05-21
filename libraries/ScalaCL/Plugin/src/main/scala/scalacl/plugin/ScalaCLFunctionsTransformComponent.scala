@@ -151,16 +151,16 @@ extends PluginComponent
       val trans = new Transformer { 
         override def transform(tree: Tree) = tree match {
           case s @ Select(This(targetClass), name) if tree.hasSymbol =>
-            println("Replacing name=" + name + " with _X using This(..)")
+            //println("Replacing name=" + name + " with _X using This(..)")
             replace(tree)
           case s @ Select(Select(target, target2), name) if tree.hasSymbol =>
-            println("Replacing name=" + name + " with _X using Select(..)")
+            //println("Replacing name=" + name + " with _X using Select(..)")
             replace(tree)
           case Ident(name) if tree.hasSymbol =>
-            println("Replacing name=" + name + " with _X using Ident(..)")
+            //println("Replacing name=" + name + " with _X using Ident(..)")
             replace(tree)
           case _ =>
-            println("NOT Replacing anything!  tree=" + tree)
+            //println("NOT Replacing anything!  tree=" + tree)
             super.transform(tree)
         }
       }
@@ -546,13 +546,13 @@ extends PluginComponent
               import traversalOp._
               val colTpe = normalize(collection.tpe)
               //if (colTpe <:< CLCollectionClass.tpe) {
-              println("colTpe = " + colTpe)
-              println("colTpe.typeSymbol.typeConstructor = " + colTpe.typeSymbol.typeConstructor)
-              println("colTpe.typeSymbol.typeConstructor == CLArray = " + (colTpe.typeSymbol.typeConstructor == CLArrayClass.tpe))
+              //println("colTpe = " + colTpe)
+              //println("colTpe.typeSymbol.typeConstructor = " + colTpe.typeSymbol.typeConstructor)
+              //println("colTpe.typeSymbol.typeConstructor == CLArray = " + (colTpe.typeSymbol.typeConstructor == CLArrayClass.tpe))
               val colTpeStr = colTpe.toString
               
               if (colTpeStr.contains("scalacl.") || colTpeStr.contains("CLArray")) { // TODO
-                println("OpenCL colTpe ; op = " + op)
+                //println("OpenCL colTpe ; op = " + op)
                 op match {
                   case opType @ (TraversalOps.MapOp(_, _, _) | TraversalOps.ForeachOp(_, _) | TraversalOps.FilterOp(_, _, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
