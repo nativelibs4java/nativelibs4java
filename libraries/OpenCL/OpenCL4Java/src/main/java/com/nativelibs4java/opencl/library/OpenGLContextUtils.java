@@ -16,7 +16,7 @@ public class OpenGLContextUtils {
     static {
         if (Platform.isWindows())
         	BridJ.addNativeLibraryAlias("OpenGL", "OpenGL32"); // even in 64 bit mode !
-        else if (Platform.isUnix())
+        else if (Platform.isUnix() && !Platform.isMacOSX())
         	BridJ.addNativeLibraryAlias("OpenGL", "GL");
         
         BridJ.register();
