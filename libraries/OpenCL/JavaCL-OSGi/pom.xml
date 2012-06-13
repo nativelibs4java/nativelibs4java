@@ -69,7 +69,14 @@
 							org.bridj.jawt,
 							org.bridj.objc,
 							org.bridj.dyncall,
-							org.bridj.util
+							org.bridj.util,
+							
+							org.bridj.lib.darwin_universal,
+							org.bridj.lib.linux_x64,
+							org.bridj.lib.linux_x86,
+							org.bridj.lib.sunos_x86,
+							org.bridj.lib.win32,
+							org.bridj.lib.win64
 						</Export-Package>
 					</instructions>
 				</configuration>
