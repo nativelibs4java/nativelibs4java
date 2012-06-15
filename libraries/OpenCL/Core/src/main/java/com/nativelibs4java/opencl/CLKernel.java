@@ -258,7 +258,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         setKernelArg(argIndex, localArgByteLength, null);
     }
 
-    protected void setKernelArg(int i, long size, Pointer<?> ptr) {
+    private void setKernelArg(int i, long size, Pointer<?> ptr) {
     		if (size <= 0)
     			throw new IllegalArgumentException("Kernel args must have a known byte size, given " + size + " instead.");
     		try {
@@ -277,49 +277,49 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, float[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setFloats(arg) : pointerToFloats(arg));
+        setArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? tmp.setFloats(arg) : pointerToFloats(arg));
     }
     public void setArg(int i, int[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, int[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setInts(arg) : pointerToInts(arg));
+        setArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? tmp.setInts(arg) : pointerToInts(arg));
     }
     public void setArg(int i, double[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, double[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setDoubles(arg) : pointerToDoubles(arg));
+        setArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? tmp.setDoubles(arg) : pointerToDoubles(arg));
     }
     public void setArg(int i, long[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, long[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setLongs(arg) : pointerToLongs(arg));
+        setArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? tmp.setLongs(arg) : pointerToLongs(arg));
     }
     public void setArg(int i, short[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, short[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setShorts(arg) : pointerToShorts(arg));
+        setArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? tmp.setShorts(arg) : pointerToShorts(arg));
     }
     public void setArg(int i, byte[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, byte[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setBytes(arg) : pointerToBytes(arg));
+        setArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? tmp.setBytes(arg) : pointerToBytes(arg));
     }
     public void setArg(int i, boolean[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, boolean[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setBooleans(arg) : pointerToBooleans(arg));
+        setArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? tmp.setBooleans(arg) : pointerToBooleans(arg));
     }
     public void setArg(int i, char[] arg) {
     		setArg(i, arg, tmp());
     }
     private void setArg(int i, char[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length <= MAX_TMP_ITEMS ? tmp.setChars(arg) : pointerToChars(arg));
+        setArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? tmp.setChars(arg) : pointerToChars(arg));
     }
     
     public void setArg(int i, SizeT arg) {
