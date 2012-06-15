@@ -845,7 +845,8 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);
-        kn.setArgs(args);
+        if (args.length != 0)
+        	kn.setArgs(args);
         return kn;
     }
 }
