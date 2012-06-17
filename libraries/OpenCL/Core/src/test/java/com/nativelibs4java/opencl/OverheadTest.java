@@ -69,7 +69,7 @@ public class OverheadTest extends AbstractCommon {
         
         
         Runnable setWithSetArgs = new Runnable() { public void run() {
-           kernel.setArgs(a, b, 1L, 1, 1.0, 1.0f);
+           kernel.setArgs(a, b, (short)1, 1, (byte)1, 1.0f);
         }};
         Runnable setWithSpecializedSetArg = new Runnable() { public void run() {
            kernel.setArg(0, a);
