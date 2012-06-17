@@ -15,7 +15,7 @@ final class ReusablePointer {
 
     public ReusablePointer(long bytesCapacity) {
         this.bytesCapacity = bytesCapacity;
-        this.pointer = Pointer.allocateBytes(bytesCapacity);
+        this.pointer = Pointer.allocateBytes(bytesCapacity).withoutValidityInformation();
     }
     public Pointer<Integer> pointerToInts(int[] values) {
         if (values == null)
