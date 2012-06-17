@@ -786,10 +786,13 @@ public class OpenCLLibrary {
 	public static synchronized native OpenCLLibrary.cl_mem clCreateImage3D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<cl_image_format > cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long size_t5, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	/// Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code>
 	public static synchronized native int clEnqueueMarker(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
+	public static synchronized native int clEnqueueMarker(@Ptr long cl_command_queue1, @Ptr long cl_eventPtr1);
 	/// Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code>
 	public static synchronized native int clEnqueueWaitForEvents(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
+	public static synchronized native int clEnqueueWaitForEvents(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1);
 	/// Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code>
 	public static synchronized native int clEnqueueBarrier(OpenCLLibrary.cl_command_queue cl_command_queue1);
+	public static synchronized native int clEnqueueBarrier(@Ptr long cl_command_queue1);
 	/// Original signature : <code>cl_int clUnloadCompiler()</code>
 	public static synchronized native int clUnloadCompiler();
 	/// Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code>

@@ -131,9 +131,13 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	/**
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
-	public void enqueueWaitForEvents(CLEvent... events) {
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(events);
-        error(CL.clEnqueueWaitForEvents(getEntity(), evts == null ? 0 : (int)evts.getValidElements(), evts));
+	public void enqueueWaitForEvents(CLEvent... eventsToWaitFor) {
+        ReusablePointers ptrs = ReusablePointers.get();
+        int[] eventsCount = new int[1];
+        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
+        if (events == null)
+            return;
+        error(CL.clEnqueueWaitForEvents(getPeer(getEntity()), eventsCount[0], getPeer(events)));
 	}
 
 	/**
@@ -142,7 +146,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * enqueueBarrier() is a synchronization point.
 	 */
 	public void enqueueBarrier() {
-		error(CL.clEnqueueBarrier(getEntity()));
+		error(CL.clEnqueueBarrier(getPeer(getEntity())));
 	}
 
 	/**
@@ -151,8 +155,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueMarker() {
-		Pointer<cl_event> eventOut = allocateTypedPointer(cl_event.class);
-		error(CL.clEnqueueMarker(getEntity(), eventOut));
+		Pointer<cl_event> eventOut = ReusablePointers.get().event_out;
+		error(CL.clEnqueueMarker(getPeer(getEntity()), getPeer(eventOut)));
 		return CLEvent.createEventFromPointer(this, eventOut);
 	}
 
