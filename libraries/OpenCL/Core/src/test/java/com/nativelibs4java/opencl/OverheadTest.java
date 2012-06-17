@@ -54,9 +54,9 @@ public class OverheadTest extends AbstractCommon {
 			return;
 		}
 		CLProgram program = context.createProgram(
-				  "__kernel void copy(__global int* a, __global int* b) {\n" +
-				  "   int i = get_global_id(0);\n" +
-				  "   b[i]=a[i];\n" +
+				  "__kernel void copy(__global int* a, __global int* b, short s, int i, char c, float f) {\n" +
+				  "   int idx = get_global_id(0);\n" +
+				  "   b[idx] = a[idx];\n" +
 				  "} ");
         
         
@@ -69,27 +69,46 @@ public class OverheadTest extends AbstractCommon {
         
         
         Runnable setWithSetArgs = new Runnable() { public void run() {
-           kernel.setArgs(a, b);
+           kernel.setArgs(a, b, 1L, 1, 1.0, 1.0f);
         }};
         Runnable setWithSpecializedSetArg = new Runnable() { public void run() {
            kernel.setArg(0, a);
-           kernel.setArg(0, b);
+           kernel.setArg(1, b);
+           kernel.setArg(2, (short)1);
+           kernel.setArg(3, 1);
+           kernel.setArg(4, (byte)1);
+           kernel.setArg(5, 1.0f);
         }};
         Runnable setWithCLAPI = new Runnable() {
             private final OpenCLLibrary CL = new OpenCLLibrary();
+            private final Pointer<?> tmp = allocateBytes(8);
             public void run() {
                 CL.clSetKernelArg(kernel.getEntity(), 0, Pointer.SIZE, a.getEntity());
                 CL.clSetKernelArg(kernel.getEntity(), 1, Pointer.SIZE, b.getEntity());
+                CL.clSetKernelArg(kernel.getEntity(), 2, 2L, tmp.setShort((short)1));
+                CL.clSetKernelArg(kernel.getEntity(), 3, 4L, tmp.setInt(1));
+                CL.clSetKernelArg(kernel.getEntity(), 4, 1L, tmp.setByte((byte)1));
+                CL.clSetKernelArg(kernel.getEntity(), 5, 4L, tmp.setFloat(1));
             }
         };
         Runnable setWithRawCLAPI = new Runnable() { 
             private final long aPeer = getPeer(a.getEntity());
             private final long bPeer = getPeer(b.getEntity());
             private final long kEntity = getPeer(kernel.getEntity());
+            private final Pointer<?> tmp = allocateBytes(8);
+            private final long tPeer = getPeer(tmp);
             private final OpenCLLibrary CL = new OpenCLLibrary();
             public void run() {
                 CL.clSetKernelArg(kEntity, 0, Pointer.SIZE, aPeer);
                 CL.clSetKernelArg(kEntity, 1, Pointer.SIZE, bPeer);
+                tmp.setShort((short)1);
+                CL.clSetKernelArg(kEntity, 2, 2L, tPeer);
+                tmp.setInt(1);
+                CL.clSetKernelArg(kEntity, 3, 4L, tPeer);
+                tmp.setByte((byte)1);
+                CL.clSetKernelArg(kEntity, 4, 1L, tPeer);
+                tmp.setFloat(1);
+                CL.clSetKernelArg(kEntity, 5, 4L, tPeer);
             }
         };
         
@@ -102,17 +121,22 @@ public class OverheadTest extends AbstractCommon {
         int nSamples = 10;
         double totSetArgs = 0, totCLSetKernelArg = 0, totSetArg = 0, totCLSetKernelArgRaw = 0;
         for (int i = 0; i < nSamples; i++) {
-            totCLSetKernelArg += time("clSetKernelArg", nTest, setWithCLAPI, null);
+            totCLSetKernelArg += time("clSetKernelArg pointers", nTest, setWithCLAPI, null);
             totSetArgs += time("CLKernel.setArgs", nTest, setWithSetArgs, null);
             totSetArg += time("CLKernel.setArg", nTest, setWithSpecializedSetArg, null);
             totCLSetKernelArgRaw += time("clSetKernelArg raw", nTest, setWithRawCLAPI, null);
             System.out.println();
         }
         
-        final double maxSlower = 1.5;
+        final double maxSlower = 1.3;
         double slowerSetArg = totSetArg / totCLSetKernelArgRaw;
         double slowerSetArgs = totSetArgs / totCLSetKernelArgRaw;
+        
+        System.out.println("CLKernel.setArg is " + slowerSetArg + "x slower than hand-optimized.");
+        System.out.println("CLKernel.setArgs is " + slowerSetArgs + "x slower than hand-optimized.");
+        
         assertTrue("CLKernel.setArg was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArg + "x slower.", slowerSetArg <= maxSlower);
         assertTrue("CLKernel.setArgs was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArgs + "x slower.", slowerSetArgs <= maxSlower);
+        
     }
 }

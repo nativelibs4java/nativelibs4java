@@ -86,16 +86,25 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         return kernelInfos;
     }
 
-    private Pointer<?> tmp() {
+    private final static int MAX_TMP_ITEMS = 16, MAX_TMP_ITEM_SIZE = 8;
+    
+    private final Pointer<?> tmp() {
+        return localPointer;
+    }
+    private final Pointer<?> localPointer = Pointer.allocateBytes(MAX_TMP_ITEM_SIZE * MAX_TMP_ITEMS).withoutValidityInformation();
+    
+    /*
+    CLKernel is not thread-safe anyway, since one needs to synchronize around calls to setArgs and enqueueNDRange
+    private final Pointer<?> tmp() {
         return localPointer.get();
     }
-    private final static int MAX_TMP_ITEMS = 16, MAX_TMP_ITEM_SIZE = 8;
     private final ThreadLocal<Pointer<?>> localPointer = new ThreadLocal<Pointer<?>>() {
         @Override
         public Pointer<?> initialValue() {
-            return Pointer.allocateBytes(MAX_TMP_ITEM_SIZE * MAX_TMP_ITEMS);
+            return Pointer.allocateBytes(MAX_TMP_ITEM_SIZE * MAX_TMP_ITEMS).withoutValidityInformation();
         }
     };
+    */
     
     CLKernel(CLProgram program, String name, cl_kernel entity) {
         super(entity);
