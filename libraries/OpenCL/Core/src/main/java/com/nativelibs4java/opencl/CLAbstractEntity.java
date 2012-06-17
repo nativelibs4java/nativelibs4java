@@ -50,6 +50,29 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
         //this.entityClass = entityClass;
     }
 
+    static <T> Pointer<T> copyNonNullEntities(CLAbstractEntity[] entities, int[] countOut, ReusablePointer tmp) {
+		int n;
+		if (entities == null || (n = entities.length) == 0) {
+		    countOut[0] = 0;
+			return null;
+		}
+		Pointer<T> out = tmp.getPointerToBytes(Pointer.SIZE * n);
+		
+		int count = 0;
+		for (int i = 0; i < n; i++) {
+		    CLAbstractEntity entity = entities[i];
+		    if (entity != null) {
+		        Pointer<?> pointer = entity.getEntity();
+		        if (pointer != null) {
+		            out.setPointerAtOffset(Pointer.SIZE * count, pointer);
+		            count++;
+		        }
+		    }
+		}
+		countOut[0] = count;
+		return out;
+	}
+    
 	/**
 	 * Manual release of the OpenCL resources represented by this object.<br/>
 	 * Note that resources are automatically released by the garbage collector, so in general there's no need to call this method.<br/>

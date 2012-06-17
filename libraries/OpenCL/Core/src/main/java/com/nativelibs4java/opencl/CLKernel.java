@@ -262,7 +262,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     		if (size <= 0)
     			throw new IllegalArgumentException("Kernel args must have a known byte size, given " + size + " instead.");
     		try {
-    			error(CL.clSetKernelArg(getEntity(), i, size, ptr));
+                error(CL.clSetKernelArg(getPeer(getEntity()), i, size, getPeer(ptr)));
+    			//error(CL.clSetKernelArg(getEntity(), i, size, ptr));
     		} catch (CLTypedException ex) {
     			ex.setKernelArg(this, i);
     			throw ex;
@@ -446,21 +447,21 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
-        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        ReusablePointers ptrs = ReusablePointers.get();
+        int[] eventsCount = new int[1];
+        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueNDRangeKernel(
-            queue.getEntity(),
-            getEntity(),
+            getPeer(queue.getEntity()),
+            getPeer(getEntity()),
             nDims,
-            pointerToSizeTs(globalOffsets),
-            pointerToSizeTs(globalWorkSizes),
-            pointerToSizeTs(localWorkSizes),
-            evts == null ? 0 : (int)evts.getValidElements(),
-            evts,
-            eventOut
+            getPeer(ptrs.sizeT3_1.pointerToSizeTs(globalOffsets)),
+            getPeer(ptrs.sizeT3_2.pointerToSizeTs(globalWorkSizes)),
+            getPeer(ptrs.sizeT3_3.pointerToSizeTs(localWorkSizes)),
+            eventsCount[0],
+            getPeer(events),
+            getPeer(ptrs.event_out)
         ));
-        //error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null, glo, loc, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
-        return CLEvent.createEventFromPointer(queue, eventOut);
+        return CLEvent.createEventFromPointer(queue, ptrs.event_out);
     }
 	
 	/**

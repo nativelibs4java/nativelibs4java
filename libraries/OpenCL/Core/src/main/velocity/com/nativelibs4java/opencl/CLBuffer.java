@@ -264,14 +264,15 @@ public class CLBuffer<T> extends CLMem {
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadBuffer(
-            queue.getEntity(),
-            getEntity(),
+            getPeer(queue.getEntity()),
+            getPeer(getEntity()),
             blocking ? CL_TRUE : 0,
             offset * getElementSize(),
             length * getElementSize(),
-            out,
-            evts == null ? 0 : (int)evts.getValidElements(), evts,
-            eventOut
+            getPeer(out),
+            evts == null ? 0 : (int)evts.getValidElements(), 
+            getPeer(evts),
+            getPeer(eventOut)
         ));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
@@ -330,14 +331,15 @@ public class CLBuffer<T> extends CLMem {
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
-            queue.getEntity(),
-            getEntity(),
+            getPeer(queue.getEntity()),
+            getPeer(getEntity()),
             blocking ? CL_TRUE : CL_FALSE,
             offset * getElementSize(),
             length * getElementSize(),
-            in,
-            evts == null ? 0 : (int)evts.getValidElements(), evts,
-            eventOut
+            getPeer(in),
+            evts == null ? 0 : (int)evts.getValidElements(), 
+            getPeer(evts),
+            getPeer(eventOut)
         ));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }

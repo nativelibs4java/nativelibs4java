@@ -116,7 +116,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * finish() is also a synchronization point.
 	 */
     public void finish() {
-        error(CL.clFinish(getEntity()));
+        error(CL.clFinish(getPeer(getEntity())));
     }
 
     /**
@@ -125,7 +125,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * There is no guarantee that they will be complete after flush() returns.
 	 */
     public void flush() {
-        error(CL.clFlush(getEntity()));
+        error(CL.clFlush(getPeer(getEntity())));
     }
 
 	/**

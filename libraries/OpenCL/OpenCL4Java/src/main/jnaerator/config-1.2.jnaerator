@@ -6,6 +6,7 @@
 -runtime BridJ
 
 -gccLong
+-genRawBindings
 -limitComments
 -synchronized
 

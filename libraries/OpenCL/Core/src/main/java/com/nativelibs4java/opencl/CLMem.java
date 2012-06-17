@@ -250,6 +250,6 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseMemObject(getEntity()));
+        error(CL.clReleaseMemObject(getPeer(getEntity())));
     }
 }

@@ -600,7 +600,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clRetainMemObject(cl_mem)</code>
 	public static synchronized native int clRetainMemObject(OpenCLLibrary.cl_mem cl_mem1);
 	/// Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code>
-	public static synchronized native int clReleaseMemObject(OpenCLLibrary.cl_mem cl_mem1);
+	public static synchronized native int clReleaseMemObject(@Ptr long cl_mem1);
 	/// Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code>
 	public static synchronized native int clGetSupportedImageFormats(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, Pointer<cl_image_format > cl_image_formatPtr1, Pointer<Integer > cl_uintPtr1);
 	/// Original signature : <code>cl_int clGetMemObjectInfo(cl_mem, cl_mem_info, size_t, void*, size_t*)</code>
@@ -662,6 +662,7 @@ public class OpenCLLibrary {
 	public static synchronized native int clReleaseKernel(OpenCLLibrary.cl_kernel cl_kernel1);
 	/// Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code>
 	public static synchronized native int clSetKernelArg(OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, @Ptr long size_t1, Pointer<? > voidPtr1);
+	public static synchronized native int clSetKernelArg(@Ptr long cl_kernel1, int cl_uint1, @Ptr long size_t1, @Ptr long voidPtr1);
 	/// Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code>
 	public static synchronized native int clGetKernelInfo(OpenCLLibrary.cl_kernel cl_kernel1, int cl_kernel_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_int clGetKernelArgInfo(cl_kernel, cl_uint, cl_kernel_arg_info, size_t, void*, size_t*)</code>
@@ -681,7 +682,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
 	public static synchronized native int clRetainEvent(OpenCLLibrary.cl_event cl_event1);
 	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>
-	public static synchronized native int clReleaseEvent(OpenCLLibrary.cl_event cl_event1);
+	public static synchronized native int clReleaseEvent(@Ptr long cl_event1);
 	/// Original signature : <code>cl_int clSetUserEventStatus(cl_event, cl_int)</code>
 	public static synchronized native int clSetUserEventStatus(OpenCLLibrary.cl_event cl_event1, int cl_int1);
 	/// Original signature : <code>cl_int clSetEventCallback(cl_event, cl_int, clSetEventCallback_arg1_callback, void*)</code>
@@ -695,18 +696,20 @@ public class OpenCLLibrary {
 	 * Flush and Finish APIs<br>
 	 * Original signature : <code>cl_int clFlush(cl_command_queue)</code>
 	 */
-	public static synchronized native int clFlush(OpenCLLibrary.cl_command_queue cl_command_queue1);
+	public static synchronized native int clFlush(@Ptr long cl_command_queue1);
 	/// Original signature : <code>cl_int clFinish(cl_command_queue)</code>
-	public static synchronized native int clFinish(OpenCLLibrary.cl_command_queue cl_command_queue1);
+	public static synchronized native int clFinish(@Ptr long cl_command_queue1);
 	/**
 	 * Enqueued Commands APIs<br>
 	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	 */
 	public static synchronized native int clEnqueueReadBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	public static synchronized native int clEnqueueReadBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReadBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueReadBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueWriteBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	public static synchronized native int clEnqueueWriteBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueWriteBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueFillBuffer(cl_command_queue, cl_mem, const void*, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
@@ -740,8 +743,10 @@ public class OpenCLLibrary {
 	public static synchronized native int clEnqueueMigrateMemObjects(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueNDRangeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	public static synchronized native int clEnqueueNDRangeKernel(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueTask(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	public static synchronized native int clEnqueueTask(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, clEnqueueNativeKernel_arg1_callback, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code>
 	public static synchronized native int clEnqueueNativeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.clEnqueueNativeKernel_arg1_callback > arg1, Pointer<? > voidPtr1, @Ptr long size_t1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, Pointer<Pointer<? > > voidPtrPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueMarkerWithWaitList(cl_command_queue, cl_uint, const cl_event*, cl_event*)</code>

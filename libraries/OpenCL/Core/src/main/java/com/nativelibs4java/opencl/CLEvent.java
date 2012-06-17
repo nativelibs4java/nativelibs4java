@@ -118,42 +118,11 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     	}
     }
     
-    static boolean noEvents = false;
-    public static void setNoEvents(boolean noEvents) {
-        CLEvent.noEvents = noEvents;
-    }
     static CLEvent createEvent(final CLQueue queue, cl_event evt) {
     		return createEvent(queue, evt, false);
     }
 	static CLEvent createEvent(final CLQueue queue, cl_event evt, boolean isUserEvent) {
-		if (noEvents && queue != null) {
-            if (evt != null)
-                CL.clReleaseEvent(evt);
-            evt = null;
-
-            if (isUserEvent)
-            		return new CLUserEvent() {
-					volatile boolean waited = false;
-					@Override
-					public synchronized void waitFor() {
-						if (!waited) {
-							queue.finish();
-							waited = true;
-						}
-					}
-				};	
-            return new CLEvent() {
-                volatile boolean waited = false;
-                @Override
-                public synchronized void waitFor() {
-                    if (!waited) {
-                        queue.finish();
-                        waited = true;
-                    }
-                }
-            };
-        }
-        if (evt == null)
+		if (evt == null)
 			return null;
 
         return isUserEvent ? 
@@ -164,7 +133,12 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     static CLEvent createEventFromPointer(CLQueue queue, Pointer<cl_event> evt1) {
 		if (evt1 == null)
 			return null;
-		return createEvent(queue, evt1.get());
+        
+        long peer = evt1.getSizeT();
+        if (peer == 0)
+            return null;
+        
+        return new CLEvent(new cl_event(peer));
 	}
 
 
@@ -225,44 +199,20 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
     static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor) {
-        return noEvents || eventsToWaitFor == null ? null : allocateTypedPointer(cl_event.class);
+        return ReusablePointers.get().event_out;
     }
     
+    @Deprecated
 	static Pointer<cl_event> to_cl_event_array(CLEvent... events) {
-		if (events == null)
-			return null;
-        if (noEvents) {
-            for (CLEvent evt : events)
-                if (evt != null)
-                    evt.waitFor();
-            return null;
-        }
-        int n = events.length;
-		if (n == 0)
-			return null;
-        int nonNulls = 0;
-        for (int i = 0; i < n; i++)
-            if (events[i] != null && events[i].getEntity() != null)
-                nonNulls++;
-
-        if (nonNulls == 0)
-            return null;
-        
-        Pointer<cl_event> event_wait_list = allocateArray(cl_event.class, nonNulls);
-        int iDest = 0;
-		for (int i = 0; i < n; i++) {
-            CLEvent event = events[i];
-            if (event == null || event.getEntity() == null)
-                continue;
-            event_wait_list.set(iDest, event.getEntity());
-            iDest++;
-        }
-		return event_wait_list;	
-	}
+        int[] countOut = new int[1];
+        Pointer<cl_event> p = CLAbstractEntity.copyNonNullEntities(events, countOut, ReusablePointers.get().events_in);
+        int count = countOut[0];
+        return count == 0 ? null : p.as(cl_event.class).validElements(count);//p.validBytes(count * Pointer.SIZE);
+    }
 
 	@Override
 	protected void clear() {
-		error(CL.clReleaseEvent(getEntity()));
+		error(CL.clReleaseEvent(getPeer(getEntity())));
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
