@@ -160,10 +160,12 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return;
 		
 		try {
-			Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-            if (evts == null)
+            ReusablePointers ptrs = ReusablePointers.get();
+            int[] eventsCount = new int[1];
+            Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
+            if (events == null)
                 return;
-            error(CL.clWaitForEvents((int)evts.getValidElements(), evts));
+            error(CL.clWaitForEvents(eventsCount[0], getPeer(events)));
 		} catch (Exception ex) {
 			throw new RuntimeException("Exception while waiting for events " + Arrays.asList(eventsToWaitFor), ex);
 		}

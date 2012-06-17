@@ -675,6 +675,7 @@ public class OpenCLLibrary {
 	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code>
 	 */
 	public static synchronized native int clWaitForEvents(int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
+	public static synchronized native int clWaitForEvents(int cl_uint1, @Ptr long cl_eventPtr1);
 	/// Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code>
 	public static synchronized native int clGetEventInfo(OpenCLLibrary.cl_event cl_event1, int cl_event_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_event clCreateUserEvent(cl_context, cl_int*)</code>

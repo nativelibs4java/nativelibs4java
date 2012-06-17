@@ -56,7 +56,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 		    countOut[0] = 0;
 			return null;
 		}
-		Pointer<T> out = tmp.getPointerToBytes(Pointer.SIZE * n);
+		Pointer<T> out = null;
 		
 		int count = 0;
 		for (int i = 0; i < n; i++) {
@@ -64,13 +64,17 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 		    if (entity != null) {
 		        Pointer<?> pointer = entity.getEntity();
 		        if (pointer != null) {
-		            out.setPointerAtOffset(Pointer.SIZE * count, pointer);
-		            count++;
+		            if (out == null)
+                        out = tmp.getPointerToBytes(Pointer.SIZE * (n - i));
+		            
+                    out.setPointerAtOffset(Pointer.SIZE * count, pointer);
+                    
+                    count++;
 		        }
 		    }
 		}
-		countOut[0] = count;
-		return out;
+        countOut[0] = count;
+        return out;
 	}
     
 	/**

@@ -261,8 +261,10 @@ public class CLBuffer<T> extends CLMem {
 			}
 		}
 		
-        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
+        int[] eventsCount = new int[1];
+        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueReadBuffer(
             getPeer(queue.getEntity()),
             getPeer(getEntity()),
@@ -270,8 +272,8 @@ public class CLBuffer<T> extends CLMem {
             offset * getElementSize(),
             length * getElementSize(),
             getPeer(out),
-            evts == null ? 0 : (int)evts.getValidElements(), 
-            getPeer(evts),
+            eventsCount[0],
+            getPeer(events),
             getPeer(eventOut)
         ));
         return CLEvent.createEventFromPointer(queue, eventOut);
@@ -328,8 +330,10 @@ public class CLBuffer<T> extends CLMem {
 			}
 		}
 		
-        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
+        int[] eventsCount = new int[1];
+        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueWriteBuffer(
             getPeer(queue.getEntity()),
             getPeer(getEntity()),
@@ -337,8 +341,8 @@ public class CLBuffer<T> extends CLMem {
             offset * getElementSize(),
             length * getElementSize(),
             getPeer(in),
-            evts == null ? 0 : (int)evts.getValidElements(), 
-            getPeer(evts),
+            eventsCount[0], 
+            getPeer(events),
             getPeer(eventOut)
         ));
         return CLEvent.createEventFromPointer(queue, eventOut);
