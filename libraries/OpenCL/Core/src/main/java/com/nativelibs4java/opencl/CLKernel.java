@@ -402,10 +402,11 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueTask
-                NDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
+        Pointer<cl_event> eventOut = ReusablePointers.get().event_out;
+		ReusablePointers ptrs = ReusablePointers.get();
+        int[] eventsCount = new int[1];
+        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
+        error(CL.clEnqueueTask(getPeer(queue.getEntity()), getPeer(getEntity()), eventsCount[0], getPeer(events), getPeer(eventOut)));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
