@@ -93,24 +93,26 @@ public class OverheadTest extends AbstractCommon {
             }
         };
         
-        int nWarmup = 8000, nTest = 20000;
+        int nWarmup = 8000, nTest = 50000;
+        time(null, nWarmup, setWithCLAPI, null);
         time(null, nWarmup, setWithSetArgs, null);
         time(null, nWarmup, setWithSpecializedSetArg, null);
-        time(null, nWarmup, setWithCLAPI, null);
         time(null, nWarmup, setWithRawCLAPI, null);
         
         int nSamples = 10;
         double totSetArgs = 0, totCLSetKernelArg = 0, totSetArg = 0, totCLSetKernelArgRaw = 0;
         for (int i = 0; i < nSamples; i++) {
-            totSetArgs += time("CLKernel.setArgs", nTest, setWithSetArgs, null);
             totCLSetKernelArg += time("clSetKernelArg", nTest, setWithCLAPI, null);
+            totSetArgs += time("CLKernel.setArgs", nTest, setWithSetArgs, null);
             totSetArg += time("CLKernel.setArg", nTest, setWithSpecializedSetArg, null);
             totCLSetKernelArgRaw += time("clSetKernelArg raw", nTest, setWithRawCLAPI, null);
             System.out.println();
         }
         
         final double maxSlower = 1.5;
-        double slower = totSetArg / totCLSetKernelArgRaw;
-        assertTrue("CLKernel.setArg was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slower + "x slower.", slower <= maxSlower);
+        double slowerSetArg = totSetArg / totCLSetKernelArgRaw;
+        double slowerSetArgs = totSetArgs / totCLSetKernelArgRaw;
+        assertTrue("CLKernel.setArg was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArg + "x slower.", slowerSetArg <= maxSlower);
+        assertTrue("CLKernel.setArgs was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArgs + "x slower.", slowerSetArgs <= maxSlower);
     }
 }

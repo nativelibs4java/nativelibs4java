@@ -87,7 +87,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
     private Pointer<?> tmp() {
-    		return localPointer.get();
+        return localPointer.get();
     }
     private final static int MAX_TMP_ITEMS = 16, MAX_TMP_ITEM_SIZE = 8;
     private final ThreadLocal<Pointer<?>> localPointer = new ThreadLocal<Pointer<?>>() {
@@ -172,7 +172,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     
     public void setArgs(Object... args) {
-		assert getNumArgs() == args.length;
+		//assert getNumArgs() == args.length;
    		Pointer<?> tempPointer = tmp();
         for (int i = 0; i < args.length; i++) {
             setObjectArg(i, args[i], tempPointer);
@@ -185,10 +185,6 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     		setObjectArg(iArg, arg, tmp());
     }
     private void setObjectArg(int iArg, Object arg, Pointer<?> tempPointer) {
-
-        if (arg == null)
-            throw new IllegalArgumentException("Null arguments are not accepted. Please use CLKernel.NULL_POINTER_KERNEL_ARGUMENT instead.");
-
         boolean supported = true;
         Class<?> cls;
         if (arg instanceof CLMem) {
@@ -246,6 +242,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         } else {
         		supported = false;
         }
+        if (arg == null)
+            throw new IllegalArgumentException("Null arguments are not accepted. Please use CLKernel.NULL_POINTER_KERNEL_ARGUMENT instead.");
+
         if (!supported) {
 			throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() + ". Use CLKernel.get() and OpenCL4Java directly.");
         }
@@ -405,7 +404,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
+        error(CL.clEnqueueTask
+                NDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
