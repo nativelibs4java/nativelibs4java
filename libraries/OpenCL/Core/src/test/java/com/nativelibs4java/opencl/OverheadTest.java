@@ -66,7 +66,7 @@ public class OverheadTest extends AbstractCommon {
         final CLBuffer<Integer> a=context.createBuffer(CLMem.Usage.Input, Integer.class, 4);
 		final CLBuffer<Integer> b=context.createBuffer(CLMem.Usage.Output, Integer.class, 4);
 
-        
+        int nArgs = kernel.getNumArgs();
         
         Runnable setWithSetArgs = new Runnable() { public void run() {
            kernel.setArgs(a, b, (short)1, 1, (byte)1, 1.0f);
@@ -128,7 +128,7 @@ public class OverheadTest extends AbstractCommon {
             System.out.println();
         }
         
-        final double maxSlower = 1.3;
+        final double maxSlower = 1.35;
         double slowerSetArg = totSetArg / totCLSetKernelArgRaw;
         double slowerSetArgs = totSetArgs / totCLSetKernelArgRaw;
         
@@ -138,5 +138,9 @@ public class OverheadTest extends AbstractCommon {
         assertTrue("CLKernel.setArg was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArg + "x slower.", slowerSetArg <= maxSlower);
         assertTrue("CLKernel.setArgs was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArgs + "x slower.", slowerSetArgs <= maxSlower);
         
+        final double maxMilliSecondsPerCall = 0.0025;
+        double setArgAvg = (totSetArg / (double)nTest) / nArgs;
+        System.out.println("CLKernel.setArg took " + setArgAvg + " ms per call in average.");
+        assertTrue("CLKernel.setArg was supposed to last at most " + maxMilliSecondsPerCall + " ms in average, but was " + setArgAvg + " ms", setArgAvg < maxMilliSecondsPerCall);
     }
 }
