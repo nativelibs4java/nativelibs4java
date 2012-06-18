@@ -88,28 +88,15 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
     private final static int MAX_TMP_ITEMS = 16, MAX_TMP_ITEM_SIZE = 8;
     
-    private final Pointer<?> tmp() {
-        return localPointer;
-    }
     private final Pointer<?> localPointer = Pointer.allocateBytes(MAX_TMP_ITEM_SIZE * MAX_TMP_ITEMS).withoutValidityInformation();
     
-    /*
-    CLKernel is not thread-safe anyway, since one needs to synchronize around calls to setArgs and enqueueNDRange
-    private final Pointer<?> tmp() {
-        return localPointer.get();
-    }
-    private final ThreadLocal<Pointer<?>> localPointer = new ThreadLocal<Pointer<?>>() {
-        @Override
-        public Pointer<?> initialValue() {
-            return Pointer.allocateBytes(MAX_TMP_ITEM_SIZE * MAX_TMP_ITEMS).withoutValidityInformation();
-        }
-    };
-    */
+    private final int contextAddressBits;
     
     CLKernel(CLProgram program, String name, cl_kernel entity) {
         super(entity);
         this.program = program;
         this.name = name;
+        this.contextAddressBits = getProgram().getContext().getAddressBits();
     }
     public CLProgram getProgram() {
         return program;
@@ -182,72 +169,68 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     
     public void setArgs(Object... args) {
 		//assert getNumArgs() == args.length;
-   		Pointer<?> tempPointer = tmp();
-        for (int i = 0; i < args.length; i++) {
-            setObjectArg(i, args[i], tempPointer);
+        for (int i = 0, n = args.length; i < n; i++) {
+            setObjectArg(i, args[i]);
         }
     }
 
     public static final Object NULL_POINTER_KERNEL_ARGUMENT = new Object() {};
     
     public void setObjectArg(int iArg, Object arg) {
-    		setObjectArg(iArg, arg, tmp());
-    }
-    private void setObjectArg(int iArg, Object arg, Pointer<?> tempPointer) {
         boolean supported = true;
         Class<?> cls;
         if (arg instanceof CLMem) {
-            setArg(iArg, (CLMem) arg, tempPointer);
+            setArg(iArg, (CLMem) arg);
         } else if (arg instanceof Number) {
             if (arg instanceof Integer) {
-              setArg(iArg, (Integer) arg, tempPointer);
+              setArg(iArg, (Integer) arg);
             } else if (arg instanceof Long) {
-                setArg(iArg, (Long) arg, tempPointer);
+                setArg(iArg, (Long) arg);
             } else if (arg instanceof Short) {
-                setArg(iArg, (Short) arg, tempPointer);
+                setArg(iArg, (Short) arg);
             } else if (arg instanceof Byte) {
-                setArg(iArg, (Byte) arg, tempPointer);
+                setArg(iArg, (Byte) arg);
             } else if (arg instanceof Float) {
-                setArg(iArg, (Float) arg, tempPointer);
+                setArg(iArg, (Float) arg);
             } else if (arg instanceof Double) {
-                setArg(iArg, (Double) arg, tempPointer);
+                setArg(iArg, (Double) arg);
             } else {
               supported = false;
             } 
         } else if (arg instanceof LocalSize) {
 			setArg(iArg, (LocalSize)arg);
 		} else if (arg instanceof Boolean) {
-            setArg(iArg, (byte)(Boolean.TRUE.equals(arg) ? 1 : 0), tempPointer);
+            setArg(iArg, (Boolean)arg);
         } else if (arg instanceof SizeT) {
-            setArg(iArg, (SizeT) arg, tempPointer);
+            setArg(iArg, (SizeT)arg);
         } else if (arg == NULL_POINTER_KERNEL_ARGUMENT) {
-            setArg(iArg, new SizeT(0));
-        } else if (arg instanceof Pointer) {
-            setArg(iArg, (Pointer)arg);
-		} else if (arg instanceof Buffer) {
-            setArg(iArg, pointerToBuffer((Buffer) arg));
+            setArg(iArg, SizeT.ZERO);
         } else if ((cls = arg.getClass()).isArray()) {
 			if (arg instanceof int[]) {
-				setArg(iArg, (int[])arg, tempPointer);
+				setArg(iArg, (int[])arg);
 			} else if (arg instanceof long[]) {
-				setArg(iArg, (long[])arg, tempPointer);
+				setArg(iArg, (long[])arg);
 			} else if (arg instanceof short[]) {
-				setArg(iArg, (short[])arg, tempPointer);
+				setArg(iArg, (short[])arg);
 			} else if (arg instanceof double[]) {
-				setArg(iArg, (double[])arg, tempPointer);
+				setArg(iArg, (double[])arg);
 			} else if (arg instanceof float[]) {
-				setArg(iArg, (float[])arg, tempPointer);
+				setArg(iArg, (float[])arg);
 			} else if (arg instanceof byte[]) {
-				setArg(iArg, (byte[])arg, tempPointer);
+				setArg(iArg, (byte[])arg);
 			} else if (arg instanceof boolean[]) {
-				setArg(iArg, (boolean[])arg, tempPointer);
+				setArg(iArg, (boolean[])arg);
 			} else {
 				supported = false;
 			}
         } else if (arg instanceof CLEvent) {
-            setArg(iArg, (CLEvent) arg, tempPointer);
+            setArg(iArg, (CLEvent) arg);
         } else if (arg instanceof CLSampler) {
-            setArg(iArg, (CLSampler) arg, tempPointer);
+            setArg(iArg, (CLSampler) arg);
+        } else if (arg instanceof Pointer) {
+            setArg(iArg, (Pointer)arg);
+		} else if (arg instanceof Buffer) {
+            setArg(iArg, pointerToBuffer((Buffer) arg));
         } else {
         		supported = false;
         }
@@ -283,118 +266,74 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     
     public void setArg(int i, float[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, float[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? tmp.setFloats(arg) : pointerToFloats(arg));
+        setKernelArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? localPointer.setFloats(arg) : pointerToFloats(arg));
     }
     public void setArg(int i, int[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, int[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? tmp.setInts(arg) : pointerToInts(arg));
+        setKernelArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? localPointer.setInts(arg) : pointerToInts(arg));
     }
     public void setArg(int i, double[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, double[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? tmp.setDoubles(arg) : pointerToDoubles(arg));
+        setKernelArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? localPointer.setDoubles(arg) : pointerToDoubles(arg));
     }
     public void setArg(int i, long[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, long[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? tmp.setLongs(arg) : pointerToLongs(arg));
+        setKernelArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? localPointer.setLongs(arg) : pointerToLongs(arg));
     }
     public void setArg(int i, short[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, short[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? tmp.setShorts(arg) : pointerToShorts(arg));
+        setKernelArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? localPointer.setShorts(arg) : pointerToShorts(arg));
     }
     public void setArg(int i, byte[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, byte[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? tmp.setBytes(arg) : pointerToBytes(arg));
+        setKernelArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? localPointer.setBytes(arg) : pointerToBytes(arg));
     }
     public void setArg(int i, boolean[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, boolean[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? tmp.setBooleans(arg) : pointerToBooleans(arg));
+        setKernelArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? localPointer.setBooleans(arg) : pointerToBooleans(arg));
     }
     public void setArg(int i, char[] arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, char[] arg, Pointer<?> tmp) {
-        setArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? tmp.setChars(arg) : pointerToChars(arg));
+        setKernelArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? localPointer.setChars(arg) : pointerToChars(arg));
     }
     
     public void setArg(int i, SizeT arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, SizeT arg, Pointer<?> tmp) {
-        switch (getProgram().getContext().getAddressBits()) {
+        switch (contextAddressBits) {
             case 32:
-                setKernelArg(i, 4, tmp.setInt(arg.intValue()));
+                setKernelArg(i, 4, localPointer.setInt(arg.intValue()));
                 break;
             case 64:
-                setKernelArg(i, 8, tmp.setLong(arg.longValue()));
+                setKernelArg(i, 8, localPointer.setLong(arg.longValue()));
                 break;
             default:
-                setKernelArg(i, SizeT.SIZE, tmp.setSizeT(arg.longValue()));
+                setKernelArg(i, SizeT.SIZE, localPointer.setSizeT(arg.longValue()));
                 break;
         }
     }
 
     public void setArg(int i, int arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, int arg, Pointer<?> tmp) {
-        setKernelArg(i, 4, tmp.setInt(arg));
+        setKernelArg(i, 4, localPointer.setInt(arg));
     }
 
     public void setArg(int i, long arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, long arg, Pointer<?> tmp) {
-        setKernelArg(i, 8, tmp.setLong(arg));
+        setKernelArg(i, 8, localPointer.setLong(arg));
     }
 
     public void setArg(int i, short arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, short arg, Pointer<?> tmp) {
-        setKernelArg(i, 2, tmp.setShort(arg));
+        setKernelArg(i, 2, localPointer.setShort(arg));
     }
 
     public void setArg(int i, byte arg) {
-    		setArg(i, arg, tmp());
+        setKernelArg(i, 1, localPointer.setByte(arg));
     }
-    private void setArg(int i, byte arg, Pointer<?> tmp) {
-        setKernelArg(i, 1, tmp.setByte(arg));
+
+    public void setArg(int i, boolean arg) {
+        setKernelArg(i, 1, localPointer.setByte(arg ? (byte)1 : (byte)0));
     }
 
     public void setArg(int i, float arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, float arg, Pointer<?> tmp) {
-        setKernelArg(i, 4, tmp.setFloat(arg));
+        setKernelArg(i, 4, localPointer.setFloat(arg));
     }
 
     public void setArg(int i, double arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, double arg, Pointer<?> tmp) {
-        setKernelArg(i, 8, tmp.setDouble(arg));
+        setKernelArg(i, 8, localPointer.setDouble(arg));
     }
 
     public void setArg(int i, CLAbstractEntity<?> arg) {
-    		setArg(i, arg, tmp());
-    }
-    private void setArg(int i, CLAbstractEntity<?> arg, Pointer<?> tmp) {
-        setKernelArg(i, Pointer.SIZE, tmp.setPointer(arg.getEntity()));
+        setKernelArg(i, Pointer.SIZE, localPointer.setPointer(arg.getEntity()));
     }
 
     @Override
