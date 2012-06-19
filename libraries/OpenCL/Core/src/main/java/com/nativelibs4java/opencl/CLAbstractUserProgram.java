@@ -50,7 +50,6 @@ public abstract class CLAbstractUserProgram {
     final CLProgram program;
     String rawSource;
     Map<String, String> velocityArgs;
-    //Map<String, CLKernel> kernels;
 
     volatile boolean addedSources;
     

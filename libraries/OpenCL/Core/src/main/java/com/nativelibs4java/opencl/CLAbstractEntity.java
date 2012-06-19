@@ -33,21 +33,19 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 
 abstract class CLAbstractEntity<T extends TypedPointer> {
-    protected volatile T entity;
+    protected T entity;
 	private final boolean nullable;
-    //protected final Class<T> entityClass;
 
-	CLAbstractEntity(/*Class<T> entityClass, */T entity) {
-		this(/*entityClass, */entity, false);
+	CLAbstractEntity(T entity) {
+		this(entity, false);
 
 	}
-    CLAbstractEntity(/*Class<T> entityClass, */T entity, boolean nullable) {
+    CLAbstractEntity(T entity, boolean nullable) {
 		if (!nullable && entity == null) {
             throw new IllegalArgumentException("Null OpenCL " + getClass().getSimpleName() + " !");
         }
 		this.nullable = nullable;
         this.entity = entity;
-        //this.entityClass = entityClass;
     }
 
     static <T> Pointer<T> copyNonNullEntities(CLAbstractEntity[] entities, int[] countOut, ReusablePointer tmp) {

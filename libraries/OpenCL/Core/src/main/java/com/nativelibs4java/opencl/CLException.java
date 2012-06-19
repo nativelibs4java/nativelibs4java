@@ -226,8 +226,6 @@ public class CLException extends RuntimeException {
 	public static void error(int err) {
         if (err == CL_SUCCESS)
             return;
-        //if (err == CL_OUT_OF_RESOURCES)
-        //    return;
 
         if (typedErrorClassesByCode == null) {
                 typedErrorClassesByCode = new HashMap<Integer, Class<? extends CLTypedException>>();
@@ -250,8 +248,6 @@ public class CLException extends RuntimeException {
         }
         if (toThrow == null)
         		toThrow = new CLException("OpenCL Error : " + errorString(err) + logSuffix, err);
-        	
-        	//assert log(Level.SEVERE, null, toThrow);
         	
         	throw toThrow;
     }

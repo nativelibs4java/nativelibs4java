@@ -328,7 +328,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
     @Override
     public String toString() {
-        return getName();// + "{singleFPConfig: " + getSingleFPConfig() + "}";
+        return getName();
     }
 
     /**
