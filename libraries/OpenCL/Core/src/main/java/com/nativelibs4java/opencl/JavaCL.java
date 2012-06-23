@@ -119,7 +119,7 @@ public class JavaCL {
             Pointer<Integer> pCount = allocateInt();
             error(getPlatformIDs(0, null, pCount));
 
-            int nPlats = pCount.get();
+            int nPlats = pCount.getInt();
             if (nPlats == 0)
                 return null;
 
@@ -234,7 +234,7 @@ public class JavaCL {
         Pointer<Integer> pCount = allocateInt();
         error(getPlatformIDs(0, null, pCount));
 
-        int nPlats = pCount.get();
+        int nPlats = pCount.getInt();
         if (nPlats == 0)
             return new CLPlatform[0];
 

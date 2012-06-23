@@ -240,7 +240,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         Pointer<Integer> typeRef = allocateInt();
         Pointer<Integer> nameRef = allocateInt();
         CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);
-        return new GLObjectInfo(GLObjectType.getEnum(typeRef.get()), nameRef.get());
+        return new GLObjectInfo(GLObjectType.getEnum(typeRef.getInt()), nameRef.getInt());
     }
 	public enum MapFlags implements com.nativelibs4java.util.ValuedEnum {
 		Read(CL_MAP_READ),

@@ -172,12 +172,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (nDevices == 0)
         		return;
         	
-		Pointer<Integer> errBuff = allocateInt();
+		ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<Integer> pErr = ptrs.pErr;
         int previousAttempts = 0;
         Pointer<Integer> statuses = allocateInts(nDevices);
 		do {
-			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, errBuff));
-		} while (failedForLackOfMemory(errBuff.get(), previousAttempts++));
+			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 	}
 
     /**
@@ -302,12 +303,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (int i = 0; i < sources.length; i++) {
             lengths[i] = sources[i].length();
         }
-        Pointer<Integer> errBuff = allocateInt();
+        
+        ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<Integer> pErr = ptrs.pErr;
         cl_program program;
 		int previousAttempts = 0;
 		do {
-			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, pointerToCStrings(sources), pointerToSizeTs(lengths), errBuff);
-		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
+			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, pointerToCStrings(sources), pointerToSizeTs(lengths), pErr);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         setEntity(program);
     }
     
@@ -834,7 +837,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		int previousAttempts = 0;
 		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, null, pCount), previousAttempts++)) {}
 
-		int count = pCount.get();
+		int count = pCount.getInt();
 		Pointer<cl_kernel> kerns = allocateTypedPointers(cl_kernel.class, count);
 		previousAttempts = 0;
 		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount), previousAttempts++)) {}
@@ -854,12 +857,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (!built)
                 build();
         }
-        Pointer<Integer> errBuff = allocateInt();
+        ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<Integer> pErr = ptrs.pErr;
         cl_kernel kernel;
 		int previousAttempts = 0;
 		do {
-			kernel = CL.clCreateKernel(getEntity(), pointerToCString(name), errBuff);
-		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
+			kernel = CL.clCreateKernel(getEntity(), pointerToCString(name), pErr);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);
         if (args.length != 0)

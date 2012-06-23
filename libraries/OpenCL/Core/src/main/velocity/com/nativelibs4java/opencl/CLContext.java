@@ -257,7 +257,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
 		//cl_image_format ft = new cl_image_format();
 		//int sz = ft.size();
-		int n = pCount.get();
+		int n = pCount.getInt();
 		if (n == 0) {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
@@ -356,7 +356,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         else
             error(CL.clGetGLContextInfoKHR((Pointer)propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
 
-        if (pCount.get().intValue() != Pointer.SIZE)
+        if (pCount.getSizeT() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.get().intValue());
 
         Pointer p = mem.getPointer();

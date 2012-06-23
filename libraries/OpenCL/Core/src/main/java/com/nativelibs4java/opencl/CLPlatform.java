@@ -381,14 +381,15 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             ids.set(i, devices[i].getEntity());
         }
 
-        Pointer<Integer> errRef = allocateInt();
+        ReusablePointers ptrs = ReusablePointers.get();
+        Pointer<Integer> pErr = ptrs.pErr;
 
         long[] props = getContextProps(contextProperties);
         Pointer<SizeT> propsRef = props == null ? null : pointerToSizeTs(props);
         //Pointer<clCreateContext_arg1_callback> errCb = null;//pointerTo(errorCallback);
         //System.out.println("ERROR CALLBACK " + Long.toHexString(errCb.getPeer()));
-        cl_context context = CL.clCreateContext((Pointer)propsRef, nDevs, ids, null, null, errRef);
-        error(errRef.get());
+        cl_context context = CL.clCreateContext((Pointer)propsRef, nDevs, ids, null, null, pErr);
+        error(pErr.get());
         return new CLContext(this, ids, context);
     }
     /*
@@ -409,7 +410,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Pointer<Integer> pCount = allocateInt();
 		error(CL.clGetDeviceIDs(getEntity(), type.value(), 0, null, pCount));
 
-        int nDevs = pCount.get();
+        int nDevs = pCount.getInt();
         if (nDevs <= 0) {
             return new CLDevice[0];
         }

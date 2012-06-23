@@ -52,7 +52,7 @@ abstract class CLInfoGetter<T extends Pointer> {
             return "";
         }
         Pointer<?> buffer = allocateBytes(len + 1);
-        error(getInfo(entity, infoName, pLen.get().intValue(), buffer, null));
+        error(getInfo(entity, infoName, len, buffer, null));
 
         return buffer.getCString();
     }
@@ -71,7 +71,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         Pointer<SizeT> pLen = allocate(SizeT.class);
         error(getInfo(entity, infoName, 0, null, pLen));
 
-        int len = pLen.get().intValue();
+        int len = (int)pLen.getSizeT();
         Pointer<?> buffer = allocateBytes(len);
         error(getInfo(entity, infoName, len, buffer, null));
 
@@ -84,8 +84,9 @@ abstract class CLInfoGetter<T extends Pointer> {
         Pointer<SizeT> mem = allocateSizeTs(n);
         error(getInfo(entity, infoName, nBytes, mem, pLen));
 
-        if (pLen.get().longValue() != nBytes) {
-            throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.get());
+        int actualLen = (int)pLen.getSizeT();
+        if (actualLen != nBytes) {
+            throw new RuntimeException("Not a Size[" + n + "] : len = " + actualLen);
         }
         return mem.getSizeTs(n);
     }
@@ -132,7 +133,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         Pointer<Long> mem = allocateLong();
         error(getInfo(entity, infoName, 8, mem, pLen));
 
-        switch (pLen.get().intValue()) {
+        switch ((int)pLen.getSizeT()) {
             case 4:
                 return mem.getInt();
             case 8:
