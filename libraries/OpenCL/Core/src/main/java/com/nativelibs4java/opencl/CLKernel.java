@@ -350,7 +350,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<cl_event> eventOut = ReusablePointers.get().event_out;
+        Pointer<cl_event> eventOut = eventsToWaitFor == null ? null : ReusablePointers.get().event_out;
 		ReusablePointers ptrs = ReusablePointers.get();
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
@@ -397,7 +397,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
         ReusablePointers ptrs = ReusablePointers.get();
-        int[] eventsCount = new int[1];
+        Pointer<cl_event> eventOut = eventsToWaitFor == null ? null : ReusablePointers.get().event_out;
+		int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueNDRangeKernel(
             getPeer(queue.getEntity()),
@@ -408,9 +409,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             getPeer(ptrs.sizeT3_3.pointerToSizeTs(localWorkSizes)),
             eventsCount[0],
             getPeer(events),
-            getPeer(ptrs.event_out)
+            getPeer(eventOut)
         ));
-        return CLEvent.createEventFromPointer(queue, ptrs.event_out);
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 	
 	/**
