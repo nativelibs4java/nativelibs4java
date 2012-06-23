@@ -5,7 +5,6 @@
 
 -gccLong
 -limitComments
--synchronized
 
 "-Dextern="
 "-D__stdcall="
