@@ -38,6 +38,5 @@ public class EventTest extends AbstractCommon {
 		assertNotNull(e);
 		e.waitFor();
 		assertNull(kernel.enqueueNDRange(queue, globalSizes, CLEvent.FIRE_AND_FORGET));
-		assertNull(kernel.enqueueNDRange(queue, globalSizes, CLEvent.DISABLE_EVENTS));
     }
 }
