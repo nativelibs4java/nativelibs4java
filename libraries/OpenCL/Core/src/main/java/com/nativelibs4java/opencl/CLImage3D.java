@@ -69,16 +69,16 @@ public class CLImage3D extends CLImage2D {
 	}
 
 	/**
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent read(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		return read(queue, pointerToSizeTs(minX, minY, minZ), pointerToSizeTs(width, height, depth), rowPitch, slicePitch, out, blocking, eventsToWaitFor);
 	}
 
 	/**
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent write(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, pointerToSizeTs(minX, minY, minZ), pointerToSizeTs(width, height, depth), rowPitch, slicePitch, in, blocking, eventsToWaitFor);
@@ -88,8 +88,8 @@ public class CLImage3D extends CLImage2D {
 		return map(queue, flags, 0, 0, 0, getWidth(), getHeight(), getDepth(), getWidth(), getHeight(), true, eventsToWaitFor);
     }
 	/**
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Pair with mapped data and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Pair with mapped data and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, pointerToSizeTs(0, 0, 0), pointerToSizeTs(getWidth(), getHeight(), getDepth()), getWidth(), getHeight(), true, eventsToWaitFor);
@@ -99,8 +99,8 @@ public class CLImage3D extends CLImage2D {
         return map(queue, flags, pointerToSizeTs(offsetX, offsetY, offsetZ), pointerToSizeTs(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor).getFirst();
     }
     /**
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Pair with mapped data and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Pair with mapped data and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long offsetZ, long lengthX, long lengthY, long lengthZ, long rowPitch, long slicePitch, CLEvent... eventsToWaitFor) {
         return map(queue, flags, pointerToSizeTs(offsetX, offsetY, offsetZ), pointerToSizeTs(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor);

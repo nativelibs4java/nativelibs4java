@@ -87,7 +87,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 		int count = 0;
 		for (int i = 0; i < n; i++) {
 		    CLAbstractEntity entity = entities[i];
-		    if (entity != null) {
+		    if (entity != null && entity != CLEvent.FIRE_AND_FORGET) {
 		        long pointer = entity.getEntityPeer();
 		        if (pointer != 0) {
 		            if (out == null)

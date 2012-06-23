@@ -150,7 +150,7 @@ public abstract class CLImage extends CLMem {
 		//checkBounds(offset, length);
 		ReusablePointers ptrs = ReusablePointers.get();
 		Pointer<Integer> pErr = ptrs.pErr;
-		Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
 		
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(
@@ -176,8 +176,8 @@ public abstract class CLImage extends CLMem {
      * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * @param queue
      * @param buffer
-     * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Event which completion indicates that the OpenCL was unmapped, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+     * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Event which completion indicates that the OpenCL was unmapped, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);

@@ -160,7 +160,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueMarker() {
-		Pointer<cl_event> eventOut = ReusablePointers.get().event_out;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<cl_event> eventOut = ptrs.event_out;
 		error(CL.clEnqueueMarker(getPeer(getEntity()), getPeer(eventOut)));
 		return CLEvent.createEventFromPointer(this, eventOut);
 	}
@@ -170,8 +171,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * These objects need to be acquired before they can be used by any OpenCL commands queued to a command-queue. <br>
 	 * The OpenGL objects are acquired by the OpenCL context associated with this queue and can therefore be used by all command-queues associated with the OpenCL context.
 	 * @param objects CL memory objects that correspond to GL objects.
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
@@ -188,8 +189,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * These objects need to be released before they can be used by OpenGL. <br>
 	 * The OpenGL objects are released by the OpenCL context associated with this queue.
 	 * @param objects CL memory objects that correpond to GL objects.
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);

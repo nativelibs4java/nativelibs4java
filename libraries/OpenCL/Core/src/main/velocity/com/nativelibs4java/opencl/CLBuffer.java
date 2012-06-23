@@ -131,8 +131,8 @@ public class CLBuffer<T> extends CLMem {
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param destination
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
 		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
@@ -145,8 +145,8 @@ public class CLBuffer<T> extends CLMem {
 	 * @param length
 	 * @param destination
 	 * @param destOffset
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
-	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
+	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
@@ -185,7 +185,7 @@ public class CLBuffer<T> extends CLMem {
 		checkBounds(offset, length);
 		ReusablePointers ptrs = ReusablePointers.get();
 		Pointer<Integer> pErr = ptrs.pErr;
-		Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
         
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
@@ -264,7 +264,7 @@ public class CLBuffer<T> extends CLMem {
 		}
 		
         ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
+        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueReadBuffer(
@@ -333,7 +333,7 @@ public class CLBuffer<T> extends CLMem {
 		}
 		
         ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
+        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueWriteBuffer(

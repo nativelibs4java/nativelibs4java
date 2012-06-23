@@ -60,9 +60,9 @@ import static org.bridj.Pointer.*;
 public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	/**
-	 * Pass this to any method that expects a variable number of events to wait for and that returns an event, to completely bypass the events : no event will then be returned at all. 
+	 * Pass this to special value to any method that expects a variable number of events to wait for and that returns an event, to completely avoid returning the completion event (will return null instead of the event). 
 	 */
-	public static final CLEvent[] DISABLE_EVENTS = null;
+	public static final CLEvent FIRE_AND_FORGET = new CLEvent(-1);
 	
 	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override
@@ -208,8 +208,19 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		}.start();
 	}
 
-    static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor) {
-        return ReusablePointers.get().event_out;
+	static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor) {
+		return new_event_out(eventsToWaitFor, ReusablePointers.get().event_out);
+    }
+    static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor, Pointer<cl_event> event_out) {
+        if (eventsToWaitFor == null)
+        	return null;
+        
+		for (int i = 0, n = eventsToWaitFor.length; i < n; i++) {
+			if (eventsToWaitFor[i] == FIRE_AND_FORGET)
+				return null;
+		}
+		
+        return event_out;
     }
     
     @Deprecated
