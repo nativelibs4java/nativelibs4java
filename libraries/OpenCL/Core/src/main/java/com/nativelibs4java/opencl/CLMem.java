@@ -71,10 +71,15 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 		}
 	};
 
-    CLMem(CLContext context, long byteCount, cl_mem entity) {
-        super(entity);
+    CLMem(CLContext context, long byteCount, long entityPeer) {
+        super(entityPeer);
         this.byteCount = byteCount;
         this.context = context;
+    }
+	
+    @Override
+    protected cl_mem createEntityPointer(long peer) {
+    	return new cl_mem(peer);
     }
 	
     public CLContext getContext() {
@@ -250,6 +255,6 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseMemObject(getPeer(getEntity())));
+        error(CL.clReleaseMemObject(getEntityPeer()));
     }
 }

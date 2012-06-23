@@ -55,6 +55,12 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     CLPlatform(cl_platform_id platform) {
         super(platform, true);
     }
+    
+    @Override
+    protected cl_platform_id createEntityPointer(long peer) {
+    	return new cl_platform_id(peer);
+    }
+    
     private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
 
         @Override

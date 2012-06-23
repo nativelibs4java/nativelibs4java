@@ -22,6 +22,8 @@ class ReusablePointers {
     
     public final Pointer<cl_event> event_out = allocateTypedPointer(cl_event.class);
     
+    public final Pointer<Integer> pErr = allocateInt();
+    
     public final int[] event_count = new int[1];
     public final ReusablePointer events_in = new ReusablePointer(Pointer.SIZE * 10);
     

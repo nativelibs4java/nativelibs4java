@@ -57,8 +57,8 @@ import com.nativelibs4java.util.Pair;
  * @author Olivier Chafik
  */
 public class CLImage2D extends CLImage {
-	CLImage2D(CLContext context, cl_mem entity, CLImageFormat format) {
-        super(context, entity, format);
+	CLImage2D(CLContext context, long entityPeer, CLImageFormat format) {
+        super(context, entityPeer, format);
 	}
 
 	/**
@@ -85,22 +85,41 @@ public class CLImage2D extends CLImage {
 		return infos.getIntOrLong(getEntity(), CL_IMAGE_HEIGHT);
 	}
 
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent read(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		Pointer<?> ptrOut = pointerToBuffer(out);
 		CLEvent evt = read(queue, minX, minY, width, height, rowPitch, ptrOut, blocking, eventsToWaitFor);
 		ptrOut.updateBuffer(out); // in case the buffer wasn't direct !
 		return evt;
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent read(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Pointer<?> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		return read(queue, pointerToSizeTs(minX, minY, 0), pointerToSizeTs(width, height, 1), rowPitch, 0, out, blocking, eventsToWaitFor);
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent write(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, minX, minY, width, height, rowPitch, pointerToBuffer(in), blocking, eventsToWaitFor);
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent write(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, pointerToSizeTs(minX, minY, 0), pointerToSizeTs(width, height, 1), rowPitch, 0, in, blocking, eventsToWaitFor);
 	}
 
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+     */
 	public BufferedImage read(CLQueue queue, CLEvent... eventsToWaitFor) {
         ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
         int imageType = info == null ? 0 : info.bufferedImageType;
@@ -112,6 +131,9 @@ public class CLImage2D extends CLImage {
 		read(queue, im, false, eventsToWaitFor);
 		return im;
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.  
+     */
 	public void read(CLQueue queue, BufferedImage imageOut, boolean allowDeoptimizingDirectWrite, CLEvent... eventsToWaitFor) {
 		//if (!getFormat().isIntBased())
 		//	throw new IllegalArgumentException("Image-read only supports int-based RGBA images");
@@ -124,12 +146,24 @@ public class CLImage2D extends CLImage {
 		read(queue, 0, 0, width, height, 0, dataOut, true, eventsToWaitFor);
         info.dataSetter.setData(imageOut, dataOut.getBuffer(), allowDeoptimizingDirectWrite);
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent write(CLQueue queue, Image image, CLEvent... eventsToWaitFor) {
 		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), false, false, eventsToWaitFor);
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent write(CLQueue queue, Image image, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), allowDeoptimizingDirectRead, blocking, eventsToWaitFor);
 	}
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
 		//int imWidth = image.getWidth(null), height = image.getHeight(null);
         ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
@@ -153,10 +187,18 @@ public class CLImage2D extends CLImage {
 	public ByteBuffer map(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long lengthX, long lengthY, long rowPitch, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, pointerToSizeTs(offsetX, offsetY), pointerToSizeTs(lengthX, lengthY), rowPitch, null, true, eventsToWaitFor).getFirst();
     }
+	/**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Pair with byte buffer and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, boolean blocking, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, pointerToSizeTs(0, 0), pointerToSizeTs(getWidth(), getHeight()), getWidth(), null, blocking, eventsToWaitFor);
     }
-    public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long lengthX, long lengthY, long rowPitch, boolean blocking, CLEvent... eventsToWaitFor) {
+    /**
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Pair with byte buffer and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
+	 */
+	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long lengthX, long lengthY, long rowPitch, boolean blocking, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, pointerToSizeTs(offsetX, offsetY), pointerToSizeTs(lengthX, lengthY), rowPitch, null, blocking, eventsToWaitFor);
     }
 }

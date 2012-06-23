@@ -74,7 +74,12 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         super(device);
         this.platform = platform;
     }
-
+    
+    @Override
+    protected cl_device_id createEntityPointer(long peer) {
+    	return new cl_device_id(peer);
+    }
+    
     public synchronized CLPlatform getPlatform() {
         if (platform == null) {
             Pointer pplat = infos.getPointer(getEntity(), CL_DEVICE_PLATFORM);
@@ -338,21 +343,23 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(CLContext context, QueueProperties... queueProperties) {
-        Pointer<Integer> pErr = allocateInt();
-        long flags = 0;
+        ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long flags = 0;
         for (QueueProperties prop : queueProperties)
             flags |= prop.value();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
-        error(pErr.get());
+        error(pErr.getInt());
 
         return new CLQueue(context, queue, this);
     }
 
     @Deprecated
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
-        Pointer<Integer> pErr = allocateInt();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), QueueProperties.getValue(queueProperties), pErr);
-        error(pErr.get());
+        ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), QueueProperties.getValue(queueProperties), pErr);
+        error(pErr.getInt());
 
         return new CLQueue(context, queue, this);
     }

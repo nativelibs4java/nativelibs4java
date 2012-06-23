@@ -67,6 +67,11 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	CLSampler(cl_sampler entity) {
 		super(entity);
 	}
+    
+    @Override
+    protected cl_sampler createEntityPointer(long peer) {
+    	return new cl_sampler(peer);
+    }
 	
 	@Override
 	protected void clear() {

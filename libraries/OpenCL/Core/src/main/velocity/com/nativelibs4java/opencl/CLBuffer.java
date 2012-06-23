@@ -60,8 +60,8 @@ public class CLBuffer<T> extends CLMem {
 	final Object owner;
     final PointerIO<T> io;
     
-	CLBuffer(CLContext context, long byteCount, cl_mem entity, Object owner, PointerIO<T> io) {
-        super(context, byteCount, entity);
+	CLBuffer(CLContext context, long byteCount, long entityPeer, Object owner, PointerIO<T> io) {
+        super(context, byteCount, entityPeer);
 		this.owner = owner;
         this.io = io;
 	}
@@ -117,10 +117,11 @@ public class CLBuffer<T> extends CLMem {
 		try {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
-			Pointer<Integer> pErr = allocateInt();
-	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
-	        error(pErr.get());
-	        return mem == null ? null : new CLBuffer<T>(context, length * s, mem, null, io);
+			ReusablePointers ptrs = ReusablePointers.get();
+			Pointer<Integer> pErr = ptrs.pErr;
+		    cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
+	        error(pErr.getInt());
+	        return mem == null ? null : new CLBuffer<T>(context, length * s, getPeer(mem), null, io);
 		} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);
@@ -130,8 +131,8 @@ public class CLBuffer<T> extends CLMem {
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param destination
-	 * @param eventsToWaitFor
-	 * @return event which indicates the copy operation has completed
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
 		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
@@ -144,8 +145,8 @@ public class CLBuffer<T> extends CLMem {
 	 * @param length
 	 * @param destination
 	 * @param destOffset
-	 * @param eventsToWaitFor
-	 * @return event which indicates the copy operation has completed
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
@@ -182,8 +183,9 @@ public class CLBuffer<T> extends CLMem {
 
 	protected Pair<Pointer<T>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		Pointer<Integer> pErr = allocateInt();
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
         
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
@@ -194,7 +196,7 @@ public class CLBuffer<T> extends CLMem {
 			eventOut,
 			pErr
 		);
-		error(pErr.get());
+		error(pErr.getInt());
         return new Pair<Pointer<T>, CLEvent>(
 			p.as(io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
 			CLEvent.createEventFromPointer(queue, eventOut)
@@ -262,7 +264,7 @@ public class CLBuffer<T> extends CLMem {
 		}
 		
         ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
+        Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueReadBuffer(
@@ -331,7 +333,7 @@ public class CLBuffer<T> extends CLMem {
 		}
 		
         ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
+        Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueWriteBuffer(
@@ -355,7 +357,7 @@ public class CLBuffer<T> extends CLMem {
         if (in == null)
 			throw new IllegalArgumentException("Null input pointer !");
 		
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
@@ -388,10 +390,10 @@ public class CLBuffer<T> extends CLMem {
 	#end
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-        PointerIO<T> newIo = PointerIO.getInstance(newTargetType);
-		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIo));
+		long mem = getEntityPeer();
+		error(CL.clRetainMemObject(mem));
+        PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
+		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));
 	}
 	
 }

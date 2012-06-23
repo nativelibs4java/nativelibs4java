@@ -103,17 +103,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
 #end
 
+	private volatile long maxMemAllocSize = -1;
+	
 	/**
      * Max size of memory object allocation in bytes. The minimum value is max (1/4th of CL_DEVICE_GLOBAL_MEM_SIZE , 128*1024*1024)
      */
     public long getMaxMemAllocSize() {
-        long min = Long.MAX_VALUE;
-        for (CLDevice device : getDevices()) {
-            long m = device.getMaxMemAllocSize();
-            if (m < min)
-                min = m;
-        }
-        return min;
+    	if (maxMemAllocSize < 0) {
+			long min = Long.MAX_VALUE;
+			for (CLDevice device : getDevices()) {
+				long m = device.getMaxMemAllocSize();
+				if (m < min)
+					min = m;
+			}
+			maxMemAllocSize = min;
+		}
+        return maxMemAllocSize;
     }
     
     volatile Boolean cacheBinaries;
@@ -171,6 +176,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			JavaCL.log(Level.WARNING, "The devices in this context have mismatching byte orders. This mandates the use of __attribute__((endian(host))) in kernel sources or *very* careful use of buffers to avoid facing endianness issues");   
 		}
 	}
+    
+    @Override
+    protected cl_context createEntityPointer(long peer) {
+    	return new cl_context(peer);
+    }
 	
 	/**
 	 * Creates a user event object. <br/>
@@ -179,9 +189,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public CLEvent createUserEvent() {
 		try {
-			Pointer<Integer> pErr = allocateInt();
+			ReusablePointers ptrs = ReusablePointers.get();
+			Pointer<Integer> pErr = ptrs.pErr;
 			cl_event evt = CL.clCreateUserEvent(getEntity(), pErr);
-			error(pErr.get());
+			error(pErr.getInt());
 			return CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
 			// TODO throw if supposed to handle OpenCL 1.1
@@ -264,9 +275,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
-		Pointer<Integer> pErr = allocateInt();
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
 		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.value(), (int) filter_mode.value(), pErr);
-		error(pErr.get());
+		error(pErr.getInt());
 		return new CLSampler(sampler);
 	}
 
@@ -368,12 +380,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLBuffer<Byte> createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLBuffer(getEntityPeer(), usage.getIntFlags(), openGLBufferObject, getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         return markAsGL(new CLBuffer(this, -1, mem, null, PointerIO.getByteInstance()));
 	}
 
@@ -386,12 +399,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLRenderbuffer(getEntity(), usage.getIntFlags(), openGLRenderBuffer, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLRenderbuffer(getEntityPeer(), usage.getIntFlags(), openGLRenderBuffer, getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 	
@@ -409,12 +423,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D(getEntity(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLTexture2D(getEntityPeer(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 
@@ -466,12 +481,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture3D(getEntity(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLTexture3D(getEntityPeer(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
 	
@@ -498,20 +514,23 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage2D(
-				getEntity(),
+				getEntityPeer(),
 				memFlags,
-				pointerTo(format.to_cl_image_format()),
+				getPeer(pImageFormat),
 				width,
 				height,
 				rowPitch,
-				buffer == null ? null : pointerToBuffer(buffer),
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(pBuffer),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return new CLImage2D(this, mem, format);
 	}
 
@@ -530,22 +549,25 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage3D(
-				getEntity(),
+				getEntityPeer(),
 				memFlags,
-				pointerTo(format.to_cl_image_format()),
+				getPeer(pImageFormat),
 				width,
 				height,
 				depth,
 				rowPitch,
 				slicePitch,
-				buffer == null ? null : pointerToBuffer(buffer),
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(pBuffer),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		
 		return new CLImage3D(this, mem, format);
 	}
@@ -634,17 +656,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getKernelsDefaultByteOrder())).");
 		}
         
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateBuffer(
-				getEntity(),
+				getEntityPeer(),
 				CLBufferFlags,
 				byteCount,
-				data,
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(data),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 
 		return new CLBuffer<T>(this, byteCount, mem, retainBufferReference ? data : null, io);
 	}
@@ -657,18 +680,23 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return getByteOrder();
     }
 
+    private volatile ByteOrder byteOrder;
+    
     /**
      * Get the endianness common to all devices of this context, or null if the devices have mismatching endiannesses.
      */
     public ByteOrder getByteOrder() {
-        ByteOrder order = null;
-        for (CLDevice device : getDevices()) {
-            ByteOrder devOrder = device.getByteOrder();
-            if (order != null && devOrder != order)
-                return null;
-            order = devOrder;
-        }
-        return order;
+    	if (byteOrder == null) {
+			ByteOrder order = null;
+			for (CLDevice device : getDevices()) {
+				ByteOrder devOrder = device.getByteOrder();
+				if (order != null && devOrder != order)
+					return null;
+				order = devOrder;
+			}
+			byteOrder = order;
+		}
+        return byteOrder;
     }
 
     private volatile int addressBits = -2;
@@ -696,28 +724,57 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return addressBits;
     }
 
+    private volatile Boolean doubleSupported;
+    
     /**
      * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice#isDoubleSupported()}).
      */
     public boolean isDoubleSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isDoubleSupported())
-				return false;
-		return true;
+    	if (doubleSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isDoubleSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			doubleSupported = supported;
+		}
+		return doubleSupported;
 	}
-	/**
+	
+	private volatile Boolean halfSupported;
+    
+    /**
      * Whether all the devices in this context support half-precision numbers (see {@link CLDevice#isHalfSupported()}).
      */
     public boolean isHalfSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isHalfSupported())
-				return false;
-		return true;
+		if (halfSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isHalfSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			halfSupported = supported;
+		}
+		return halfSupported;
 	}
-	public boolean isByteAddressableStoreSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isByteAddressableStoreSupported())
-				return false;
-		return true;
+	
+	private volatile Boolean byteAddressableStoreSupported;
+    
+    public boolean isByteAddressableStoreSupported() {
+    	if (byteAddressableStoreSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isByteAddressableStoreSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			byteAddressableStoreSupported = supported;
+		}
+		return byteAddressableStoreSupported;
 	}
 }

@@ -45,6 +45,7 @@ import java.util.logging.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
 import org.bridj.*;
+import org.bridj.ann.Ptr;
 
 import org.bridj.util.ProcessUtils;
 import org.bridj.util.StringUtils;
@@ -94,32 +95,70 @@ public class JavaCL {
 			BridJ.register();
 		}
 		@org.bridj.ann.Optional
-		public native static synchronized int clGetPlatformIDs(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
+		public native static synchronized int clGetPlatformIDs(int cl_uint1, Pointer<cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
 		@org.bridj.ann.Optional
-		public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
-		
-		public boolean isValid() {
-			Pointer<Integer> pCount = allocateInt();
-			int err;
+		public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
+		@org.bridj.ann.Optional
+		public native static int clGetPlatformInfo(cl_platform_id cl_platform_id1, int cl_platform_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+	
+        private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
+            @Override
+            protected int getInfo(cl_platform_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
+                return clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
+            }
+        };
+        
+        private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
+            try {
+                return clIcdGetPlatformIDsKHR(count, out, pCount);
+            } catch (Throwable th) {
+                return clGetPlatformIDs(count, out, pCount);
+            }
+        }
+        private static Pointer<cl_platform_id> getPlatformIDs() {
+            Pointer<Integer> pCount = allocateInt();
+            error(getPlatformIDs(0, null, pCount));
+
+            int nPlats = pCount.get();
+            if (nPlats == 0)
+                return null;
+
+            Pointer<cl_platform_id> ids = allocateTypedPointers(cl_platform_id.class, nPlats);
+            error(getPlatformIDs(nPlats, ids, null));
+            return ids;
+        }
+        public static boolean hasOpenCL1_0() {
+            Pointer<cl_platform_id> ids = getPlatformIDs();
+            if (ids == null)
+                return false;
+            
+            for (cl_platform_id id : ids)
+                if (isOpenCL1_0(id))
+                    return true;
+            return false;
+        }
+        public static boolean isOpenCL1_0(cl_platform_id platform) {
+            String version = infos.getString(platform, OpenCLLibrary.CL_PLATFORM_VERSION);
+            return version.matches("OpenCL 1\\.0.*");
+        }
+		public static boolean isValid() {
 			try {
-				err = clIcdGetPlatformIDsKHR(0, null, pCount);
+                Pointer<cl_platform_id> ids = getPlatformIDs();
+                return ids != null;
 			} catch (Throwable th) {
-				try {
-					err = clGetPlatformIDs(0, null, pCount);
-				} catch (Throwable th2) {
-					return false;
-				}
+                return false;
 			}
-			return err == OpenCLLibrary.CL_SUCCESS && pCount.get() > 0;
 		}
 	}	
 
     static final OpenCLLibrary CL;
 	static {
+        boolean needsAdditionalSynchronization = false;
 		{
 			OpenCLProbeLibrary probe = new OpenCLProbeLibrary();
 			try {
 				if (!probe.isValid()) {
+                    BridJ.unregister(OpenCLProbeLibrary.class);
 					String alt;
 					if (Platform.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
@@ -128,7 +167,13 @@ public class JavaCL {
 						log(Level.INFO, "Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
 						BridJ.setNativeLibraryActualName("OpenCL", alt);
 					}
+                    BridJ.register(OpenCLProbeLibrary.class);
 				}
+                
+                
+                if (probe.hasOpenCL1_0()) {
+                    needsAdditionalSynchronization = true;
+                }
 			} finally {
 				probe = null;
 				BridJ.unregister(OpenCLProbeLibrary.class);
@@ -154,7 +199,20 @@ public class JavaCL {
             
             
         }
-		CL = new OpenCLLibrary();
+        Class<? extends OpenCLLibrary> libraryClass = OpenCLLibrary.class;
+        if (needsAdditionalSynchronization) {
+            try {
+                libraryClass = BridJ.subclassWithSynchronizedNativeMethods(libraryClass);
+            } catch (Throwable ex) {
+                throw new RuntimeException("Failed to create a synchronized version of the OpenCL API bindings: " + ex, ex);
+            }
+        }
+        BridJ.register(libraryClass);
+        try {
+            CL = libraryClass.newInstance();
+        } catch (Throwable ex) {
+            throw new RuntimeException("Failed to instantiate library " + libraryClass.getName() + ": " + ex, ex);
+        }
 	}
 	
     /**

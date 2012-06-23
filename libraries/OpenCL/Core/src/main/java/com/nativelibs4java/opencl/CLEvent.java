@@ -59,6 +59,11 @@ import static org.bridj.Pointer.*;
  */
 public class CLEvent extends CLAbstractEntity<cl_event> {
 
+	/**
+	 * Pass this to any method that expects a variable number of events to wait for and that returns an event, to completely bypass the events : no event will then be returned at all. 
+	 */
+	public static final CLEvent[] DISABLE_EVENTS = null;
+	
 	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override
 		protected int getInfo(cl_event entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
@@ -77,9 +82,14 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		super(evt, false);
 	}
 
-    CLEvent() {
-		super(null, true);
+    CLEvent(long evt) {
+		super(evt, false);
 	}
+	
+    @Override
+    protected cl_event createEntityPointer(long peer) {
+    	return new cl_event(peer);
+    }
 
     public interface EventCallback {
     	public void callback(CLEvent event, int executionStatus);
@@ -138,7 +148,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
         if (peer == 0)
             return null;
         
-        return new CLEvent(new cl_event(peer));
+        return new CLEvent(peer);
 	}
 
 
@@ -146,8 +156,6 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 * Wait for this event, blocking the caller thread independently of any queue until all of the command associated with this events completes.
 	 */
 	public void waitFor() {
-		if (entity == null)
-			return;
 		waitFor(this);
 	}
 
@@ -214,7 +222,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	@Override
 	protected void clear() {
-		error(CL.clReleaseEvent(getPeer(getEntity())));
+		error(CL.clReleaseEvent(getEntityPeer()));
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */

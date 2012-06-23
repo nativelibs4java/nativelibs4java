@@ -135,6 +135,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 		setBinaries(binaries);
 	}
+    
+    @Override
+    protected cl_program createEntityPointer(long peer) {
+    	return new cl_program(peer);
+    }
 	protected void setBinaries(Map<CLDevice, byte[]> binaries) {
         if (this.devices == null) {
         		this.devices = new CLDevice[binaries.size()];
@@ -171,7 +176,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         int previousAttempts = 0;
         Pointer<Integer> statuses = allocateInts(nDevices);
 		do {
-			entity = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, errBuff);
+			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, errBuff));
 		} while (failedForLackOfMemory(errBuff.get(), previousAttempts++));
 	}
 
@@ -270,7 +275,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public static boolean passMacrosAsSources = true;
 
     public synchronized void allocate() {
-        if (entity != null)
+        if (isAllocated())
             throw new IllegalThreadStateException("Program was already allocated !");
 
         if (passMacrosAsSources) {
@@ -303,15 +308,27 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		do {
 			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, pointerToCStrings(sources), pointerToSizeTs(lengths), errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
-        entity = program;
+        setEntity(program);
+    }
+    
+    private boolean isAllocated() {
+    	return super.getEntityPeer() != 0;
     }
     
     @Override
     protected synchronized cl_program getEntity() {
-        if (entity == null)
+        if (!isAllocated())
             allocate();
 
-        return entity;
+        return super.getEntity();
+    }
+    
+    @Override
+    protected synchronized long getEntityPeer() {
+        if (!isAllocated())
+            allocate();
+
+        return super.getEntityPeer();
     }
 	
     List<String> includes;
@@ -330,7 +347,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         resolvedInclusions = null;
     }
 	public synchronized void addSource(String src) {
-        if (entity != null)
+        if (isAllocated())
             throw new IllegalThreadStateException("Program was already allocated : cannot add sources anymore.");
         sources.add(src);
         resolvedInclusions = null;
@@ -748,11 +765,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 				}
         		} catch (Throwable ex) {
         			assert log(Level.WARNING, "Failed to load cached program : " + ex.getMessage());
-        			entity = null;
+        			setEntity(null);
         		}
         }
         
-        if (entity == null)
+        if (!isAllocated())
             allocate();
 
         Runnable deleteTempFiles = null;

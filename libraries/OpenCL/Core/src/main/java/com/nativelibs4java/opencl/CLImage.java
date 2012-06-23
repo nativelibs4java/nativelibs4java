@@ -61,8 +61,8 @@ import static org.bridj.Pointer.*;
 public abstract class CLImage extends CLMem {
 
 	CLImageFormat format;
-	CLImage(CLContext context, cl_mem entity, CLImageFormat format) {
-        super(context, -1, entity);
+	CLImage(CLContext context, long entityPeer, CLImageFormat format) {
+        super(context, -1, entityPeer);
 		this.format = format;
 	}
 
@@ -148,9 +148,10 @@ public abstract class CLImage extends CLMem {
             boolean blocking, CLEvent... eventsToWaitFor)
     {
 		//checkBounds(offset, length);
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		Pointer<Integer> pErr = allocateInt();
-
+		ReusablePointers ptrs = ReusablePointers.get();
+		Pointer<Integer> pErr = ptrs.pErr;
+		Pointer<cl_event> eventOut = blocking || eventsToWaitFor == null ? null : ptrs.event_out;
+		
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(
             queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
@@ -163,7 +164,7 @@ public abstract class CLImage extends CLMem {
 			eventOut,
 			pErr
 		);
-		error(pErr.get());
+		error(pErr.getInt());
         return new Pair<ByteBuffer, CLEvent>(
 			p.getByteBuffer(getByteCount()),
 			CLEvent.createEventFromPointer(queue, eventOut)
@@ -175,8 +176,8 @@ public abstract class CLImage extends CLMem {
      * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * @param queue
      * @param buffer
-     * @param eventsToWaitFor
-     * @return Event which completion indicates that the OpenCL was unmapped
+     * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#DISABLE_EVENTS} can be used to avoid returning a CLEvent.  
+     * @return Event which completion indicates that the OpenCL was unmapped, or null if eventsToWaitFor is {@link CLEvent#DISABLE_EVENTS}.
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
