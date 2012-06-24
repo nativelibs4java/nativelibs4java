@@ -8,22 +8,21 @@ import static org.bridj.Pointer.*;
  * @author ochafik
  */
 class ReusablePointers {
-
     public final ReusablePointer
             sizeT3_1 = new ReusablePointer(3 * SizeT.SIZE),
             sizeT3_2 = new ReusablePointer(3 * SizeT.SIZE),
             sizeT3_3 = new ReusablePointer(3 * SizeT.SIZE);
     
     public final Pointer<Integer>
-            int1 = allocateInt(),
-            int2 = allocateInt();
+            int1 = allocateInt().withoutValidityInformation(),
+            int2 = allocateInt().withoutValidityInformation();
     
     public final ReusablePointer
             kernelArg = new ReusablePointer(8 * 16); // double16 arguments !
     
-    public final Pointer<cl_event> event_out = allocateTypedPointer(cl_event.class);
+    public final Pointer<cl_event> event_out = allocateTypedPointer(cl_event.class).withoutValidityInformation();
     
-    public final Pointer<Integer> pErr = allocateInt();
+    public final Pointer<Integer> pErr = allocateInt().withoutValidityInformation();
     
     public final int[] event_count = new int[1];
     public final ReusablePointer events_in = new ReusablePointer(Pointer.SIZE * 10);
