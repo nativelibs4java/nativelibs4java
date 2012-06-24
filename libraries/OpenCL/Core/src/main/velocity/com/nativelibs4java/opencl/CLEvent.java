@@ -168,16 +168,12 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		}.start();
 	}
 
-    static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor, Pointer<cl_event> event_out) {
-        if (eventsToWaitFor == null)
-        	return null;
-        
-		for (int i = 0, n = eventsToWaitFor.length; i < n; i++) {
+	static boolean containsFireAndForget(CLEvent[] eventsToWaitFor) {
+		for (int i = eventsToWaitFor.length; i-- != 0;) {
 			if (eventsToWaitFor[i] == FIRE_AND_FORGET)
-				return null;
+				return true;
 		}
-		
-        return event_out;
+		return false;
     }
     
 	@Override

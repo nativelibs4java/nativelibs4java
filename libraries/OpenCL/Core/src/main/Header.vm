@@ -34,15 +34,22 @@
 	
 #macro (declareEventsIn)
 	int[] eventsInCount = new int[1];
-	Pointer<cl_event> eventsIn = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsInCount, ptrs.events_in);
+	Pointer<cl_event> eventsIn = 
+		CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsInCount, ptrs.events_in);
 #end
 
 #macro (declareEventOut)
-	Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
+	Pointer<cl_event> eventOut = 
+		eventsToWaitFor == null || CLEvent.containsFireAndForget(eventsToWaitFor) 
+		? null 
+		: ptrs.event_out;
 #end
 
 #macro (declareEventsOutBlockable)
-	Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
+	Pointer<cl_event> eventOut = 
+		blocking || eventsToWaitFor == null || CLEvent.containsFireAndForget(eventsToWaitFor) 
+		? null 
+		: ptrs.event_out;
 #end
 
 #macro (declarePErr)

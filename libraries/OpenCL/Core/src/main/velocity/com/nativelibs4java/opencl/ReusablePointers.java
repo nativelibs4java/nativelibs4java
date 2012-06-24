@@ -7,7 +7,7 @@ import static org.bridj.Pointer.*;
  *
  * @author ochafik
  */
-class ReusablePointers {
+final class ReusablePointers {
     public final ReusablePointer
             sizeT3_1 = new ReusablePointer(3 * SizeT.SIZE),
             sizeT3_2 = new ReusablePointer(3 * SizeT.SIZE),
