@@ -101,8 +101,7 @@ public class CLBuffer<T> extends CLMem {
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param destination
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
-	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
+#documentEventsToWaitForAndReturn()
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
 		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
@@ -115,8 +114,7 @@ public class CLBuffer<T> extends CLMem {
 	 * @param length
 	 * @param destination
 	 * @param destOffset
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
-	 * @return event which indicates the copy operation has completed, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
+#documentEventsToWaitForAndReturn()
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		long 

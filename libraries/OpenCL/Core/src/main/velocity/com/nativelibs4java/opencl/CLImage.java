@@ -144,8 +144,7 @@ public abstract class CLImage extends CLMem {
      * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * @param queue
      * @param buffer
-     * @param eventsToWaitFor Events that need to complete before this particular command can be executed. Special value {@link CLEvent#FIRE_AND_FORGET} can be used to avoid returning a CLEvent.  
-     * @return Event which completion indicates that the OpenCL was unmapped, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
+#documentEventsToWaitForAndReturn()
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
         #declareReusablePtrsAndEventsInOut()
