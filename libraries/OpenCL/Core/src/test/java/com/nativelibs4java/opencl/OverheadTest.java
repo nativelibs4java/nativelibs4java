@@ -92,9 +92,9 @@ public class OverheadTest extends AbstractCommon {
             }
         };
         Runnable setWithRawCLAPI = new Runnable() { 
-            private final long aPeer = getPeer(a.getEntity());
-            private final long bPeer = getPeer(b.getEntity());
-            private final long kEntity = getPeer(kernel.getEntity());
+            private final long aPeer = a.getEntityPeer();
+            private final long bPeer = b.getEntityPeer();
+            private final long kEntity = kernel.getEntityPeer();
             private final Pointer<?> tmp = allocateBytes(8);
             private final long tPeer = getPeer(tmp);
             private final OpenCLLibrary CL = new OpenCLLibrary();

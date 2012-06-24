@@ -121,7 +121,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * finish() is also a synchronization point.
 	 */
     public void finish() {
-        error(CL.clFinish(getPeer(getEntity())));
+        error(CL.clFinish(getEntityPeer()));
     }
 
     /**
@@ -130,7 +130,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * There is no guarantee that they will be complete after flush() returns.
 	 */
     public void flush() {
-        error(CL.clFlush(getPeer(getEntity())));
+        error(CL.clFlush(getEntityPeer()));
     }
 
 	/**
@@ -142,7 +142,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         if (events == null)
             return;
-        error(CL.clEnqueueWaitForEvents(getPeer(getEntity()), eventsCount[0], getPeer(events)));
+        error(CL.clEnqueueWaitForEvents(getEntityPeer(), eventsCount[0], getPeer(events)));
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * enqueueBarrier() is a synchronization point.
 	 */
 	public void enqueueBarrier() {
-		error(CL.clEnqueueBarrier(getPeer(getEntity())));
+		error(CL.clEnqueueBarrier(getEntityPeer()));
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	public CLEvent enqueueMarker() {
 		ReusablePointers ptrs = ReusablePointers.get();
 		Pointer<cl_event> eventOut = ptrs.event_out;
-		error(CL.clEnqueueMarker(getPeer(getEntity()), getPeer(eventOut)));
+		error(CL.clEnqueueMarker(getEntityPeer(), getPeer(eventOut)));
 		return CLEvent.createEventFromPointer(this, eventOut);
 	}
 

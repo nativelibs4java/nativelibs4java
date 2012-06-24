@@ -255,7 +255,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     		if (size <= 0)
     			throw new IllegalArgumentException("Kernel args must have a known byte size, given " + size + " instead.");
     		try {
-                error(CL.clSetKernelArg(getPeer(getEntity()), i, size, getPeer(ptr)));
+                error(CL.clSetKernelArg(getEntityPeer(), i, size, getPeer(ptr)));
     			//error(CL.clSetKernelArg(getEntity(), i, size, ptr));
     		} catch (CLTypedException ex) {
     			ex.setKernelArg(this, i);
@@ -356,7 +356,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
 		int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
-        error(CL.clEnqueueTask(getPeer(queue.getEntity()), getPeer(getEntity()), eventsCount[0], getPeer(events), getPeer(eventOut)));
+        error(CL.clEnqueueTask(queue.getEntityPeer(), getEntityPeer(), eventsCount[0], getPeer(events), getPeer(eventOut)));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
@@ -403,8 +403,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 		int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueNDRangeKernel(
-            getPeer(queue.getEntity()),
-            getPeer(getEntity()),
+            queue.getEntityPeer(),
+            getEntityPeer(),
             nDims,
             getPeer(ptrs.sizeT3_1.pointerToSizeTs(globalOffsets)),
             getPeer(ptrs.sizeT3_2.pointerToSizeTs(globalWorkSizes)),

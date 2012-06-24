@@ -268,8 +268,8 @@ public class CLBuffer<T> extends CLMem {
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueReadBuffer(
-            getPeer(queue.getEntity()),
-            getPeer(getEntity()),
+            queue.getEntityPeer(),
+            getEntityPeer(),
             blocking ? CL_TRUE : 0,
             offset * getElementSize(),
             length * getElementSize(),
@@ -337,8 +337,8 @@ public class CLBuffer<T> extends CLMem {
         int[] eventsCount = new int[1];
         Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
         error(CL.clEnqueueWriteBuffer(
-            getPeer(queue.getEntity()),
-            getPeer(getEntity()),
+            queue.getEntityPeer(),
+            getEntityPeer(),
             blocking ? CL_TRUE : CL_FALSE,
             offset * getElementSize(),
             length * getElementSize(),
