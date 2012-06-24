@@ -70,14 +70,9 @@ public class JavaCL {
 		@org.bridj.ann.Optional
 		public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
 		@org.bridj.ann.Optional
-		public native static int clGetPlatformInfo(cl_platform_id cl_platform_id1, int cl_platform_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+		public native static int clGetPlatformInfo(@Ptr long cl_platform_id1, int cl_platform_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	
-        private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
-            @Override
-            protected int getInfo(cl_platform_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-                return clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
-            }
-        };
+        #declareInfosGetter("infos", "clGetPlatformInfo")
         
         private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
             try {
@@ -109,7 +104,7 @@ public class JavaCL {
             return false;
         }
         public static boolean isOpenCL1_0(cl_platform_id platform) {
-            String version = infos.getString(platform, OpenCLLibrary.CL_PLATFORM_VERSION);
+            String version = infos.getString(getPeer(platform), OpenCLLibrary.CL_PLATFORM_VERSION);
             return version.matches("OpenCL 1\\.0.*");
         }
 		public static boolean isValid() {

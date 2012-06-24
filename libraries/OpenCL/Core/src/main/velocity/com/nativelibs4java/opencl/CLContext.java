@@ -128,13 +128,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return cacheBinaries;
 	}
 	
-	private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
-
-		@Override
-		protected int getInfo(cl_context entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetContextInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+	#declareInfosGetter("infos", "CL.clGetContextInfo")
+	
 	CLPlatform platform;
 	protected Pointer<cl_device_id> deviceIds;
 
@@ -258,7 +253,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	public int getDeviceCount() {
-		return infos.getOptionalFeatureInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
+		return infos.getOptionalFeatureInt(getEntityPeer(), CL.CL_CONTEXT_NUM_DEVICES);
 	}
 	
 	/**
@@ -267,7 +262,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).as(cl_device_id.class);
+			deviceIds = infos.getMemory(getEntityPeer(), CL_CONTEXT_DEVICES).as(cl_device_id.class);
 		}
         int n = (int)deviceIds.getValidElements();
 

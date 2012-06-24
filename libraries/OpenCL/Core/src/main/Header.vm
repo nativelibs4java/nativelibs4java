@@ -82,8 +82,11 @@
 #macro (eventOutWrapper $queue) CLEvent.createEventFromPointer($queue, eventOut) #end
 #macro (returnEventOut $queue) return #eventOutWrapper($queue); #end
 	
-/*
-		#declareReusablePtrsAndEventsInOut()
-		error(CL.clEnqueueTask(queue.getEntityPeer(), getEntityPeer(), #eventsInOutArgs()));
-		#returnEventOut()
-*/
+#macro (declareInfosGetter $name $function)
+	protected static CLInfoGetter $name = new CLInfoGetter() {
+		@Override
+		protected int getInfo(long entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
+			return $function(entity, infoTypeEnum, size, getPeer(out), getPeer(sizeOut));
+		}
+	};
+#end

@@ -32,13 +32,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     	return new cl_platform_id(peer);
     }
     
-    private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
-
-        @Override
-        protected int getInfo(cl_platform_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-            return CL.clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
-        }
-    };
+    #declareInfosGetter("infos", "CL.clGetPlatformInfo")
 
     @Override
     public String toString() {
@@ -423,7 +417,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_PROFILE")
     public String getProfile() {
-        return infos.getString(getEntity(), CL_PLATFORM_PROFILE);
+        return infos.getString(getEntityPeer(), CL_PLATFORM_PROFILE);
     }
 
     /**
@@ -434,7 +428,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_VERSION")
     public String getVersion() {
-        return infos.getString(getEntity(), CL_PLATFORM_VERSION);
+        return infos.getString(getEntityPeer(), CL_PLATFORM_VERSION);
     }
 
     /**
@@ -442,7 +436,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_NAME")
     public String getName() {
-        return infos.getString(getEntity(), CL_PLATFORM_NAME);
+        return infos.getString(getEntityPeer(), CL_PLATFORM_NAME);
     }
 
     /**
@@ -450,7 +444,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_VENDOR")
     public String getVendor() {
-        return infos.getString(getEntity(), CL_PLATFORM_VENDOR);
+        return infos.getString(getEntityPeer(), CL_PLATFORM_VENDOR);
     }
 
     /**
@@ -460,7 +454,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = infos.getString(getEntity(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+            extensions = infos.getString(getEntityPeer(), CL_PLATFORM_EXTENSIONS).split("\\s+");
         }
         return extensions;
     }

@@ -14,6 +14,10 @@ class ReusablePointers {
             sizeT3_2 = new ReusablePointer(3 * SizeT.SIZE),
             sizeT3_3 = new ReusablePointer(3 * SizeT.SIZE);
     
+    public final Pointer<Integer>
+            int1 = allocateInt(),
+            int2 = allocateInt();
+    
     public final ReusablePointer
             kernelArg = new ReusablePointer(8 * 16); // double16 arguments !
     

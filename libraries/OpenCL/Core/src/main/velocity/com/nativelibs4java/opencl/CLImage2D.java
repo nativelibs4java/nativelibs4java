@@ -37,7 +37,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_ROW_PITCH")
 	public long getRowPitch() {
-		return infos.getIntOrLong(getEntity(), CL_IMAGE_ROW_PITCH);
+		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_ROW_PITCH);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_WIDTH")
 	public long getWidth() {
-		return infos.getIntOrLong(getEntity(), CL_IMAGE_WIDTH);
+		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_WIDTH);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_HEIGHT")
 	public long getHeight() {
-		return infos.getIntOrLong(getEntity(), CL_IMAGE_HEIGHT);
+		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_HEIGHT);
 	}
 
 	/**

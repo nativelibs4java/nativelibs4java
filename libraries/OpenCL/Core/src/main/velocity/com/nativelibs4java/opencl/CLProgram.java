@@ -86,12 +86,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
     protected final CLContext context;
 
-	private static CLInfoGetter<cl_program> infos = new CLInfoGetter<cl_program>() {
-		@Override
-		protected int getInfo(cl_program entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+	#declareInfosGetter("infos", "CL.clGetProgramInfo")
 
     CLDevice[] devices;
     CLProgram(CLContext context, CLDevice... devices) {
@@ -430,7 +425,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 */
 	public synchronized String getSource() {
 		if (source == null)
-			source = infos.getString(getEntity(), CL_PROGRAM_SOURCE);
+			source = infos.getString(getEntityPeer(), CL_PROGRAM_SOURCE);
 		
 		return source;
 	}
@@ -445,7 +440,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 build();
         }
         
-		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
+		Pointer<?> s = infos.getMemory(getEntityPeer(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getValidBytes() / Platform.SIZE_T_SIZE;
 		long[] sizes = s.getSizeTs(n);
 		//int[] sizes = new int[n];
@@ -458,7 +453,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
 		}
-		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
+		error(infos.getInfo(getEntityPeer(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         int iBin = n == devices.length + 1 ? 1 : 0;
@@ -696,12 +691,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 		Set<String> errs = new HashSet<String>();
 		if (deviceIds == null) {
-			error(CL.clGetProgramBuildInfo(pgm, null, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+			error(CL.clGetProgramBuildInfo(getPeer(pgm), 0, CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 			String s = buffer.getCString();
 			errs.add(s);
 		} else {
 			for (cl_device_id device : deviceIds) {
-				error(CL.clGetProgramBuildInfo(pgm, device, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+				error(CL.clGetProgramBuildInfo(getPeer(pgm), getPeer(device), CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 				String s = buffer.getCString();
 				errs.add(s);
 			}
@@ -791,7 +786,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseProgram(getEntity()));
+        error(CL.clReleaseProgram(getEntityPeer()));
     }
 
 	/**
@@ -804,16 +799,16 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
 		Pointer<Integer> pCount = allocateInt();
 		int previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, null, pCount), previousAttempts++)) {}
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntityPeer(), 0, 0, getPeer(pCount)), previousAttempts++)) {}
 
 		int count = pCount.getInt();
-		Pointer<cl_kernel> kerns = allocateTypedPointers(cl_kernel.class, count);
+		Pointer<SizeT> kerns = allocateSizeTs(count);
 		previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount), previousAttempts++)) {}
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntityPeer(), count, getPeer(kerns), getPeer(pCount)), previousAttempts++)) {}
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
-			kernels[i] = new CLKernel(this, null, kerns.get(i));
+			kernels[i] = new CLKernel(this, null, kerns.getSizeTAtOffset(i * Pointer.SIZE));
 
 		return kernels;
 	}
@@ -827,10 +822,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 build();
         }
         #declareReusablePtrsAndPErr()
-        cl_kernel kernel;
+        Pointer<Byte> pName = pointerToCString(name);
+		long kernel;
 		int previousAttempts = 0;
 		do {
-			kernel = CL.clCreateKernel(getEntity(), pointerToCString(name), pErr);
+			kernel = CL.clCreateKernel(getEntityPeer(), getPeer(pName), getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);

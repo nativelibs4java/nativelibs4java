@@ -45,7 +45,7 @@ public abstract class CLImage extends CLMem {
 	@InfoName("CL_IMAGE_FORMAT")
 	public CLImageFormat getFormat() {
 		if (format == null) {
-			format = new CLImageFormat(new cl_image_format(infos.getMemory(getEntity(), CL_IMAGE_FORMAT)));
+			format = new CLImageFormat(new cl_image_format(infos.getMemory(getEntityPeer(), CL_IMAGE_FORMAT)));
 		}
 		return format;
 	}
@@ -56,7 +56,7 @@ public abstract class CLImage extends CLMem {
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")
 	public long getElementSize() {
-		return infos.getIntOrLong(getEntity(), CL_IMAGE_ELEMENT_SIZE);
+		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
 	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {

@@ -35,12 +35,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     protected long byteCount = -1;
     boolean isGL;
 
-	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
-		@Override
-		protected int getInfo(cl_mem entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetImageInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+    #declareInfosGetter("infos", "CL.clGetImageInfo")
 
     CLMem(CLContext context, long byteCount, long entityPeer) {
         super(entityPeer);
@@ -96,7 +91,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     public long getByteCount() {
         if (byteCount < 0) {
             try {
-                byteCount = infos.getIntOrLong(getEntity(), CL_MEM_SIZE);
+                byteCount = infos.getIntOrLong(getEntityPeer(), CL_MEM_SIZE);
             } catch (CLException.InvalidMemObject ex) {
                 if (isGL)
                     return -1; // GL objects are not (always?) considered as valid mem objects
@@ -208,9 +203,10 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     }
     @SuppressWarnings("deprecation")
 	public GLObjectInfo getGLObjectInfo() {
-        Pointer<Integer> typeRef = allocateInt();
-        Pointer<Integer> nameRef = allocateInt();
-        CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);
+		#declareReusablePtrs()
+        Pointer<Integer> typeRef = ptrs.int1;
+        Pointer<Integer> nameRef = ptrs.int2;
+        CL.clGetGLObjectInfo(getEntityPeer(), getPeer(typeRef), getPeer(nameRef));
         return new GLObjectInfo(GLObjectType.getEnum(typeRef.getInt()), nameRef.getInt());
     }
 	public enum MapFlags implements com.nativelibs4java.util.ValuedEnum {

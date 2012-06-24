@@ -28,12 +28,8 @@ import static org.bridj.Pointer.*;
  * @author Olivier Chafik
  */
 public class CLSampler extends CLAbstractEntity<cl_sampler> {
-	private static CLInfoGetter<cl_sampler> infos = new CLInfoGetter<cl_sampler>() {
-		@Override
-		protected int getInfo(cl_sampler entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetSamplerInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+	
+	#declareInfosGetter("infos", "CL.clGetSamplerInfo")
 
 	CLSampler(cl_sampler entity) {
 		super(entity);
@@ -46,7 +42,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	
 	@Override
 	protected void clear() {
-		error(CL.clReleaseSampler(getEntity()));
+		error(CL.clReleaseSampler(getEntityPeer()));
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_ADDRESSING_MODE")
 	public AddressingMode getAddressingMode() {
-		return AddressingMode.getEnum(infos.getInt(getEntity(), CL_SAMPLER_ADDRESSING_MODE));
+		return AddressingMode.getEnum(infos.getInt(getEntityPeer(), CL_SAMPLER_ADDRESSING_MODE));
 	}
 
 	/**
@@ -93,7 +89,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_FILTER_MODE")
 	public FilterMode getFilterMode() {
-		return FilterMode.getEnum(infos.getInt(getEntity(), CL_SAMPLER_FILTER_MODE));
+		return FilterMode.getEnum(infos.getInt(getEntityPeer(), CL_SAMPLER_FILTER_MODE));
 	}
 
 	/**
@@ -101,7 +97,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_NORMALIZED_COORDS")
 	public boolean getNormalizedCoords() {
-		return infos.getBool(getEntity(), CL_SAMPLER_NORMALIZED_COORDS);
+		return infos.getBool(getEntityPeer(), CL_SAMPLER_NORMALIZED_COORDS);
 	}
 
 

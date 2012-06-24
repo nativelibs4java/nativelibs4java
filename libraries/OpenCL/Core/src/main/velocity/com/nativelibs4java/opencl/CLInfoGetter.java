@@ -6,15 +6,17 @@ import static com.nativelibs4java.opencl.CLException.error;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
+import org.bridj.ann.Ptr;
+
 /**
  *
  * @author ochafik
  */
-abstract class CLInfoGetter<T extends Pointer> {
+abstract class CLInfoGetter {
 
-    protected abstract int getInfo(T entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut);
+    protected abstract int getInfo(long entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut);
 
-    public String getString(T entity, int infoName) {
+    public String getString(@Ptr long entity, int infoName) {
         Pointer<SizeT> pLen = allocateSizeT();
         error(getInfo(entity, infoName, 0, null, pLen));
 
@@ -28,7 +30,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         return buffer.getCString();
     }
 
-    public Pointer getPointer(T entity, int infoName) {
+    public Pointer getPointer(@Ptr long entity, int infoName) {
         Pointer<SizeT> pLen = allocateSizeT();
         Pointer<Pointer<?>> mem = allocatePointer();
         error(getInfo(entity, infoName, Pointer.SIZE, mem, pLen));
@@ -38,7 +40,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         return mem.get();
     }
 
-    public Pointer<?> getMemory(T entity, int infoName) {
+    public Pointer<?> getMemory(@Ptr long entity, int infoName) {
         Pointer<SizeT> pLen = allocateSizeT();
         error(getInfo(entity, infoName, 0, null, pLen));
 
@@ -49,7 +51,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         return buffer;
     }
 
-    public long[] getNativeSizes(T entity, int infoName, int n) {
+    public long[] getNativeSizes(@Ptr long entity, int infoName, int n) {
         int nBytes = SizeT.SIZE * n;
         Pointer<SizeT> pLen = pointerToSizeT(nBytes);
         Pointer<SizeT> mem = allocateSizeTs(n);
@@ -62,7 +64,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         return mem.getSizeTs(n);
     }
 
-    public int getOptionalFeatureInt(T entity, int infoName) {
+    public int getOptionalFeatureInt(@Ptr long entity, int infoName) {
     	try {
     		return getInt(entity, infoName);
     	} catch (CLException.InvalidValue ex) {
@@ -71,18 +73,18 @@ abstract class CLInfoGetter<T extends Pointer> {
     		throw new UnsupportedOperationException("Cannot get value " + infoName, ex);
     	}
     }
-    public int getInt(T entity, int infoName) {
+    public int getInt(@Ptr long entity, int infoName) {
         return (int)getIntOrLong(entity, infoName);
     }
 
-    public boolean getBool(T entity, int infoName) {
+    public boolean getBool(@Ptr long entity, int infoName) {
         Pointer<SizeT> pLen = allocateSizeT();
         Pointer<Byte> mem = allocateBytes(8);
         error(getInfo(entity, infoName, 8, mem, pLen));
 
         long len = pLen.getSizeT();
         switch ((int)len) {
-        case 1: 
+        	case 1: 
         		return mem.getByte() != 0;
         	case 2:
         		return mem.getShort() != 0;
@@ -99,7 +101,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         }
     }
 
-    public long getIntOrLong(T entity, int infoName) {
+    public long getIntOrLong(@Ptr long entity, int infoName) {
         Pointer<SizeT> pLen = allocateSizeT();
         Pointer<Long> mem = allocateLong();
         error(getInfo(entity, infoName, 8, mem, pLen));

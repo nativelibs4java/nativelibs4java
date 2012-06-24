@@ -35,12 +35,7 @@ import static org.bridj.Pointer.*;
  */
 public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
-    private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
-		@Override
-		protected int getInfo(cl_command_queue entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetCommandQueueInfo(getEntity(), infoTypeEnum, size, out, sizeOut);
-		}
-	};
+    #declareInfosGetter("infos", "CL.clGetCommandQueueInfo")
 
 	final CLContext context;
 	final CLDevice device;
@@ -72,7 +67,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {
-		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntity(), CL_QUEUE_PROPERTIES));
+		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntityPeer(), CL_QUEUE_PROPERTIES));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -83,7 +78,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseCommandQueue(getEntity()));
+        error(CL.clReleaseCommandQueue(getEntityPeer()));
     }
 
     /**
@@ -146,10 +141,16 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 */
 	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
         #declareReusablePtrsAndEventsInOut()
-		Pointer<cl_mem> mems = allocateTypedPointers(cl_mem.class, objects.length);
-		for (int i = 0; i < objects.length; i++)
+		Pointer<SizeT> mems = allocateSizeTs(objects.length);
+		for (int i = 0; i < objects.length; i++) {
 			mems.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntityPeer());
-        error(CL.clEnqueueAcquireGLObjects(getEntity(), objects.length, mems, #eventsInOutArgs()));
+		}
+        error(CL.clEnqueueAcquireGLObjects(
+			getEntityPeer(), 
+			objects.length,
+			getPeer(mems),
+			#eventsInOutArgsRaw()
+		));
 		#returnEventOut("this")
 	}
 
@@ -163,8 +164,13 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 */
 	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
         #declareReusablePtrsAndEventsInOut()
-		Pointer<cl_mem> mems = getEntities(objects, allocateTypedPointers(cl_mem.class, objects.length));
-        error(CL.clEnqueueReleaseGLObjects(getEntity(), objects.length, mems, #eventsInOutArgs()));
+		Pointer<?> mems = getEntities(objects, (Pointer)allocateSizeTs(objects.length));
+        error(CL.clEnqueueReleaseGLObjects(
+			getEntityPeer(), 
+			objects.length, 
+			getPeer(mems),
+			#eventsInOutArgsRaw()
+		));
 		#returnEventOut("this")
 	}
 }
