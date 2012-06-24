@@ -1,33 +1,4 @@
-/*
- * JavaCL - Java API and utilities for OpenCL
- * http://javacl.googlecode.com/
- *
- * Copyright (c) 2009-2011, Olivier Chafik (http://ochafik.com/)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Olivier Chafik nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
@@ -95,8 +66,7 @@ public abstract class CLImage extends CLMem {
 		/*if (!out.isDirect()) {
 
 		}*/
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			origin,
@@ -104,18 +74,16 @@ public abstract class CLImage extends CLMem {
 			rowPitch,
 			slicePitch,
 			out,
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut
+			#eventsInOutArgs()
 		));
-		return CLEvent.createEventFromPointer(queue, eventOut);
+		#returnEventOut("queue")
 	}
 
 	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, origin, region, rowPitch, slicePitch, pointerToBuffer(in), blocking, eventsToWaitFor);
 	}
 	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			origin,
@@ -123,10 +91,9 @@ public abstract class CLImage extends CLMem {
 			rowPitch,
 			slicePitch,
 			in,
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut
+			#eventsInOutArgs()
 		));
-		CLEvent evt = CLEvent.createEventFromPointer(queue, eventOut);
+		CLEvent evt = #eventOutWrapper("queue");
 
 		if (!blocking) {
 			final Pointer<?> toHold = in;
@@ -147,27 +114,24 @@ public abstract class CLImage extends CLMem {
             Long imageSlicePitch,
             boolean blocking, CLEvent... eventsToWaitFor)
     {
-		//checkBounds(offset, length);
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
-		
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        Pointer p = CL.clEnqueueMapImage(
-            queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
+		#declareReusablePtrsAndEventsInOutBlockable()
+		#declarePErr()
+        long mappedPeer = CL.clEnqueueMapImage(
+            queue.getEntityPeer(), 
+            getEntityPeer(), 
+            blocking ? CL_TRUE : CL_FALSE,
             flags.value(),
-			offset3,
-            length3,
-            imageRowPitch == null ? null : pointerToSizeT(imageRowPitch),
-            imageSlicePitch == null ? null : pointerToSizeT(imageSlicePitch),
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut,
-			pErr
+			getPeer(offset3),
+            getPeer(length3),
+            imageRowPitch == null ? 0 : getPeer(ptrs.sizeT3_1.pointerToSizeTs((long)imageRowPitch)),
+            imageSlicePitch == null ? 0 : getPeer(ptrs.sizeT3_1.pointerToSizeTs((long)imageSlicePitch)),
+			#eventsInOutArgsRaw(),
+			getPeer(pErr)
 		);
-		error(pErr.getInt());
+		#checkPErr()
         return new Pair<ByteBuffer, CLEvent>(
-			p.getByteBuffer(getByteCount()),
-			CLEvent.createEventFromPointer(queue, eventOut)
+			pointerToAddress(mappedPeer).getByteBuffer(getByteCount()),
+			#eventOutWrapper("queue")
 		);
     }
 
@@ -180,9 +144,9 @@ public abstract class CLImage extends CLMem {
      * @return Event which completion indicates that the OpenCL was unmapped, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
-        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), pointerToBuffer(buffer), evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
-		return CLEvent.createEventFromPointer(queue, eventOut);
+        #declareReusablePtrsAndEventsInOut()
+        Pointer<?> pBuffer = pointerToBuffer(buffer);
+        error(CL.clEnqueueUnmapMemObject(queue.getEntityPeer(), getEntityPeer(), getPeer(pBuffer), #eventsInOutArgsRaw()));
+		#returnEventOut("queue")
     }
 }

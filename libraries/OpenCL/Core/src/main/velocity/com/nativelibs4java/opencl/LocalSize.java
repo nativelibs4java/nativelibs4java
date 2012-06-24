@@ -1,3 +1,4 @@
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import org.bridj.*;
 import org.bridj.util.*;

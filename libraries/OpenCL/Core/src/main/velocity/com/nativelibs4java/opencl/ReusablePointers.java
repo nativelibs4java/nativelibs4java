@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import org.bridj.*;

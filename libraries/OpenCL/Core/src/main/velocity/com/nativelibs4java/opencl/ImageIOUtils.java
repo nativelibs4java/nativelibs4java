@@ -1,3 +1,4 @@
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLImageFormat.ChannelOrder;

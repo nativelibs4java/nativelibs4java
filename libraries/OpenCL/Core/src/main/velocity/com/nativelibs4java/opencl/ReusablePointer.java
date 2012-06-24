@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import org.bridj.*;
 
@@ -17,7 +14,7 @@ final class ReusablePointer {
         this.bytesCapacity = bytesCapacity;
         this.pointer = Pointer.allocateBytes(bytesCapacity).withoutValidityInformation();
     }
-    public Pointer<Integer> pointerToInts(int[] values) {
+    public Pointer<Integer> pointerToInts(int... values) {
         if (values == null)
             return null;
         long needed = 4 * values.length;
@@ -27,7 +24,7 @@ final class ReusablePointer {
             return (Pointer)pointer.setInts(values);
         }
     }
-    public Pointer<SizeT> pointerToSizeTs(long[] values) {
+    public Pointer<SizeT> pointerToSizeTs(long... values) {
         if (values == null)
             return null;
         long needed = SizeT.SIZE * values.length;
@@ -37,7 +34,7 @@ final class ReusablePointer {
             return (Pointer)pointer.setSizeTs(values);
         }
     }
-    public Pointer<SizeT> pointerToSizeTs(int[] values) {
+    public Pointer<SizeT> pointerToSizeTs(int... values) {
         if (values == null)
             return null;
         long needed = SizeT.SIZE * values.length;
@@ -47,7 +44,7 @@ final class ReusablePointer {
             return (Pointer)pointer.setSizeTs(values);
         }
     }
-    public <T> Pointer<T> getPointerToBytes(int needed) {
+    public <T> Pointer<T> allocatedBytes(int needed) {
         if (needed == 0)
             return null;
         if (needed > bytesCapacity) {

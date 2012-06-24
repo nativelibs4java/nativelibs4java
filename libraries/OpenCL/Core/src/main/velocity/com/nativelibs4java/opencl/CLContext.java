@@ -1,33 +1,4 @@
-/*
- * JavaCL - Java API and utilities for OpenCL
- * http://javacl.googlecode.com/
- *
- * Copyright (c) 2009-2011, Olivier Chafik (http://ochafik.com/)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Olivier Chafik nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.Pair;
 
@@ -189,10 +160,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public CLEvent createUserEvent() {
 		try {
-			ReusablePointers ptrs = ReusablePointers.get();
-			Pointer<Integer> pErr = ptrs.pErr;
+			#declareReusablePtrsAndPErr()
 			long evt = CL.clCreateUserEvent(getEntityPeer(), getPeer(pErr));
-			error(pErr.getInt());
+			#checkPErr()
 			return CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
 			// TODO throw if supposed to handle OpenCL 1.1
@@ -275,10 +245,15 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
-		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.value(), (int) filter_mode.value(), pErr);
-		error(pErr.getInt());
+		#declareReusablePtrsAndPErr()
+		cl_sampler sampler = CL.clCreateSampler(
+			getEntity(), 
+			normalized_coords ? CL_TRUE : CL_FALSE, 
+			(int) addressing_mode.value(), 
+			(int) filter_mode.value(), 
+			pErr
+		);
+		#checkPErr()
 		return new CLSampler(sampler);
 	}
 
@@ -380,12 +355,16 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLBuffer<Byte> createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLBuffer(getEntityPeer(), usage.getIntFlags(), openGLBufferObject, getPeer(pErr));
+			mem = CL.clCreateFromGLBuffer(
+				getEntityPeer(), 
+				usage.getIntFlags(), 
+				openGLBufferObject, 
+				getPeer(pErr)
+			);
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         return markAsGL(new CLBuffer(this, -1, mem, null, PointerIO.getByteInstance()));
 	}
@@ -399,12 +378,16 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLRenderbuffer(getEntityPeer(), usage.getIntFlags(), openGLRenderBuffer, getPeer(pErr));
+			mem = CL.clCreateFromGLRenderbuffer(
+				getEntityPeer(), 
+				usage.getIntFlags(), 
+				openGLRenderBuffer, 
+				getPeer(pErr)
+			);
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -423,12 +406,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D(getEntityPeer(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, getPeer(pErr));
+			mem = CL.clCreateFromGLTexture2D(
+				getEntityPeer(), 
+				usage.getIntFlags(), 
+				(int)textureTarget.value(), 
+				mipLevel, 
+				texture, 
+				getPeer(pErr)
+			);
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -481,12 +470,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture3D(getEntityPeer(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, getPeer(pErr));
+			mem = CL.clCreateFromGLTexture3D(
+				getEntityPeer(), 
+				usage.getIntFlags(), 
+				GL_TEXTURE_3D, 
+				mipLevel, 
+				texture, 
+				getPeer(pErr)
+			);
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
@@ -514,8 +509,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
@@ -549,8 +543,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
@@ -656,8 +649,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getKernelsDefaultByteOrder())).");
 		}
         
-		ReusablePointers ptrs = ReusablePointers.get();
-		Pointer<Integer> pErr = ptrs.pErr;
+		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
 		do {
