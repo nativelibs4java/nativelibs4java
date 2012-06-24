@@ -128,10 +128,10 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     	}
     }
     
-    static CLEvent createEvent(final CLQueue queue, cl_event evt) {
+    static CLEvent createEvent(final CLQueue queue, long evt) {
     		return createEvent(queue, evt, false);
     }
-	static CLEvent createEvent(final CLQueue queue, cl_event evt, boolean isUserEvent) {
+	static CLEvent createEvent(final CLQueue queue, long evt, boolean isUserEvent) {
 		if (evt == null)
 			return null;
 

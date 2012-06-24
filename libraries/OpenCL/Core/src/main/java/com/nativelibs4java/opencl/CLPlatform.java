@@ -333,13 +333,13 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             Pointer<?> dc = OpenGLContextUtils.wglGetCurrentDC();
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.WGLHDC, dc.getPeer());
-            out.put(ContextProperties.Platform, platform.getEntity().getPeer());
+            out.put(ContextProperties.Platform, platform.getEntityPeer());
         } else if (Platform.isUnix()) {
             Pointer<?> context = OpenGLContextUtils.glXGetCurrentContext();
             Pointer<?> dc = OpenGLContextUtils.glXGetCurrentDisplay();
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.GLXDisplay, dc.getPeer());
-            out.put(ContextProperties.Platform, platform.getEntity().getPeer());
+            out.put(ContextProperties.Platform, platform.getEntityPeer());
         } else
             throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
         

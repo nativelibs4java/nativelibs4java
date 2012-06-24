@@ -178,7 +178,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
 		Pointer<cl_mem> mems = allocateTypedPointers(cl_mem.class, objects.length);
 		for (int i = 0; i < objects.length; i++)
-			mems.set(i, objects[i].getEntity());
+			mems.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntityPeer());
 		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueAcquireGLObjects(getEntity(), objects.length, mems, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
 		return CLEvent.createEventFromPointer(this, eventOut);

@@ -687,6 +687,7 @@ public class OpenCLLibrary {
 	public native int clReleaseEvent(@Ptr long cl_event1);
 	/// Original signature : <code>cl_int clSetUserEventStatus(cl_event, cl_int)</code>
 	public native int clSetUserEventStatus(OpenCLLibrary.cl_event cl_event1, int cl_int1);
+	public native int clSetUserEventStatus(@Ptr long cl_event1, int cl_int1);
 	/// Original signature : <code>cl_int clSetEventCallback(cl_event, cl_int, clSetEventCallback_arg1_callback, void*)</code>
 	public native int clSetEventCallback(OpenCLLibrary.cl_event cl_event1, int cl_int1, Pointer<OpenCLLibrary.clSetEventCallback_arg1_callback > arg1, Pointer<? > voidPtr1);
 	/**
