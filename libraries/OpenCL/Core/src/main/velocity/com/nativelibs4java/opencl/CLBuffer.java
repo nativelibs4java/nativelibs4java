@@ -89,9 +89,9 @@ public class CLBuffer<T> extends CLMem {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			#declareReusablePtrsAndPErr()
-		    cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
+		    long mem = CL.clCreateSubBuffer(getEntityPeer(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
 	        #checkPErr()
-	        return mem == null ? null : new CLBuffer<T>(context, length * s, getPeer(mem), null, io);
+	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);

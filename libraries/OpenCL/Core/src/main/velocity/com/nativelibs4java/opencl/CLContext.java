@@ -312,7 +312,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	//cl_queue queue;
 	@Override
 	protected void clear() {
-		error(CL.clReleaseContext(getEntity()));
+		error(CL.clReleaseContext(getEntityPeer()));
 	}
 
 

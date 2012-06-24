@@ -79,6 +79,7 @@ public class OverheadTest extends AbstractCommon {
            kernel.setArg(4, (byte)1);
            kernel.setArg(5, 1.0f);
         }};
+        /*
         Runnable setWithCLAPI = new Runnable() {
             private final OpenCLLibrary CL = new OpenCLLibrary();
             private final Pointer<?> tmp = allocateBytes(8);
@@ -91,6 +92,7 @@ public class OverheadTest extends AbstractCommon {
                 CL.clSetKernelArg(kernel.getEntity(), 5, 4L, tmp.setFloat(1));
             }
         };
+        */
         Runnable setWithRawCLAPI = new Runnable() { 
             private final long aPeer = a.getEntityPeer();
             private final long bPeer = b.getEntityPeer();
@@ -113,7 +115,7 @@ public class OverheadTest extends AbstractCommon {
         };
         
         int nWarmup = 8000, nTest = 50000;
-        time(null, nWarmup, setWithCLAPI, null);
+        //time(null, nWarmup, setWithCLAPI, null);
         time(null, nWarmup, setWithSetArgs, null);
         time(null, nWarmup, setWithSpecializedSetArg, null);
         time(null, nWarmup, setWithRawCLAPI, null);
@@ -121,7 +123,7 @@ public class OverheadTest extends AbstractCommon {
         int nSamples = 10;
         double totSetArgs = 0, totCLSetKernelArg = 0, totSetArg = 0, totCLSetKernelArgRaw = 0;
         for (int i = 0; i < nSamples; i++) {
-            totCLSetKernelArg += time("clSetKernelArg pointers", nTest, setWithCLAPI, null);
+            //totCLSetKernelArg += time("clSetKernelArg pointers", nTest, setWithCLAPI, null);
             totSetArgs += time("CLKernel.setArgs", nTest, setWithSetArgs, null);
             totSetArg += time("CLKernel.setArg", nTest, setWithSpecializedSetArg, null);
             totCLSetKernelArgRaw += time("clSetKernelArg raw", nTest, setWithRawCLAPI, null);

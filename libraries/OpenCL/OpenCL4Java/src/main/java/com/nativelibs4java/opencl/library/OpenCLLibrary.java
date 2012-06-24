@@ -570,7 +570,6 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clRetainContext(cl_context)</code>
 	public native int clRetainContext(OpenCLLibrary.cl_context cl_context1);
 	/// Original signature : <code>cl_int clReleaseContext(cl_context)</code>
-	public native int clReleaseContext(OpenCLLibrary.cl_context cl_context1);
 	public native int clReleaseContext(@Ptr long cl_context1);
 	/// Original signature : <code>cl_int clGetContextInfo(cl_context, cl_context_info, size_t, void*, size_t*)</code>
 	public native int clGetContextInfo(OpenCLLibrary.cl_context cl_context1, int cl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
@@ -589,16 +588,13 @@ public class OpenCLLibrary {
 	 * Memory Object APIs<br>
 	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code>
 	 */
-	public native OpenCLLibrary.cl_mem clCreateBuffer(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clCreateBuffer(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateSubBuffer(cl_mem, cl_mem_flags, cl_buffer_create_type, const void*, cl_int*)</code>
-	public native OpenCLLibrary.cl_mem clCreateSubBuffer(OpenCLLibrary.cl_mem cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clCreateSubBuffer(@Ptr long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateImage(cl_context, cl_mem_flags, const cl_image_format*, const cl_image_desc*, void*, cl_int*)</code>
 	@Optional
 	public native OpenCLLibrary.cl_mem clCreateImage(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<cl_image_format > cl_image_formatPtr1, Pointer<cl_image_desc > cl_image_descPtr1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainMemObject(cl_mem)</code>
-	public native int clRetainMemObject(OpenCLLibrary.cl_mem cl_mem1);
 	public native int clRetainMemObject(@Ptr long cl_mem1);
 	/// Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code>
 	public native int clReleaseMemObject(@Ptr long cl_mem1);
@@ -662,7 +658,6 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clReleaseKernel(cl_kernel)</code>
 	public native int clReleaseKernel(OpenCLLibrary.cl_kernel cl_kernel1);
 	/// Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code>
-	public native int clSetKernelArg(OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, @Ptr long size_t1, Pointer<? > voidPtr1);
 	public native int clSetKernelArg(@Ptr long cl_kernel1, int cl_uint1, @Ptr long size_t1, @Ptr long voidPtr1);
 	/// Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code>
 	public native int clGetKernelInfo(OpenCLLibrary.cl_kernel cl_kernel1, int cl_kernel_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
@@ -680,14 +675,12 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code>
 	public native int clGetEventInfo(OpenCLLibrary.cl_event cl_event1, int cl_event_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_event clCreateUserEvent(cl_context, cl_int*)</code>
-	public native OpenCLLibrary.cl_event clCreateUserEvent(OpenCLLibrary.cl_context cl_context1, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clCreateUserEvent(@Ptr long cl_context1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
 	public native int clRetainEvent(OpenCLLibrary.cl_event cl_event1);
 	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>
 	public native int clReleaseEvent(@Ptr long cl_event1);
 	/// Original signature : <code>cl_int clSetUserEventStatus(cl_event, cl_int)</code>
-	public native int clSetUserEventStatus(OpenCLLibrary.cl_event cl_event1, int cl_int1);
 	public native int clSetUserEventStatus(@Ptr long cl_event1, int cl_int1);
 	/// Original signature : <code>cl_int clSetEventCallback(cl_event, cl_int, clSetEventCallback_arg1_callback, void*)</code>
 	public native int clSetEventCallback(OpenCLLibrary.cl_event cl_event1, int cl_int1, Pointer<OpenCLLibrary.clSetEventCallback_arg1_callback > arg1, Pointer<? > voidPtr1);
@@ -707,12 +700,10 @@ public class OpenCLLibrary {
 	 * Enqueued Commands APIs<br>
 	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	 */
-	public native int clEnqueueReadBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueReadBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReadBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueReadBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
-	public native int clEnqueueWriteBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueWriteBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueWriteBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
@@ -720,7 +711,6 @@ public class OpenCLLibrary {
 	@Optional
 	public native int clEnqueueFillBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, Pointer<? > voidPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
-	public native int clEnqueueCopyBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueCopyBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueCopyBufferRect(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueCopyBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
@@ -738,22 +728,17 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueCopyBufferToImage(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, @Ptr long size_t1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
-	public native Pointer<? > clEnqueueMapBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, @Ptr long size_t1, @Ptr long size_t2, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clEnqueueMapBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, long cl_map_flags1, @Ptr long size_t1, @Ptr long size_t2, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2, @Ptr long cl_intPtr1);
 	/// Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
-	public native Pointer<? > clEnqueueMapImage(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, Pointer<SizeT > size_tPtr4, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clEnqueueMapImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, long cl_map_flags1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_tPtr4, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code>
-	public native int clEnqueueUnmapMemObject(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueUnmapMemObject(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueMigrateMemObjects(cl_command_queue, cl_uint, const cl_mem*, cl_mem_migration_flags, cl_uint, const cl_event*, cl_event*)</code>
 	@Optional
 	public native int clEnqueueMigrateMemObjects(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
-	public native int clEnqueueNDRangeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueNDRangeKernel(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code>
-	public native int clEnqueueTask(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native int clEnqueueTask(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, clEnqueueNativeKernel_arg1_callback, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueNativeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.clEnqueueNativeKernel_arg1_callback > arg1, Pointer<? > voidPtr1, @Ptr long size_t1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, Pointer<Pointer<? > > voidPtrPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
@@ -788,19 +773,14 @@ public class OpenCLLibrary {
 	 */
 	public native int clSetCommandQueueProperty(OpenCLLibrary.cl_command_queue cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, Pointer<Long > cl_command_queue_propertiesPtr1);
 	/// Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code>
-	public native OpenCLLibrary.cl_mem clCreateImage2D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<cl_image_format > cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clCreateImage2D(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code>
-	public native OpenCLLibrary.cl_mem clCreateImage3D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<cl_image_format > cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long size_t5, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1);
 	public native @Ptr long clCreateImage3D(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long size_t5, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code>
-	public native int clEnqueueMarker(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
 	public native int clEnqueueMarker(@Ptr long cl_command_queue1, @Ptr long cl_eventPtr1);
 	/// Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code>
-	public native int clEnqueueWaitForEvents(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
 	public native int clEnqueueWaitForEvents(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1);
 	/// Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code>
-	public native int clEnqueueBarrier(OpenCLLibrary.cl_command_queue cl_command_queue1);
 	public native int clEnqueueBarrier(@Ptr long cl_command_queue1);
 	/// Original signature : <code>cl_int clUnloadCompiler()</code>
 	public native int clUnloadCompiler();
@@ -808,17 +788,11 @@ public class OpenCLLibrary {
 	public native Pointer<? > clGetExtensionFunctionAddress(Pointer<Byte > charPtr1);
 	/// Original signature : <code>cl_mem clCreateFromGLBuffer(cl_context, cl_mem_flags, cl_GLuint, int*)</code>
 	@Optional
-	public native OpenCLLibrary.cl_mem clCreateFromGLBuffer(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLuint1, Pointer<Integer > intPtr1);
-	@Optional
 	public native @Ptr long clCreateFromGLBuffer(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLuint1, @Ptr long intPtr1);
 	/// Original signature : <code>cl_mem clCreateFromGLTexture(cl_context, cl_mem_flags, cl_GLenum, cl_GLint, cl_GLuint, cl_int*)</code>
 	@Optional
-	public native OpenCLLibrary.cl_mem clCreateFromGLTexture(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, Pointer<Integer > cl_intPtr1);
-	@Optional
 	public native @Ptr long clCreateFromGLTexture(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateFromGLRenderbuffer(cl_context, cl_mem_flags, cl_GLuint, cl_int*)</code>
-	@Optional
-	public native OpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLuint1, Pointer<Integer > cl_intPtr1);
 	@Optional
 	public native @Ptr long clCreateFromGLRenderbuffer(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clGetGLObjectInfo(cl_mem, cl_gl_object_type*, cl_GLuint*)</code>
@@ -835,12 +809,8 @@ public class OpenCLLibrary {
 	public native int clEnqueueReleaseGLObjects(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_mem clCreateFromGLTexture2D(cl_context, cl_mem_flags, cl_GLenum, cl_GLint, cl_GLuint, cl_int*)</code>
 	@Optional
-	public native OpenCLLibrary.cl_mem clCreateFromGLTexture2D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, Pointer<Integer > cl_intPtr1);
-	@Optional
 	public native @Ptr long clCreateFromGLTexture2D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateFromGLTexture3D(cl_context, cl_mem_flags, cl_GLenum, cl_GLint, cl_GLuint, cl_int*)</code>
-	@Optional
-	public native OpenCLLibrary.cl_mem clCreateFromGLTexture3D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, Pointer<Integer > cl_intPtr1);
 	@Optional
 	public native @Ptr long clCreateFromGLTexture3D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
