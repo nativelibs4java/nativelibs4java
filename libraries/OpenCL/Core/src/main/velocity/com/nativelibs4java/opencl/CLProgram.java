@@ -126,7 +126,7 @@ public class CLProgram extends CLAbstractEntity {
             long offset = iDevice * Pointer.SIZE;
             binariesArray.setPointerAtOffset(offset, binariesMems[iDevice] = pointerToBytes(binary));
             lengths.setSizeTAtOffset(offset, binary.length);
-            deviceIds.setSizeTAtOffset(offset, device.getEntityPeer());
+            deviceIds.setSizeTAtOffset(offset, device.getEntity());
             
             iDevice++;
         }
@@ -138,7 +138,7 @@ public class CLProgram extends CLAbstractEntity {
         int previousAttempts = 0;
         Pointer<Integer> statuses = allocateInts(nDevices);
 		do {
-			setEntity(CL.clCreateProgramWithBinary(context.getEntityPeer(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
+			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 	}
 
@@ -272,7 +272,7 @@ public class CLProgram extends CLAbstractEntity {
 		Pointer<Pointer<Byte>> pSources = pointerToCStrings(sources);
 		do {
 			program = CL.clCreateProgramWithSource(
-				context.getEntityPeer(), 
+				context.getEntity(), 
 				sources.length, 
 				getPeer(pSources),
 				getPeer(pLengths), 
@@ -283,7 +283,7 @@ public class CLProgram extends CLAbstractEntity {
     }
     
     private boolean isAllocated() {
-    	return super.getEntityPeer() != 0;
+    	return super.getEntity() != 0;
     }
     /*
     @Override
@@ -295,11 +295,11 @@ public class CLProgram extends CLAbstractEntity {
     }*/
     
     @Override
-    protected synchronized long getEntityPeer() {
+    protected synchronized long getEntity() {
         if (!isAllocated())
             allocate();
 
-        return super.getEntityPeer();
+        return super.getEntity();
     }
 	
     List<String> includes;
@@ -429,7 +429,7 @@ public class CLProgram extends CLAbstractEntity {
 	 */
 	public synchronized String getSource() {
 		if (source == null)
-			source = infos.getString(getEntityPeer(), CL_PROGRAM_SOURCE);
+			source = infos.getString(getEntity(), CL_PROGRAM_SOURCE);
 		
 		return source;
 	}
@@ -444,7 +444,7 @@ public class CLProgram extends CLAbstractEntity {
                 build();
         }
         
-		Pointer<?> s = infos.getMemory(getEntityPeer(), CL_PROGRAM_BINARY_SIZES);
+		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getValidBytes() / Platform.SIZE_T_SIZE;
 		long[] sizes = s.getSizeTs(n);
 		//int[] sizes = new int[n];
@@ -457,7 +457,7 @@ public class CLProgram extends CLAbstractEntity {
 		for (int i = 0; i < n; i++) {
 			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
 		}
-		error(infos.getInfo(getEntityPeer(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
+		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         int iBin = n == devices.length + 1 ? 1 : 0;
@@ -756,18 +756,18 @@ public class CLProgram extends CLAbstractEntity {
         if (nDevices != 0) {
             deviceIds = allocateSizeTs(nDevices);
             for (int i = 0; i < nDevices; i++)
-                deviceIds.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntityPeer());
+                deviceIds.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntity());
         }
         Pointer<Byte> pOptions = pointerToCString(getOptionsString());
         int err = CL.clBuildProgram(
-        	getEntityPeer(), 
+        	getEntity(), 
         	nDevices, 
         	getPeer(deviceIds), 
         	getPeer(pOptions), 
         	0, 
         	0
 		);
-        Set<String> errors = getProgramBuildInfo(getEntityPeer(), deviceIds);
+        Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
         
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             throw new CLBuildException(this, "Compilation failure : " + errorString(err), errors);
@@ -797,7 +797,7 @@ public class CLProgram extends CLAbstractEntity {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseProgram(getEntityPeer()));
+        error(CL.clReleaseProgram(getEntity()));
     }
 
 	/**
@@ -810,12 +810,12 @@ public class CLProgram extends CLAbstractEntity {
         }
 		Pointer<Integer> pCount = allocateInt();
 		int previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntityPeer(), 0, 0, getPeer(pCount)), previousAttempts++)) {}
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, 0, getPeer(pCount)), previousAttempts++)) {}
 
 		int count = pCount.getInt();
 		Pointer<SizeT> kerns = allocateSizeTs(count);
 		previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntityPeer(), count, getPeer(kerns), getPeer(pCount)), previousAttempts++)) {}
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, getPeer(kerns), getPeer(pCount)), previousAttempts++)) {}
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
@@ -837,7 +837,7 @@ public class CLProgram extends CLAbstractEntity {
 		long kernel;
 		int previousAttempts = 0;
 		do {
-			kernel = CL.clCreateKernel(getEntityPeer(), getPeer(pName), getPeer(pErr));
+			kernel = CL.clCreateKernel(getEntity(), getPeer(pName), getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);

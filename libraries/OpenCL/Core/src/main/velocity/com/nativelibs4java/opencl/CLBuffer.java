@@ -89,7 +89,7 @@ public class CLBuffer<T> extends CLMem {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			#declareReusablePtrsAndPErr()
-		    long mem = CL.clCreateSubBuffer(getEntityPeer(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
+		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
 	        #checkPErr()
 	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {
@@ -138,9 +138,9 @@ public class CLBuffer<T> extends CLMem {
 		
 		#declareReusablePtrsAndEventsInOut()
         error(CL.clEnqueueCopyBuffer(
-			queue.getEntityPeer(),
-			getEntityPeer(),
-			destination.getEntityPeer(),
+			queue.getEntity(),
+			getEntity(),
+			destination.getEntity(),
 			actualSrcOffset,
 			actualDestOffset,
 			actualLength,
@@ -154,8 +154,8 @@ public class CLBuffer<T> extends CLMem {
 		#declareReusablePtrsAndEventsInOutBlockable()
 		#declarePErr()
         long mappedPeer = CL.clEnqueueMapBuffer(
-			queue.getEntityPeer(), 
-			getEntityPeer(), 
+			queue.getEntity(), 
+			getEntity(), 
 			blocking ? CL_TRUE : CL_FALSE,
 			flags.value(),
 			offset * getElementSize(),
@@ -174,7 +174,7 @@ public class CLBuffer<T> extends CLMem {
 
     public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
     	#declareReusablePtrsAndEventsInOut();
-        error(CL.clEnqueueUnmapMemObject(queue.getEntityPeer(), getEntityPeer(), getPeer(buffer), #eventsInOutArgsRaw()));
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), getPeer(buffer), #eventsInOutArgsRaw()));
 		#returnEventOut("queue")
     }
 
@@ -233,8 +233,8 @@ public class CLBuffer<T> extends CLMem {
 		
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueReadBuffer(
-            queue.getEntityPeer(),
-            getEntityPeer(),
+            queue.getEntity(),
+            getEntity(),
             blocking ? CL_TRUE : 0,
             offset * getElementSize(),
             length * getElementSize(),
@@ -297,8 +297,8 @@ public class CLBuffer<T> extends CLMem {
 		
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteBuffer(
-            queue.getEntityPeer(),
-            getEntityPeer(),
+            queue.getEntity(),
+            getEntity(),
             blocking ? CL_TRUE : CL_FALSE,
             offset * getElementSize(),
             length * getElementSize(),
@@ -317,8 +317,8 @@ public class CLBuffer<T> extends CLMem {
 		
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteBuffer(
-            queue.getEntityPeer(),
-            getEntityPeer(),
+            queue.getEntity(),
+            getEntity(),
             blocking ? CL_TRUE : 0,
             offset,
             length,
@@ -346,7 +346,7 @@ public class CLBuffer<T> extends CLMem {
 	#end
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
-		long mem = getEntityPeer();
+		long mem = getEntity();
 		error(CL.clRetainMemObject(mem));
         PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));

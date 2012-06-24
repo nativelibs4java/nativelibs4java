@@ -73,7 +73,7 @@ public class CLEvent extends CLAbstractEntity {
 	    	};
 	    	// TODO manage lifespan of cb
     		BridJ.protectFromGC(cb);
-	    	error(CL.clSetEventCallback(getEntityPeer(), commandExecStatus, getPeer(pointerTo(cb)), 0));
+	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, getPeer(pointerTo(cb)), 0));
     	} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature).", th);
@@ -169,7 +169,7 @@ public class CLEvent extends CLAbstractEntity {
     
 	@Override
 	protected void clear() {
-		error(CL.clReleaseEvent(getEntityPeer()));
+		error(CL.clReleaseEvent(getEntity()));
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
@@ -195,7 +195,7 @@ public class CLEvent extends CLAbstractEntity {
 	 * @throws CLException is the execution status denotes an error
 	 */
 	public CommandExecutionStatus getCommandExecutionStatus() {
-		int v = infos.getInt(getEntityPeer(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+		int v = infos.getInt(getEntity(), CL_EVENT_COMMAND_EXECUTION_STATUS);
 		CommandExecutionStatus status =  CommandExecutionStatus.getEnum(v);
 		if (status == null)
 			error(v);
@@ -207,7 +207,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
 	public int getCommandExecutionStatusValue() {
-		return infos.getInt(getEntityPeer(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+		return infos.getInt(getEntity(), CL_EVENT_COMMAND_EXECUTION_STATUS);
 	}
 
 	/** Values for CL_EVENT_COMMAND_TYPE */
@@ -242,7 +242,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_EVENT_COMMAND_TYPE")
 	public CommandType getCommandType() {
-		return CommandType.getEnum(infos.getInt(getEntityPeer(), CL_EVENT_COMMAND_TYPE));
+		return CommandType.getEnum(infos.getInt(getEntity(), CL_EVENT_COMMAND_TYPE));
 	}
 
 
@@ -251,7 +251,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_QUEUED")
 	public long getProfilingCommandQueued() {
-		return profilingInfos.getIntOrLong(getEntityPeer(), CL_PROFILING_COMMAND_QUEUED);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_QUEUED);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_SUBMIT")
 	public long getProfilingCommandSubmit() {
-		return profilingInfos.getIntOrLong(getEntityPeer(), CL_PROFILING_COMMAND_SUBMIT);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_SUBMIT);
 	}
 
 	/**
@@ -267,7 +267,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_START")
 	public long getProfilingCommandStart() {
-		return profilingInfos.getIntOrLong(getEntityPeer(), CL_PROFILING_COMMAND_START);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_START);
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class CLEvent extends CLAbstractEntity {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_END")
 	public long getProfilingCommandEnd() {
-		return profilingInfos.getIntOrLong(getEntityPeer(), CL_PROFILING_COMMAND_END);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_END);
 	}
 
 

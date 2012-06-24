@@ -40,7 +40,7 @@ abstract class CLAbstractEntity {
 		for (int i = 0; i < n; i++) {
 		    CLAbstractEntity entity = entities[i];
 		    if (entity != null && entity != CLEvent.FIRE_AND_FORGET) {
-		        long pointer = entity.getEntityPeer();
+		        long pointer = entity.getEntity();
 		        if (pointer != 0) {
 		            if (out == null)
                         out = tmp.allocatedBytes(Pointer.SIZE * (n - i));
@@ -74,7 +74,7 @@ abstract class CLAbstractEntity {
 
     public static <E extends TypedPointer, A extends CLAbstractEntity> Pointer<E> getEntities(A[] objects, Pointer<E> out) {
         for (int i = 0, len = objects.length; i < len; i++)
-            out.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntityPeer());
+            out.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntity());
         return out;
     }
     private void checkNullity() {
@@ -82,7 +82,7 @@ abstract class CLAbstractEntity {
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has been manually released and can't be used anymore !");
     }
     
-    synchronized long getEntityPeer() {
+    synchronized long getEntity() {
     	checkNullity();
         return entityPeer;
     }
@@ -118,7 +118,7 @@ abstract class CLAbstractEntity {
 		if (!getClass().isInstance(obj))
 			return false;
 		CLAbstractEntity e = (CLAbstractEntity)obj;
-		return getEntityPeer() == e.getEntityPeer();
+		return getEntity() == e.getEntity();
 	}
 
 }

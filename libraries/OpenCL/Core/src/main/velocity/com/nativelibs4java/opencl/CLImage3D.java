@@ -28,7 +28,7 @@ public class CLImage3D extends CLImage2D {
 	 */
 	@InfoName("CL_IMAGE_SLICE_PITCH")
 	public long getSlicePitch() {
-		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_SLICE_PITCH);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_SLICE_PITCH);
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class CLImage3D extends CLImage2D {
 	 */
 	@InfoName("CL_IMAGE_DEPTH")
 	public long getDepth() {
-		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_DEPTH);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_DEPTH);
 	}
 
 	/**

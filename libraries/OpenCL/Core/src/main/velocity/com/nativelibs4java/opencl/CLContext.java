@@ -151,7 +151,7 @@ public class CLContext extends CLAbstractEntity {
 	public CLEvent createUserEvent() {
 		try {
 			#declareReusablePtrsAndPErr()
-			long evt = CL.clCreateUserEvent(getEntityPeer(), getPeer(pErr));
+			long evt = CL.clCreateUserEvent(getEntity(), getPeer(pErr));
 			#checkPErr()
 			return CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
@@ -214,7 +214,7 @@ public class CLContext extends CLAbstractEntity {
 		Pointer<Integer> pCount = allocateInt();
 		int memFlags = (int) flags.value();
 		int imTyp = (int) imageType.value();
-		CL.clGetSupportedImageFormats(getEntityPeer(), memFlags, imTyp, 0, 0, getPeer(pCount));
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, 0, getPeer(pCount));
 		//cl_image_format ft = new cl_image_format();
 		//int sz = ft.size();
 		int n = pCount.getInt();
@@ -222,7 +222,7 @@ public class CLContext extends CLAbstractEntity {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
         Pointer<cl_image_format> formats = allocateArray(cl_image_format.class, n);
-		CL.clGetSupportedImageFormats(getEntityPeer(), memFlags, imTyp, n, getPeer(formats), 0);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, getPeer(formats), 0);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
         for (cl_image_format ft : formats) {
             if (ft.image_channel_data_type() == 0 && ft.image_channel_order() == 0)
@@ -237,7 +237,7 @@ public class CLContext extends CLAbstractEntity {
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		#declareReusablePtrsAndPErr()
 		long sampler = CL.clCreateSampler(
-			getEntityPeer(), 
+			getEntity(), 
 			normalized_coords ? CL_TRUE : CL_FALSE, 
 			(int) addressing_mode.value(), 
 			(int) filter_mode.value(), 
@@ -248,7 +248,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 
 	public int getDeviceCount() {
-		return infos.getOptionalFeatureInt(getEntityPeer(), CL.CL_CONTEXT_NUM_DEVICES);
+		return infos.getOptionalFeatureInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
 	}
 	
 	/**
@@ -257,7 +257,7 @@ public class CLContext extends CLAbstractEntity {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			deviceIds = infos.getMemory(getEntityPeer(), CL_CONTEXT_DEVICES).as(SizeT.class);
+			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).as(SizeT.class);
 		}
         int n = (int)deviceIds.getValidElements();
 
@@ -302,7 +302,7 @@ public class CLContext extends CLAbstractEntity {
 	//cl_queue queue;
 	@Override
 	protected void clear() {
-		error(CL.clReleaseContext(getEntityPeer()));
+		error(CL.clReleaseContext(getEntity()));
 	}
 
 
@@ -316,7 +316,7 @@ public class CLContext extends CLAbstractEntity {
         Pointer<Pointer<?>> mem = allocatePointer();
         if (Platform.isMacOSX())
             error(CL.clGetGLContextInfoAPPLE(
-            	getEntityPeer(), 
+            	getEntity(), 
             	getPeer(OpenGLContextUtils.CGLGetCurrentContext()),
             	CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
                 Pointer.SIZE, 
@@ -360,7 +360,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLBuffer(
-				getEntityPeer(), 
+				getEntity(), 
 				usage.getIntFlags(), 
 				openGLBufferObject, 
 				getPeer(pErr)
@@ -383,7 +383,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLRenderbuffer(
-				getEntityPeer(), 
+				getEntity(), 
 				usage.getIntFlags(), 
 				openGLRenderBuffer, 
 				getPeer(pErr)
@@ -411,7 +411,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLTexture2D(
-				getEntityPeer(), 
+				getEntity(), 
 				usage.getIntFlags(), 
 				(int)textureTarget.value(), 
 				mipLevel, 
@@ -475,7 +475,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLTexture3D(
-				getEntityPeer(), 
+				getEntity(), 
 				usage.getIntFlags(), 
 				GL_TEXTURE_3D, 
 				mipLevel, 
@@ -516,7 +516,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage2D(
-				getEntityPeer(),
+				getEntity(),
 				memFlags,
 				getPeer(pImageFormat),
 				width,
@@ -550,7 +550,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage3D(
-				getEntityPeer(),
+				getEntity(),
 				memFlags,
 				getPeer(pImageFormat),
 				width,
@@ -654,7 +654,7 @@ public class CLContext extends CLAbstractEntity {
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateBuffer(
-				getEntityPeer(),
+				getEntity(),
 				CLBufferFlags,
 				byteCount,
 				getPeer(data),

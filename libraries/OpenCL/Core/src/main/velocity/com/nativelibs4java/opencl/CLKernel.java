@@ -47,7 +47,7 @@ public class CLKernel extends CLAbstractEntity {
 
                 @Override
                 protected int getInfo(long entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-                    return CL.clGetKernelWorkGroupInfo(getEntityPeer(), entity, infoTypeEnum, size, getPeer(out), getPeer(sizeOut));
+                    return CL.clGetKernelWorkGroupInfo(getEntity(), entity, infoTypeEnum, size, getPeer(out), getPeer(sizeOut));
                 }
             };
         return kernelInfos;
@@ -85,7 +85,7 @@ public class CLKernel extends CLAbstractEntity {
 	    	CLDevice[] devices = program.getDevices();
 	        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
 	        for (CLDevice device : devices)
-	            ret.put(device, getKernelInfos().getIntOrLong(device.getEntityPeer(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE));
+	            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE));
 	        return ret;
     	} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
@@ -102,7 +102,7 @@ public class CLKernel extends CLAbstractEntity {
         CLDevice[] devices = program.getDevices();
         Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
         for (CLDevice device : devices)
-            ret.put(device, getKernelInfos().getIntOrLong(device.getEntityPeer(), CL_KERNEL_WORK_GROUP_SIZE));
+            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_WORK_GROUP_SIZE));
         return ret;
     }
 
@@ -117,7 +117,7 @@ public class CLKernel extends CLAbstractEntity {
         CLDevice[] devices = program.getDevices();
         Map<CLDevice, long[]> ret = new HashMap<CLDevice, long[]>(devices.length);
         for (CLDevice device : devices)
-            ret.put(device, getKernelInfos().getNativeSizes(device.getEntityPeer(), CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3));
+            ret.put(device, getKernelInfos().getNativeSizes(device.getEntity(), CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3));
         return ret;
     }
     
@@ -131,7 +131,7 @@ public class CLKernel extends CLAbstractEntity {
         CLDevice[] devices = program.getDevices();
         Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
         for (CLDevice device : devices)
-            ret.put(device, getKernelInfos().getIntOrLong(device.getEntityPeer(), CL_KERNEL_LOCAL_MEM_SIZE));
+            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_LOCAL_MEM_SIZE));
         return ret;
     }
     
@@ -217,7 +217,7 @@ public class CLKernel extends CLAbstractEntity {
     		if (size <= 0)
     			throw new IllegalArgumentException("Kernel args must have a known byte size, given " + size + " instead.");
     		try {
-                error(CL.clSetKernelArg(getEntityPeer(), i, size, getPeer(ptr)));
+                error(CL.clSetKernelArg(getEntity(), i, size, getPeer(ptr)));
     		} catch (CLTypedException ex) {
     			ex.setKernelArg(this, i);
     			throw ex;
@@ -296,12 +296,12 @@ public class CLKernel extends CLAbstractEntity {
     }
 
     public void setArg(int i, CLAbstractEntity arg) {
-        setKernelArg(i, Pointer.SIZE, localPointer.setSizeT(arg.getEntityPeer()));
+        setKernelArg(i, Pointer.SIZE, localPointer.setSizeT(arg.getEntity()));
     }
 
     @Override
     protected void clear() {
-        error(CL.clReleaseKernel(getEntityPeer()));
+        error(CL.clReleaseKernel(getEntity()));
     }
 
     private static final Pointer<SizeT> oneNL = pointerToSizeT(1);
@@ -314,7 +314,7 @@ public class CLKernel extends CLAbstractEntity {
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
         #declareReusablePtrsAndEventsInOut()
-        error(CL.clEnqueueTask(queue.getEntityPeer(), getEntityPeer(), #eventsInOutArgsRaw()));
+        error(CL.clEnqueueTask(queue.getEntity(), getEntity(), #eventsInOutArgsRaw()));
         #returnEventOut("queue")
     }
 
@@ -359,8 +359,8 @@ public class CLKernel extends CLAbstractEntity {
         
         #declareReusablePtrsAndEventsInOut()
         error(CL.clEnqueueNDRangeKernel(
-            queue.getEntityPeer(),
-            getEntityPeer(),
+            queue.getEntity(),
+            getEntity(),
             nDims,
             getPeer(ptrs.sizeT3_1.pointerToSizeTs(globalOffsets)),
             getPeer(ptrs.sizeT3_2.pointerToSizeTs(globalWorkSizes)),
@@ -375,7 +375,7 @@ public class CLKernel extends CLAbstractEntity {
 	 */
     @InfoName("CL_KERNEL_NUM_ARGS")
     public int getNumArgs() {
-    		int numArgs = infos.getInt(getEntityPeer(), CL_KERNEL_NUM_ARGS);
+    		int numArgs = infos.getInt(getEntity(), CL_KERNEL_NUM_ARGS);
     		//System.out.println("numArgs = " + numArgs);
         return numArgs;
     }
@@ -386,7 +386,7 @@ public class CLKernel extends CLAbstractEntity {
     @InfoName("CL_KERNEL_FUNCTION_NAME")
     public String getFunctionName() {
         if (name == null)
-            name = infos.getString(getEntityPeer(), CL_KERNEL_FUNCTION_NAME);
+            name = infos.getString(getEntity(), CL_KERNEL_FUNCTION_NAME);
         return name;
     }
 }

@@ -292,13 +292,13 @@ public class CLPlatform extends CLAbstractEntity {
             Pointer<?> dc = OpenGLContextUtils.wglGetCurrentDC();
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.WGLHDC, dc.getPeer());
-            out.put(ContextProperties.Platform, platform.getEntityPeer());
+            out.put(ContextProperties.Platform, platform.getEntity());
         } else if (Platform.isUnix()) {
             Pointer<?> context = OpenGLContextUtils.glXGetCurrentContext();
             Pointer<?> dc = OpenGLContextUtils.glXGetCurrentDisplay();
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.GLXDisplay, dc.getPeer());
-            out.put(ContextProperties.Platform, platform.getEntityPeer());
+            out.put(ContextProperties.Platform, platform.getEntity());
         } else
             throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
         
@@ -337,7 +337,7 @@ public class CLPlatform extends CLAbstractEntity {
         }
         Pointer<SizeT> ids = allocateSizeTs(nDevs);
         for (int i = 0; i < nDevs; i++) {
-            ids.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntityPeer());
+            ids.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntity());
         }
 
         #declareReusablePtrsAndPErr()
@@ -365,7 +365,7 @@ public class CLPlatform extends CLAbstractEntity {
     @SuppressWarnings("deprecation")
     public CLDevice[] listDevices(CLDevice.Type type, boolean onlyAvailable) {
         Pointer<Integer> pCount = allocateInt();
-		error(CL.clGetDeviceIDs(getEntityPeer(), type.value(), 0, 0, getPeer(pCount)));
+		error(CL.clGetDeviceIDs(getEntity(), type.value(), 0, 0, getPeer(pCount)));
 
         int nDevs = pCount.getInt();
         if (nDevs <= 0) {
@@ -374,7 +374,7 @@ public class CLPlatform extends CLAbstractEntity {
 
         Pointer<SizeT> ids = allocateSizeTs(nDevs);
 
-        error(CL.clGetDeviceIDs(getEntityPeer(), type.value(), nDevs, getPeer(ids), 0));
+        error(CL.clGetDeviceIDs(getEntity(), type.value(), nDevs, getPeer(ids), 0));
         return getDevices(ids, onlyAvailable);
     }
 
@@ -410,7 +410,7 @@ public class CLPlatform extends CLAbstractEntity {
      */
     @InfoName("CL_PLATFORM_PROFILE")
     public String getProfile() {
-        return infos.getString(getEntityPeer(), CL_PLATFORM_PROFILE);
+        return infos.getString(getEntity(), CL_PLATFORM_PROFILE);
     }
 
     /**
@@ -421,7 +421,7 @@ public class CLPlatform extends CLAbstractEntity {
      */
     @InfoName("CL_PLATFORM_VERSION")
     public String getVersion() {
-        return infos.getString(getEntityPeer(), CL_PLATFORM_VERSION);
+        return infos.getString(getEntity(), CL_PLATFORM_VERSION);
     }
 
     /**
@@ -429,7 +429,7 @@ public class CLPlatform extends CLAbstractEntity {
      */
     @InfoName("CL_PLATFORM_NAME")
     public String getName() {
-        return infos.getString(getEntityPeer(), CL_PLATFORM_NAME);
+        return infos.getString(getEntity(), CL_PLATFORM_NAME);
     }
 
     /**
@@ -437,7 +437,7 @@ public class CLPlatform extends CLAbstractEntity {
      */
     @InfoName("CL_PLATFORM_VENDOR")
     public String getVendor() {
-        return infos.getString(getEntityPeer(), CL_PLATFORM_VENDOR);
+        return infos.getString(getEntity(), CL_PLATFORM_VENDOR);
     }
 
     /**
@@ -447,7 +447,7 @@ public class CLPlatform extends CLAbstractEntity {
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = infos.getString(getEntityPeer(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+            extensions = infos.getString(getEntity(), CL_PLATFORM_EXTENSIONS).split("\\s+");
         }
         return extensions;
     }

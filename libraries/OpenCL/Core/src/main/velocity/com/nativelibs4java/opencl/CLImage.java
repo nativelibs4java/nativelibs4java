@@ -45,7 +45,7 @@ public abstract class CLImage extends CLMem {
 	@InfoName("CL_IMAGE_FORMAT")
 	public CLImageFormat getFormat() {
 		if (format == null) {
-			format = new CLImageFormat(new cl_image_format(infos.getMemory(getEntityPeer(), CL_IMAGE_FORMAT)));
+			format = new CLImageFormat(new cl_image_format(infos.getMemory(getEntity(), CL_IMAGE_FORMAT)));
 		}
 		return format;
 	}
@@ -56,7 +56,7 @@ public abstract class CLImage extends CLMem {
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")
 	public long getElementSize() {
-		return infos.getIntOrLong(getEntityPeer(), CL_IMAGE_ELEMENT_SIZE);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
 	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -68,8 +68,8 @@ public abstract class CLImage extends CLMem {
 		}*/
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueReadImage(
-        	queue.getEntityPeer(), 
-        	getEntityPeer(),
+        	queue.getEntity(), 
+        	getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			getPeer(origin),
 			getPeer(region),
@@ -87,8 +87,8 @@ public abstract class CLImage extends CLMem {
 	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteImage(
-        	queue.getEntityPeer(),
-        	getEntityPeer(),
+        	queue.getEntity(),
+        	getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			getPeer(origin),
 			getPeer(region),
@@ -121,8 +121,8 @@ public abstract class CLImage extends CLMem {
 		#declareReusablePtrsAndEventsInOutBlockable()
 		#declarePErr()
         long mappedPeer = CL.clEnqueueMapImage(
-            queue.getEntityPeer(), 
-            getEntityPeer(), 
+            queue.getEntity(), 
+            getEntity(), 
             blocking ? CL_TRUE : CL_FALSE,
             flags.value(),
 			getPeer(offset3),
@@ -150,7 +150,7 @@ public abstract class CLImage extends CLMem {
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
         #declareReusablePtrsAndEventsInOut()
         Pointer<?> pBuffer = pointerToBuffer(buffer);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntityPeer(), getEntityPeer(), getPeer(pBuffer), #eventsInOutArgsRaw()));
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), getPeer(pBuffer), #eventsInOutArgsRaw()));
 		#returnEventOut("queue")
     }
 }

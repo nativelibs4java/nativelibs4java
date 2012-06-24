@@ -68,7 +68,7 @@ public abstract class CLMem extends CLAbstractEntity {
     		}
     	};
     	BridJ.protectFromGC(cb);
-    	error(CL.clSetMemObjectDestructorCallback(getEntityPeer(), getPeer(pointerTo(cb)), 0));
+    	error(CL.clSetMemObjectDestructorCallback(getEntity(), getPeer(pointerTo(cb)), 0));
     }
     
     public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {
@@ -86,7 +86,7 @@ public abstract class CLMem extends CLAbstractEntity {
     public long getByteCount() {
         if (byteCount < 0) {
             try {
-                byteCount = infos.getIntOrLong(getEntityPeer(), CL_MEM_SIZE);
+                byteCount = infos.getIntOrLong(getEntity(), CL_MEM_SIZE);
             } catch (CLException.InvalidMemObject ex) {
                 if (isGL)
                     return -1; // GL objects are not (always?) considered as valid mem objects
@@ -201,7 +201,7 @@ public abstract class CLMem extends CLAbstractEntity {
 		#declareReusablePtrs()
         Pointer<Integer> typeRef = ptrs.int1;
         Pointer<Integer> nameRef = ptrs.int2;
-        CL.clGetGLObjectInfo(getEntityPeer(), getPeer(typeRef), getPeer(nameRef));
+        CL.clGetGLObjectInfo(getEntity(), getPeer(typeRef), getPeer(nameRef));
         return new GLObjectInfo(GLObjectType.getEnum(typeRef.getInt()), nameRef.getInt());
     }
 	public enum MapFlags implements com.nativelibs4java.util.ValuedEnum {
@@ -217,6 +217,6 @@ public abstract class CLMem extends CLAbstractEntity {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseMemObject(getEntityPeer()));
+        error(CL.clReleaseMemObject(getEntity()));
     }
 }

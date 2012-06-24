@@ -62,18 +62,18 @@ public class CLQueue extends CLAbstractEntity {
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {
-		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntityPeer(), CL_QUEUE_PROPERTIES));
+		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntity(), CL_QUEUE_PROPERTIES));
 	}
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(getEntityPeer(), property.value(), enabled ? CL_TRUE : CL_FALSE, 0));
+		error(CL.clSetCommandQueueProperty(getEntity(), property.value(), enabled ? CL_TRUE : CL_FALSE, 0));
 	}
 	
 
     @Override
     protected void clear() {
-        error(CL.clReleaseCommandQueue(getEntityPeer()));
+        error(CL.clReleaseCommandQueue(getEntity()));
     }
 
     /**
@@ -82,7 +82,7 @@ public class CLQueue extends CLAbstractEntity {
 	 * finish() is also a synchronization point.
 	 */
     public void finish() {
-        error(CL.clFinish(getEntityPeer()));
+        error(CL.clFinish(getEntity()));
     }
 
     /**
@@ -91,7 +91,7 @@ public class CLQueue extends CLAbstractEntity {
 	 * There is no guarantee that they will be complete after flush() returns.
 	 */
     public void flush() {
-        error(CL.clFlush(getEntityPeer()));
+        error(CL.clFlush(getEntity()));
     }
 
 	/**
@@ -102,7 +102,7 @@ public class CLQueue extends CLAbstractEntity {
 		#declareEventsIn()
         if (eventsIn == null)
             return;
-        error(CL.clEnqueueWaitForEvents(getEntityPeer(), #eventsInArgsRaw()));
+        error(CL.clEnqueueWaitForEvents(getEntity(), #eventsInArgsRaw()));
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class CLQueue extends CLAbstractEntity {
 	 * enqueueBarrier() is a synchronization point.
 	 */
 	public void enqueueBarrier() {
-		error(CL.clEnqueueBarrier(getEntityPeer()));
+		error(CL.clEnqueueBarrier(getEntity()));
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class CLQueue extends CLAbstractEntity {
 	public CLEvent enqueueMarker() {
 		#declareReusablePtrs()
 		Pointer<cl_event> eventOut = ptrs.event_out;
-		error(CL.clEnqueueMarker(getEntityPeer(), getPeer(eventOut)));
+		error(CL.clEnqueueMarker(getEntity(), getPeer(eventOut)));
 		#returnEventOut("this")
 	}
 
@@ -138,10 +138,10 @@ public class CLQueue extends CLAbstractEntity {
         #declareReusablePtrsAndEventsInOut()
 		Pointer<SizeT> mems = allocateSizeTs(objects.length);
 		for (int i = 0; i < objects.length; i++) {
-			mems.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntityPeer());
+			mems.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntity());
 		}
         error(CL.clEnqueueAcquireGLObjects(
-			getEntityPeer(), 
+			getEntity(), 
 			objects.length,
 			getPeer(mems),
 			#eventsInOutArgsRaw()
@@ -161,7 +161,7 @@ public class CLQueue extends CLAbstractEntity {
         #declareReusablePtrsAndEventsInOut()
 		Pointer<?> mems = getEntities(objects, (Pointer)allocateSizeTs(objects.length));
         error(CL.clEnqueueReleaseGLObjects(
-			getEntityPeer(), 
+			getEntity(), 
 			objects.length, 
 			getPeer(mems),
 			#eventsInOutArgsRaw()
