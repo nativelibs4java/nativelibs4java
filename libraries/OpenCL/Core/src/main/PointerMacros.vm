@@ -1,0 +1,30 @@
+#macro (getReusablePointers)
+	ReusablePointers ptrs = ReusablePointers.get();
+#end
+	
+#macro (getEventsIn)
+	int[] eventsInCount = new int[1];
+	Pointer<cl_event> eventsIn = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsInCount, ptrs.events_in);
+#end
+
+#macro (getEventsOut)
+	Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
+#end
+	
+#macro (getEventsInOut)
+	#getReusablePointers()
+	#getEventsIn()
+	#getEventsOut()
+#end
+	
+#macro (getEventOutArg) getPeer(eventOut) #end
+#macro (getEventsInArgs) eventsInCount[0], getPeer(eventsIn) #end
+#macro (getEventsInOutArgs) #getEventsInArgs(), #getEventOutArg() #end
+
+#macro (returnEventOut) return CLEvent.createEventFromPointer(queue, eventOut); #end
+	
+/*
+		#getEventsInOut()
+		error(CL.clEnqueueTask(queue.getEntityPeer(), getEntityPeer(), #getEventsInOutArgs()));
+		#returnEventOut()
+*/

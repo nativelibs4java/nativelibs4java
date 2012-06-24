@@ -132,7 +132,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     		return createEvent(queue, evt, false);
     }
 	static CLEvent createEvent(final CLQueue queue, long evt, boolean isUserEvent) {
-		if (evt == null)
+		if (evt == 0)
 			return null;
 
         return isUserEvent ? 

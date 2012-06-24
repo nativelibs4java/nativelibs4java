@@ -169,14 +169,15 @@ public class CLBuffer<T> extends CLMem {
 		
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueCopyBuffer(
-			queue.getEntity(),
-			getEntity(),
-			destination.getEntity(),
+			queue.getEntityPeer(),
+			getEntityPeer(),
+			destination.getEntityPeer(),
 			actualSrcOffset,
 			actualDestOffset,
 			actualLength,
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut
+			evts == null ? 0 : (int)evts.getValidElements(), 
+			getPeer(evts),
+			getPeer(eventOut)
 		));
 		return CLEvent.createEventFromPointer(queue, eventOut);
 	}
@@ -188,17 +189,20 @@ public class CLBuffer<T> extends CLMem {
 		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor, ptrs.event_out);
         
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
+        long mappedPeer = CL.clEnqueueMapBuffer(queue.getEntityPeer(), getEntityPeer(), blocking ? CL_TRUE : CL_FALSE,
 			flags.value(),
 			offset * getElementSize(),
             length * getElementSize(),
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut,
-			pErr
+			evts == null ? 0 : (int)evts.getValidElements(), 
+			getPeer(evts),
+			getPeer(eventOut),
+			getPeer(pErr)
 		);
 		error(pErr.getInt());
+		if (mappedPeer == 0)
+			return null;
         return new Pair<Pointer<T>, CLEvent>(
-			p.as(io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
+			pointerToAddress(mappedPeer, io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
 			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }
@@ -206,7 +210,7 @@ public class CLBuffer<T> extends CLMem {
     public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), buffer, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
+        error(CL.clEnqueueUnmapMemObject(queue.getEntityPeer(), getEntityPeer(), getPeer(buffer), evts == null ? 0 : (int)evts.getValidElements(), getPeer(evts), getPeer(eventOut)));
 		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
