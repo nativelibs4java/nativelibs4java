@@ -681,6 +681,7 @@ public class OpenCLLibrary {
 	public native int clGetEventInfo(OpenCLLibrary.cl_event cl_event1, int cl_event_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	/// Original signature : <code>cl_event clCreateUserEvent(cl_context, cl_int*)</code>
 	public native OpenCLLibrary.cl_event clCreateUserEvent(OpenCLLibrary.cl_context cl_context1, Pointer<Integer > cl_intPtr1);
+	public native @Ptr long clCreateUserEvent(@Ptr long cl_context1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
 	public native int clRetainEvent(OpenCLLibrary.cl_event cl_event1);
 	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>

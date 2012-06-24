@@ -191,7 +191,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		try {
 			ReusablePointers ptrs = ReusablePointers.get();
 			Pointer<Integer> pErr = ptrs.pErr;
-			long evt = CL.clCreateUserEvent(getEntity(), pErr);
+			long evt = CL.clCreateUserEvent(getEntityPeer(), getPeer(pErr));
 			error(pErr.getInt());
 			return CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
