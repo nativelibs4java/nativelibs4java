@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.bridj.Pointer;
+import org.bridj.Platform;
 import static org.bridj.Pointer.*;
 import com.nativelibs4java.test.MiscTestUtils;
 import java.util.logging.Level;
@@ -140,7 +141,7 @@ public class OverheadTest extends AbstractCommon {
         assertTrue("CLKernel.setArg was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArg + "x slower.", slowerSetArg <= maxSlower);
         assertTrue("CLKernel.setArgs was supposed not to be more than " + maxSlower + "x slower than hand-optimized version, was " + slowerSetArgs + "x slower.", slowerSetArgs <= maxSlower);
         
-        final double maxMilliSecondsPerCall = 0.0025;
+        final double maxMilliSecondsPerCall = Platform.is64Bits() ? 0.0022 : 0.007;
         double setArgAvg = (totSetArg / (double)nTest) / nArgs;
         System.out.println("CLKernel.setArg took " + setArgAvg + " ms per call in average.");
         assertTrue("CLKernel.setArg was supposed to last at most " + maxMilliSecondsPerCall + " ms in average, but was " + setArgAvg + " ms", setArgAvg < maxMilliSecondsPerCall);

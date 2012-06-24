@@ -52,9 +52,9 @@ public class JavaCL {
 
 	private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
 		try {
-			return CL.clIcdGetPlatformIDsKHR(count, out, pCount);
+			return CL.clIcdGetPlatformIDsKHR(count, getPeer(out), getPeer(pCount));
 		} catch (Throwable th) {
-			return CL.clGetPlatformIDs(count, out, pCount);
+			return CL.clGetPlatformIDs(count, getPeer(out), getPeer(pCount));
 		}
 	}
 	
@@ -211,7 +211,7 @@ public class JavaCL {
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {
-            platforms[i] = new CLPlatform(ids.get(i));
+            platforms[i] = new CLPlatform(ids.getSizeTAtOffset(i * Pointer.SIZE));
         }
         return platforms;
     }

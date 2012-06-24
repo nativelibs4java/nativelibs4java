@@ -1,7 +1,6 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 
-
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
@@ -21,15 +20,10 @@ import static com.nativelibs4java.opencl.CLException.*;
  * see {@link JavaCL#listPlatforms() } 
  * @author Olivier Chafik
  */
-public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
+public class CLPlatform extends CLAbstractEntity {
 
-    CLPlatform(cl_platform_id platform) {
+    CLPlatform(long platform) {
         super(platform, true);
-    }
-    
-    @Override
-    protected cl_platform_id createEntityPointer(long peer) {
-    	return new cl_platform_id(peer);
     }
     
     #declareInfosGetter("infos", "CL.clGetPlatformInfo")
@@ -94,13 +88,13 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
     }
 
-    private CLDevice[] getDevices(Pointer<cl_device_id> ids, boolean onlyAvailable) {
+    private CLDevice[] getDevices(Pointer<SizeT> ids, boolean onlyAvailable) {
         int nDevs = (int)ids.getValidElements();
         CLDevice[] devices;
         if (onlyAvailable) {
             List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
             for (int i = 0; i < nDevs; i++) {
-                CLDevice device = new CLDevice(this, ids.get(i));
+                CLDevice device = new CLDevice(this, ids.getSizeTAtOffset(i * Pointer.SIZE));
                 if (device.isAvailable()) {
                     list.add(device);
                 }
@@ -109,7 +103,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         } else {
             devices = new CLDevice[nDevs];
             for (int i = 0; i < nDevs; i++) {
-                devices[i] = new CLDevice(this, ids.get(i));
+                devices[i] = new CLDevice(this, ids.getSizeTAtOffset(i * Pointer.SIZE));
             }
         }
         return devices;
@@ -341,18 +335,17 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         if (nDevs == 0) {
             throw new IllegalArgumentException("Cannot create a context with no associated device !");
         }
-        Pointer<cl_device_id> ids = allocateTypedPointers(cl_device_id.class, nDevs);
+        Pointer<SizeT> ids = allocateSizeTs(nDevs);
         for (int i = 0; i < nDevs; i++) {
-            ids.set(i, devices[i].getEntity());
+            ids.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntityPeer());
         }
 
         #declareReusablePtrsAndPErr()
 
         long[] props = getContextProps(contextProperties);
         Pointer<SizeT> propsRef = props == null ? null : pointerToSizeTs(props);
-        //Pointer<clCreateContext_arg1_callback> errCb = null;//pointerTo(errorCallback);
         //System.out.println("ERROR CALLBACK " + Long.toHexString(errCb.getPeer()));
-        cl_context context = CL.clCreateContext((Pointer)propsRef, nDevs, ids, null, null, pErr);
+        long context = CL.clCreateContext(getPeer(propsRef), nDevs, getPeer(ids), 0, 0, getPeer(pErr));
         #checkPErr();
         return new CLContext(this, ids, context);
     }
@@ -372,16 +365,16 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     @SuppressWarnings("deprecation")
     public CLDevice[] listDevices(CLDevice.Type type, boolean onlyAvailable) {
         Pointer<Integer> pCount = allocateInt();
-		error(CL.clGetDeviceIDs(getEntity(), type.value(), 0, null, pCount));
+		error(CL.clGetDeviceIDs(getEntityPeer(), type.value(), 0, 0, getPeer(pCount)));
 
         int nDevs = pCount.getInt();
         if (nDevs <= 0) {
             return new CLDevice[0];
         }
 
-        Pointer<cl_device_id> ids = allocateTypedPointers(cl_device_id.class, nDevs);
+        Pointer<SizeT> ids = allocateSizeTs(nDevs);
 
-        error(CL.clGetDeviceIDs(getEntity(), type.value(), nDevs, ids, pCount));
+        error(CL.clGetDeviceIDs(getEntityPeer(), type.value(), nDevs, getPeer(ids), 0));
         return getDevices(ids, onlyAvailable);
     }
 

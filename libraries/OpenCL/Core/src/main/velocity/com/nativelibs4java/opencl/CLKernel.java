@@ -33,7 +33,7 @@ import static org.bridj.Pointer.*;
  * See {@link CLProgram#createKernel(java.lang.String, java.lang.Object[])} and {@link CLProgram#createKernels()} 
  * @author Olivier Chafik
  */
-public class CLKernel extends CLAbstractEntity<cl_kernel> {
+public class CLKernel extends CLAbstractEntity {
 
     protected final CLProgram program;
     protected String name;
@@ -66,11 +66,6 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         this.contextAddressBits = getProgram().getContext().getAddressBits();
     }
 	
-    @Override
-    protected cl_kernel createEntityPointer(long peer) {
-    	return new cl_kernel(peer);
-    }
-    
     public CLProgram getProgram() {
         return program;
     }
@@ -223,7 +218,6 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     			throw new IllegalArgumentException("Kernel args must have a known byte size, given " + size + " instead.");
     		try {
                 error(CL.clSetKernelArg(getEntityPeer(), i, size, getPeer(ptr)));
-    			//error(CL.clSetKernelArg(getEntity(), i, size, ptr));
     		} catch (CLTypedException ex) {
     			ex.setKernelArg(this, i);
     			throw ex;
@@ -301,7 +295,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         setKernelArg(i, 8, localPointer.setDouble(arg));
     }
 
-    public void setArg(int i, CLAbstractEntity<?> arg) {
+    public void setArg(int i, CLAbstractEntity arg) {
         setKernelArg(i, Pointer.SIZE, localPointer.setSizeT(arg.getEntityPeer()));
     }
 

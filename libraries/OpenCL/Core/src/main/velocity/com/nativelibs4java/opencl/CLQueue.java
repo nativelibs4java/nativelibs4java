@@ -33,24 +33,19 @@ import static org.bridj.Pointer.*;
  * @author Olivier Chafik
  *
  */
-public class CLQueue extends CLAbstractEntity<cl_command_queue> {
+public class CLQueue extends CLAbstractEntity {
 
     #declareInfosGetter("infos", "CL.clGetCommandQueueInfo")
 
 	final CLContext context;
 	final CLDevice device;
 
-    CLQueue(CLContext context, cl_command_queue entity, CLDevice device) {
+    CLQueue(CLContext context, long entity, CLDevice device) {
         super(entity);
         this.context = context;
 		this.device = device;
     }
     
-    @Override
-    protected cl_command_queue createEntityPointer(long peer) {
-    	return new cl_command_queue(peer);
-    }
-
     public CLContext getContext() {
         return context;
     }
@@ -72,7 +67,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(getEntity(), property.value(), enabled ? CL_TRUE : CL_FALSE, (Pointer<Long>)null));
+		error(CL.clSetCommandQueueProperty(getEntityPeer(), property.value(), enabled ? CL_TRUE : CL_FALSE, 0));
 	}
 	
 

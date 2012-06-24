@@ -28,7 +28,7 @@ import static org.bridj.Pointer.*;
  * 
  * @author ochafik
  */
-public class CLEvent extends CLAbstractEntity<cl_event> {
+public class CLEvent extends CLAbstractEntity {
 
 	/**
 	 * Pass this to special value to any method that expects a variable number of events to wait for and that returns an event, to completely avoid returning the completion event (will return null instead of the event). 
@@ -39,19 +39,10 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	#declareInfosGetter("profilingInfos", "CL.clGetEventProfilingInfo")
 	
-	CLEvent(cl_event evt) {
-		super(evt, false);
-	}
-
     CLEvent(long evt) {
 		super(evt, false);
 	}
 	
-    @Override
-    protected cl_event createEntityPointer(long peer) {
-    	return new cl_event(peer);
-    }
-
     public interface EventCallback {
     	public void callback(CLEvent event, int executionStatus);
     }
@@ -82,7 +73,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	    	};
 	    	// TODO manage lifespan of cb
     		BridJ.protectFromGC(cb);
-	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, pointerTo(cb), null));
+	    	error(CL.clSetEventCallback(getEntityPeer(), commandExecStatus, getPeer(pointerTo(cb)), 0));
     	} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature).", th);

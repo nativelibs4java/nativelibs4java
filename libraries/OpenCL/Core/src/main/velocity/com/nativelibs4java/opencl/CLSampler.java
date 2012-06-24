@@ -27,19 +27,14 @@ import static org.bridj.Pointer.*;
  * see {@link CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) } 
  * @author Olivier Chafik
  */
-public class CLSampler extends CLAbstractEntity<cl_sampler> {
+public class CLSampler extends CLAbstractEntity {
 	
 	#declareInfosGetter("infos", "CL.clGetSamplerInfo")
 
-	CLSampler(cl_sampler entity) {
+	CLSampler(long entity) {
 		super(entity);
 	}
     
-    @Override
-    protected cl_sampler createEntityPointer(long peer) {
-    	return new cl_sampler(peer);
-    }
-	
 	@Override
 	protected void clear() {
 		error(CL.clReleaseSampler(getEntityPeer()));

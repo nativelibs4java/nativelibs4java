@@ -3,27 +3,16 @@ package com.nativelibs4java.opencl;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
-abstract class CLAbstractEntity<T extends TypedPointer> {
+abstract class CLAbstractEntity {
 	private long entityPeer;
-    private T entity;
 	private final boolean nullable;
 
-	CLAbstractEntity(T entity) {
-		this(entity, false);
-	}
-    CLAbstractEntity(long entityPeer) {
+    protected CLAbstractEntity(long entityPeer) {
 		this(entityPeer, false);
 	}
-    CLAbstractEntity(T entity, boolean nullable) {
-		this(entity, getPeer(entity), nullable);
-    }
-
-    CLAbstractEntity(long entityPeer, boolean nullable) {
-		this(null, entityPeer, nullable);
-    }
-    private CLAbstractEntity(T entity, long entityPeer, boolean nullable) {
+	
+    protected CLAbstractEntity(long entityPeer, boolean nullable) {
 		this.nullable = nullable;
-        this.entity = entity;
         this.entityPeer = entityPeer;
         checkNullity(entityPeer);
     }
@@ -34,16 +23,8 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
         }
     }
     
-    protected void setEntity(T entity) {
-    	long entityPeer = getPeer(entity);
-    	checkNullity(entityPeer);
-    	this.entity = entity;
-    	this.entityPeer = entityPeer;
-    }
-    
     protected void setEntity(long entityPeer) {
     	checkNullity(entityPeer);
-    	this.entity = null;
     	this.entityPeer = entityPeer;
     }
 
@@ -91,7 +72,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 		doRelease();
 	}
 
-    public static <E extends TypedPointer, A extends CLAbstractEntity<E>> Pointer<E> getEntities(A[] objects, Pointer<E> out) {
+    public static <E extends TypedPointer, A extends CLAbstractEntity> Pointer<E> getEntities(A[] objects, Pointer<E> out) {
         for (int i = 0, len = objects.length; i < len; i++)
             out.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntityPeer());
         return out;
@@ -101,15 +82,6 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has been manually released and can't be used anymore !");
     }
     
-    protected abstract T createEntityPointer(long peer);
-    
-    synchronized T getEntity() {
-    	checkNullity();
-    	if (entity == null && entityPeer != 0) {
-    		entity = createEntityPointer(entityPeer);
-    	}
-		return entity;
-    }
     synchronized long getEntityPeer() {
     	checkNullity();
         return entityPeer;
@@ -118,7 +90,6 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 	synchronized void doRelease() {
 		if (entityPeer != 0) {
 			clear();
-			entity = null;
 			entityPeer = 0;
 		}
 	}
@@ -136,9 +107,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 	public int hashCode() {
 		return entityPeer == 0 
 			? 0 
-			: entity == null 
-				? Long.valueOf(entityPeer).hashCode() 
-				: entity.hashCode();
+			: Long.valueOf(entityPeer).hashCode();
 	}
 
 	/**
@@ -148,7 +117,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 	public boolean equals(Object obj) {
 		if (!getClass().isInstance(obj))
 			return false;
-		CLAbstractEntity<?> e = (CLAbstractEntity<?>)obj;
+		CLAbstractEntity e = (CLAbstractEntity)obj;
 		return getEntityPeer() == e.getEntityPeer();
 	}
 

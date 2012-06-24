@@ -29,7 +29,7 @@ import static org.bridj.Pointer.*;
  * Kernels take memory objects as input, and output to one or more memory objects.
  * @author Olivier Chafik
  */
-public abstract class CLMem extends CLAbstractEntity<cl_mem> {
+public abstract class CLMem extends CLAbstractEntity {
 
     protected final CLContext context;
     protected long byteCount = -1;
@@ -41,11 +41,6 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         super(entityPeer);
         this.byteCount = byteCount;
         this.context = context;
-    }
-	
-    @Override
-    protected cl_mem createEntityPointer(long peer) {
-    	return new cl_mem(peer);
     }
 	
     public CLContext getContext() {
@@ -73,7 +68,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     		}
     	};
     	BridJ.protectFromGC(cb);
-    	error(CL.clSetMemObjectDestructorCallback(getEntity(), pointerTo(cb), null));
+    	error(CL.clSetMemObjectDestructorCallback(getEntityPeer(), getPeer(pointerTo(cb)), 0));
     }
     
     public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {

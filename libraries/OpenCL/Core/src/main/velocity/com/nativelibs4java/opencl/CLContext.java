@@ -51,7 +51,7 @@ import java.util.Map;
  * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
  * @author Olivier Chafik
  */
-public class CLContext extends CLAbstractEntity<cl_context> {
+public class CLContext extends CLAbstractEntity {
 
 #macro (docCreateBufferCopy $bufferType $details)
 	/**
@@ -131,9 +131,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	#declareInfosGetter("infos", "CL.clGetContextInfo")
 	
 	CLPlatform platform;
-	protected Pointer<cl_device_id> deviceIds;
+	protected Pointer<SizeT> deviceIds;
 
-	CLContext(CLPlatform platform, Pointer<cl_device_id> deviceIds, cl_context context) {
+	CLContext(CLPlatform platform, Pointer<SizeT> deviceIds, long context) {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
@@ -143,11 +143,6 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		}
 	}
     
-    @Override
-    protected cl_context createEntityPointer(long peer) {
-    	return new cl_context(peer);
-    }
-	
 	/**
 	 * Creates a user event object. <br/>
 	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
@@ -171,7 +166,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new OpenCL queue
 	 */
 	public CLQueue createDefaultQueue(QueueProperties... queueProperties) {
-		return new CLDevice(platform, deviceIds.get(0)).createQueue(this, queueProperties);
+		return new CLDevice(platform, deviceIds.getSizeT()).createQueue(this, queueProperties);
 	}
 
 	/**
@@ -180,7 +175,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new out-of-order OpenCL queue
 	 */
 	public CLQueue createDefaultOutOfOrderQueue() {
-		return new CLDevice(platform, deviceIds.get(0)).createOutOfOrderQueue(this);
+		return new CLDevice(platform, deviceIds.getSizeT()).createOutOfOrderQueue(this);
 	}
 
 	
@@ -211,7 +206,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new profiling-enabled OpenCL queue
 	 */
 	public CLQueue createDefaultProfilingQueue() {
-		return new CLDevice(platform, deviceIds.get(0)).createProfilingQueue(this);
+		return new CLDevice(platform, deviceIds.getSizeT()).createProfilingQueue(this);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -219,7 +214,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		Pointer<Integer> pCount = allocateInt();
 		int memFlags = (int) flags.value();
 		int imTyp = (int) imageType.value();
-		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
+		CL.clGetSupportedImageFormats(getEntityPeer(), memFlags, imTyp, 0, 0, getPeer(pCount));
 		//cl_image_format ft = new cl_image_format();
 		//int sz = ft.size();
 		int n = pCount.getInt();
@@ -227,7 +222,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
         Pointer<cl_image_format> formats = allocateArray(cl_image_format.class, n);
-		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, formats, (Pointer<Integer>) null);
+		CL.clGetSupportedImageFormats(getEntityPeer(), memFlags, imTyp, n, getPeer(formats), 0);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
         for (cl_image_format ft : formats) {
             if (ft.image_channel_data_type() == 0 && ft.image_channel_order() == 0)
@@ -241,12 +236,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		#declareReusablePtrsAndPErr()
-		cl_sampler sampler = CL.clCreateSampler(
-			getEntity(), 
+		long sampler = CL.clCreateSampler(
+			getEntityPeer(), 
 			normalized_coords ? CL_TRUE : CL_FALSE, 
 			(int) addressing_mode.value(), 
 			(int) filter_mode.value(), 
-			pErr
+			getPeer(pErr)
 		);
 		#checkPErr()
 		return new CLSampler(sampler);
@@ -262,13 +257,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			deviceIds = infos.getMemory(getEntityPeer(), CL_CONTEXT_DEVICES).as(cl_device_id.class);
+			deviceIds = infos.getMemory(getEntityPeer(), CL_CONTEXT_DEVICES).as(SizeT.class);
 		}
         int n = (int)deviceIds.getValidElements();
 
 		CLDevice[] devices = new CLDevice[n];
 		for (int i = n; i-- != 0;) {
-			devices[i] = new CLDevice(platform, deviceIds.get(i));
+			devices[i] = new CLDevice(platform, deviceIds.getSizeTAtOffset(i * Pointer.SIZE));
 		}
 		return devices;
 	}
@@ -320,11 +315,21 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         Pointer<SizeT> pCount = allocateSizeT();
         Pointer<Pointer<?>> mem = allocatePointer();
         if (Platform.isMacOSX())
-            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.CGLGetCurrentContext(),
-                    CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
-                    Pointer.SIZE, mem, pCount));
+            error(CL.clGetGLContextInfoAPPLE(
+            	getEntityPeer(), 
+            	getPeer(OpenGLContextUtils.CGLGetCurrentContext()),
+            	CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
+                Pointer.SIZE, 
+                getPeer(mem), 
+                getPeer(pCount)));
         else
-            error(CL.clGetGLContextInfoKHR((Pointer)propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
+            error(CL.clGetGLContextInfoKHR(
+            	getPeer(propsRef), 
+            	CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, 
+            	Pointer.SIZE, 
+            	getPeer(mem), 
+            	getPeer(pCount)
+			));
 
         if (pCount.getSizeT() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.get().intValue());
@@ -332,7 +337,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         Pointer p = mem.getPointer();
         if (p.equals(Pointer.NULL))
             return null;
-        return new CLDevice(null, new cl_device_id(p));
+        return new CLDevice(null, getPeer(p));
     }
 
     private static <T extends CLMem> T markAsGL(T mem) {

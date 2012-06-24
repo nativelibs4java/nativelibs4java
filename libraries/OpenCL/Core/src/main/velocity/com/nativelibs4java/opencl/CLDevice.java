@@ -30,26 +30,21 @@ import java.util.logging.Logger;
  * {@link CLPlatform#listGPUDevices(boolean) }
  */
 @SuppressWarnings("unused")
-public class CLDevice extends CLAbstractEntity<cl_device_id> {
+public class CLDevice extends CLAbstractEntity {
 
     #declareInfosGetter("infos", "CL.clGetDeviceInfo")
     
     volatile CLPlatform platform;
 
-    CLDevice(CLPlatform platform, cl_device_id device) {
+    CLDevice(CLPlatform platform, long device) {
         super(device);
         this.platform = platform;
-    }
-    
-    @Override
-    protected cl_device_id createEntityPointer(long peer) {
-    	return new cl_device_id(peer);
     }
     
     public synchronized CLPlatform getPlatform() {
         if (platform == null) {
             Pointer pplat = infos.getPointer(getEntityPeer(), CL_DEVICE_PLATFORM);
-            platform = new CLPlatform(pplat == null ? null : new cl_platform_id(pplat));
+            platform = new CLPlatform(getPeer(pplat));
         }
         return platform;
     }
@@ -313,7 +308,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 		long flags = 0;
         for (QueueProperties prop : queueProperties)
             flags |= prop.value();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
+        long queue = CL.clCreateCommandQueue(context.getEntityPeer(), getEntityPeer(), flags, getPeer(pErr));
         #checkPErr()
 
         return new CLQueue(context, queue, this);
@@ -322,7 +317,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     @Deprecated
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         #declareReusablePtrsAndPErr()
-		cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), QueueProperties.getValue(queueProperties), pErr);
+		long queue = CL.clCreateCommandQueue(context.getEntityPeer(), getEntityPeer(), QueueProperties.getValue(queueProperties), getPeer(pErr));
         #checkPErr()
 
         return new CLQueue(context, queue, this);

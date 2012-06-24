@@ -82,7 +82,7 @@ import static org.bridj.Pointer.*;
  * To create a program from sources, please use see {@link CLContext#createProgram(java.lang.String[]) } 
  * @author Olivier Chafik
  */
-public class CLProgram extends CLAbstractEntity<cl_program> {
+public class CLProgram extends CLAbstractEntity {
 
     protected final CLContext context;
 
@@ -90,22 +90,18 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
     CLDevice[] devices;
     CLProgram(CLContext context, CLDevice... devices) {
-        super(null, true);
+        super(0, true);
         this.context = context;
         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
 	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries, String source) {
-		super(null, true);
+		super(0, true);
 		this.context = context;
 		this.source = source;
 
 		setBinaries(binaries);
 	}
     
-    @Override
-    protected cl_program createEntityPointer(long peer) {
-    	return new cl_program(peer);
-    }
 	protected void setBinaries(Map<CLDevice, byte[]> binaries) {
         if (this.devices == null) {
         		this.devices = new CLDevice[binaries.size()];
@@ -117,8 +113,8 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (binaries.size() != nDevices)
         		throw new IllegalArgumentException("Not enough binaries in provided map : expected " + nDevices + " (devices = " + Arrays.asList(devices) + "), got " + binaries.size() + " (" + binaries.keySet() + ")");
         Pointer<SizeT> lengths = allocateSizeTs(nDevices);
-		Pointer<cl_device_id> deviceIds = allocateTypedPointers(cl_device_id.class, nDevices);
-		Pointer<Pointer<Byte>> binariesArray = allocatePointers(paramType(Pointer.class, Byte.class), nDevices);
+		Pointer<SizeT> deviceIds = allocateSizeTs(nDevices);
+		Pointer<Pointer<?>> binariesArray = allocatePointers(nDevices);
 		Pointer<Byte>[] binariesMems = new Pointer[nDevices];
 
 		int iDevice = 0;
@@ -127,10 +123,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (binary == null)
             		throw new IllegalArgumentException("No binary for device " + device + " in provided binaries");
 
-            binariesArray.set(iDevice, binariesMems[iDevice] = pointerToBytes(binary));
-
-            lengths.set(iDevice, new SizeT(binary.length));
-            deviceIds.set(iDevice, device.getEntity());
+            long offset = iDevice * Pointer.SIZE;
+            binariesArray.setPointerAtOffset(offset, binariesMems[iDevice] = pointerToBytes(binary));
+            lengths.setSizeTAtOffset(offset, binary.length);
+            deviceIds.setSizeTAtOffset(offset, device.getEntityPeer());
             
             iDevice++;
         }
@@ -142,7 +138,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         int previousAttempts = 0;
         Pointer<Integer> statuses = allocateInts(nDevices);
 		do {
-			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, pErr));
+			setEntity(CL.clCreateProgramWithBinary(context.getEntityPeer(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 	}
 
@@ -264,16 +260,24 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		}
         
         String[] sources = this.sources.toArray(new String[this.sources.size()]);
+        Pointer<SizeT> pLengths = allocateSizeTs(sources.length);
         long[] lengths = new long[sources.length];
         for (int i = 0; i < sources.length; i++) {
-            lengths[i] = sources[i].length();
+            pLengths.setSizeTAtOffset(i * Pointer.SIZE, sources[i].length());
         }
         
         #declareReusablePtrsAndPErr()
-        cl_program program;
+        long program;
 		int previousAttempts = 0;
+		Pointer<Pointer<Byte>> pSources = pointerToCStrings(sources);
 		do {
-			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, pointerToCStrings(sources), pointerToSizeTs(lengths), pErr);
+			program = CL.clCreateProgramWithSource(
+				context.getEntityPeer(), 
+				sources.length, 
+				getPeer(pSources),
+				getPeer(pLengths), 
+				getPeer(pErr)
+			);
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         setEntity(program);
     }
@@ -281,14 +285,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     private boolean isAllocated() {
     	return super.getEntityPeer() != 0;
     }
-    
+    /*
     @Override
     protected synchronized cl_program getEntity() {
         if (!isAllocated())
             allocate();
 
         return super.getEntity();
-    }
+    }*/
     
     @Override
     protected synchronized long getEntityPeer() {
@@ -684,19 +688,19 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		"os.name"
 	};
     
-	protected Set<String> getProgramBuildInfo(cl_program pgm, Pointer<cl_device_id> deviceIds) {
+	protected Set<String> getProgramBuildInfo(long pgm, Pointer<SizeT> deviceIds) {
 		Pointer<SizeT> len = allocateSizeT();
 		int bufLen = 2048 * 32; //TODO find proper size
 		Pointer<?> buffer = allocateBytes(bufLen);
 
 		Set<String> errs = new HashSet<String>();
 		if (deviceIds == null) {
-			error(CL.clGetProgramBuildInfo(getPeer(pgm), 0, CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
+			error(CL.clGetProgramBuildInfo(pgm, 0, CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 			String s = buffer.getCString();
 			errs.add(s);
 		} else {
-			for (cl_device_id device : deviceIds) {
-				error(CL.clGetProgramBuildInfo(getPeer(pgm), getPeer(device), CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
+			for (SizeT device : deviceIds) {
+				error(CL.clGetProgramBuildInfo(pgm, device.longValue(), CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 				String s = buffer.getCString();
 				errs.add(s);
 			}
@@ -732,7 +736,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 				}
         		} catch (Throwable ex) {
         			assert log(Level.WARNING, "Failed to load cached program : " + ex.getMessage());
-        			setEntity(null);
+        			setEntity(0);
         		}
         }
         
@@ -748,15 +752,22 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 			}
         
         int nDevices = devices.length;
-        Pointer<cl_device_id> deviceIds = null;
+        Pointer<SizeT> deviceIds = null;
         if (nDevices != 0) {
-            deviceIds = allocateTypedPointers(cl_device_id.class, nDevices);
+            deviceIds = allocateSizeTs(nDevices);
             for (int i = 0; i < nDevices; i++)
-                deviceIds.set(i, devices[i].getEntity());
+                deviceIds.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntityPeer());
         }
-        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, pointerToCString(getOptionsString()), null, null);
-        //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
-        Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
+        Pointer<Byte> pOptions = pointerToCString(getOptionsString());
+        int err = CL.clBuildProgram(
+        	getEntityPeer(), 
+        	nDevices, 
+        	getPeer(deviceIds), 
+        	getPeer(pOptions), 
+        	0, 
+        	0
+		);
+        Set<String> errors = getProgramBuildInfo(getEntityPeer(), deviceIds);
         
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             throw new CLBuildException(this, "Compilation failure : " + errorString(err), errors);

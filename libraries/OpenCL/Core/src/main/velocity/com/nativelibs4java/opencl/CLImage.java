@@ -67,14 +67,16 @@ public abstract class CLImage extends CLMem {
 
 		}*/
 		#declareReusablePtrsAndEventsInOutBlockable()
-        error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
+        error(CL.clEnqueueReadImage(
+        	queue.getEntityPeer(), 
+        	getEntityPeer(),
 			blocking ? CL_TRUE : CL_FALSE,
-			origin,
-			region,
+			getPeer(origin),
+			getPeer(region),
 			rowPitch,
 			slicePitch,
-			out,
-			#eventsInOutArgs()
+			getPeer(out),
+			#eventsInOutArgsRaw()
 		));
 		#returnEventOut("queue")
 	}
@@ -84,14 +86,16 @@ public abstract class CLImage extends CLMem {
 	}
 	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		#declareReusablePtrsAndEventsInOutBlockable()
-        error(CL.clEnqueueWriteImage(queue.getEntity(), getEntity(),
+        error(CL.clEnqueueWriteImage(
+        	queue.getEntityPeer(),
+        	getEntityPeer(),
 			blocking ? CL_TRUE : CL_FALSE,
-			origin,
-			region,
+			getPeer(origin),
+			getPeer(region),
 			rowPitch,
 			slicePitch,
-			in,
-			#eventsInOutArgs()
+			getPeer(in),
+			#eventsInOutArgsRaw()
 		));
 		CLEvent evt = #eventOutWrapper("queue");
 
