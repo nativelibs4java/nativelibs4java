@@ -115,7 +115,12 @@ public class JavaCL {
 
     static final OpenCLLibrary CL;
 	static {
-        boolean needsAdditionalSynchronization = false;
+		if (Platform.isLinux()) {
+			String amdAppBase = "/opt/AMDAPP/lib";
+			BridJ.addLibraryPath(amdAppBase + "/" + (Platform.is64Bits() ? "x86_64" : "x86"));
+			BridJ.addLibraryPath(amdAppBase);
+		}
+        	boolean needsAdditionalSynchronization = false;
 		{
 			OpenCLProbeLibrary probe = null;
 			try {
@@ -129,12 +134,14 @@ public class JavaCL {
 				if (!probe.isValid()) {
 					BridJ.unregister(OpenCLProbeLibrary.class);
 					//BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
-                    String alt;
-					if (Platform.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
+                   			String alt;
+					if (Platform.is64Bits() && (BridJ.getNativeLibraryFile(alt = "atiocl64") != null || BridJ.getNativeLibraryFile(alt = "amdocl64") != null) ||
 						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
-						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
+						BridJ.getNativeLibraryFile(alt = "atiocl") != null ||
+						BridJ.getNativeLibraryFile(alt = "amdocl32") != null ||
+						BridJ.getNativeLibraryFile(alt = "amdocl") != null) 
 					{
-						log(Level.INFO, "Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
+						log(Level.INFO, "Hacking around ATI's weird driver bugs (using atiocl/amdocl library instead of OpenCL)", null); 
 						BridJ.setNativeLibraryActualName("OpenCL", alt);
 					}
                     BridJ.register(OpenCLProbeLibrary.class);
