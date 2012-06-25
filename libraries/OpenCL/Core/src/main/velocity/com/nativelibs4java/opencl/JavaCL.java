@@ -61,10 +61,6 @@ public class JavaCL {
 	@org.bridj.ann.Library("OpenCLProbe") 
 	@org.bridj.ann.Convention(org.bridj.ann.Convention.Style.StdCall)
 	public static class OpenCLProbeLibrary {
-		static {
-			BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
-			BridJ.register();
-		}
 		@org.bridj.ann.Optional
 		public native static synchronized int clGetPlatformIDs(int cl_uint1, Pointer<cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
 		@org.bridj.ann.Optional
@@ -121,11 +117,19 @@ public class JavaCL {
 	static {
         boolean needsAdditionalSynchronization = false;
 		{
-			OpenCLProbeLibrary probe = new OpenCLProbeLibrary();
+			OpenCLProbeLibrary probe = null;
 			try {
+				try {
+					BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
+					BridJ.register();
+				} catch (Throwable th) {}
+				
+				probe = new OpenCLProbeLibrary();
+				
 				if (!probe.isValid()) {
-                    BridJ.unregister(OpenCLProbeLibrary.class);
-					String alt;
+					BridJ.unregister(OpenCLProbeLibrary.class);
+					//BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
+                    String alt;
 					if (Platform.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
@@ -142,8 +146,9 @@ public class JavaCL {
                     log(Level.INFO, "At least one OpenCL platform uses OpenCL 1.0, which is not thread-safe: will use synchronized low-level bindings.");
                 }
 			} finally {
+				if (probe != null)
+					BridJ.unregister(OpenCLProbeLibrary.class);
 				probe = null;
-				BridJ.unregister(OpenCLProbeLibrary.class);
 			}
 		}
 		
