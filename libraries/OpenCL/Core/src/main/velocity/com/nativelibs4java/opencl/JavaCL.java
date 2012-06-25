@@ -150,7 +150,7 @@ public class JavaCL {
                 
                 if (probe.hasOpenCL1_0()) {
                     needsAdditionalSynchronization = true;
-                    log(Level.INFO, "At least one OpenCL platform uses OpenCL 1.0, which is not thread-safe: will use synchronized low-level bindings.");
+                    log(Level.WARNING, "At least one OpenCL platform uses OpenCL 1.0, which is not thread-safe: will use (slower) synchronized low-level bindings.");
                 }
 			} finally {
 				if (probe != null)
