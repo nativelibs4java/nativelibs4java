@@ -18,6 +18,7 @@ import com.nativelibs4java.test.MiscTestUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.nio.ByteBuffer;
 /**
  *
  * @author Kazo Csaba
@@ -98,19 +99,21 @@ public class OverheadTest extends AbstractCommon {
             private final long aPeer = a.getEntity();
             private final long bPeer = b.getEntity();
             private final long kEntity = kernel.getEntity();
-            private final Pointer<?> tmp = allocateBytes(8);
+            private final Pointer<?> tmp = allocateBytes(8);//.withoutValidityInformation();
+            private final ByteBuffer tmpBuf = tmp.getByteBuffer();
             private final long tPeer = getPeer(tmp);
+            private final long pointerSize = Pointer.SIZE;
             private final OpenCLLibrary CL = new OpenCLLibrary();
             public void run() {
-                CL.clSetKernelArg(kEntity, 0, Pointer.SIZE, aPeer);
-                CL.clSetKernelArg(kEntity, 1, Pointer.SIZE, bPeer);
-                tmp.setShort((short)1);
+                CL.clSetKernelArg(kEntity, 0, pointerSize, aPeer);
+                CL.clSetKernelArg(kEntity, 1, pointerSize, bPeer);
+                tmpBuf.putShort(0, (short)1);
                 CL.clSetKernelArg(kEntity, 2, 2L, tPeer);
-                tmp.setInt(1);
+                tmpBuf.putInt(0, 1);
                 CL.clSetKernelArg(kEntity, 3, 4L, tPeer);
-                tmp.setByte((byte)1);
+                tmpBuf.put(0, (byte)1);
                 CL.clSetKernelArg(kEntity, 4, 1L, tPeer);
-                tmp.setFloat(1);
+                tmpBuf.putFloat(0, 1);
                 CL.clSetKernelArg(kEntity, 5, 4L, tPeer);
             }
         };
