@@ -119,11 +119,7 @@ public class CLContext extends CLAbstractEntity {
 			else if ("false".equals(prop) || "0".equals(env))
 				cacheBinaries = false;
 			else {
-				String plat = getPlatform().getName();
-				cacheBinaries = 
-					!"ATI Stream".equals(plat) &&
-					!"AMD Accelerated Parallel Processing".equals(plat) &&
-					true;
+				cacheBinaries = !PlatformUtils.PlatformKind.AMDApp.equals(PlatformUtils.guessPlatformKind(getPlatform()));
 			}
 			//System.out.println("CACHE BINARIES = " + cacheBinaries);
 		}
@@ -602,7 +598,7 @@ public class CLContext extends CLAbstractEntity {
 #end
 	}
 
-#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
+#docCreateBuffer("CLBuffer&lt;${prim.WrapperName}&gt;", "")
 	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data) {
 		return create${prim.BufferName}(kind, data, true);
 	}
