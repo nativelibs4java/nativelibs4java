@@ -590,6 +590,7 @@ public class OpenCLLibrary {
 	 */
 	public native @Ptr long clCreateBuffer(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateSubBuffer(cl_mem, cl_mem_flags, cl_buffer_create_type, const void*, cl_int*)</code>
+	@Optional
 	public native @Ptr long clCreateSubBuffer(@Ptr long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_mem clCreateImage(cl_context, cl_mem_flags, const cl_image_format*, const cl_image_desc*, void*, cl_int*)</code>
 	@Optional
@@ -605,6 +606,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clGetImageInfo(cl_mem, cl_image_info, size_t, void*, size_t*)</code>
 	public native int clGetImageInfo(@Ptr long cl_mem1, int cl_image_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/// Original signature : <code>cl_int clSetMemObjectDestructorCallback(cl_mem, clSetMemObjectDestructorCallback_arg1_callback, void*)</code>
+	@Optional
 	public native int clSetMemObjectDestructorCallback(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Sampler APIs<br>
@@ -674,14 +676,17 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code>
 	public native int clGetEventInfo(@Ptr long cl_event1, int cl_event_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/// Original signature : <code>cl_event clCreateUserEvent(cl_context, cl_int*)</code>
+	@Optional
 	public native @Ptr long clCreateUserEvent(@Ptr long cl_context1, @Ptr long cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
 	public native int clRetainEvent(@Ptr long cl_event1);
 	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>
 	public native int clReleaseEvent(@Ptr long cl_event1);
 	/// Original signature : <code>cl_int clSetUserEventStatus(cl_event, cl_int)</code>
+	@Optional
 	public native int clSetUserEventStatus(@Ptr long cl_event1, int cl_int1);
 	/// Original signature : <code>cl_int clSetEventCallback(cl_event, cl_int, clSetEventCallback_arg1_callback, void*)</code>
+	@Optional
 	public native int clSetEventCallback(@Ptr long cl_event1, int cl_int1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Profiling APIs<br>
@@ -701,10 +706,12 @@ public class OpenCLLibrary {
 	 */
 	public native int clEnqueueReadBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReadBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
+	@Optional
 	public native int clEnqueueReadBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueWriteBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueWriteBufferRect(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
+	@Optional
 	public native int clEnqueueWriteBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueFillBuffer(cl_command_queue, cl_mem, const void*, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	@Optional
@@ -712,6 +719,7 @@ public class OpenCLLibrary {
 	/// Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueCopyBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueCopyBufferRect(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, size_t, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
+	@Optional
 	public native int clEnqueueCopyBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	public native int clEnqueueReadImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
