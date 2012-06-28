@@ -57,6 +57,7 @@ public class CLEvent extends CLAbstractEntity {
     	setCallback(CL_COMPLETE, callback);
     }
     /**
+#documentCallsFunction("clSetEventCallback")
      * Registers a user callback function for a specific command execution status. <br/>
      * The registered callback function will be called when the execution status of command associated with event changes to the execution status specified by command_exec_status.
      * @param commandExecStatus specifies the command execution status for which the callback is registered. The command execution callback values for which a callback can be registered are: CL_COMPLETE. There is no guarantee that the callback functions registered for various execution status values for an event will be called in the exact order that the execution status of a command changes.
@@ -112,6 +113,7 @@ public class CLEvent extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clWaitForEvents")
 	 * Wait for events, blocking the caller thread independently of any queue until all of the commands associated with the events completed.
 	 * @param eventsToWaitFor List of events which completion is to be waited for
 	 */

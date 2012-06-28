@@ -306,6 +306,9 @@ public class CLPlatform extends CLAbstractEntity {
         
         return out;
     }
+    /**
+#documentCallsFunction("clCreateContext")
+	 */
     @Deprecated
     public CLContext createGLCompatibleContext(CLDevice... devices) {
         try {
@@ -324,6 +327,7 @@ public class CLPlatform extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clCreateContext")
      * Creates an OpenCL context formed of the provided devices.<br/>
      * It is generally not a good idea to create a context with more than one device,
      * because much data is shared between all the devices in the same context.
@@ -360,6 +364,7 @@ public class CLPlatform extends CLAbstractEntity {
 	};*/
 
     /**
+#documentCallsFunction("clGetDeviceIDs")
      * List all the devices of the specified types, with only the ones declared as available if onlyAvailable is true.
      */
     @SuppressWarnings("deprecation")

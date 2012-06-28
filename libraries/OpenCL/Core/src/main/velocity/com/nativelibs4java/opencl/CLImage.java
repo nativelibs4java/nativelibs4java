@@ -59,10 +59,16 @@ public abstract class CLImage extends CLMem {
 		return infos.getIntOrLong(getEntity(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
-	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+	/**
+#documentCallsFunction("clEnqueueReadImage")
+     */
+    protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		return read(queue, origin, region, rowPitch, slicePitch, pointerToBuffer(out), blocking, eventsToWaitFor);
 	}
-	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> out, boolean blocking, CLEvent... eventsToWaitFor) {
+	/**
+#documentCallsFunction("clEnqueueReadImage")
+     */
+    protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		/*if (!out.isDirect()) {
 
 		}*/
@@ -81,10 +87,16 @@ public abstract class CLImage extends CLMem {
 		#returnEventOut("queue")
 	}
 
-	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+	/**
+#documentCallsFunction("clEnqueueWriteImage")
+     */
+    protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, origin, region, rowPitch, slicePitch, pointerToBuffer(in), blocking, eventsToWaitFor);
 	}
-	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
+	/**
+#documentCallsFunction("clEnqueueWriteImage")
+     */
+    protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteImage(
         	queue.getEntity(),
@@ -140,6 +152,7 @@ public abstract class CLImage extends CLMem {
     }
 
     /**
+#documentCallsFunction("clEnqueueUnmapMemObject")
      * see {@link CLImage2D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * @param queue

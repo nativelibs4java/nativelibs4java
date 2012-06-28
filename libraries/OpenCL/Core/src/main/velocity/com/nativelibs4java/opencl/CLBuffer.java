@@ -46,25 +46,43 @@ public class CLBuffer<T> extends CLMem {
 	public long getElementCount() {
         return getByteCount() / getElementSize();
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
     
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
     
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public Pointer<T> read(CLQueue queue, CLEvent... eventsToWaitFor) {
         Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public Pointer<T> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
 		Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, offset, length, out, true, eventsToWaitFor);
@@ -77,6 +95,7 @@ public class CLBuffer<T> extends CLMem {
 	}
 
 	/**
+#documentCallsFunction("clCreateSubBuffer")
 	 * Can be used to create a new buffer object (referred to as a sub-buffer object) from an existing buffer object.
 	 * @param usage is used to specify allocation and usage information about the image memory object being created and is described in table 5.3 of the OpenCL spec.
 	 * @param offset
@@ -108,6 +127,7 @@ public class CLBuffer<T> extends CLMem {
 	}
 	
 	/**
+#documentCallsFunction("clEnqueueCopyBuffer")
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param queue
 	 * @param srcOffset
@@ -147,6 +167,9 @@ public class CLBuffer<T> extends CLMem {
 		#returnEventOut("queue")
 	}
 
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	protected Pair<Pointer<T>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
 		#declareReusablePtrsAndEventsInOutBlockable()
@@ -170,13 +193,17 @@ public class CLBuffer<T> extends CLMem {
 		);
     }
 
-    public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
+    /**
+#documentCallsFunction("clEnqueueUnmapMemObject")
+	*/
+	public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
     	#declareReusablePtrsAndEventsInOut();
         error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), getPeer(buffer), #eventsInOutArgsRaw()));
 		#returnEventOut("queue")
     }
 
     /**
+#documentCallsFunction("clEnqueueReadBuffer")
      * @deprecated use {@link CLBuffer#read(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -184,12 +211,16 @@ public class CLBuffer<T> extends CLMem {
 		return read(queue, 0, -1, out, blocking, eventsToWaitFor);
     }
     
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public CLEvent read(CLQueue queue, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
         return read(queue, 0, -1, out, blocking, eventsToWaitFor);
 	}
 
 	/**
-     * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+#documentCallsFunction("clEnqueueReadBuffer")
+	 * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -213,6 +244,9 @@ public class CLBuffer<T> extends CLMem {
         return ret;
 	}
 	
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (out == null)
 			throw new IllegalArgumentException("Null output pointer !");
@@ -243,6 +277,7 @@ public class CLBuffer<T> extends CLMem {
     }
     
 	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -250,11 +285,15 @@ public class CLBuffer<T> extends CLMem {
 		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
 	}
 	
+	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
 	public CLEvent write(CLQueue queue, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
 	}
 
 	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -274,7 +313,9 @@ public class CLBuffer<T> extends CLMem {
         return write(queue, offset, length, ptr, blocking, eventsToWaitFor);
 	}
 	
-	
+	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
 	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (length == 0)
 			return null;
@@ -306,10 +347,16 @@ public class CLBuffer<T> extends CLMem {
         #returnEventOut("queue")
     }
 
-    public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+    /**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
+	public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
     		return writeBytes(queue, offset, length, pointerToBuffer(in), blocking, eventsToWaitFor);
     }
-    public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
+    /**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
+	public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (in == null)
 			throw new IllegalArgumentException("Null input pointer !");
 		

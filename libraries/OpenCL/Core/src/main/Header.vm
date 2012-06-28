@@ -111,3 +111,8 @@
 #documentEventsToWaitFor()  
      * @return Pair with $firstContent and event object that identifies this command and can be used to query or queue a wait for the command to complete, or null if eventsToWaitFor contains {@link CLEvent#FIRE_AND_FORGET}.
 #end
+	
+#macro (documentCallsFunction $functionName)
+	* Calls <a href="http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/${functionName}.html">$functionName</a>.<br>
+#end
+	

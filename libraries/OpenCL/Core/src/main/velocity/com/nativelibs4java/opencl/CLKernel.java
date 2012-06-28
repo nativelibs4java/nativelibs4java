@@ -206,6 +206,9 @@ public class CLKernel extends CLAbstractEntity {
         }
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, LocalSize arg) {
         setLocalArg(i, arg.size);
     }
@@ -224,35 +227,65 @@ public class CLKernel extends CLAbstractEntity {
     		}
     }
     
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, Pointer<?> ptr) {
 		setKernelArg(i, ptr.getValidBytes(), ptr);
     }
     
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, float[] arg) {
         setKernelArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? localPointer.setFloats(arg) : pointerToFloats(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, int[] arg) {
         setKernelArg(i, arg.length * 4, arg.length <= MAX_TMP_ITEMS ? localPointer.setInts(arg) : pointerToInts(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, double[] arg) {
         setKernelArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? localPointer.setDoubles(arg) : pointerToDoubles(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, long[] arg) {
         setKernelArg(i, arg.length * 8, arg.length <= MAX_TMP_ITEMS ? localPointer.setLongs(arg) : pointerToLongs(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, short[] arg) {
         setKernelArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? localPointer.setShorts(arg) : pointerToShorts(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, byte[] arg) {
         setKernelArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? localPointer.setBytes(arg) : pointerToBytes(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, boolean[] arg) {
         setKernelArg(i, arg.length, arg.length <= MAX_TMP_ITEMS ? localPointer.setBooleans(arg) : pointerToBooleans(arg));
     }
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, char[] arg) {
         setKernelArg(i, arg.length * 2, arg.length <= MAX_TMP_ITEMS ? localPointer.setChars(arg) : pointerToChars(arg));
     }
     
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, SizeT arg) {
         switch (contextAddressBits) {
             case 32:
@@ -267,34 +300,58 @@ public class CLKernel extends CLAbstractEntity {
         }
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, int arg) {
         setKernelArg(i, 4, localPointer.setInt(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, long arg) {
         setKernelArg(i, 8, localPointer.setLong(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, short arg) {
         setKernelArg(i, 2, localPointer.setShort(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, byte arg) {
         setKernelArg(i, 1, localPointer.setByte(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, boolean arg) {
         setKernelArg(i, 1, localPointer.setByte(arg ? (byte)1 : (byte)0));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, float arg) {
         setKernelArg(i, 4, localPointer.setFloat(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, double arg) {
         setKernelArg(i, 8, localPointer.setDouble(arg));
     }
 
+    /**
+#documentCallsFunction("clSetKernelArg")
+     */
     public void setArg(int i, CLAbstractEntity arg) {
         setKernelArg(i, Pointer.SIZE, localPointer.setSizeT(arg.getEntity()));
     }
@@ -306,6 +363,7 @@ public class CLKernel extends CLAbstractEntity {
 
     private static final Pointer<SizeT> oneNL = pointerToSizeT(1);
     /**
+#documentCallsFunction("clEnqueueTask")
      * Enqueues a command to execute a kernel on a device. <br>
      * The kernel is executed using a single work-item.
      * @param queue
@@ -318,6 +376,7 @@ public class CLKernel extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clEnqueueNDRangeKernel")
      * Enqueues a command to execute a kernel on a device (see {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])})
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex]. This parameter can be left null, in which case the OpenCL implementation will choose good values.
@@ -329,6 +388,7 @@ public class CLKernel extends CLAbstractEntity {
     }
     
     /**
+#documentCallsFunction("clEnqueueNDRangeKernel")
      * Enqueues a command to execute a kernel on a device, using local work sizes chosen by the OpenCL implementation.
      * See {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])}
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
@@ -340,6 +400,7 @@ public class CLKernel extends CLAbstractEntity {
     }
     
     /**
+#documentCallsFunction("clEnqueueNDRangeKernel")
      * Enqueues a command to execute a kernel on a device.
      * @param globalOffsets Must be null in OpenCL 1.0. Each element describes the offset used to calculate the global ID of a work-item. If globalOffsets is null, the global IDs start at offset (0, 0, ... 0).
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].

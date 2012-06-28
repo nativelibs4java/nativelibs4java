@@ -801,6 +801,7 @@ public class CLProgram extends CLAbstractEntity {
     }
 
 	/**
+#documentCallsFunction("clCreateKernelsInProgram")
 	 * Return all the kernels found in the program.
 	 */
 	public CLKernel[] createKernels() throws CLBuildException {
@@ -825,6 +826,7 @@ public class CLProgram extends CLAbstractEntity {
 	}
 
     /**
+#documentCallsFunction("clCreateKernel")
      * Find a kernel by its functionName, and optionally bind some arguments to it.
      */
     public CLKernel createKernel(String name, Object... args) throws CLBuildException {

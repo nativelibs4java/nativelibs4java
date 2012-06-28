@@ -52,6 +52,7 @@ public abstract class CLMem extends CLAbstractEntity {
     }
     
     /**
+#documentCallsFunction("clSetMemObjectDestructorCallback")
      * Registers a user callback function that will be called when the memory object is deleted and its resources freed. <br/>
      * Each call to clSetMemObjectDestructorCallback registers the specified user callback function on a callback stack associated with memobj. <br/>
      * The registered user callback functions are called in the reverse order in which they were registered. <br/>
@@ -196,6 +197,9 @@ public abstract class CLMem extends CLAbstractEntity {
             return name;
         }
     }
+    /**
+#documentCallsFunction("clGetGLObjectInfo")
+     */
     @SuppressWarnings("deprecation")
 	public GLObjectInfo getGLObjectInfo() {
 		#declareReusablePtrs()

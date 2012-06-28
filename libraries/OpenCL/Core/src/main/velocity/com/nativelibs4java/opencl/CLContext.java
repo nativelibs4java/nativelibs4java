@@ -55,7 +55,8 @@ public class CLContext extends CLAbstractEntity {
 
 #macro (docCreateBufferCopy $bufferType $details)
 	/**
-	* Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
+#documentCallsFunction("clCreateBuffer")
+	 * Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
 	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
 	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, CLMem.MapFlags, CLEvent...) CLBuffer#map(CLQueue, MapFlags, CLEvent...)} is then necessary to ensure the data is properly synchronized with the buffer. 
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
@@ -64,7 +65,8 @@ public class CLContext extends CLAbstractEntity {
 #end
 #macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
     /**
-    * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
+#documentCallsFunction("clCreateBuffer")
+     * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 $insertParam 
 	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
@@ -209,6 +211,9 @@ public class CLContext extends CLAbstractEntity {
 		return new CLDevice(platform, deviceIds.getSizeT()).createProfilingQueue(this);
 	}
 
+	/**
+#documentCallsFunction("clGetSupportedImageFormats")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		Pointer<Integer> pCount = allocateInt();
@@ -233,6 +238,9 @@ public class CLContext extends CLAbstractEntity {
 		return ret.toArray(new CLImageFormat[ret.size()]);
 	}
 
+	/**
+#documentCallsFunction("clCreateSampler")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		#declareReusablePtrsAndPErr()
@@ -346,6 +354,7 @@ public class CLContext extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clCreateFromGLBuffer")
      * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -370,6 +379,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 
     /**
+#documentCallsFunction("clCreateFromGLRenderbuffer")
      * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -393,6 +403,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 	
 	/**
+#documentCallsFunction("clCreateFromGLTexture2D")
 	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br/>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * @param usage
@@ -458,6 +469,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 	
 	/**
+#documentCallsFunction("clCreateFromGLTexture3D")
 	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br/>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
 	 * @param usage
@@ -502,6 +514,9 @@ public class CLContext extends CLAbstractEntity {
 				true);
 	}
 
+	/**
+#documentCallsFunction("clCreateImage2D")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
 		long memFlags = usage.getIntFlags();
@@ -536,6 +551,9 @@ public class CLContext extends CLAbstractEntity {
 		return createImage2D(usage, format, width, height, 0, null, false);
 	}
 
+	/**
+#documentCallsFunction("clCreateImage3D")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
 		long memFlags = usage.getIntFlags();
@@ -601,6 +619,7 @@ public class CLContext extends CLAbstractEntity {
 #end
 
 	/**
+#documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
@@ -623,6 +642,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified type.
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param io Delegate responsible for reading and writing values.
@@ -634,6 +654,9 @@ public class CLContext extends CLAbstractEntity {
         return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
 	}
 
+	/**
+#documentCallsFunction("clCreateBuffer")
+	*/
 	@SuppressWarnings("deprecation")
 	private <T> CLBuffer<T> createBuffer(PointerIO<T> io, Pointer<T> data, long byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
         if (byteCount <= 0)

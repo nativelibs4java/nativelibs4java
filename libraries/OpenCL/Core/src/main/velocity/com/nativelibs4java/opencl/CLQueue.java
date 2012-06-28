@@ -77,6 +77,7 @@ public class CLQueue extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clFinish")
 	 * Blocks until all previously queued OpenCL commands in this queue are issued to the associated device and have completed. <br/>
 	 * finish() does not return until all queued commands in this queue have been processed and completed. <br/>
 	 * finish() is also a synchronization point.
@@ -86,6 +87,7 @@ public class CLQueue extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clFlush")
 	 * Issues all previously queued OpenCL commands in this queue to the device associated with this queue. <br/>
 	 * flush() only guarantees that all queued commands in this queue get issued to the appropriate device. <br/>
 	 * There is no guarantee that they will be complete after flush() returns.
@@ -95,6 +97,7 @@ public class CLQueue extends CLAbstractEntity {
     }
 
 	/**
+#documentCallsFunction("clEnqueueWaitForEvents")
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
 	public void enqueueWaitForEvents(CLEvent... eventsToWaitFor) {
@@ -106,6 +109,7 @@ public class CLQueue extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clEnqueueBarrier")
 	 * Enqueue a barrier operation.<br/>
 	 * The enqueueBarrier() command ensures that all queued commands in command_queue have finished execution before the next batch of commands can begin execution. <br/>
 	 * enqueueBarrier() is a synchronization point.
@@ -115,6 +119,7 @@ public class CLQueue extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clEnqueueMarker")
 	 * Enqueue a marker command to command_queue. <br/>
 	 * The marker command returns an event which can be used by to queue a wait on this marker event i.e. wait for all commands queued before the marker command to complete.
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
@@ -127,6 +132,7 @@ public class CLQueue extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clEnqueueAcquireGLObjects")
 	 * Used to acquire OpenCL memory objects that have been created from OpenGL objects. <br>
 	 * These objects need to be acquired before they can be used by any OpenCL commands queued to a command-queue. <br>
 	 * The OpenGL objects are acquired by the OpenCL context associated with this queue and can therefore be used by all command-queues associated with the OpenCL context.
@@ -149,6 +155,7 @@ public class CLQueue extends CLAbstractEntity {
 	}
 
 	/**
+#documentCallsFunction("clEnqueueReleaseGLObjects")
 	 * Used to release OpenCL memory objects that have been created from OpenGL objects. <br>
 	 * These objects need to be released before they can be used by OpenGL. <br>
 	 * The OpenGL objects are released by the OpenCL context associated with this queue.

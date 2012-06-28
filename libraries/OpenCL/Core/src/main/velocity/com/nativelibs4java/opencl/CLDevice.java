@@ -298,6 +298,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
+#documentCallsFunction("clCreateCommandQueue")
      * Create an OpenCL execution queue on this device for the specified context.
      * @param context context of the queue to create
      * @return new OpenCL queue object
@@ -314,6 +315,9 @@ public class CLDevice extends CLAbstractEntity {
         return new CLQueue(context, queue, this);
     }
 
+    /**
+#documentCallsFunction("clCreateCommandQueue")
+     */
     @Deprecated
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         #declareReusablePtrsAndPErr()
