@@ -63,27 +63,36 @@ class ByteOrderHack {
 			boolean bigOk = successPtr.get(BIG_INDEX) != 0;
 			boolean littleOk = successPtr.get(LITTLE_INDEX) != 0;
 			
+			int index, otherIndex;
+			ByteOrder order, otherOrder;
+			if (bigOk) {
+				order = ByteOrder.BIG_ENDIAN;
+				index = BIG_INDEX;
+				otherOrder = ByteOrder.LITTLE_ENDIAN;
+				otherIndex = LITTLE_INDEX;
+			} else {
+				order = ByteOrder.LITTLE_ENDIAN;
+				index = LITTLE_INDEX;
+				otherOrder = ByteOrder.BIG_ENDIAN;
+				otherIndex = BIG_INDEX;
+			}
+			float value = outPtr.order(order).get(index);
+			float otherValue = outPtr.order(otherOrder).get(otherIndex);
+			
+			if (JavaCL.debug)
+				System.out.println("[" + device + "] Endianness test: bigOk = " + bigOk + ", littleOk = " + littleOk + "; value = " + value + ", otherValue = " + otherValue);
+			
 			if (!(bigOk ^ littleOk))
-				throw new RuntimeException("Endianness check failed, kernel recognized both endiannesses...");
+				throw new RuntimeException("[" + device + "] Endianness check failed, kernel recognized both endiannesses...");
 			
 			{
-				int index;
-				ByteOrder order;
-				if (bigOk) {
-					order = ByteOrder.BIG_ENDIAN;
-					index = BIG_INDEX;
-				} else {
-					order = ByteOrder.LITTLE_ENDIAN;
-					index = LITTLE_INDEX;
-				}
-				float value = outPtr.order(order).get(index);
-				if (value != testValue)
-					throw new RuntimeException("Endianness double-check failed, expected " + testValue + " and found " + value + " instead for endianness " + order);
+				if (value != testValue || otherValue == testValue)
+					throw new RuntimeException("[" + device + "] Endianness double-check failed, expected " + testValue + " and found " + value + " instead for endianness " + order + " (otherValue = " + otherValue + " for " + otherOrder + ")");
 				
 				return order;
 			}
 		} catch (Throwable ex) {
-			throw new RuntimeException("Endianness check failed: " + ex, ex);
+			throw new RuntimeException("[" + device + "] Endianness check failed: " + ex, ex);
 		} finally {
 			queue.release();
 			context.release();
