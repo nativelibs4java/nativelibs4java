@@ -11,6 +11,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import org.bridj.*;
+import org.bridj.ann.Ptr;
 import static org.bridj.Pointer.*;
 
 /**
@@ -33,18 +34,25 @@ public class CLEvent extends CLAbstractEntity {
 	/**
 	 * Pass this to special value to any method that expects a variable number of events to wait for and that returns an event, to completely avoid returning the completion event (will return null instead of the event). 
 	 */
-	public static final CLEvent FIRE_AND_FORGET = new CLEvent(-1);
+	public static final CLEvent FIRE_AND_FORGET = new CLEvent(null, -1);
 	
 	#declareInfosGetter("infos", "CL.clGetEventInfo")
 
 	#declareInfosGetter("profilingInfos", "CL.clGetEventProfilingInfo")
 	
-    CLEvent(long evt) {
+	private final CLQueue queue;
+	
+    CLEvent(CLQueue queue, long evt) {
 		super(evt, false);
+		this.queue = queue;
+	}
+	
+	public CLQueue getQueue() {
+		return queue;
 	}
 	
     public interface EventCallback {
-    	public void callback(CLEvent event, int executionStatus);
+    	public void callback(int executionStatus);
     }
     
     /**
@@ -56,6 +64,19 @@ public class CLEvent extends CLAbstractEntity {
     public void setCompletionCallback(final EventCallback callback) {
     	setCallback(CL_COMPLETE, callback);
     }
+    
+	private static final clSetEventCallback_arg1_callback eventCallback = new clSetEventCallback_arg1_callback() {
+		public void apply(@Ptr long evt, int executionStatus, @Ptr long callbackPeer) {
+			EventCallback callback = (EventCallback)JNI.refToObject(callbackPeer);
+			try {
+				callback.callback(executionStatus);
+			} finally {
+				JNI.deleteGlobalRef(callbackPeer);
+			}
+		}
+	};
+	private static final long eventCallbackPeer = getPeer(pointerTo(eventCallback));
+	
     /**
 #documentCallsFunction("clSetEventCallback")
      * Registers a user callback function for a specific command execution status. <br/>
@@ -67,30 +88,23 @@ public class CLEvent extends CLAbstractEntity {
      */
     public void setCallback(int commandExecStatus, final EventCallback callback) {
     	try {
-    		clSetEventCallback_arg1_callback cb = new clSetEventCallback_arg1_callback() {
-	    		public void apply(OpenCLLibrary.cl_event evt, int executionStatus, Pointer voidPtr1) {
-	    			callback.callback(CLEvent.this, executionStatus);
-	    		}
-	    	};
-	    	// TODO manage lifespan of cb
-    		BridJ.protectFromGC(cb);
-	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, getPeer(pointerTo(cb)), 0));
-    	} catch (Throwable th) {
-    		// TODO check if supposed to handle OpenCL 1.1
-    		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature).", th);
+	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, eventCallbackPeer, JNI.newGlobalRef(callback)));
+    	} catch (UnsatisfiedLinkError th) {
+    		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature): " + th, th);
     	}
     }
     
     static CLEvent createEvent(final CLQueue queue, long evt) {
     		return createEvent(queue, evt, false);
     }
+    
 	static CLEvent createEvent(final CLQueue queue, long evt, boolean isUserEvent) {
 		if (evt == 0)
 			return null;
 
         return isUserEvent ? 
-        		new CLUserEvent(evt) : 
-        		new CLEvent(evt);
+        		new CLUserEvent(queue, evt) : 
+        		new CLEvent(queue, evt);
 	}
 
     static CLEvent createEventFromPointer(CLQueue queue, Pointer<cl_event> evt1) {
@@ -101,7 +115,7 @@ public class CLEvent extends CLAbstractEntity {
         if (peer == 0)
             return null;
         
-        return new CLEvent(peer);
+        return new CLEvent(queue, peer);
 	}
 
 

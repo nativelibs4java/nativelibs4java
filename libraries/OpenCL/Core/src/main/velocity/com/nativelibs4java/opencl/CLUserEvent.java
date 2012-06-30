@@ -8,8 +8,8 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 
 public class CLUserEvent extends CLEvent {
-	CLUserEvent(long evt) { 
-		super(evt);
+	CLUserEvent(CLQueue queue, long evt) { 
+		super(queue, evt);
 	}
 	/**
 #documentCallsFunction("clSetUserEventStatus")

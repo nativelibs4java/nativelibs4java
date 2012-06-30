@@ -525,7 +525,7 @@ public class OpenCLLibrary {
 		public abstract void apply(OpenCLLibrary.cl_program cl_program1, Pointer<? > voidPtr1);
 	};
 	public static abstract class clSetEventCallback_arg1_callback extends Callback<clSetEventCallback_arg1_callback > {
-		public abstract void apply(OpenCLLibrary.cl_event cl_event1, int cl_int1, Pointer<? > voidPtr1);
+		public abstract void apply(@Ptr long cl_event1, int cl_int1, @Ptr long voidPtr1);
 	};
 	public static abstract class clEnqueueNativeKernel_arg1_callback extends Callback<clEnqueueNativeKernel_arg1_callback > {
 		public abstract void apply(Pointer<? > voidPtr1);
