@@ -22,6 +22,8 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.logging.*;
 
@@ -76,6 +78,23 @@ public class CLContext extends CLAbstractEntity {
 #docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
 #end
 
+	private final AtomicReference<ConcurrentHashMap<Object, Object>> propertiesMapRef =
+		new AtomicReference<ConcurrentHashMap<Object, Object>>();
+	
+	public Object getClientProperty(Object key) {
+		ConcurrentHashMap<Object, Object> propertiesMap = propertiesMapRef.get();
+		return propertiesMap == null ? null : propertiesMap.get(key);
+	}
+	public Object putClientProperty(Object key, Object value) {
+		ConcurrentHashMap<Object, Object> propertiesMap = propertiesMapRef.get();
+		if (propertiesMap == null) {
+			propertiesMap = new ConcurrentHashMap<Object, Object>();
+			if (!propertiesMapRef.compareAndSet(null, propertiesMap))
+				propertiesMap = propertiesMapRef.get();
+		}
+		return propertiesMap.put(key, value);
+	}
+	
 	private volatile long maxMemAllocSize = -1;
 	
 	/**
