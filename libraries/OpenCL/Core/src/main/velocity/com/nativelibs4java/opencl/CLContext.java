@@ -146,12 +146,12 @@ public class CLContext extends CLAbstractEntity {
 	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
 	 * @since OpenCL 1.1
 	 */
-	public CLEvent createUserEvent() {
+	public CLUserEvent createUserEvent() {
 		try {
 			#declareReusablePtrsAndPErr()
 			long evt = CL.clCreateUserEvent(getEntity(), getPeer(pErr));
 			#checkPErr()
-			return CLEvent.createEvent(null, evt, true);
+			return (CLUserEvent)CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
 			// TODO throw if supposed to handle OpenCL 1.1
     		return null;
@@ -683,15 +683,21 @@ public class CLContext extends CLAbstractEntity {
 		return new CLBuffer<T>(this, byteCount, mem, retainBufferReference ? data : null, io);
 	}
 
-    /**
-     * @deprecated Use {@link CLContext#getByteOrder()}
-     */
-    @Deprecated
     public ByteOrder getKernelsDefaultByteOrder() {
-        return getByteOrder();
+    	if (kernelsDefaultByteOrder == null) {
+			ByteOrder order = null;
+			for (CLDevice device : getDevices()) {
+				ByteOrder devOrder = device.getKernelsDefaultByteOrder();
+				if (order != null && devOrder != order)
+					return null;
+				order = devOrder;
+			}
+			kernelsDefaultByteOrder = order;
+		}
+        return kernelsDefaultByteOrder;
     }
 
-    private volatile ByteOrder byteOrder;
+    private volatile ByteOrder byteOrder, kernelsDefaultByteOrder;
     
     /**
      * Get the endianness common to all devices of this context, or null if the devices have mismatching endiannesses.
