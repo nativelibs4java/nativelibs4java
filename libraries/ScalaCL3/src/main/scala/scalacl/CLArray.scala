@@ -12,7 +12,7 @@ object CLArray {
     new CLArray[T](length, io.allocateBuffers(length, valuesArray))
   }
 }
-class CLArray[T](length: Long, buffers: Array[ScheduledBuffer[_]])(implicit io: DataIO[T], context: Context, m: ClassManifest[T])
+class CLArray[T](length: Long, protected val buffers: Array[ScheduledBuffer[_]])(implicit io: DataIO[T], context: Context, m: ClassManifest[T])
   extends ScheduledBufferComposite {
 
   def this(length: Long)(implicit io: DataIO[T], context: Context, m: ClassManifest[T]) = {
@@ -65,7 +65,9 @@ class CLArray[T](length: Long, buffers: Array[ScheduledBuffer[_]])(implicit io: 
 
   def reduce(f: (T, T) => T): T = error("not implemented")
 
-  def zip[U](col: CLArray[U]): CLArray[(T, U)] = error("not implemented")
+  def zip[U](col: CLArray[U])(implicit m2: ClassManifest[U], io: DataIO[(T, U)]): CLArray[(T, U)] = 
+	new CLArray[(T, U)](length, buffers.clone ++ col.buffers.clone)
+	
   def zipWithIndex: CLArray[(T, Int)] = error("not implemented")
 
   def copyTo(pointer: Pointer[T]): Unit = error("not implemented")
