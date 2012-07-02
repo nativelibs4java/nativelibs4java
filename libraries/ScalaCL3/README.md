@@ -3,8 +3,8 @@ ScalaCL... v3 (yeah, yet another rewrite from scratch FTW!)
 Features of the new design:
 - Much better asynchronicity support (now requires OpenCL 1.1), and much better performance in general
 - Support for captures of constants *and* OpenCL arrays
-- Support for lazy clones (.zip will be free!)
-- Kernels are now specialized on static input / output / captures types
+- Support for lazy clones for fast zipping
+- Kernels are now fully specialized on static types and generated at compile-time (allows much faster startup and caching at runtime)
 - ScalaCL Collections no longer fit in regular Scala Collections, to avoid silent data transfers / conversions when using unaccelerated methods (syntax stays the same, though)
 - No more CLRange: expecting compiler to do its job
 

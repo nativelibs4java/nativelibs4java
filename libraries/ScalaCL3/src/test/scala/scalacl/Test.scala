@@ -17,7 +17,7 @@ kernel void f(global float*a, int dim1Offset, int dim1Step) {
 }
 
  */
-object Kernel1 extends Kernel("""
+object Kernel1 extends Kernel(1, """
 kernel void f(global const int* input, global int* output, float factor) {
   int i = get_global_id(0);
   if (i >= get_global_size(0))
@@ -26,7 +26,7 @@ kernel void f(global const int* input, global int* output, float factor) {
 }
 """)
 
-object Kernel2 extends Kernel("""
+object Kernel2 extends Kernel(2, """
 kernel void f(global const int* input, global char* output) {
   int i = get_global_id(0);
   if (i >= get_global_size(0))
@@ -69,5 +69,7 @@ class SimpleTest {
 	    val timeMicros = (System.nanoTime - start) / 1000
 	    println((timeMicros / 1000.0) + " milliseconds")
 	  }
+	  
+	  //a.map(x => x * 2)
 	}
 }

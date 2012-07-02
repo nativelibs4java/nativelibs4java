@@ -3,7 +3,7 @@ import com.nativelibs4java.opencl._
 import java.util.concurrent.locks._
 import collection.mutable.ArrayBuffer
 
-object ScheduledData {
+private[scalacl] object ScheduledData {
   def schedule[S1 <: ScheduledData, S2 <: ScheduledData](
     inputs: Array[S1],
     outputs: Array[S2],
@@ -34,7 +34,7 @@ object ScheduledData {
   }
 }
 
-trait ScheduledData {
+private[scalacl] trait ScheduledData {
   def finish: Unit
   def eventCompleted(event: CLEvent): Unit
   def startRead(out: ArrayBuffer[CLEvent]): ScheduledData

@@ -5,7 +5,7 @@ import com.nativelibs4java.opencl.{ CLMem, CLEvent }
 import org.bridj.{ Pointer, PointerIO }
 import scala.collection.mutable.ArrayBuffer
 
-abstract class TupleDataIO[T : Manifest] extends DataIO[T] {
+private[impl] abstract class TupleDataIO[T : Manifest] extends DataIO[T] {
   
   override def toArray(length: Int, buffers: Array[ScheduledBuffer[_]]): Array[T] = {
     val eventsToWaitFor = new ArrayBuffer[CLEvent]

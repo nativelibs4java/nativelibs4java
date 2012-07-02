@@ -15,7 +15,7 @@ ScheduledBuffer:
 
  */
 
-class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit context: Context) extends DefaultScheduledData {
+private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit context: Context) extends DefaultScheduledData {
 
   private var buffer_ = initialBuffer
   private var lazyClones = new ArrayBuffer[ScheduledBuffer[T]]

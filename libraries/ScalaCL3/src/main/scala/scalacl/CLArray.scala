@@ -5,6 +5,8 @@ import scala.collection.mutable.ArrayBuffer
 import com.nativelibs4java.opencl.CLEvent
 import org.bridj.Pointer
 
+import language.experimental.macros
+
 object CLArray {
   def apply[T](values: T*)(implicit io: DataIO[T], context: Context, m: ClassManifest[T]) = {
     val valuesArray = values.toArray
@@ -12,9 +14,17 @@ object CLArray {
     new CLArray[T](length, io.allocateBuffers(length, valuesArray))
   }
 }
-class CLArray[T](length: Long, protected val buffers: Array[ScheduledBuffer[_]])(implicit io: DataIO[T], context: Context, m: ClassManifest[T])
-  extends ScheduledBufferComposite {
 
+class CLArray[T](
+  val length: Long, 
+  protected val buffers: Array[ScheduledBuffer[_]]
+)(
+  implicit io: DataIO[T], 
+  context: Context, 
+  m: ClassManifest[T]
+)
+extends ScheduledBufferComposite 
+{
   def this(length: Long)(implicit io: DataIO[T], context: Context, m: ClassManifest[T]) = {
     this(length, io.allocateBuffers(length))
   }
@@ -40,26 +50,28 @@ class CLArray[T](length: Long, protected val buffers: Array[ScheduledBuffer[_]])
   def toSeq: Seq[T] = 
     toArray.toSeq
 
-  def foreach(f: T => Unit): Unit =
+  def foreach(f: T => Unit): Unit = macro CLArrayMacros.foreachImpl[T]
+  private[scalacl] def foreach(f: CLFunction[T, Unit]): Unit =
     execute(f, null)
 
-  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
-    val output = new CLArray[U](length)
+  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = macro CLArrayMacros.mapImpl[T, U]
+  private[scalacl] def map[U](f: CLFunction[T, U])(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
+	val output = new CLArray[U](length)
     execute(f, output)
     output
   }
-
-  private def execute[U](f: T => U, output: CLArray[U]): Unit = {
+  
+  private def execute[U](f: CLFunction[T, U], output: CLArray[U]): Unit = {
     val clf = f.asInstanceOf[CLFunction[T, U]]
     val params = KernelExecutionParameters(Array(length))
     clf.apply(context.queue, params, this, output)
   }
 
-  def filter(f: T => Boolean): CLFilteredArray[T] = {
-    val clf = f.asInstanceOf[CLFunction[T, Boolean]]
+  def filter(f: T => Boolean): CLFilteredArray[T] = macro CLArrayMacros.filterImpl[T]
+  private[scalacl] def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
     val presenceMask = new CLArray[Boolean](length)
     val params = KernelExecutionParameters(Array(length))
-    clf.apply(context.queue, params, this, presenceMask)
+    f.apply(context.queue, params, this, presenceMask)
     new CLFilteredArray[T](this.clone, presenceMask)
   }
 

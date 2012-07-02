@@ -3,7 +3,7 @@ import com.nativelibs4java.opencl._
 import java.util.concurrent.locks._
 import collection.mutable.ArrayBuffer
 
-trait DefaultScheduledData extends ScheduledData {
+private[scalacl] trait DefaultScheduledData extends ScheduledData {
   private val scheduleLock = new ReentrantLock
 
   private def locked[V](block: => V): V = {

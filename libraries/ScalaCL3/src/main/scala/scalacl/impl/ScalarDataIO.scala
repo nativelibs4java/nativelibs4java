@@ -9,9 +9,9 @@ abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
   override val typeString = implicitly[ClassManifest[T]].erasure.getSimpleName
   override def bufferCount = 1
   
-  val pointerIO: PointerIO[T] = io.asInstanceOf[PointerIO[T]]
+  private[scalacl] val pointerIO: PointerIO[T] = io.asInstanceOf[PointerIO[T]]
   
-  def foreachScalar(f: ScalarDataIO[_] => Unit): Unit =
+  private[scalacl] def foreachScalar(f: ScalarDataIO[_] => Unit): Unit =
     f(this)
     
   override def toArray(length: Int, buffers: Array[ScheduledBuffer[_]]): Array[T] = {
@@ -23,7 +23,7 @@ abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
     val pointer = Pointer.pointerToArray[T](values)
     Array(new ScheduledBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, pointer)))
   }
-  def allocateBuffer(length: Long)(implicit context: Context) =
+  private[scalacl] def allocateBuffer(length: Long)(implicit context: Context) =
     context.context.createBuffer(CLMem.Usage.InputOutput, pointerIO, length)
     
   override def allocateBuffers(length: Long, out: ArrayBuffer[ScheduledBuffer[_]])(implicit context: Context) = {

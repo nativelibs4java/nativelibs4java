@@ -3,7 +3,7 @@ package scalacl.impl
 import scala.collection.mutable.ArrayBuffer
 import com.nativelibs4java.opencl.CLEvent
 
-trait ScheduledBufferComposite extends ScheduledData {
+private[scalacl] trait ScheduledBufferComposite extends ScheduledData {
   
   def foreachBuffer(f: ScheduledBuffer[_] => Unit): Unit
 
