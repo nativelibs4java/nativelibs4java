@@ -1,4 +1,4 @@
-ScalaCLÉ v3 (yeah, yet another rewrite from scratch FTW!)
+ScalaCL... v3 (yeah, yet another rewrite from scratch FTW!)
 
 Features of the new design:
 - Much better asynchronicity support (now requires OpenCL 1.1), and much better performance in general
