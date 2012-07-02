@@ -72,11 +72,22 @@ public class CLBuffer<T> extends CLMem {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
     
+    /**
+     * Returns a pointer to native memory large enough for this buffer's data, and with a compatible byte ordering. 
+     */
+    public Pointer<T> allocateCompatibleMemory(CLDevice device) {
+    	return allocateArray(io, getElementCount()).order(device.getKernelsDefaultByteOrder());
+    }
+
+	public PointerIO<T> getIO() {
+		return io;
+	}
+    
 	/**
 #documentCallsFunction("clEnqueueReadBuffer")
 	*/
 	public Pointer<T> read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+        Pointer<T> out = allocateCompatibleMemory(queue.getDevice());
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -84,7 +95,7 @@ public class CLBuffer<T> extends CLMem {
 #documentCallsFunction("clEnqueueReadBuffer")
 	*/
 	public Pointer<T> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+		Pointer<T> out = allocateCompatibleMemory(queue.getDevice());
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
