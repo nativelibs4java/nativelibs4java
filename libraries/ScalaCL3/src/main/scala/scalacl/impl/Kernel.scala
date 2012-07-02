@@ -12,21 +12,21 @@ private[scalacl] case class KernelExecutionParameters(
   def this(uniqueSize: Long) = this(Array(uniqueSize))
 }
 
+/**
+ * Thin wrapper for OpenCL kernel sources, which can act as a fast cache key for the corresponding CLKernel
+ */
 class Kernel(protected val id: Long, protected val sources: String) {
-  def getKernel(context: CLContext): CLKernel = {
-    var kernel = context.getClientProperty(this).asInstanceOf[CLKernel]
-    if (kernel == null) {
-      val Array(k) = context.createProgram(sources).createKernels
-      kernel = k
+  def getKernel(context: Context): CLKernel = {
+    context.kernels(this, _.release) {
+      val Array(k) = context.context.createProgram(sources).createKernels
+      k
     }
-    context.putClientProperty(this, kernel)
-    kernel
   }
-  def enqueue(queue: CLQueue, params: KernelExecutionParameters, args: Array[AnyRef], eventsToWaitFor: Array[CLEvent]): CLEvent = {
-    var kernel = getKernel(queue.getContext)
+  def enqueue(context: Context, params: KernelExecutionParameters, args: Array[AnyRef], eventsToWaitFor: Array[CLEvent]): CLEvent = {
+    var kernel = getKernel(context)
     kernel synchronized {
       kernel.setArgs(args: _*)
-      kernel.enqueueNDRange(queue, params.globalOffsets, params.globalSizes, params.localSizes, eventsToWaitFor: _*)
+      kernel.enqueueNDRange(context.queue, params.globalOffsets, params.globalSizes, params.localSizes, eventsToWaitFor: _*)
     }
   }
   

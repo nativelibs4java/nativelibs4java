@@ -64,14 +64,13 @@ extends ScheduledBufferComposite
   private def execute[U](f: CLFunction[T, U], output: CLArray[U]): Unit = {
     val clf = f.asInstanceOf[CLFunction[T, U]]
     val params = KernelExecutionParameters(Array(length))
-    clf.apply(context.queue, params, this, output)
+    clf.apply(context, params, this, output)
   }
 
   def filter(f: T => Boolean): CLFilteredArray[T] = macro CLArrayMacros.filterImpl[T]
   private[scalacl] def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
     val presenceMask = new CLArray[Boolean](length)
-    val params = KernelExecutionParameters(Array(length))
-    f.apply(context.queue, params, this, presenceMask)
+    execute(f, presenceMask)
     new CLFilteredArray[T](this.clone, presenceMask)
   }
 
