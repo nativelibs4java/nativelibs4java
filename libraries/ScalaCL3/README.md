@@ -14,4 +14,5 @@ TODO:
   - Auto-vectorize for loops
   - Provide static types to OpenCL conversion
   - Create top-level objects for kernels code
+- Plug some v2 code back (filtered array compaction, reduceSymmetric, parallel sums...)
 - Benchmarks!
