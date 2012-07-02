@@ -408,6 +408,29 @@ public class CLKernel extends CLAbstractEntity {
      * @param queue This kernel will be queued for execution on the device associated with that queue.
 #documentEventsToWaitForAndReturn()
      */
+    public CLEvent enqueueNDRange(CLQueue queue, long[] globalOffsets, long[] globalWorkSizes, long[] localWorkSizes, CLEvent... eventsToWaitFor) {
+        int nDims = globalWorkSizes.length;
+        if (localWorkSizes != null && localWorkSizes.length != nDims) {
+            throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
+        }
+        
+        #declareReusablePtrsAndEventsInOut()
+        error(CL.clEnqueueNDRangeKernel(
+            queue.getEntity(),
+            getEntity(),
+            nDims,
+            getPeer(ptrs.sizeT3_1.pointerToSizeTs(globalOffsets)),
+            getPeer(ptrs.sizeT3_2.pointerToSizeTs(globalWorkSizes)),
+            getPeer(ptrs.sizeT3_3.pointerToSizeTs(localWorkSizes)),
+            #eventsInOutArgsRaw()
+        ));
+        #returnEventOut("queue")
+    }
+    
+    /**
+     * @deprecated Use {@link CLKernel#enqueueNDRange(CLQueue, long[], long[], long[], CLEvent[])} instead.
+     */
+    @Deprecated
     public CLEvent enqueueNDRange(CLQueue queue, int[] globalOffsets, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalWorkSizes.length;
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
