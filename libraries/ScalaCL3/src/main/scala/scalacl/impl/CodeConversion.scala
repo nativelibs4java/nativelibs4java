@@ -13,7 +13,14 @@ private[impl] object CodeConversion {
 	    dimensionRangeSteps: Option[Seq[c.universe.Symbol]],
 	    capturedInputs: Seq[c.universe.Symbol],
 	    capturedOutputs: Seq[c.universe.Symbol],
-	    capturedConstants: Seq[c.universe.Symbol]): String = {
+	    capturedConstants: Seq[c.universe.Symbol]): String = 
+	{
+	  val converter = new OpenCLConverter {
+	    override val global = c.universe
+	  }
+	  
+	  val flat = converter.convert(code.asInstanceOf[converter.global.Tree])
+	  println(flat)
 	  "kernel void TODO() {}" // TODO
 	}
 }
