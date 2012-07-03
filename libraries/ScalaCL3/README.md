@@ -38,7 +38,7 @@ Example that will eventually work:
         
         kernel {
           // This block will either be converted to an OpenCL kernel or cause compilation error
-		  for (i <- 0 until a.rows; j <- 0 until b.columns) {
+		  for (i <- 0 until rows; j <- 0 until columns) {
 		    data(i * columns + j) = (0 until a.columns).map(k => {
 		      a.data(i * a.columns + k) * b.data(k * b.columns + j)
 		    }).sum
