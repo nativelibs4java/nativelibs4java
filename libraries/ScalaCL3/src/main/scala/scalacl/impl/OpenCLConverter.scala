@@ -37,6 +37,7 @@ import scala.reflect.NameTransformer
 trait OpenCLConverter 
 extends ConversionNames
 with MiscMatchers
+with KernelSymbolsAnalysis
 { 
   val global: reflect.api.Universe
   import global._

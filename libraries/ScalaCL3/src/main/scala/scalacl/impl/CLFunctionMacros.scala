@@ -14,7 +14,7 @@ private[impl] object CLFunctionMacros
   private[impl] def convertFunction[T: c.TypeTag, U: c.TypeTag](c: Context)(f: c.Expr[T => U]): c.Expr[CLFunction[T, U]] = {
     import c.universe._
     
-    val Function(List(param), body) = f.tree
+    val Function(List(param), body) = c.typeCheck(f.tree)
     
     val outName = newTermName(c.fresh("out"))
     

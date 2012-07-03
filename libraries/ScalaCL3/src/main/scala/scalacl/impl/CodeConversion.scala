@@ -19,7 +19,11 @@ private[impl] object CodeConversion {
 	    override val global = c.universe
 	  }
 	  
-	  val flat = converter.convert(code.asInstanceOf[converter.global.Tree])
+	  val tree = code.asInstanceOf[converter.global.Tree]
+	  
+	  val symbols = converter.getExternalSymbols(tree)
+	  println(symbols)
+	  val flat = converter.convert(tree)
 	  println(flat)
 	  "kernel void TODO() {}" // TODO
 	}
