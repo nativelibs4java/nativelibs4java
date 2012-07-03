@@ -23,8 +23,6 @@ Example that will eventually work:
 
     import scalacl._
     
-    implicit val context = Context.best
-    
     case class Matrix(data: CLArray[Float], rows: Int, columns: Int)(implicit context: Context) {
       def this(rows: Int, columns: Int) =
         this(new CLArray[Float](rows * columns), rows, columns)
@@ -58,7 +56,9 @@ Example that will eventually work:
 	    }
       }
     }
-    
+            
+    implicit val context = Context.best
+
     val n = 10
     val a = new Matrix(n)
     val b = new Matrix(n)
