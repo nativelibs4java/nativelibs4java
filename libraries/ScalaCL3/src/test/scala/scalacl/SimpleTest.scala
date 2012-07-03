@@ -67,6 +67,6 @@ kernel void f(global const int* input, global char* output) {
 	    println((timeMicros / 1000.0) + " milliseconds")
 	  }
 	  
-	  a.map(x => x * 2)
+	  //a.map(x => x * 2)
 	}
 }

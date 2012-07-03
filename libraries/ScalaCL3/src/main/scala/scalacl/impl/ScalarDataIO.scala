@@ -38,6 +38,13 @@ object IntDataIO extends ScalarDataIO[Int](PointerIO.getIntInstance) {
     buffers(bufferOffset).setIntAtOffset(index * 4, value)
 }
 
+object FloatDataIO extends ScalarDataIO[Float](PointerIO.getFloatInstance) {
+  override def get(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int) =
+    buffers(bufferOffset).getFloatAtOffset(index * 4)
+  override def set(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int, value: Float) =
+    buffers(bufferOffset).setFloatAtOffset(index * 4, value)
+}
+
 object BooleanDataIO extends ScalarDataIO[Boolean](PointerIO.getBooleanInstance) {
   override def get(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int) =
     buffers(bufferOffset).getByteAtOffset(index * 1) != 0

@@ -20,7 +20,7 @@ class CLArray[T](
   protected val buffers: Array[ScheduledBuffer[_]]
 )(
   implicit io: DataIO[T], 
-  context: Context, 
+  val context: Context, 
   m: ClassManifest[T]
 )
 extends ScheduledBufferComposite 
@@ -29,6 +29,9 @@ extends ScheduledBufferComposite
     this(length, io.allocateBuffers(length))
   }
 
+  def apply(index: Long): T = error("not implemented")
+  def update(index: Long, value: T): Unit = error("not implemented")
+  
   override def clone: CLArray[T] =
     new CLArray[T](length, buffers.map(_.clone))
 
