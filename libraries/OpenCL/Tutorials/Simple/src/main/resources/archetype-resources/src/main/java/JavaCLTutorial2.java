@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.util.*;
 import org.bridj.Pointer;
+import java.nio.ByteOrder;
 import static org.bridj.Pointer.*;
 import static java.lang.Math.*;
 import java.io.IOException;
@@ -34,9 +35,9 @@ public class JavaCLTutorial2 {
         CLBuffer<Float> out = context.createFloatBuffer(Usage.Output, n);
 
         TutorialKernels kernels = new TutorialKernels(context);
-		int[] globalSizes = new int[] { n };
-		CLEvent addEvt = kernels.add_floats(queue, a, b, out, n, globalSizes, null);
-		
+        int[] globalSizes = new int[] { n };
+        CLEvent addEvt = kernels.add_floats(queue, a, b, out, n, globalSizes, null);
+        
         Pointer<Float> outPtr = out.read(queue, addEvt); // blocks until add_floats finished
 
         // Print the first 10 output values :

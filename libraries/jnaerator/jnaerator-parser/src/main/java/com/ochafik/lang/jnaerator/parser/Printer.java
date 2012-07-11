@@ -936,7 +936,9 @@ public class Printer implements Visitor {
 	}
 
     public Printer formatComments(Element e, boolean mergeCommentsAfter, boolean allowLineComments, boolean skipLineAfter, String... otherComments) {
-		append(formatComments(indent, e.getCommentBefore(), e.getCommentAfter(), mergeCommentsAfter, allowLineComments, skipLineAfter, otherComments));
+        String cb = e.getCommentBefore(), ca = e.getCommentAfter();
+        if (cb != null || ca != null || otherComments.length > 0)
+    		append(formatComments(indent, cb, ca, mergeCommentsAfter, allowLineComments, skipLineAfter, otherComments));
         return this;
 	}
 
@@ -1099,7 +1101,7 @@ public class Printer implements Visitor {
 
 	public void visitTemplate(Template template) {
 		append("template <").implode(template.getArgs(), ", ").append(" >\n");
-		append(template.getDeclaration());        
+		append(indent, template.getDeclaration());        
 	}
 
     @Override

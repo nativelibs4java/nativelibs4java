@@ -6,18 +6,28 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>jar</packaging>
-
-	<parent>
-		<groupId>com.nativelibs4java</groupId>
-		<artifactId>javacl-parent</artifactId>
-		<version>1.0-SNAPSHOT</version>
-		<relativePath>..</relativePath>
-	</parent>
-
+	
+	<repositories>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</repository>
+	</repositories>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+	</pluginRepositories>
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -40,12 +50,6 @@
 					</execution>
 				</executions>
 			</plugin>
-	
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>

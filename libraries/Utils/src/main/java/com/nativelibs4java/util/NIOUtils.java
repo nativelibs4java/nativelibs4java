@@ -30,13 +30,13 @@ public class NIOUtils
 		throw new UnsupportedOperationException("Unhandled primitive type : " + primitiveClass.getName());
 	}
 	public static Class<?> getPrimitiveClass(Class<? extends Buffer> bufferClass) {
-		if (bufferClass == ByteBuffer.class) return Byte.class;
-		if (bufferClass == ShortBuffer.class) return Short.class;
-		if (bufferClass == CharBuffer.class) return Character.class;
-		if (bufferClass == IntBuffer.class) return Integer.class;
-		if (bufferClass == LongBuffer.class) return Long.class;
-		if (bufferClass == FloatBuffer.class) return Float.class;
-		if (bufferClass == DoubleBuffer.class) return Double.class;
+		if (ByteBuffer.class.isAssignableFrom(bufferClass)) return Byte.class;
+		if (ShortBuffer.class.isAssignableFrom(bufferClass)) return Short.class;
+		if (CharBuffer.class.isAssignableFrom(bufferClass)) return Character.class;
+		if (IntBuffer.class.isAssignableFrom(bufferClass)) return Integer.class;
+		if (LongBuffer.class.isAssignableFrom(bufferClass)) return Long.class;
+		if (FloatBuffer.class.isAssignableFrom(bufferClass)) return Float.class;
+		if (DoubleBuffer.class.isAssignableFrom(bufferClass)) return Double.class;
 		throw new UnsupportedOperationException("Unhandled buffer type : " + bufferClass.getName());
 	}
 	

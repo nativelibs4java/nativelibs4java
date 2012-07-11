@@ -19,7 +19,7 @@
 	</security>
 	<update check="background" policy="prompt-update"/>
 	<resources>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo/1.0-SNAPSHOT/javacl-interactive-image-demo-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/webstart/javacl/javacl-interactive-image-demo-1.0-SNAPSHOT-shaded.jar"/>
 		<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
 	</resources>
 	<application-desc 

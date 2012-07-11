@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.util.*;
 import org.bridj.Pointer;
+import java.nio.ByteOrder;
 import static org.bridj.Pointer.*;
 import static java.lang.Math.*;
 import java.io.IOException;
@@ -33,16 +34,16 @@ public class JavaCLTutorial1 {
         // Create an OpenCL output buffer :
         CLBuffer<Float> out = context.createFloatBuffer(Usage.Output, n);
 
-		// Read the program sources and compile them :
-		String src = IOUtils.readText(JavaCLTutorial1.class.getResource("TutorialKernels.cl"));
-		CLProgram program = context.createProgram(src);
+        // Read the program sources and compile them :
+        String src = IOUtils.readText(JavaCLTutorial1.class.getResource("TutorialKernels.cl"));
+        CLProgram program = context.createProgram(src);
 
-		// Get and call the kernel :
-		CLKernel addFloatsKernel = program.createKernel("add_floats");
-		addFloatsKernel.setArgs(a, b, out, n);
-		int[] globalSizes = new int[] { n };
-		CLEvent addEvt = addFloatsKernel.enqueueNDRange(queue, globalSizes);
-		
+        // Get and call the kernel :
+        CLKernel addFloatsKernel = program.createKernel("add_floats");
+        addFloatsKernel.setArgs(a, b, out, n);
+        int[] globalSizes = new int[] { n };
+        CLEvent addEvt = addFloatsKernel.enqueueNDRange(queue, globalSizes);
+        
         Pointer<Float> outPtr = out.read(queue, addEvt); // blocks until add_floats finished
 
         // Print the first 10 output values :

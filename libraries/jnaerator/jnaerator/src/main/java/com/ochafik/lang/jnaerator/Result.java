@@ -77,6 +77,7 @@ public class Result extends Scanner {
 	public GlobalsGenerator globalsGenerator;
 	public ObjectiveCGenerator objectiveCGenerator;
 	public UniversalReconciliator universalReconciliator;
+    public Reifier reifier;
     public BridJer bridjer;
     public Symbols symbols;
     public boolean hasCPlusPlus;
@@ -113,6 +114,7 @@ public class Result extends Scanner {
             typeConverter = new JNATypeConversion(this);
 		
         }
+        reifier = new Reifier(this);
 		objectiveCGenerator = new ObjectiveCGenerator(this);
 		universalReconciliator = new UniversalReconciliator();
         bridjer = new BridJer(this);
@@ -210,10 +212,10 @@ public class Result extends Scanner {
 			return lib;
 		name = getFakePointerName(name);
 		Set<String> set = fakePointersByLibrary.get(libraryToUseIfNotDefinedYet);
-		if (set == null)
+		if (set == null && libraryToUseIfNotDefinedYet != null)
 			fakePointersByLibrary.put(libraryToUseIfNotDefinedYet.toString(), set = new HashSet<String>());
 		set.add(name.toString());
-		Identifier id = ident(libraryToUseIfNotDefinedYet, name);
+		Identifier id = libraryToUseIfNotDefinedYet == null ? ident(name) : ident(libraryToUseIfNotDefinedYet, name);
         resolvedFakePointers.add(id);
         return id;
 	}

@@ -1,33 +1,4 @@
-/*
- * JavaCL - Java API and utilities for OpenCL
- * http://javacl.googlecode.com/
- *
- * Copyright (c) 2009-2011, Olivier Chafik (http://ochafik.com/)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Olivier Chafik nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.Pair;
 
@@ -51,6 +22,8 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.logging.*;
 
@@ -80,11 +53,12 @@ import java.util.Map;
  * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
  * @author Olivier Chafik
  */
-public class CLContext extends CLAbstractEntity<cl_context> {
+public class CLContext extends CLAbstractEntity {
 
 #macro (docCreateBufferCopy $bufferType $details)
 	/**
-	* Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
+#documentCallsFunction("clCreateBuffer")
+	 * Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
 	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
 	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, CLMem.MapFlags, CLEvent...) CLBuffer#map(CLQueue, MapFlags, CLEvent...)} is then necessary to ensure the data is properly synchronized with the buffer. 
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
@@ -93,7 +67,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #end
 #macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
     /**
-    * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
+#documentCallsFunction("clCreateBuffer")
+     * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 $insertParam 
 	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
@@ -103,17 +78,39 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
 #end
 
+	private final AtomicReference<ConcurrentHashMap<Object, Object>> propertiesMapRef =
+		new AtomicReference<ConcurrentHashMap<Object, Object>>();
+	
+	public Object getClientProperty(Object key) {
+		ConcurrentHashMap<Object, Object> propertiesMap = propertiesMapRef.get();
+		return propertiesMap == null ? null : propertiesMap.get(key);
+	}
+	public Object putClientProperty(Object key, Object value) {
+		ConcurrentHashMap<Object, Object> propertiesMap = propertiesMapRef.get();
+		if (propertiesMap == null) {
+			propertiesMap = new ConcurrentHashMap<Object, Object>();
+			if (!propertiesMapRef.compareAndSet(null, propertiesMap))
+				propertiesMap = propertiesMapRef.get();
+		}
+		return propertiesMap.put(key, value);
+	}
+	
+	private volatile long maxMemAllocSize = -1;
+	
 	/**
      * Max size of memory object allocation in bytes. The minimum value is max (1/4th of CL_DEVICE_GLOBAL_MEM_SIZE , 128*1024*1024)
      */
     public long getMaxMemAllocSize() {
-        long min = Long.MAX_VALUE;
-        for (CLDevice device : getDevices()) {
-            long m = device.getMaxMemAllocSize();
-            if (m < min)
-                min = m;
-        }
-        return min;
+    	if (maxMemAllocSize < 0) {
+			long min = Long.MAX_VALUE;
+			for (CLDevice device : getDevices()) {
+				long m = device.getMaxMemAllocSize();
+				if (m < min)
+					min = m;
+			}
+			maxMemAllocSize = min;
+		}
+        return maxMemAllocSize;
     }
     
     volatile Boolean cacheBinaries;
@@ -141,28 +138,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			else if ("false".equals(prop) || "0".equals(env))
 				cacheBinaries = false;
 			else {
-				String plat = getPlatform().getName();
-				cacheBinaries = 
-					!"ATI Stream".equals(plat) &&
-					!"AMD Accelerated Parallel Processing".equals(plat) &&
-					true;
+				cacheBinaries = !PlatformUtils.PlatformKind.AMDApp.equals(PlatformUtils.guessPlatformKind(getPlatform()));
 			}
 			//System.out.println("CACHE BINARIES = " + cacheBinaries);
 		}
 		return cacheBinaries;
 	}
 	
-	private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
-
-		@Override
-		protected int getInfo(cl_context entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
-			return CL.clGetContextInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+	#declareInfosGetter("infos", "CL.clGetContextInfo")
+	
 	CLPlatform platform;
-	protected Pointer<cl_device_id> deviceIds;
+	protected Pointer<SizeT> deviceIds;
 
-	CLContext(CLPlatform platform, Pointer<cl_device_id> deviceIds, cl_context context) {
+	CLContext(CLPlatform platform, Pointer<SizeT> deviceIds, long context) {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
@@ -171,18 +159,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			JavaCL.log(Level.WARNING, "The devices in this context have mismatching byte orders. This mandates the use of __attribute__((endian(host))) in kernel sources or *very* careful use of buffers to avoid facing endianness issues");   
 		}
 	}
-	
+    
 	/**
 	 * Creates a user event object. <br/>
 	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
 	 * @since OpenCL 1.1
 	 */
-	public CLEvent createUserEvent() {
+	public CLUserEvent createUserEvent() {
 		try {
-			Pointer<Integer> pErr = allocateInt();
-			cl_event evt = CL.clCreateUserEvent(getEntity(), pErr);
-			error(pErr.get());
-			return CLEvent.createEvent(null, evt, true);
+			#declareReusablePtrsAndPErr()
+			long evt = CL.clCreateUserEvent(getEntity(), getPeer(pErr));
+			#checkPErr()
+			return (CLUserEvent)CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
 			// TODO throw if supposed to handle OpenCL 1.1
     		return null;
@@ -195,7 +183,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new OpenCL queue
 	 */
 	public CLQueue createDefaultQueue(QueueProperties... queueProperties) {
-		return new CLDevice(platform, deviceIds.get(0)).createQueue(this, queueProperties);
+		return new CLDevice(platform, deviceIds.getSizeT()).createQueue(this, queueProperties);
 	}
 
 	/**
@@ -204,7 +192,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new out-of-order OpenCL queue
 	 */
 	public CLQueue createDefaultOutOfOrderQueue() {
-		return new CLDevice(platform, deviceIds.get(0)).createOutOfOrderQueue(this);
+		return new CLDevice(platform, deviceIds.getSizeT()).createOutOfOrderQueue(this);
 	}
 
 	
@@ -235,23 +223,26 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new profiling-enabled OpenCL queue
 	 */
 	public CLQueue createDefaultProfilingQueue() {
-		return new CLDevice(platform, deviceIds.get(0)).createProfilingQueue(this);
+		return new CLDevice(platform, deviceIds.getSizeT()).createProfilingQueue(this);
 	}
 
+	/**
+#documentCallsFunction("clGetSupportedImageFormats")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		Pointer<Integer> pCount = allocateInt();
 		int memFlags = (int) flags.value();
 		int imTyp = (int) imageType.value();
-		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, 0, getPeer(pCount));
 		//cl_image_format ft = new cl_image_format();
 		//int sz = ft.size();
-		int n = pCount.get();
+		int n = pCount.getInt();
 		if (n == 0) {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
         Pointer<cl_image_format> formats = allocateArray(cl_image_format.class, n);
-		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, formats, (Pointer<Integer>) null);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, getPeer(formats), 0);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
         for (cl_image_format ft : formats) {
             if (ft.image_channel_data_type() == 0 && ft.image_channel_order() == 0)
@@ -262,11 +253,20 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return ret.toArray(new CLImageFormat[ret.size()]);
 	}
 
+	/**
+#documentCallsFunction("clCreateSampler")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.value(), (int) filter_mode.value(), pErr);
-		error(pErr.get());
+		#declareReusablePtrsAndPErr()
+		long sampler = CL.clCreateSampler(
+			getEntity(), 
+			normalized_coords ? CL_TRUE : CL_FALSE, 
+			(int) addressing_mode.value(), 
+			(int) filter_mode.value(), 
+			getPeer(pErr)
+		);
+		#checkPErr()
 		return new CLSampler(sampler);
 	}
 
@@ -280,13 +280,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).as(cl_device_id.class);
+			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).as(SizeT.class);
 		}
         int n = (int)deviceIds.getValidElements();
 
 		CLDevice[] devices = new CLDevice[n];
 		for (int i = n; i-- != 0;) {
-			devices[i] = new CLDevice(platform, deviceIds.get(i));
+			devices[i] = new CLDevice(platform, deviceIds.getSizeTAtOffset(i * Pointer.SIZE));
 		}
 		return devices;
 	}
@@ -338,19 +338,29 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         Pointer<SizeT> pCount = allocateSizeT();
         Pointer<Pointer<?>> mem = allocatePointer();
         if (Platform.isMacOSX())
-            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.CGLGetCurrentContext(),
-                    //CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
-                    Pointer.SIZE, mem, pCount));
+            error(CL.clGetGLContextInfoAPPLE(
+            	getEntity(), 
+            	getPeer(OpenGLContextUtils.CGLGetCurrentContext()),
+            	CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
+                Pointer.SIZE, 
+                getPeer(mem), 
+                getPeer(pCount)));
         else
-            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
+            error(CL.clGetGLContextInfoKHR(
+            	getPeer(propsRef), 
+            	CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, 
+            	Pointer.SIZE, 
+            	getPeer(mem), 
+            	getPeer(pCount)
+			));
 
-        if (pCount.get().intValue() != Pointer.SIZE)
+        if (pCount.getSizeT() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.get().intValue());
 
         Pointer p = mem.getPointer();
         if (p.equals(Pointer.NULL))
             return null;
-        return new CLDevice(null, new cl_device_id(p));
+        return new CLDevice(null, getPeer(p));
     }
 
     private static <T extends CLMem> T markAsGL(T mem) {
@@ -359,6 +369,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     }
 
     /**
+#documentCallsFunction("clCreateFromGLBuffer")
      * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -368,16 +379,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLBuffer<Byte> createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLBuffer(
+				getEntity(), 
+				usage.getIntFlags(), 
+				openGLBufferObject, 
+				getPeer(pErr)
+			);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         return markAsGL(new CLBuffer(this, -1, mem, null, PointerIO.getByteInstance()));
 	}
 
     /**
+#documentCallsFunction("clCreateFromGLRenderbuffer")
      * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -386,16 +403,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLRenderbuffer(getEntity(), usage.getIntFlags(), openGLRenderBuffer, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLRenderbuffer(
+				getEntity(), 
+				usage.getIntFlags(), 
+				openGLRenderBuffer, 
+				getPeer(pErr)
+			);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 	
 	/**
+#documentCallsFunction("clCreateFromGLTexture2D")
 	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br/>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * @param usage
@@ -409,12 +432,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D(getEntity(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLTexture2D(
+				getEntity(), 
+				usage.getIntFlags(), 
+				(int)textureTarget.value(), 
+				mipLevel, 
+				texture, 
+				getPeer(pErr)
+			);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 
@@ -454,6 +484,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	
 	/**
+#documentCallsFunction("clCreateFromGLTexture3D")
 	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br/>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
 	 * @param usage
@@ -466,12 +497,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		long mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture3D(getEntity(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+			mem = CL.clCreateFromGLTexture3D(
+				getEntity(), 
+				usage.getIntFlags(), 
+				GL_TEXTURE_3D, 
+				mipLevel, 
+				texture, 
+				getPeer(pErr)
+			);
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
 	
@@ -491,6 +529,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				true);
 	}
 
+	/**
+#documentCallsFunction("clCreateImage2D")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
 		long memFlags = usage.getIntFlags();
@@ -498,20 +539,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage2D(
 				getEntity(),
 				memFlags,
-				pointerTo(format.to_cl_image_format()),
+				getPeer(pImageFormat),
 				width,
 				height,
 				rowPitch,
-				buffer == null ? null : pointerToBuffer(buffer),
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(pBuffer),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		return new CLImage2D(this, mem, format);
 	}
 
@@ -523,6 +566,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return createImage2D(usage, format, width, height, 0, null, false);
 	}
 
+	/**
+#documentCallsFunction("clCreateImage3D")
+	*/
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
 		long memFlags = usage.getIntFlags();
@@ -530,22 +576,24 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage3D(
 				getEntity(),
 				memFlags,
-				pointerTo(format.to_cl_image_format()),
+				getPeer(pImageFormat),
 				width,
 				height,
 				depth,
 				rowPitch,
 				slicePitch,
-				buffer == null ? null : pointerToBuffer(buffer),
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(pBuffer),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 		
 		return new CLImage3D(this, mem, format);
 	}
@@ -569,7 +617,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #end
 	}
 
-#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
+#docCreateBuffer("CLBuffer&lt;${prim.WrapperName}&gt;", "")
 	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data) {
 		return create${prim.BufferName}(kind, data, true);
 	}
@@ -586,6 +634,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #end
 
 	/**
+#documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
@@ -608,6 +657,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	/**
+#documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified type.
 	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param io Delegate responsible for reading and writing values.
@@ -619,6 +669,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
 	}
 
+	/**
+#documentCallsFunction("clCreateBuffer")
+	*/
 	@SuppressWarnings("deprecation")
 	private <T> CLBuffer<T> createBuffer(PointerIO<T> io, Pointer<T> data, long byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
         if (byteCount <= 0)
@@ -634,41 +687,52 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getKernelsDefaultByteOrder())).");
 		}
         
-		Pointer<Integer> pErr = allocateInt();
-		cl_mem mem;
+		#declareReusablePtrsAndPErr()
+		long mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateBuffer(
 				getEntity(),
 				CLBufferFlags,
 				byteCount,
-				data,
-				pErr);
-		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
+				getPeer(data),
+				getPeer(pErr));
+		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
 
 		return new CLBuffer<T>(this, byteCount, mem, retainBufferReference ? data : null, io);
 	}
 
-    /**
-     * @deprecated Use {@link CLContext#getByteOrder()}
-     */
-    @Deprecated
     public ByteOrder getKernelsDefaultByteOrder() {
-        return getByteOrder();
+    	if (kernelsDefaultByteOrder == null) {
+			ByteOrder order = null;
+			for (CLDevice device : getDevices()) {
+				ByteOrder devOrder = device.getKernelsDefaultByteOrder();
+				if (order != null && devOrder != order)
+					return null;
+				order = devOrder;
+			}
+			kernelsDefaultByteOrder = order;
+		}
+        return kernelsDefaultByteOrder;
     }
 
+    private volatile ByteOrder byteOrder, kernelsDefaultByteOrder;
+    
     /**
      * Get the endianness common to all devices of this context, or null if the devices have mismatching endiannesses.
      */
     public ByteOrder getByteOrder() {
-        ByteOrder order = null;
-        for (CLDevice device : getDevices()) {
-            ByteOrder devOrder = device.getByteOrder();
-            if (order != null && devOrder != order)
-                return null;
-            order = devOrder;
-        }
-        return order;
+    	if (byteOrder == null) {
+			ByteOrder order = null;
+			for (CLDevice device : getDevices()) {
+				ByteOrder devOrder = device.getByteOrder();
+				if (order != null && devOrder != order)
+					return null;
+				order = devOrder;
+			}
+			byteOrder = order;
+		}
+        return byteOrder;
     }
 
     private volatile int addressBits = -2;
@@ -696,28 +760,57 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return addressBits;
     }
 
+    private volatile Boolean doubleSupported;
+    
     /**
      * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice#isDoubleSupported()}).
      */
     public boolean isDoubleSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isDoubleSupported())
-				return false;
-		return true;
+    	if (doubleSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isDoubleSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			doubleSupported = supported;
+		}
+		return doubleSupported;
 	}
-	/**
+	
+	private volatile Boolean halfSupported;
+    
+    /**
      * Whether all the devices in this context support half-precision numbers (see {@link CLDevice#isHalfSupported()}).
      */
     public boolean isHalfSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isHalfSupported())
-				return false;
-		return true;
+		if (halfSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isHalfSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			halfSupported = supported;
+		}
+		return halfSupported;
 	}
-	public boolean isByteAddressableStoreSupported() {
-		for (CLDevice device : getDevices())
-			if (!device.isByteAddressableStoreSupported())
-				return false;
-		return true;
+	
+	private volatile Boolean byteAddressableStoreSupported;
+    
+    public boolean isByteAddressableStoreSupported() {
+    	if (byteAddressableStoreSupported == null) {
+    		boolean supported = true;
+			for (CLDevice device : getDevices()) {
+				if (!device.isByteAddressableStoreSupported()) {
+					supported = false;
+					break;
+				}
+			}
+			byteAddressableStoreSupported = supported;
+		}
+		return byteAddressableStoreSupported;
 	}
 }

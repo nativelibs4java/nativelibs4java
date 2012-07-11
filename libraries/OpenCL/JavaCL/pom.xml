@@ -21,11 +21,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<relativePath>..</relativePath>
 	</parent>
 	
-	<properties>
-		<exportedPackages>com.nativelibs4java.opencl,com.nativelibs4java.opencl.util,com.nativelibs4java.opencl.util.fft</exportedPackages>
-		<packageName>com.nativelibs4java.opencl</packageName>
-	</properties>
-
 	<dependencies>
 	
 		<dependency>

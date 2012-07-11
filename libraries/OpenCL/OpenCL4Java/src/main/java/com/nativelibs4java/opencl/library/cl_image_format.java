@@ -13,9 +13,6 @@ public class cl_image_format extends StructObject {
 	public cl_image_format() {
 		super();
 	}
-	public cl_image_format(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : cl_channel_order
 	@Field(0) 
 	public int image_channel_order() {
@@ -37,5 +34,8 @@ public class cl_image_format extends StructObject {
 	public cl_image_format image_channel_data_type(int image_channel_data_type) {
 		this.io.setIntField(this, 1, image_channel_data_type);
 		return this;
+	}
+	public cl_image_format(Pointer pointer) {
+		super(pointer);
 	}
 }

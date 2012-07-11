@@ -38,6 +38,10 @@ import com.ochafik.lang.jnaerator.runtime.VirtualTablePointer;
 import com.ochafik.util.listenable.Pair;
 import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
 import static com.ochafik.lang.jnaerator.TypeConversion.*;
+import com.ochafik.util.string.StringUtils;
+import com.sun.jna.PointerType;
+import org.bridj.TypedPointer;
+import org.bridj.ann.Ptr;
 
 public abstract class DeclarationsConverter {
 	protected static final String DEFAULT_VPTR_NAME = "_vptr";
@@ -108,7 +112,9 @@ public abstract class DeclarationsConverter {
     protected abstract void configureCallbackStruct(Struct callbackStruct);
 
     protected abstract void convertFunction(Function function, Signatures signatures, boolean callback, DeclarationsHolder objOut, Identifier libraryClassName, String sig, Identifier functionName, String library, int iConstructor);
-    
+
+    protected abstract Struct createFakePointerClass(Identifier fakePointer);
+
     static class EnumItemResult {
         public Enum.EnumItem originalItem;
         public Expression value;
@@ -410,7 +416,10 @@ public abstract class DeclarationsConverter {
 					}
                     //TypeRef tr = new TypeRef.SimpleTypeRef(result.typeConverter.typeToJNA(type, vs, TypeConversion.TypeConversionMode.FieldType, callerLibraryClass));
                     TypeRef tr = converted.getValue();
-                    Expression value = new Cast(tr, converted.getFirst());
+                    Expression value = converted.getFirst();
+                    if (result.config.castConstants)
+                        value = new Cast(tr, value);
+                        
 
 					Declaration declaration = new VariablesDeclaration(tr, new DirectDeclarator(name, value));
 					declaration.addModifiers(ModifierType.Public, ModifierType.Static, ModifierType.Final);
@@ -476,6 +485,9 @@ public abstract class DeclarationsConverter {
         if (n.contains("<") || n.startsWith("~"))
             return;
                 
+        if (result.config.beautifyNames)
+            functionName = ident(result.typeConverter.beautify(n, false));
+        
 		functionName = result.typeConverter.getValidJavaMethodName(functionName);
 		if (functionName == null)
 			return;
@@ -639,51 +651,6 @@ public abstract class DeclarationsConverter {
 			out.addDeclaration(decl(structJavaClass));
 	}
 
-	protected Function createNewStructMethod(String name, Struct byRef) {
-		TypeRef tr = typeRef(byRef.getTag().clone());
-		Function f = new Function(Function.Type.JavaMethod, ident(name), tr);
-		String varName = "s";
-
-		f.addModifiers(ModifierType.Protected);
-		if (result.config.runtime != JNAeratorConfig.Runtime.JNA) {
-			f.setBody(block(
-				//new Statement.Return(methodCall("setupClone", new Expression.New(tr.clone(), methodCall(null))))
-					new Statement.Return(new Expression.New(tr.clone(), methodCall(null)))
-			).setCompact(true));
-		} else {
-			f.setBody(block(
-				stat(tr.clone(), varName, new Expression.New(tr.clone(), methodCall(null))),
-				stat(methodCall(varRef(varName), MemberRefStyle.Dot, "useMemory", methodCall("getPointer"))),
-				stat(methodCall("write")),
-				stat(methodCall(varRef(varName), MemberRefStyle.Dot, "read")),
-				new Statement.Return(varRef(varName))
-			));
-		}
-		return f;
-	}
-	protected Function createNewStructArrayMethod(Struct struct, boolean isUnion) {
-		if (result.config.runtime == JNAeratorConfig.Runtime.JNA)
-			return null;
-
-		TypeRef tr = typeRef(struct.getTag().clone());
-		TypeRef ar = new TypeRef.ArrayRef(tr);
-		String varName = "arrayLength";
-		Function f = new Function(Function.Type.JavaMethod, ident("newArray"), ar, new Arg(varName, typeRef(Integer.TYPE)));
-		
-		f.addModifiers(ModifierType.Public, ModifierType.Static);
-		f.setBody(block(
-			new Statement.Return(
-				methodCall(
-					expr(typeRef(isUnion ? result.config.runtime.unionClass : result.config.runtime.structClass)),
-					MemberRefStyle.Dot,
-					"newArray",
-					result.typeConverter.typeLiteral(tr),
-					varRef(varName)
-				)
-			)
-		));
-		return f;
-	}
 
 	public void convertStructs(List<Struct> structs, Signatures signatures, DeclarationsHolder out, Identifier libraryClassName, String library) throws IOException {
 		if (structs != null) {

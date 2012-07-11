@@ -1,12 +1,29 @@
 Current development version (1.0-SNAPSHOT)
 
+- Fixed handling of image2d_t and image3d_t in Maven plugin (contrib. from Remi Emonet, request #308 and issue #307)
+- Fixed OpenGL interop on Windows (issue #312)
+- Added CLEvent.FIRE_AND_FORGET to avoid returning events from all the methods that accept a vararg eventsToWaitFor.
+- Optimized low-level bindings on OpenCL 1.1+ platforms, with dynamic runtime switch (removed synchronized keyword from all native calls)
+- Optimized performance of many calls (CLKernel.setArgs/enqueueNDRange, CLBuffer.read/write...)
+
+Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
+
+- Release artifacts are available in Maven Central
 - Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
 - Fixed endianness issues with CLBuffer (issue #80)
 - Fixed migration of cached binaries to newer versions of OS (e.g. upgrading from Snow Leopard to Lion) (issue #81)
-- Enhanced LocalSize API (added static factory methods for all primitive types)
-- Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Fixed handling compiler options containing spaces (issue #274)
+- Fixed tutorial artifact pom repositories (issue #279)
 - Fixed many Javadoc typos
+- Fixed support of Intel's OpenCL Windows runtime (issue #297)
+- Enhanced LocalSize API (added static factory methods for all primitive types)
+- Deprecated CLContext.getKernelsDefaultByteOrder() and CLDevice.getKernelsDefaultByteOrder()
 - Added more informative exceptions when passing null pointers to CLBuffer.writeBytes (issue #257)
+- Updated to OpenCL 1.2 headers
+- Added -cl-nv-verbose, -cl-nv-maxrregcount, -cl-nv-opt-level + proper log even without error when nv-verbose is set
+- Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
+- Changed signature of CLPlatform.listDevices (now takes a single CLDevice.Type, including All, instead of an EnumSet thereof)
+- Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
 
 Version 1.0.0-RC1 (r2130, 20110621)
 

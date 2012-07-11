@@ -31,7 +31,6 @@ public class JavaCLGenerator extends JNAerator {
     public JavaCLGenerator(JNAeratorConfig config) {
 		super(config);
 
-        config.noMangling = true;
         config.forceOverwrite = true;
         config.outputMode = JNAeratorConfig.OutputMode.Directory;
         config.noCPlusPlus = true;
@@ -190,7 +189,7 @@ public class JavaCLGenerator extends JNAerator {
 
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
-                        if (signatures.variablesSignatures.add(kernelVarName))
+                        if (signatures.addVariable(kernelVarName))
                         		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(ModifierType.Public, ModifierType.Synchronized);
@@ -234,7 +233,7 @@ public class JavaCLGenerator extends JNAerator {
                             ))
                         );
                         method.setBody(block(statements.toArray(new Statement[statements.size()])));
-                        if (signatures.methodsSignatures.add(method.computeSignature(false)))
+                        if (signatures.addMethod(method))
                         		out.addDeclaration(method);
                     }
                 };
@@ -317,6 +316,16 @@ public class JavaCLGenerator extends JNAerator {
                     arraysAndArityByType.put(type, arrPair);
                 }
             }
+        }
+        data = new Object[] {
+            "image2d_t", CLImage2D.class,
+            "image3d_t", CLImage3D.class
+        };
+        for (int i = 0; i < data.length; i+=2) {
+            String type = (String) data[i];
+            Class<?> scalClass = (Class<?>)data[i + 1];
+            Pair<Integer, Class<?>> arrPair = new Pair<Integer, Class<?>>(1, scalClass);
+            arraysAndArityByType.put(type, arrPair);
         }
     }
     private Conversion convertTypeToJavaCL(Result result, String argName, TypeRef valueType, TypeConversionMode typeConversionMode, Identifier libraryClassName) throws UnsupportedConversionException {

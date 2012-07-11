@@ -14,7 +14,11 @@ import static org.bridj.Pointer.*;
 @org.bridj.ann.Runtime(CRuntime.class)
 public class OpenGLContextUtils {
     static {
-        // TODO BridJ.setLibraryName("OpenGL", JNI.isWindows() ? "OpenGL32" : JNI.isLinux() ? "GL" : "OpenGL");
+        if (Platform.isWindows())
+        	BridJ.addNativeLibraryAlias("OpenGL", "OpenGL32"); // even in 64 bit mode !
+        else if (Platform.isUnix() && !Platform.isMacOSX())
+        	BridJ.addNativeLibraryAlias("OpenGL", "GL");
+        
         BridJ.register();
     }
 	/// Original signature : <code>CGLShareGroupObj CGLGetShareGroup(CGLContextObj)</code>

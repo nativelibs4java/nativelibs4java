@@ -97,8 +97,9 @@ public class JNAeratorCommandLineArgs {
                             parsedArg.add(arg);
                             for (; iArg < opt.args.length; iArg++) {
                                 String param = args.get(++i);
-                                pa.params[iArg] = opt.args[iArg].convertArg(param, this);
-                                parsedArg.add(param);
+                                OptionDef.ArgDef argDef = opt.args[iArg];
+                                pa.params[iArg] = argDef.convertArg(param, this);
+                                parsedArg.add(argDef.normalize(param));
                             }
 
                             //int iParsedArg = parsedArgs.size();
@@ -117,7 +118,9 @@ public class JNAeratorCommandLineArgs {
 					if (defaultOpt != null) {
 						ParsedArg pa = new ParsedArg();
 						pa.def = defaultOpt;
-						pa.params = new Object[] { defaultOpt.args[0].convertArg(arg, this) };
+                        OptionDef.ArgDef argDef = defaultOpt.args[0];
+                        arg = argDef.normalize(arg);
+						pa.params = new Object[] { argDef.convertArg(arg, this) };
                         //parsedArgs.add(Pair.create(defaultOpt, Arrays.asList(arg)));
 						args.addAll(i + 1, parsed(pa));
 					}
@@ -160,7 +163,7 @@ public class JNAeratorCommandLineArgs {
         GUI(				    "-gui",		 			"Show minimalist progression GUI"),
 		//NoRuntime(			"-noRuntime",		 	"Don't copy runtime classes to JAR output"),
 		Synchronized(	    "-synchronized",			"Generate synchronized native methods"),
-		BeanStructs(		    "-beanStructs",			"Generate getters and setters for struct fields"),
+		BeanStructs(		    "-beanStructs",			"Generate getters and setters for struct fields (JNA & JNAerator runtimes only)"),
 		BeautifyNames(		"-beautifyNames",		"Transform C names to Java-looking names : some_func() => someFunc()"),
 		ConvertBodies(       "-convertBodies",        "Experimental conversion of function bodies to equivalent Java code (BridJ only)."),
         JarOut(				"-jar",					"Jar file where all generated sources and the compiled classes go", new ArgDef(Type.OutputFile, "outFile")),
@@ -186,6 +189,7 @@ public class JNAeratorCommandLineArgs {
 		RecursedExtensions(	"-allowedFileExts", 	"Colon-separated list of file extensions used to restrict files used when recursing on directories, or \"*\" to parse all files (by default = " + JNAeratorConfig.DEFAULT_HEADER_EXTENSIONS + ")", new ArgDef(Type.String, "extensions")),
 		SkipIncludedFrameworks(		"-skipIncludedFrameworks",		"Skip Included Frameworks"),
 		SkipLibInstance(	"-skipLibraryInstance", "Skip library instance declarations"),	
+		DontCastConstants(  "-dontCastConstants",   "Don't cast generated constants"),
 		Runtime(            "-runtime",             "Choose target runtime library between " + StringUtils.implode(JNAeratorConfig.Runtime.values(), ", ") + " (default: " + JNAeratorConfig.Runtime.DEFAULT + ").", new ArgDef(Type.Enum, "enum", JNAeratorConfig.Runtime.class)),
         IfRegexMatch(		"-ifRegexMatch",		"Conditional evaluation of an argument if a java system property matches a regular expression", new ArgDef(Type.String, "javaProperty"), new ArgDef(Type.String, "regex"), new ArgDef(Type.String, "thenArg"), new ArgDef(Type.String, "elseArg")),
 		DefineMacro(		"-D([^=]*)(?:=(.*))?", 	"Define a macro symbol", new ArgDef(Type.String, "name"), new ArgDef(Type.String, "value")),
@@ -300,6 +304,21 @@ public class JNAeratorCommandLineArgs {
 				this(type, name, null, pathType);
 			}
 
+            public String normalize(String arg) {
+                switch (type) {
+                    case ExistingDir:
+                    case ExistingFile:
+                    case ExistingFileOrDir:
+                    case File:
+                    case OutputDir:
+                    case OutputFile:
+                    case OptionalFile:
+                        if (arg != null)
+                            return new File(arg).getAbsolutePath();
+                    default:
+                        return arg;
+                }       
+            }
             public String format(Object arg) {
                 switch (type) {
                     case Enum:

@@ -150,6 +150,25 @@ struct __declspec(uuid("9B")) __declspec(novtable) ID3D10DeviceChild : IUnknown
 	void f(); 
 };
 --
+template <class _A >
+struct S
+{
+	_A field;
+	S() : field() {}
+	S(const _A& __f) : field(__f) {}
+	template <class _B >
+	S(const S<_B >& __s) : field(__s.field) {}
+  	template <class _B >
+  	void f(S<_B >&);
+};
+--
+template <class U, class V >
+struct X {
+	void f(X<U, V >&);
+};
+template <class S, class T >
+inline bool operator==(const X<S, T >&);
+--
 struct __attribute__((__unused__)) U {
 };
 --
@@ -465,9 +484,12 @@ struct {
 	float f;
 } a;
 --
+namespace std  {
+  using ::mbstate_t;
+}
+--
 extern TestMe();
 --
-
 #pragma fail
 int[4] x;
 --

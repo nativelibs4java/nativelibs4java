@@ -27,7 +27,6 @@ import org.rococoa.AlreadyRetained;
 import org.rococoa.cocoa.foundation.NSObject;
 
 import com.ochafik.lang.jnaerator.JNAeratorConfig.GenFeatures;
-import com.ochafik.lang.jnaerator.cplusplus.CPlusPlusMangler;
 import com.ochafik.lang.jnaerator.parser.*;
 import com.ochafik.lang.jnaerator.parser.Enum;
 import com.ochafik.lang.jnaerator.parser.Scanner;
@@ -47,6 +46,7 @@ import java.net.URLConnection;
 import java.text.MessageFormat;
 import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
 import static com.ochafik.lang.jnaerator.TypeConversion.*;
+import com.sun.jna.PointerType;
 import com.sun.jna.win32.StdCallLibrary;
 
 public class JNADeclarationsConverter extends DeclarationsConverter {
@@ -320,21 +320,10 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 			Set<String> names = new LinkedHashSet<String>();
 			//if (ns.isEmpty())
 
-			if (!result.config.noMangling)
-				if (!isCallback && !isObjectiveC && result.config.features.contains(JNAeratorConfig.GenFeatures.CPlusPlusMangling))
-					addCPlusPlusMangledNames(function, names);
-
 			if (function.getName() != null && !modifiedMethodName.equals(function.getName().toString()) && ns.isEmpty())
 				names.add(function.getName().toString());
 			if (function.getAsmName() != null)
 				names.add(function.getAsmName());
-
-			if (!isCallback && !names.isEmpty()) {
-                TypeRef mgc = result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.Mangling);
-                if (mgc != null) {
-                    natFunc.addAnnotation(new Annotation(mgc, "({\"" + StringUtils.implode(names, "\", \"") + "\"})"));
-                }
-            }
 
 			if (!isCallback && !modifiedMethodName.equals(functionName))
 				natFunc.addAnnotation(new Annotation(result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.Name), expr(functionName.toString())));
@@ -437,41 +426,6 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 				out.addDeclaration(new EmptyDeclaration(getFileCommentContent(function), ex.toString()));
 		}
     }
-
-	private void addCPlusPlusMangledNames(Function function, Set<String> names) {
-		if (function.getType() == Type.ObjCMethod)
-			return;
-		
-		String elementFile = result.resolveFile(function);
-		if (elementFile != null && (
-				elementFile.contains(".framework/") ||
-				elementFile.endsWith(".bridgesupport")))
-			return;
-		
-		ExternDeclarations externDeclarations = function.findParentOfType(ExternDeclarations.class);
-		if (externDeclarations != null && !"C++".equals(externDeclarations.getLanguage()))
-			return;
-		
-		if (!isCPlusPlusFileName(Element.getFileOfAscendency(function)))
-			return;
-		
-		/// Parse or infer name manglings
-		List<String[]> mats = function.getCommentBefore() == null ? null : com.ochafik.util.string.RegexUtils.find(function.getCommentBefore(), manglingCommentPattern);
-		if (mats != null && !mats.isEmpty()) {
-			for (String[] mat : mats)
-				names.add(mat[1]);
-		} else {
-			for (CPlusPlusMangler mangler : result.config.cPlusPlusManglers) {
-				try {
-					names.add(mangler.mangle(function, result));
-				} catch (Exception ex) {
-					System.err.println("Error in mangling of '" + function.computeSignature(true) + "' : " + ex);
-					ex.printStackTrace();
-				}
-			}
-		}
-		
-	}
 
     @Override
 	public Struct convertStruct(Struct struct, Signatures signatures, Identifier callerLibraryClass, String callerLibrary, boolean onlyFields) throws IOException {
@@ -618,6 +572,52 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 		return structJavaClass;
 	}
 	
+	protected Function createNewStructMethod(String name, Struct byRef) {
+		TypeRef tr = typeRef(byRef.getTag().clone());
+		Function f = new Function(Function.Type.JavaMethod, ident(name), tr);
+		String varName = "s";
+
+		f.addModifiers(ModifierType.Protected);
+		if (result.config.runtime != JNAeratorConfig.Runtime.JNA) {
+			f.setBody(block(
+				//new Statement.Return(methodCall("setupClone", new Expression.New(tr.clone(), methodCall(null))))
+					new Statement.Return(new Expression.New(tr.clone(), methodCall(null)))
+			).setCompact(true));
+		} else {
+			f.setBody(block(
+				stat(tr.clone(), varName, new Expression.New(tr.clone(), methodCall(null))),
+				stat(methodCall(varRef(varName), MemberRefStyle.Dot, "useMemory", methodCall("getPointer"))),
+				stat(methodCall("write")),
+				stat(methodCall(varRef(varName), MemberRefStyle.Dot, "read")),
+				new Statement.Return(varRef(varName))
+			));
+		}
+		return f;
+	}
+	protected Function createNewStructArrayMethod(Struct struct, boolean isUnion) {
+		if (result.config.runtime == JNAeratorConfig.Runtime.JNA)
+			return null;
+
+		TypeRef tr = typeRef(struct.getTag().clone());
+		TypeRef ar = new TypeRef.ArrayRef(tr);
+		String varName = "arrayLength";
+		Function f = new Function(Function.Type.JavaMethod, ident("newArray"), ar, new Arg(varName, typeRef(Integer.TYPE)));
+		
+		f.addModifiers(ModifierType.Public, ModifierType.Static);
+		f.setBody(block(
+			new Statement.Return(
+				methodCall(
+					expr(typeRef(isUnion ? result.config.runtime.unionClass : result.config.runtime.structClass)),
+					MemberRefStyle.Dot,
+					"newArray",
+					result.typeConverter.typeLiteral(tr),
+					varRef(varName)
+				)
+			)
+		));
+		return f;
+	}
+    
 	public int countFieldsInStruct(Struct s) throws UnsupportedConversionException {
 		int count = 0;
 		for (Declaration declaration : s.getDeclarations()) {
@@ -663,7 +663,7 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 					break;
 				} else {
 					Pair<Expression, TypeRef> c = result.typeConverter.convertExpressionToJava(x, callerLibraryName, false);
-					c.getFirst().setParenthesis(dims.size() == 1);
+					c.getFirst().setParenthesis(dims.size() != 1);
 					if (mul == null)
 						mul = c.getFirst();
 					else
@@ -954,5 +954,23 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
     protected void configureCallbackStruct(Struct callbackStruct) {
         callbackStruct.setType(Struct.Type.JavaInterface);
         callbackStruct.addModifiers(ModifierType.Public);
+    }
+
+    @Override
+    protected Struct createFakePointerClass(Identifier fakePointer) {
+        Struct ptClass = result.declarationsConverter.publicStaticClass(fakePointer, ident(PointerType.class), Struct.Type.JavaClass, null);
+
+        String pointerVarName = "address";
+        ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
+            new Arg(pointerVarName, typeRef(com.sun.jna.Pointer.class))
+        ).addModifiers(ModifierType.Public).setBody(
+            block(stat(methodCall("super", varRef(pointerVarName)))))
+        );
+        ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null)
+        .addModifiers(ModifierType.Public)
+        .setBody(
+            block(stat(methodCall("super")))
+        ));
+        return ptClass;
     }
 }

@@ -1,0 +1,17 @@
+line 63:19 Failed to match any alternative with token [@176,2222:2233='basic_string',<13>,63:19]
+	 File: /usr/include/c++/4.2.1/bits/basic_string.tcc:62
+	Input:   const   typename   basic_string < _CharT ,   _Traits
+	 Rule: 564:4: ({...}? => pragmaContent | functionDeclaration |{...}? => externDeclarations | varDecl ';' | objCClassDef | typeDef | forwardClassDecl | namespaceDecl )
+	Stack: []
+
+line 63:55 Failed to match any alternative with token [@185,2258:2258='>',<55>,63:55]
+	 File: /usr/include/c++/4.2.1/bits/basic_string.tcc:62
+	Input:   _Traits ,   _Alloc > :: size_type      
+	 Rule: 
+	Stack: []
+
+line 63:58 Failed to match any alternative with token [@187,2261:2269='size_type',<13>,63:58]
+	 File: /usr/include/c++/4.2.1/bits/basic_string.tcc:62
+	Input: ,   _Alloc > :: size_type          
+	 Rule: 
+	Stack: []

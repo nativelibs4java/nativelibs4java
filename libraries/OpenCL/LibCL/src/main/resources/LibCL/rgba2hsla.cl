@@ -29,7 +29,7 @@ inline float4 rgba2hsla(float4 rgba) {
 		else //if (b == mx)
 			h = 4.0f + (r - g) / diff;
 	}
-	h = clamp(h / 6.0f, 0, 1);
+	h = clamp(h / 6.0f, 0.0f, 1.0f);
 	return (float4)(h, s, l, a);
 }
 

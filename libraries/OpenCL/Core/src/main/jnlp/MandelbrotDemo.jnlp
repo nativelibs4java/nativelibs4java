@@ -19,7 +19,7 @@
 	</security>
 	<update check="always" policy="prompt-update"/>
 	<resources>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/webstart/javacl/javacl-demos-1.0-SNAPSHOT-shaded.jar"/>
 		<!--
 		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>

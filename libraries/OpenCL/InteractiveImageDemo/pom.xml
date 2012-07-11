@@ -17,6 +17,7 @@
     
   <properties>
     <mainClass>com.nativelibs4java.opencl.demos.interactiveimage.InteractiveImageDemo</mainClass>
+    <shadedArtifactAttached>true</shadedArtifactAttached>
   </properties>
   
   <dependencies>
@@ -40,6 +41,17 @@
 	</dependency>
 	
   </dependencies>
+
+  <build>
+  	<plugins>
+
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+		</plugin>
+
+	</plugins>
+  </build>
   
 </project>
 
