@@ -248,7 +248,7 @@ public class CLPlatform extends CLAbstractEntity {
     }
 
     public CLDevice getBestDevice() {
-        return getBestDevice(Arrays.asList(DeviceFeature.MaxComputeUnits), Arrays.asList(listGPUDevices(true)));
+        return getBestDevice(Arrays.asList(DeviceFeature.MaxComputeUnits), Arrays.asList(listAllDevices(true)));
     }
 
     /** Bit values for CL_CONTEXT_PROPERTIES */

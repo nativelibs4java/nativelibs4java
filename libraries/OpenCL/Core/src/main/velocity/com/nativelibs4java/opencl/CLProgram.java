@@ -770,7 +770,7 @@ public class CLProgram extends CLAbstractEntity {
         Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
         
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
-            throw new CLBuildException(this, "Compilation failure : " + errorString(err), errors);
+            throw new CLBuildException(this, "Compilation failure : " + errorString(err) + " (" + nDevices + " devices)", errors);
         } else {
         	if (!errors.isEmpty())
         		JavaCL.log(Level.INFO, "Build info :\n\t" + StringUtils.implode(errors, "\n\t"));	
