@@ -14,6 +14,8 @@ import com.nativelibs4java.test.MiscTestUtils;
 public class ByteOrderHackTest extends AbstractCommon {
 	@Test
 	public void test() {
+		if (!ByteOrderHack.hackEnabled)
+			return;
 		for (CLPlatform platform : JavaCL.listPlatforms()) {
 			for (CLDevice device : platform.listAllDevices(true)) {
 				assertEquals(device.getByteOrder(), ByteOrderHack.checkByteOrderNeededForBuffers(device));

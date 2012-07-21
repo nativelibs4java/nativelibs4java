@@ -697,12 +697,14 @@ public class CLProgram extends CLAbstractEntity {
 		if (deviceIds == null) {
 			error(CL.clGetProgramBuildInfo(pgm, 0, CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 			String s = buffer.getCString();
-			errs.add(s);
+			if (s.length() > 0)
+				errs.add(s);
 		} else {
 			for (SizeT device : deviceIds) {
 				error(CL.clGetProgramBuildInfo(pgm, device.longValue(), CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
 				String s = buffer.getCString();
-				errs.add(s);
+				if (s.length() > 0)
+					errs.add(s);
 			}
 		}
 		return errs;
@@ -769,7 +771,7 @@ public class CLProgram extends CLAbstractEntity {
 		);
         Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
         
-        if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
+        if (err != CL_SUCCESS) {
             throw new CLBuildException(this, "Compilation failure : " + errorString(err) + " (" + nDevices + " devices)", errors);
         } else {
         	if (!errors.isEmpty())

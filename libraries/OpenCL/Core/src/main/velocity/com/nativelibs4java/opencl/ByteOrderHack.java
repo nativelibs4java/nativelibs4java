@@ -22,11 +22,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class ByteOrderHack {
-	
+	public static final boolean hackEnabled = 
+		"1".equals(System.getenv("JAVACL_GUESS_ENDIANNESS")) ||
+		"true".equals(System.getProperty("javacl.guessEndianness");
 	public static ByteOrder guessByteOrderNeededForBuffers(CLDevice device) {
 		CLPlatform platform = device.getPlatform();
 		PlatformUtils.PlatformKind knownPlatform = PlatformUtils.guessPlatformKind(platform);
-		if (knownPlatform != PlatformUtils.PlatformKind.AMDApp)
+		if (!hackEnabled || knownPlatform != PlatformUtils.PlatformKind.AMDApp)
 			return device.getByteOrder();
 		else
 			return checkByteOrderNeededForBuffers(device);
@@ -36,7 +38,8 @@ class ByteOrderHack {
 		CLQueue queue = context.createDefaultQueue();
 		try {
 			int n = 16;
-			float testValue = 123456789.101112f;
+			String testValueStr = "123456789f";//.101112f";
+			float testValue = Float.parseFloat(testValueStr);
 			final int BIG_INDEX = 0, LITTLE_INDEX = 1;
 			
 			Pointer<Float> inPtr = Pointer.allocateFloats(n);
@@ -47,13 +50,13 @@ class ByteOrderHack {
 			CLBuffer<Integer> success = context.createIntBuffer(CLMem.Usage.Output, n);
 
 			String src =
-				"kernel void compare(global float *inout, global int *success) {\n" +
-					"int i = get_global_id(0);\n" +
-					"success[i] = inout[i] == " + testValue + ";\n" +
-					"inout[i] = " + testValue + ";\n" +
+				"__kernel void compare_endiannesses(__global float *inout, __global int *success) {\n" +
+					"size_t i = get_global_id(0);\n" +
+					"success[i] = (inout[i] == " + testValueStr + ");\n" +
+					"inout[i] = " + testValueStr + ";\n" +
 				"}";
 				
-			CLKernel test = context.createProgram(src).createKernel("compare");
+			CLKernel test = context.createProgram(src).createKernel("compare_endiannesses");
 			test.setArgs(inOut, success);
 			test.enqueueNDRange(queue, new int[] { n }, new int[] { 1 });
 			
