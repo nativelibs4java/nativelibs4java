@@ -43,8 +43,10 @@ class ByteOrderHack {
 			inPtr.order(ByteOrder.BIG_ENDIAN).set(BIG_INDEX, testValue);
 			inPtr.order(ByteOrder.LITTLE_ENDIAN).set(LITTLE_INDEX, testValue);
 			
-			CLBuffer<Float> inOut = context.createFloatBuffer(CLMem.Usage.InputOutput, inPtr);
-			CLBuffer<Integer> success = context.createIntBuffer(CLMem.Usage.Output, n);
+			Pointer<Integer> successPtr = Pointer.allocateInts(n);
+			success.read(queue, successPtr, true);
+			Pointer<Float> outPtr = Pointer.allocateFloats(n);
+			inOut.read(queue, outPtr, true);
 			
 			String src =
 				"kernel void compare(global float *inout, global int *success) {\n" +
