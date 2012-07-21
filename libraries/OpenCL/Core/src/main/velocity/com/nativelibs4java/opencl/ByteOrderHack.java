@@ -43,11 +43,9 @@ class ByteOrderHack {
 			inPtr.order(ByteOrder.BIG_ENDIAN).set(BIG_INDEX, testValue);
 			inPtr.order(ByteOrder.LITTLE_ENDIAN).set(LITTLE_INDEX, testValue);
 			
-			Pointer<Integer> successPtr = Pointer.allocateInts(n);
-			success.read(queue, successPtr, true);
-			Pointer<Float> outPtr = Pointer.allocateFloats(n);
-			inOut.read(queue, outPtr, true);
-			
+			CLBuffer<Float> inOut = context.createFloatBuffer(CLMem.Usage.InputOutput, inPtr);
+			CLBuffer<Integer> success = context.createIntBuffer(CLMem.Usage.Output, n);
+
 			String src =
 				"kernel void compare(global float *inout, global int *success) {\n" +
 					"int i = get_global_id(0);\n" +
@@ -59,8 +57,10 @@ class ByteOrderHack {
 			test.setArgs(inOut, success);
 			test.enqueueNDRange(queue, new int[] { n }, new int[] { 1 });
 			
-			Pointer<Integer> successPtr = success.read(queue);
-			Pointer<Float> outPtr = inOut.read(queue);
+			Pointer<Integer> successPtr = Pointer.allocateInts(n);
+			success.read(queue, successPtr, true);
+			Pointer<Float> outPtr = Pointer.allocateFloats(n);
+			inOut.read(queue, outPtr, true);
 			
 			boolean bigOk = successPtr.get(BIG_INDEX) != 0;
 			boolean littleOk = successPtr.get(LITTLE_INDEX) != 0;
