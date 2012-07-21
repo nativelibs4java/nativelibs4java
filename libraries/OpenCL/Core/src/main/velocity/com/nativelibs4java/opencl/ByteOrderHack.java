@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 class ByteOrderHack {
 	public static final boolean hackEnabled = 
 		"1".equals(System.getenv("JAVACL_GUESS_ENDIANNESS")) ||
-		"true".equals(System.getProperty("javacl.guessEndianness");
+		"true".equals(System.getProperty("javacl.guessEndianness"));
 	public static ByteOrder guessByteOrderNeededForBuffers(CLDevice device) {
 		CLPlatform platform = device.getPlatform();
 		PlatformUtils.PlatformKind knownPlatform = PlatformUtils.guessPlatformKind(platform);
