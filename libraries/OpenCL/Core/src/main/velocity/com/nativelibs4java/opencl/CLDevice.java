@@ -251,7 +251,7 @@ public class CLDevice extends CLAbstractEntity {
 
     @Override
     public String toString() {
-        return getName();
+        return getName() + " (" + getPlatform().getName() + ")";
     }
 
     /**
