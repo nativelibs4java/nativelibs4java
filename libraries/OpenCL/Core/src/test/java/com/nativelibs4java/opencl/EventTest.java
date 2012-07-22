@@ -9,13 +9,18 @@ import org.junit.Test;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 import com.nativelibs4java.test.MiscTestUtils;
+import java.util.List;
+import org.junit.runners.Parameterized;
 
 @SuppressWarnings("unchecked")
 public class EventTest extends AbstractCommon {
-
-    @BeforeClass
-    public static void setup() {
-        MiscTestUtils.protectJNI();
+    public EventTest(CLDevice device) {
+        super(device);
+    }
+    
+    @Parameterized.Parameters
+    public static List<Object[]> getDeviceParameters() {
+        return AbstractCommon.getDeviceParameters();
     }
 
     @Test

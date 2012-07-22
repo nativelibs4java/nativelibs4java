@@ -20,12 +20,6 @@ import com.nativelibs4java.test.MiscTestUtils;
  * @author ochafik
  */
 public class InfoGettersTest {
-
-    @BeforeClass
-    public static void setup() {
-        MiscTestUtils.protectJNI();
-    }
-
     @Before
     public void gc() {
         System.gc();

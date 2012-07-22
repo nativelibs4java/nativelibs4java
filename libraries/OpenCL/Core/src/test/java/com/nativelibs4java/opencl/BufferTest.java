@@ -21,6 +21,8 @@ import org.bridj.*;
 import java.nio.ByteOrder;
 import static org.bridj.Pointer.*;
 import java.nio.ByteOrder;
+import java.util.List;
+import org.junit.runners.Parameterized;
 
 /**
  *
@@ -28,10 +30,13 @@ import java.nio.ByteOrder;
  */
 @SuppressWarnings("unchecked")
 public class BufferTest extends AbstractCommon {
-
-    @BeforeClass
-    public static void setup() {
-        MiscTestUtils.protectJNI();
+    public BufferTest(CLDevice device) {
+        super(device);
+    }
+    
+    @Parameterized.Parameters
+    public static List<Object[]> getDeviceParameters() {
+        return AbstractCommon.getDeviceParameters();
     }
 
     @Test

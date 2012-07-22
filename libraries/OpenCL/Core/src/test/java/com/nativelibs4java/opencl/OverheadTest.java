@@ -19,13 +19,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.nio.ByteBuffer;
+import java.util.List;
+import org.junit.runners.Parameterized;
 /**
  *
  * @author Kazo Csaba
  */
 @SuppressWarnings("unchecked")
 public class OverheadTest extends AbstractCommon {
-
+    public OverheadTest(CLDevice device) {
+        super(device);
+    }
+    
+    @Parameterized.Parameters
+    public static List<Object[]> getDeviceParameters() {
+        return AbstractCommon.getDeviceParameters();
+    }
     static void gc() {
         try {
             System.gc();
