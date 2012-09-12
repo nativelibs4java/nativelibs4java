@@ -20,6 +20,16 @@
 			<name>Sonatype OSS Snapshots Repository</name>
 			<url>http://oss.sonatype.org/content/groups/public</url>
 		</repository>
+		<repository>
+			<id>typesafe</id>
+			<name>typesafe-releases</name>
+			<url>http://repo.typesafe.com/typesafe/maven-releases</url>
+		</repository>
+		<repository>
+		  <id>typesafe2</id>
+		  <name>Typesafe Repository</name>
+		  <url>http://repo.typesafe.com/typesafe/releases/</url>
+		</repository>
 		<!--repository>
 			<id>nativelibs4java</id>
 			<name>nativelibs4java Maven2 Repository</name>
@@ -31,6 +41,16 @@
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
 			<url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>typesafe</id>
+			<name>typesafe-releases</name>
+			<url>http://repo.typesafe.com/typesafe/maven-releases</url>
+		</pluginRepository>
+		<pluginRepository>
+		  <id>typesafe2</id>
+		  <name>Typesafe Repository</name>
+		  <url>http://repo.typesafe.com/typesafe/releases/</url>
 		</pluginRepository>
 		<!--pluginRepository>
 			<id>nativelibs4java</id>
@@ -48,7 +68,7 @@
 		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
-		<scala.version>2.9.1</scala.version>
+		<scala.version>2.9.2</scala.version>
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
@@ -161,8 +181,8 @@ Most of these wrappers are created automatically by JNAerator.
 				-->
 				<plugin>
 					<groupId>org.scala-tools</groupId>
-					<artifactId>maven-scala-plugin</artifactId>
-					<version>${scala.version}</version>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<goals>
@@ -235,8 +255,7 @@ Most of these wrappers are created automatically by JNAerator.
 								<!--shadedClassifierName>${shadedClassifierName}</shadedClassifierName-->
 								<artifactSet>
 									<excludes>
-										<exclude>org.scala-lang:scala-library</exclude>
-										<exclude>org.scala-lang:scala-compiler</exclude>
+										<exclude>org.scala-lang:scala-*</exclude>
 										<exclude>junit:junit</exclude>
 										<exclude>com.google.android.tools:dx</exclude>
 									</excludes>
