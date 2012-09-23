@@ -683,8 +683,8 @@ public class CLContext extends CLAbstractEntity {
         if (data != null) {
 			ByteOrder contextOrder = getByteOrder();
 			ByteOrder dataOrder = data.order();
-			if (contextOrder != null && !dataOrder.equals(contextOrder))
-				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getKernelsDefaultByteOrder())).");
+			if (contextOrder != null && !dataOrder.equals(contextOrder) && data.getTargetSize() > 1)
+				throw new IllegalArgumentException("Byte order of this context is " + contextOrder + ", but was given pointer to data with order " + dataOrder + ". Please create a pointer with correct byte order (Pointer.order(CLContext.getByteOrder())).");
 		}
         
 		#declareReusablePtrsAndPErr()

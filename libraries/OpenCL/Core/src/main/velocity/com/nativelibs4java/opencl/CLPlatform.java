@@ -166,7 +166,7 @@ public class CLPlatform extends CLAbstractEntity {
             }
         },
         /**
-         * Prefer devices with the same byte ordering as the hosting platform (see {@link CLDevice#getKernelsDefaultByteOrder() })
+         * Prefer devices with the same byte ordering as the hosting platform (see {@link CLDevice#getByteOrder() })
          */
         NativeEndianness {
             Comparable extractValue(CLDevice device) {

@@ -39,6 +39,19 @@ public class BufferTest extends AbstractCommon {
         return AbstractCommon.getDeviceParameters();
     }
 
+    static ByteOrder otherOrder(ByteOrder o) {
+    	return o.equals(ByteOrder.BIG_ENDIAN) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testMismatchingOrder() {
+    	context.createBuffer(CLMem.Usage.InputOutput, allocateFloats(10).order(otherOrder(context.getByteOrder())));
+    }
+    @Test
+    public void testMismatchingByteOrder() {
+        context.createBuffer(CLMem.Usage.InputOutput, allocateBytes(10).order(otherOrder(context.getByteOrder())));
+    }
+    
     @Test
     public void testReadWrite() {
         for (Class<?> bufferClass : bufferClasses)
