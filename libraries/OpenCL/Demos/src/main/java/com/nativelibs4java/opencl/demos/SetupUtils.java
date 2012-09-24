@@ -32,7 +32,7 @@ import org.bridj.Platform;
 public class SetupUtils {
 
     public enum DownloadURL {
-        ATI("http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx"),
+        ATI("http://developer.amd.com/tools/hc/AMDAPPSDK/Pages/default.aspx"),
         NVidia("http://www.nvidia.com/Download/Find.aspx");
         
         public final URL url;
