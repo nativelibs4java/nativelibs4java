@@ -546,7 +546,7 @@ Most of these wrappers are created automatically by JNAerator.
 			</properties>
 			<build>
 				<plugins>
-					<plugin>
+					<!--plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
 						<version>1.7</version>
 						<executions>
@@ -577,7 +577,7 @@ Most of these wrappers are created automatically by JNAerator.
 								<version>0.1.42</version>
 							</dependency>
 						</dependencies>
-					</plugin>
+					</plugin-->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-jarsigner-plugin</artifactId>
