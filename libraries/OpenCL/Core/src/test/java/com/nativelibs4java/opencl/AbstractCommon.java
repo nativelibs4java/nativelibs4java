@@ -9,11 +9,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.nativelibs4java.test.MiscTestUtils;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.After;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  * @author ochafik
  */
+@RunWith(Parameterized.class)
 public abstract class AbstractCommon {
 
 	CLPlatform platform;
@@ -21,34 +27,20 @@ public abstract class AbstractCommon {
 	CLQueue queue;
 	CLDevice device;
 	CLImageFormat[] formatsRead2D, formatsRead3D, formatsWrite2D, formatsWrite3D, formatsReadWrite2D, formatsReadWrite3D;
-
+	/*
     @BeforeClass
     public static void setup() {
         MiscTestUtils.protectJNI();
     }
+    */
     
-    static String chosenPlatformName = System.getProperty("javacl.test.platform", System.getenv("JAVACL_TEST_PLATFORM"));
     static boolean listedPlatforms;
     
-    @Before
-    public void setUp() {
-    	CLPlatform chosenPlatform = null;
-    	for (CLPlatform platform : JavaCL.listPlatforms()) {
-    		if (!listedPlatforms)
-    			System.out.println("Platform Detected : \"" + platform.getName() + "\"");
-    		if (chosenPlatformName != null && platform.getName().contains(chosenPlatformName)) {
-    			chosenPlatform = platform;
-    		}
-    	}
-    	listedPlatforms = true;
-    	if (chosenPlatform != null) {
-    		platform = chosenPlatform;
-    		context = platform.createContext(null, platform.getBestDevice());
-		} else {
-			context = JavaCL.createBestContext();
-			platform = context.getPlatform();
-		}
-		queue = context.createDefaultQueue();
+    AbstractCommon(CLDevice device) {
+        this.device = device;
+        platform = device.getPlatform();
+        context = platform.createContext(null, device);
+        queue = context.createDefaultQueue();
 		device = context.getDevices()[0];
 		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);
 		formatsWrite2D = context.getSupportedImageFormats(CLMem.Flags.WriteOnly, CLMem.ObjectType.Image2D);
@@ -57,6 +49,23 @@ public abstract class AbstractCommon {
 		formatsReadWrite2D = context.getSupportedImageFormats(CLMem.Flags.ReadWrite, CLMem.ObjectType.Image2D);
 		formatsReadWrite3D = context.getSupportedImageFormats(CLMem.Flags.ReadWrite, CLMem.ObjectType.Image3D);
     }
-
-
+    
+    @Parameterized.Parameters
+    public static List<Object[]> getDeviceParameters() {
+        List<Object[]> ret = new ArrayList<Object[]>();
+        for (CLPlatform platform : JavaCL.listPlatforms())
+            for (CLDevice device : platform.listAllDevices(true))
+                ret.add(new Object[] { device });
+        return ret;
+    }
+    /*
+    @After
+    public void cleanup() {
+        queue.finish();
+        queue.release();
+        context.release();
+        device.release();
+        platform.release();
+    }    
+    */
 }

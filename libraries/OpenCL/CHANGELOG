@@ -2,7 +2,9 @@ Current development version (1.0-SNAPSHOT)
 
 - Fixed handling of image2d_t and image3d_t in Maven plugin (contrib. from Remi Emonet, request #308 and issue #307)
 - Fixed OpenGL interop on Windows (issue #312)
-- Optimized lots of native calls (CLKernel.setArgs/enqueueNDRange, CLBuffer.read/write...)
+- Added CLEvent.FIRE_AND_FORGET to avoid returning events from all the methods that accept a vararg eventsToWaitFor.
+- Optimized low-level bindings on OpenCL 1.1+ platforms, with dynamic runtime switch (removed synchronized keyword from all native calls)
+- Optimized performance of many calls (CLKernel.setArgs/enqueueNDRange, CLBuffer.read/write...)
 
 Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 

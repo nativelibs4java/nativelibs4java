@@ -23,12 +23,6 @@ import com.nativelibs4java.test.MiscTestUtils;
 //import com.nativelibs4java.scalacl.*;
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
 public class OpenCL4JavaBenchmarkTest {
-
-    @BeforeClass
-    public static void setup() {
-        MiscTestUtils.protectJNI();
-    }
-
     static final boolean warmup = true;
 
     static ExecResult<FloatBuffer> testJava_float_aSinB(int loops, int dataSize) throws CLBuildException {

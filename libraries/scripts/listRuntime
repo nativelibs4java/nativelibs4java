@@ -10,10 +10,10 @@ function listFile {
 # unzip -l ~/nativelibs4java/BridJ/target/bridj-0.6.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/bridj.jar.files
 
 JNA_VERSION=3.4.0
-JNAERATOR_VERSION=0.9.10-SNAPSHOT
-BRIDJ_VERSION=0.7-SNAPSHOT
+JNAERATOR_VERSION=0.11-SNAPSHOT
+BRIDJ_VERSION=0.6.2-SNAPSHOT
 
 listFile ~/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar jna-runtime.jar.files
 listFile jnaerator-runtime/target/jnaerator-runtime-*-shaded.jar jnaerator-runtime.jar.files
-listFile ~/nativelibs4java/BridJ/target/bridj-$BRIDJ_VERSION.jar bridj.jar.files
+listFile ~/.m2/repository/com/nativelibs4java/bridj/$BRIDJ_VERSION/bridj-$BRIDJ_VERSION.jar bridj.jar.files
 

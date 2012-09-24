@@ -1,33 +1,4 @@
-/*
- * JavaCL - Java API and utilities for OpenCL
- * http://javacl.googlecode.com/
- *
- * Copyright (c) 2009-2011, Olivier Chafik (http://ochafik.com/)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Olivier Chafik nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+#parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
@@ -60,8 +31,8 @@ public class CLBuffer<T> extends CLMem {
 	final Object owner;
     final PointerIO<T> io;
     
-	CLBuffer(CLContext context, long byteCount, cl_mem entity, Object owner, PointerIO<T> io) {
-        super(context, byteCount, entity);
+	CLBuffer(CLContext context, long byteCount, long entityPeer, Object owner, PointerIO<T> io) {
+        super(context, byteCount, entityPeer);
 		this.owner = owner;
         this.io = io;
 	}
@@ -75,27 +46,56 @@ public class CLBuffer<T> extends CLMem {
 	public long getElementCount() {
         return getByteCount() / getElementSize();
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
     
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
     
+    /**
+     * Returns a pointer to native memory large enough for this buffer's data, and with a compatible byte ordering. 
+     */
+    public Pointer<T> allocateCompatibleMemory(CLDevice device) {
+    	return allocateArray(io, getElementCount()).order(device.getKernelsDefaultByteOrder());
+    }
+
+	public PointerIO<T> getIO() {
+		return io;
+	}
+    
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public Pointer<T> read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+        Pointer<T> out = allocateCompatibleMemory(queue.getDevice());
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public Pointer<T> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+		Pointer<T> out = allocateCompatibleMemory(queue.getDevice());
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -106,6 +106,7 @@ public class CLBuffer<T> extends CLMem {
 	}
 
 	/**
+#documentCallsFunction("clCreateSubBuffer")
 	 * Can be used to create a new buffer object (referred to as a sub-buffer object) from an existing buffer object.
 	 * @param usage is used to specify allocation and usage information about the image memory object being created and is described in table 5.3 of the OpenCL spec.
 	 * @param offset
@@ -117,10 +118,10 @@ public class CLBuffer<T> extends CLMem {
 		try {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
-			Pointer<Integer> pErr = allocateInt();
-	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
-	        error(pErr.get());
-	        return mem == null ? null : new CLBuffer<T>(context, length * s, mem, null, io);
+			#declareReusablePtrsAndPErr()
+		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
+	        #checkPErr()
+	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);
@@ -130,25 +131,23 @@ public class CLBuffer<T> extends CLMem {
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param destination
-	 * @param eventsToWaitFor
-	 * @return event which indicates the copy operation has completed
+#documentEventsToWaitForAndReturn()
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
 		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
 	}
 	
 	/**
+#documentCallsFunction("clEnqueueCopyBuffer")
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param queue
 	 * @param srcOffset
 	 * @param length
 	 * @param destination
 	 * @param destOffset
-	 * @param eventsToWaitFor
-	 * @return event which indicates the copy operation has completed
+#documentEventsToWaitForAndReturn()
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
-		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
 		long 
 			byteCount = getByteCount(),
 			destByteCount = destination.getByteCount(),
@@ -166,7 +165,7 @@ public class CLBuffer<T> extends CLMem {
 		)
 			throw new IndexOutOfBoundsException("Invalid copy parameters : srcOffset = " + srcOffset + ", destOffset = " + destOffset + ", length = " + length + " (element size = " + eltSize + ", source byte count = " + byteCount + ", destination byte count = " + destByteCount + ")"); 
 		
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		#declareReusablePtrsAndEventsInOut()
         error(CL.clEnqueueCopyBuffer(
 			queue.getEntity(),
 			getEntity(),
@@ -174,41 +173,48 @@ public class CLBuffer<T> extends CLMem {
 			actualSrcOffset,
 			actualDestOffset,
 			actualLength,
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut
+			#eventsInOutArgsRaw()
 		));
-		return CLEvent.createEventFromPointer(queue, eventOut);
+		#returnEventOut("queue")
 	}
 
+	/**
+#documentCallsFunction("clEnqueueMapBuffer")
+	*/
 	protected Pair<Pointer<T>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		Pointer<Integer> pErr = allocateInt();
-        
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
+		#declareReusablePtrsAndEventsInOutBlockable()
+		#declarePErr()
+        long mappedPeer = CL.clEnqueueMapBuffer(
+			queue.getEntity(), 
+			getEntity(), 
+			blocking ? CL_TRUE : CL_FALSE,
 			flags.value(),
 			offset * getElementSize(),
             length * getElementSize(),
-			evts == null ? 0 : (int)evts.getValidElements(), evts,
-			eventOut,
-			pErr
+            #eventsInOutArgsRaw(),
+			getPeer(pErr)
 		);
-		error(pErr.get());
+		#checkPErr()
+		if (mappedPeer == 0)
+			return null;
         return new Pair<Pointer<T>, CLEvent>(
-			p.as(io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
-			CLEvent.createEventFromPointer(queue, eventOut)
+			pointerToAddress(mappedPeer, io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
+			#eventOutWrapper("queue")
 		);
-    }
-
-    public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
-        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), buffer, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
-		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
     /**
+#documentCallsFunction("clEnqueueUnmapMemObject")
+	*/
+	public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
+    	#declareReusablePtrsAndEventsInOut();
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), getPeer(buffer), #eventsInOutArgsRaw()));
+		#returnEventOut("queue")
+    }
+
+    /**
+#documentCallsFunction("clEnqueueReadBuffer")
      * @deprecated use {@link CLBuffer#read(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -216,12 +222,16 @@ public class CLBuffer<T> extends CLMem {
 		return read(queue, 0, -1, out, blocking, eventsToWaitFor);
     }
     
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public CLEvent read(CLQueue queue, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
         return read(queue, 0, -1, out, blocking, eventsToWaitFor);
 	}
 
 	/**
-     * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+#documentCallsFunction("clEnqueueReadBuffer")
+	 * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -245,6 +255,9 @@ public class CLBuffer<T> extends CLMem {
         return ret;
 	}
 	
+	/**
+#documentCallsFunction("clEnqueueReadBuffer")
+	*/
 	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (out == null)
 			throw new IllegalArgumentException("Null output pointer !");
@@ -261,25 +274,21 @@ public class CLBuffer<T> extends CLMem {
 			}
 		}
 		
-        ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
-        int[] eventsCount = new int[1];
-        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
+		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueReadBuffer(
-            getPeer(queue.getEntity()),
-            getPeer(getEntity()),
+            queue.getEntity(),
+            getEntity(),
             blocking ? CL_TRUE : 0,
             offset * getElementSize(),
             length * getElementSize(),
             getPeer(out),
-            eventsCount[0],
-            getPeer(events),
-            getPeer(eventOut)
+            #eventsInOutArgsRaw()
         ));
-        return CLEvent.createEventFromPointer(queue, eventOut);
+        #returnEventOut("queue")
     }
     
 	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -287,11 +296,15 @@ public class CLBuffer<T> extends CLMem {
 		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
 	}
 	
+	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
 	public CLEvent write(CLQueue queue, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
 	}
 
 	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
@@ -311,7 +324,9 @@ public class CLBuffer<T> extends CLMem {
         return write(queue, offset, length, ptr, blocking, eventsToWaitFor);
 	}
 	
-	
+	/**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
 	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (length == 0)
 			return null;
@@ -330,44 +345,43 @@ public class CLBuffer<T> extends CLMem {
 			}
 		}
 		
-        ReusablePointers ptrs = ReusablePointers.get();
-        Pointer<cl_event> eventOut = blocking ? null : ptrs.event_out;
-        int[] eventsCount = new int[1];
-        Pointer<cl_event> events = CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsCount, ptrs.events_in);
+		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteBuffer(
-            getPeer(queue.getEntity()),
-            getPeer(getEntity()),
+            queue.getEntity(),
+            getEntity(),
             blocking ? CL_TRUE : CL_FALSE,
             offset * getElementSize(),
             length * getElementSize(),
             getPeer(in),
-            eventsCount[0], 
-            getPeer(events),
-            getPeer(eventOut)
+            #eventsInOutArgsRaw()
         ));
-        return CLEvent.createEventFromPointer(queue, eventOut);
+        #returnEventOut("queue")
     }
 
-    public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+    /**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
+	public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
     		return writeBytes(queue, offset, length, pointerToBuffer(in), blocking, eventsToWaitFor);
     }
-    public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
+    /**
+#documentCallsFunction("clEnqueueWriteBuffer")
+	*/
+	public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (in == null)
 			throw new IllegalArgumentException("Null input pointer !");
 		
-		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		#declareReusablePtrsAndEventsInOutBlockable()
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
             getEntity(),
             blocking ? CL_TRUE : 0,
             offset,
             length,
-            in,
-            evts == null ? 0 : (int)evts.getValidElements(), evts,
-            eventOut
+            getPeer(in),
+            #eventsInOutArgsRaw()
         ));
-        return CLEvent.createEventFromPointer(queue, eventOut);
+        #returnEventOut("queue")
     }
 
     private <T extends CLMem> T copyGLMark(T mem) {
@@ -388,10 +402,10 @@ public class CLBuffer<T> extends CLMem {
 	#end
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-        PointerIO<T> newIo = PointerIO.getInstance(newTargetType);
-		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIo));
+		long mem = getEntity();
+		error(CL.clRetainMemObject(mem));
+        PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
+		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));
 	}
 	
 }

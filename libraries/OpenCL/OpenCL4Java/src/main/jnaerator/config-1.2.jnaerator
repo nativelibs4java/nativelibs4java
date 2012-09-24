@@ -8,7 +8,6 @@
 -gccLong
 -genRawBindings
 -limitComments
--synchronized
 
 "-Dextern="
 "-D__stdcall="

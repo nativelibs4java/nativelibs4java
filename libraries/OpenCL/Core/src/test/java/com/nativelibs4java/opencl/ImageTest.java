@@ -23,16 +23,20 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.runners.Parameterized;
 
 /**
  *
  * @author ochafik
  */
 public class ImageTest extends AbstractCommon {
-
-    @BeforeClass
-    public static void setup() {
-        MiscTestUtils.protectJNI();
+    public ImageTest(CLDevice device) {
+        super(device);
+    }
+    
+    @Parameterized.Parameters
+    public static List<Object[]> getDeviceParameters() {
+        return AbstractCommon.getDeviceParameters();
     }
 
     public boolean supportsImages() {
