@@ -436,7 +436,6 @@ public class CLKernel extends CLAbstractEntity {
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
-        
         #declareReusablePtrsAndEventsInOut()
         error(CL.clEnqueueNDRangeKernel(
             queue.getEntity(),
@@ -445,8 +444,7 @@ public class CLKernel extends CLAbstractEntity {
             getPeer(ptrs.sizeT3_1.pointerToSizeTs(globalOffsets)),
             getPeer(ptrs.sizeT3_2.pointerToSizeTs(globalWorkSizes)),
             getPeer(ptrs.sizeT3_3.pointerToSizeTs(localWorkSizes)),
-            #eventsInOutArgsRaw()
-        ));
+            #eventsInOutArgsRaw()));
         #returnEventOut("queue")
     }
 	

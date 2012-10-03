@@ -331,7 +331,7 @@ public class BridJer {
                     Declarator decl = v.getDeclarators().get(0);
                     //DirectDeclarator decl = (DirectDeclarator);
                     TypeRef vt = v.getValueType();
-                    MutableByDeclarator mt = decl instanceof DirectDeclarator ? vt : decl.mutateType(vt);
+                    MutableByDeclarator mt = decl instanceof DirectDeclarator ? vt : decl.mutateTypeKeepingParent(vt);
                     
                     if (mt instanceof TypeRef) {
                         TypeRef mutatedType = (TypeRef)mt;
@@ -369,7 +369,7 @@ public class BridJer {
                                 -1//bits
                             );
                             
-                            v.setValueType(conv.typeRef);
+                            v.setValueType(conv.getTypeRef(false));
                             
                             if (conv.arrayLengths != null && (mutatedType instanceof TargettedTypeRef) && decl.getDefaultValue() == null)
                                 v.setDeclarators(Arrays.asList((Declarator)new DirectDeclarator(decl.resolveName(), newAllocateArray(((TargettedTypeRef)mutatedType).getTarget(), conv.arrayLengths))));
