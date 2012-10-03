@@ -38,6 +38,7 @@ import com.ochafik.lang.jnaerator.runtime.VirtualTablePointer;
 import com.ochafik.util.listenable.Pair;
 import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
 import static com.ochafik.lang.jnaerator.TypeConversion.*;
+import com.ochafik.lang.jnaerator.parser.Function.SignatureType;
 import com.ochafik.util.string.StringUtils;
 import com.sun.jna.PointerType;
 import org.bridj.TypedPointer;
@@ -215,7 +216,7 @@ public abstract class DeclarationsConverter {
 					if (!(decl instanceof DirectDeclarator))
 						continue; // TODO provide a mapping of exported values
 					
-					TypeRef mutatedType = (TypeRef) decl.mutateType(v.getValueType());
+					TypeRef mutatedType = (TypeRef) decl.mutateTypeKeepingParent(v.getValueType());
 					if (mutatedType == null || 
 							!mutatedType.getModifiers().contains(ModifierType.Const) ||
 							mutatedType.getModifiers().contains(ModifierType.Extern) ||
@@ -315,7 +316,7 @@ public abstract class DeclarationsConverter {
 			pair = new Pair<List<Pair<Function, String>>, Set<String>>(new ArrayList<Pair<Function, String>>(), new HashSet<String>());
 			for (Method m : originalLib.getDeclaredMethods()) {
 				Function f = Function.fromMethod(m);
-				String sig = f.computeSignature(false);
+				String sig = f.computeSignature(Function.SignatureType.JavaStyle);
 				//if (m.getDeclaringClass().equals(NSObject.class) && f.getName().equals("as")) {
 				//	Declaration
 				//}
@@ -495,7 +496,7 @@ public abstract class DeclarationsConverter {
         //if (functionName.equals("operator"))
         //    functionName
 
-		String sig = function.computeSignature(false);
+		String sig = function.computeSignature(SignatureType.JavaStyle);
 
         DeclarationsHolder objOut = 
             result.config.reification &&
@@ -582,7 +583,7 @@ public abstract class DeclarationsConverter {
 	}
 
 	public Identifier getActualTaggedTypeName(TaggedTypeRef struct) {
-		Identifier structName = null;
+        Identifier structName = null;
 		Identifier tag = struct.getTag();
 		if (tag == null || tag.isPlain() && tag.toString().startsWith("_")) {
 			TypeDef parentDef = as(struct.getParentElement(), TypeDef.class);

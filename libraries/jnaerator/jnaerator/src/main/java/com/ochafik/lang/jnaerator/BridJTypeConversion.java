@@ -15,6 +15,7 @@ import com.ochafik.lang.jnaerator.parser.*;
 import com.ochafik.lang.jnaerator.parser.Enum;
 
 import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
+import com.ochafik.lang.jnaerator.parser.TypeRef.SimpleTypeRef;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.util.listenable.Pair;
 import com.ochafik.util.string.StringUtils;
@@ -40,20 +41,32 @@ public class BridJTypeConversion extends TypeConversion {
         return cast(typeRef(int.class), enumValue);
     }
     
-    
     public class NL4JConversion {
 
-        public ConvType type;
-        public TypeRef typeRef, indirectType;
+        public ConvType type = ConvType.Default;
+        private TypeRef typeRef, indirectType;
         public List<Expression> arrayLengths;
         public Expression bits;
         public Expression getExpr, setExpr;
-        public boolean wideString, readOnly, isPtr, byValue, nativeSize, cLong, isUndefined;
+        public boolean wideString, readOnly, byValue, nativeSize, cLong, isUndefined;
         public Charset charset;
         public final List<Annotation> annotations = new ArrayList<Annotation>();
         //public String structIOFieldGetterNameRadix;
         public String pointerFieldGetterNameRadix;
 
+        public TypeRef getTypeRef(boolean useRawTypes) {
+            if (useRawTypes) {
+                switch (type) {
+                    case Pointer:
+                        return typeRef(long.class);
+                    case Enum:
+                        return typeRef(int.class);
+                    default:
+                        return typeRef;
+                }
+            } else
+                return typeRef;
+        }
         public Expression arrayLength() {
             Expression length = null;
             for (Expression m : arrayLengths) {
@@ -101,6 +114,7 @@ public class BridJTypeConversion extends TypeConversion {
                         break;
                     case Struct:
                     case ComplexDouble:
+                    case Default:
                         //throw new UnsupportedConversionException(typeRef, "Struct by value not supported yet");
                         break;
                     default:
@@ -110,9 +124,9 @@ public class BridJTypeConversion extends TypeConversion {
             return element;
         }
 
-        public <M extends ModifiableElement> M annotateTypedType(M element) throws UnsupportedConversionException {
+        public <M extends ModifiableElement> M annotateTypedType(M element, boolean useRawTypes) throws UnsupportedConversionException {
             element.addAnnotations(annotations);
-            if (type != ConvType.Pointer) {
+            if (type != ConvType.Pointer || useRawTypes) {
                 annotateRawType(element);
             }
             return element;
@@ -120,10 +134,17 @@ public class BridJTypeConversion extends TypeConversion {
     }
     
     public NL4JConversion convertTypeToNL4J(TypeRef valueType, Identifier libraryClassName, Expression structIOExpr, Expression valueExpr, int fieldIndex, int bits) throws UnsupportedConversionException {
+        
         TypeRef original = valueType;
+        
+        TypeRef resolved = result.resolveType(original, false);
+        
         //if (valueType != null && valueType.toString().contains("MonoDomain"))
         //    valueType = (TypeRef)valueType;
-        valueType = resolveTypeDef(valueType, libraryClassName, true, true);
+        if (resolved != null)
+            valueType = resolved;
+        else
+            valueType = resolveTypeDef(valueType, libraryClassName, false/*true*/, true);
 
         //Expression offsetExpr = structIOExpr == null ? null : methodCall(structIOExpr, "getFieldOffset", expr(fieldIndex));
         //Expression bitOffsetExpr = structIOExpr == null || bits <= 0 ? null : methodCall(structIOExpr, "getFieldBitOffset", expr(fieldIndex));
@@ -136,9 +157,16 @@ public class BridJTypeConversion extends TypeConversion {
             conv.typeRef = primRef(JavaPrim.Void);
             return conv;
         }
-        //if (valueType instanceof Struct)
-        //	valueType = typeRef(findStructRef((Struct)valueType, libraryClassName));
-
+        JavaPrim prim = getPrimitive(valueType, libraryClassName);
+        if (prim != null) {
+            return convertPrimitiveTypeRefToNL4J(prim, structIOExpr, fieldIndex, valueExpr);
+        } else if (valueType instanceof TypeRef.Pointer) {
+            // Treat callback pointers as callbacks.
+            TypeRef targetRef = ((TypeRef.Pointer)(valueType)).getTarget();
+            if (targetRef instanceof TypeRef.FunctionSignature)
+                valueType = targetRef;
+        }
+        
         if (valueType instanceof TypeRef.TargettedTypeRef) {
             TypeRef targetRef = ((TypeRef.TargettedTypeRef) valueType).getTarget();
 
@@ -162,7 +190,6 @@ public class BridJTypeConversion extends TypeConversion {
                 NL4JConversion targetConv = convertTypeToNL4J(targetRef, libraryClassName, null, null, -1, -1);
                 //if (result.isFakePointer(libraryClassName))
                 if (targetConv.isUndefined && allowFakePointers && original instanceof TypeRef.SimpleTypeRef) {
-                    conv.isPtr = true;
                     conv.type = ConvType.Pointer;
                     conv.typeRef = typeRef(result.getFakePointer(libraryClassName, ((TypeRef.SimpleTypeRef)original).getName().clone()));
 					if (structIOExpr != null) {
@@ -175,7 +202,6 @@ public class BridJTypeConversion extends TypeConversion {
 				TypeRef pointedTypeRef = targetConv.getIndirectTypeRef();
 				
 				if (pointedTypeRef != null) {
-					conv.isPtr = true;
                     conv.type = ConvType.Pointer;
                     conv.typeRef = typeRef(ident(result.config.runtime.pointerClass, expr(pointedTypeRef.clone())));
 					if (structIOExpr != null) {
@@ -186,141 +212,90 @@ public class BridJTypeConversion extends TypeConversion {
 					return conv;
 				}
 	        } catch (UnsupportedConversionException ex) {
-                conv.isPtr = true;
                 conv.type = ConvType.Pointer;
                 conv.typeRef = typeRef(result.config.runtime.pointerClass);
                 return conv;
-
-				/*if (valueType instanceof TypeRef.Pointer && targetRef instanceof SimpleTypeRef && allowFakePointers) {
-					conv.typeRef = typeRef(result.getFakePointer(libraryClassName, ((SimpleTypeRef)targetRef).getName().clone()));
-					if (structIOExpr != null) {
-						if (conv.arrayLengths == null)
-							conv.setExpr = methodCall(structIOExpr.clone(), "setPointerField", thisRef(), expr(fieldIndex), valueExpr);
-						conv.getExpr = methodCall(structIOExpr.clone(), "getTypedPointerField", thisRef(), expr(fieldIndex));
-					}
-					return conv;
-				}//*/
-                /*if (valueType instanceof TypeRef.Pointer && targetRef instanceof SimpleTypeRef && allowFakePointers) {
-					conv.typeRef = typeRef(ident(result.config.runtime.pointerClass, expr(typeRef(result.getUndefinedType(libraryClassName, ((SimpleTypeRef)targetRef).getName().clone())))));
-					if (structIOExpr != null) {
-						if (conv.arrayLengths == null)
-							conv.setExpr = methodCall(structIOExpr.clone(), "setPointerField", thisRef(), expr(fieldIndex), valueExpr);
-						conv.getExpr = methodCall(structIOExpr.clone(), "getTypedPointerField", thisRef(), expr(fieldIndex));
-					}
-					return conv;
-				}*/
 	        }
-        } else {//if (valueType instanceof SimpleTypeRef || valueType instanceof TaggedTypeRef || valueType) {
-            JavaPrim prim = getPrimitive(valueType, libraryClassName);
-            if (prim != null) {
-                String radix;
-                switch (prim) {
-                    case NativeLong:
-                        conv.type = ConvType.NativeLong;
-                        conv.typeRef = typeRef(Long.TYPE);
-                        conv.indirectType = typeRef(org.bridj.CLong.class);
-                        radix = "CLong";
-                        break;
-                    case NativeSize:
-                        conv.type = ConvType.NativeSize;
-                        conv.typeRef = typeRef(Long.TYPE);
-                        conv.indirectType = typeRef(org.bridj.SizeT.class);
-                        radix = "SizeT";
-                        break;
-                    case Void:
-                        conv.type = ConvType.Void;
-                        conv.typeRef = primRef(prim);
-                        radix = null;
-                        break;
-                    case ComplexDouble:
-                        conv.type = ConvType.ComplexDouble;
-                        conv.typeRef = typeRef(org.bridj.ComplexDouble.class);
-                        radix = "Struct";
-                        break;
-                    default:
-                        conv.type = ConvType.Primitive;
-                        conv.typeRef = primRef(prim);
-                        conv.indirectType = typeRef(prim.wrapperType);
-                        radix = StringUtils.capitalize(prim.type.getName());
-                        break;
+        } else if (valueType.getResolvedJavaIdentifier() != null) {
+            conv.typeRef = typeRef(valueType.getResolvedJavaIdentifier().clone());
+            if (valueType instanceof TypeRef.FunctionSignature) {
+                conv.type = ConvType.Pointer;
+                conv.typeRef = typeRef(ident(result.config.runtime.pointerClass, expr(conv.typeRef)));
+                if (structIOExpr != null) {
+                    conv.setExpr = methodCall(structIOExpr.clone(), "setPointerField", thisRef(), expr(fieldIndex), valueExpr);
+                    conv.getExpr = methodCall(structIOExpr.clone(), "getPointerField", thisRef(), expr(fieldIndex));
                 }
-                if (structIOExpr != null && radix != null) {
-                    conv.setExpr = methodCall(structIOExpr.clone(), "set" + radix + "Field", thisRef(), expr(fieldIndex), valueExpr);
-                    conv.getExpr = methodCall(structIOExpr.clone(), "get" + radix + "Field", thisRef(), expr(fieldIndex));
+            } else if (valueType instanceof Enum) {
+                conv.type = ConvType.Enum;
+                conv.typeRef = typeRef(ident(IntValuedEnum.class, expr(conv.typeRef)));
+                if (structIOExpr != null) {
+                    conv.setExpr = methodCall(structIOExpr.clone(), "setEnumField", thisRef(), expr(fieldIndex), valueExpr);
+                    conv.getExpr = methodCall(structIOExpr.clone(), "getEnumField", thisRef(), expr(fieldIndex));//expr(typeRef(FlagSet.class)), "fromValue", methodCall(structPeerExpr.clone(), "getInt", expr(fieldIndex)), classLiteral(conv.typeRef.clone()));
                 }
-                return conv;
-            } else {
-            	
-            	Identifier valueName = valueType instanceof TypeRef.SimpleTypeRef ? ((TypeRef.SimpleTypeRef)valueType).getName() : null;
-                
-                // Structs
-                if (valueType instanceof Struct)
-                    conv.typeRef = typeRef(findStructRef((Struct)valueType, libraryClassName));
-                else if (result.structsFullNames.contains(valueName))
-                    conv.typeRef = valueType;
-                else
-                    conv.typeRef = typeRef(findStructRef(valueName, libraryClassName));
-                if (conv.typeRef != null) 
-                {
-            		//conv.setExpr = methodCall(structPeerExpr.clone(), "set" + radix, offsetExpr.clone(), valueExpr);
-                	if (structIOExpr != null) {
-                    	conv.setExpr = methodCall(structIOExpr.clone(), "setNativeObjectField", thisRef(), expr(fieldIndex), valueExpr);
-                		conv.getExpr = methodCall(structIOExpr.clone(), "getNativeObjectField", thisRef(), expr(fieldIndex));
-                		//conv.getExpr = new Expression.New(conv.typeRef, (Expression)methodCall(structIOExpr.clone(), "offset", offsetExpr.clone()));
-                	}
-                	conv.type = ConvType.Struct;
-                	return conv;
+            } else if (valueType instanceof Struct) {
+                conv.type = ConvType.Struct;
+                if (structIOExpr != null) {
+                    conv.setExpr = methodCall(structIOExpr.clone(), "setNativeObjectField", thisRef(), expr(fieldIndex), valueExpr);
+                    conv.getExpr = methodCall(structIOExpr.clone(), "getNativeObjectField", thisRef(), expr(fieldIndex));
+                    //conv.getExpr = new Expression.New(conv.typeRef, (Expression)methodCall(structIOExpr.clone(), "offset", offsetExpr.clone()));
                 }
-                
-                // TODO proper namespaces
-                if (valueName != null)
-                    valueName = valueName.resolveLastSimpleIdentifier();
-                
-                // Enums
-                if (valueType instanceof Enum)
-                    conv.typeRef = findEnumRef((Enum)valueType, libraryClassName);
-                else if (result.enumsFullNames.contains(valueName))
-                    conv.typeRef = valueType;
-                else 
-                    conv.typeRef = findEnum(valueName, libraryClassName);
-                if (conv.typeRef != null) 
-                {
-                	if (structIOExpr != null) {
-                		conv.setExpr = methodCall(structIOExpr.clone(), "setEnumField", thisRef(), expr(fieldIndex), valueExpr);
-	                	conv.getExpr = methodCall(structIOExpr.clone(), "getEnumField", thisRef(), expr(fieldIndex));//expr(typeRef(FlagSet.class)), "fromValue", methodCall(structPeerExpr.clone(), "getInt", expr(fieldIndex)), classLiteral(conv.typeRef.clone()));
-                	}
-                	conv.type = ConvType.Enum;
-                	conv.typeRef = typeRef(ident(IntValuedEnum.class, expr(conv.typeRef)));
-                	return conv;
-                }
-                
-                // Callbacks
-                conv.typeRef = conv.typeRef = 
-            		result.callbacksFullNames.contains(valueName) ? valueType : 
-        			valueType instanceof TypeRef.FunctionSignature ? 
-    					findCallbackRef((TypeRef.FunctionSignature)valueType, libraryClassName) : 
-        				findCallbackRef(valueName, libraryClassName);
-                if (conv.typeRef != null) 
-                {
-                	if (structIOExpr != null) {
-	                	conv.setExpr = methodCall(structIOExpr.clone(), "setPointerField", thisRef(), expr(fieldIndex), valueExpr);
-	                	conv.getExpr = methodCall(structIOExpr.clone(), "getPointerField", thisRef(), expr(fieldIndex));
-	            	}
-	        		conv.type = ConvType.Pointer;
-                	conv.typeRef = typeRef(ident(result.config.runtime.pointerClass, expr(conv.typeRef)));
-	        		return conv;
-                    
-                }
-            }
+            } else
+                throw new RuntimeException("Failed to recognize conversion type: " + valueType);
+            return conv;
         }
 
         if (valueType instanceof TypeRef.SimpleTypeRef && allowFakePointers) {
-            conv.typeRef = typeRef(result.getUndefinedType(libraryClassName, ((TypeRef.SimpleTypeRef)valueType).getName().resolveLastSimpleIdentifier().clone()));
-            conv.isUndefined = true;
-            return conv;
+            Identifier name = ((TypeRef.SimpleTypeRef)valueType).getName();
+            if (name != null) {
+                conv.type = ConvType.Pointer;
+                conv.typeRef = typeRef(result.getUndefinedType(libraryClassName, name.resolveLastSimpleIdentifier().clone()));
+                conv.isUndefined = true;
+                return conv;
+            }
         }
         throw new UnsupportedConversionException(original, "Unsupported type");
     }
+
+    private NL4JConversion convertPrimitiveTypeRefToNL4J(JavaPrim prim, Expression structIOExpr, int fieldIndex, Expression valueExpr) {
+        NL4JConversion conv = new NL4JConversion();
+        String radix;
+        switch (prim) {
+            case NativeLong:
+                conv.type = ConvType.NativeLong;
+                conv.typeRef = typeRef(Long.TYPE);
+                conv.indirectType = typeRef(org.bridj.CLong.class);
+                radix = "CLong";
+                break;
+            case NativeSize:
+                conv.type = ConvType.NativeSize;
+                conv.typeRef = typeRef(Long.TYPE);
+                conv.indirectType = typeRef(org.bridj.SizeT.class);
+                radix = "SizeT";
+                break;
+            case Void:
+                conv.type = ConvType.Void;
+                conv.typeRef = primRef(prim);
+                radix = null;
+                break;
+            case ComplexDouble:
+                conv.type = ConvType.ComplexDouble;
+                conv.typeRef = typeRef(org.bridj.ComplexDouble.class);
+                radix = "NativeObject";
+                break;
+            default:
+                conv.type = ConvType.Primitive;
+                conv.typeRef = primRef(prim);
+                conv.indirectType = typeRef(prim.wrapperType);
+                radix = StringUtils.capitalize(prim.type.getName());
+                break;
+        }
+        if (structIOExpr != null && radix != null) {
+            conv.setExpr = methodCall(structIOExpr.clone(), "set" + radix + "Field", thisRef(), expr(fieldIndex), valueExpr);
+            conv.getExpr = methodCall(structIOExpr.clone(), "get" + radix + "Field", thisRef(), expr(fieldIndex));
+        }
+        return conv;
+    }
+    
     
     public Expression getFlatArraySizeExpression(TypeRef.Pointer.ArrayRef arrayRef, Identifier callerLibraryName) throws UnsupportedConversionException {
         Expression mul = null;
@@ -368,21 +343,21 @@ public class BridJTypeConversion extends TypeConversion {
             if (prim != null) {
                 res = sizeof(prim);
             } else {
-                Identifier structRef = findStructRef(((TypeRef.SimpleTypeRef) type).getName(), libraryClassName);
+                SimpleTypeRef structRef = findStructRef(((TypeRef.SimpleTypeRef) type).getName(), libraryClassName);
                 if (structRef == null) {
                     structRef = findStructRef(((TypeRef.SimpleTypeRef) type).getName().resolveLastSimpleIdentifier(), libraryClassName);
                 }
                 if (structRef != null) {
-                    return methodCall(new Expression.New(typeRef(structRef)), Expression.MemberRefStyle.Dot, "size");
+                    return methodCall(new Expression.New(structRef), Expression.MemberRefStyle.Dot, "size");
                 }
             }
         } else if (type instanceof Struct) {
             Struct s = (Struct) type;
             if (s != null) {
                 Identifier structName = result.declarationsConverter.getActualTaggedTypeName(s);
-                Identifier structRef = findStructRef(structName, libraryClassName);
+                SimpleTypeRef structRef = findStructRef(structName, libraryClassName);
                 if (structRef != null) {
-                    return methodCall(new Expression.New(typeRef(structRef)), Expression.MemberRefStyle.Dot, "size");
+                    return methodCall(new Expression.New(structRef), Expression.MemberRefStyle.Dot, "size");
                 } else {
                     for (Declaration d : s.getDeclarations()) {
                         if (d instanceof VariablesDeclaration) {
@@ -415,7 +390,7 @@ public class BridJTypeConversion extends TypeConversion {
             NL4JConversion conv = convertTypeToNL4J(tpe, libraryClassName, null, null, -1, -1);
             TypeRef tr = conv.typeRef;
             Expression val = casted.getFirst();
-            if (conv.isPtr) {
+            if (ConvType.Pointer.equals(conv.type)) {
                     if (isString(val))
                         val = methodCall(expr(typeRef(result.config.runtime.pointerClass)), "pointerToCString", val);
                     else

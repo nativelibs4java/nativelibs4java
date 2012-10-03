@@ -149,7 +149,7 @@ public class OverheadTest extends AbstractCommon {
         
         System.out.println("CLKernel.setArg is " + slowerSetArg + "x slower than hand-optimized.");
         System.out.println("CLKernel.setArgs is " + slowerSetArgs + "x slower than hand-optimized.");
-        final double maxMilliSecondsPerCall = Platform.is64Bits() ? 0.0022 : 0.007;
+        final double maxMilliSecondsPerCall = Platform.is64Bits() ? 0.0025 : 0.007;
         double setArgAvg = (totSetArg / (double)nTest) / nArgs;
         System.out.println("CLKernel.setArg took " + setArgAvg + " ms per call in average.");
         
