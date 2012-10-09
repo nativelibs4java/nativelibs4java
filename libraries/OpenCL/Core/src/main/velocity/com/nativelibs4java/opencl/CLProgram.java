@@ -123,10 +123,9 @@ public class CLProgram extends CLAbstractEntity {
             if (binary == null)
             		throw new IllegalArgumentException("No binary for device " + device + " in provided binaries");
 
-            long offset = iDevice * Pointer.SIZE;
-            binariesArray.setPointerAtOffset(offset, binariesMems[iDevice] = pointerToBytes(binary));
-            lengths.setSizeTAtOffset(offset, binary.length);
-            deviceIds.setSizeTAtOffset(offset, device.getEntity());
+            binariesArray.setPointerAtIndex(iDevice, binariesMems[iDevice] = pointerToBytes(binary));
+            lengths.setSizeTAtIndex(iDevice, binary.length);
+            deviceIds.setSizeTAtIndex(iDevice, device.getEntity());
             
             iDevice++;
         }
@@ -263,7 +262,7 @@ public class CLProgram extends CLAbstractEntity {
         Pointer<SizeT> pLengths = allocateSizeTs(sources.length);
         long[] lengths = new long[sources.length];
         for (int i = 0; i < sources.length; i++) {
-            pLengths.setSizeTAtOffset(i * Pointer.SIZE, sources[i].length());
+            pLengths.setSizeTAtIndex(i, sources[i].length());
         }
         
         #declareReusablePtrsAndPErr()
@@ -758,7 +757,7 @@ public class CLProgram extends CLAbstractEntity {
         if (nDevices != 0) {
             deviceIds = allocateSizeTs(nDevices);
             for (int i = 0; i < nDevices; i++)
-                deviceIds.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntity());
+                deviceIds.setSizeTAtIndex(i, devices[i].getEntity());
         }
         Pointer<Byte> pOptions = pointerToCString(getOptionsString());
         int err = CL.clBuildProgram(
@@ -822,7 +821,7 @@ public class CLProgram extends CLAbstractEntity {
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
-			kernels[i] = new CLKernel(this, null, kerns.getSizeTAtOffset(i * Pointer.SIZE));
+			kernels[i] = new CLKernel(this, null, kerns.getSizeTAtIndex(i));
 
 		return kernels;
 	}

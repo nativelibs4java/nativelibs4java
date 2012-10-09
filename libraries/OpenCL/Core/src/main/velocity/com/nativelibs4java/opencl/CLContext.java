@@ -286,7 +286,7 @@ public class CLContext extends CLAbstractEntity {
 
 		CLDevice[] devices = new CLDevice[n];
 		for (int i = n; i-- != 0;) {
-			devices[i] = new CLDevice(platform, deviceIds.getSizeTAtOffset(i * Pointer.SIZE));
+			devices[i] = new CLDevice(platform, deviceIds.getSizeTAtIndex(i));
 		}
 		return devices;
 	}

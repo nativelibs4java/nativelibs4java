@@ -143,7 +143,7 @@ public class CLQueue extends CLAbstractEntity {
         #declareReusablePtrsAndEventsInOut()
 		Pointer<SizeT> mems = allocateSizeTs(objects.length);
 		for (int i = 0; i < objects.length; i++) {
-			mems.setSizeTAtOffset(i * Pointer.SIZE, objects[i].getEntity());
+			mems.setSizeTAtIndex(i, objects[i].getEntity());
 		}
         error(CL.clEnqueueAcquireGLObjects(
 			getEntity(), 

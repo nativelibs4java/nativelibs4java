@@ -94,7 +94,7 @@ public class CLPlatform extends CLAbstractEntity {
         if (onlyAvailable) {
             List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
             for (int i = 0; i < nDevs; i++) {
-                CLDevice device = new CLDevice(this, ids.getSizeTAtOffset(i * Pointer.SIZE));
+                CLDevice device = new CLDevice(this, ids.getSizeTAtIndex(i));
                 if (device.isAvailable()) {
                     list.add(device);
                 }
@@ -103,7 +103,7 @@ public class CLPlatform extends CLAbstractEntity {
         } else {
             devices = new CLDevice[nDevs];
             for (int i = 0; i < nDevs; i++) {
-                devices[i] = new CLDevice(this, ids.getSizeTAtOffset(i * Pointer.SIZE));
+                devices[i] = new CLDevice(this, ids.getSizeTAtIndex(i));
             }
         }
         return devices;
@@ -341,7 +341,7 @@ public class CLPlatform extends CLAbstractEntity {
         }
         Pointer<SizeT> ids = allocateSizeTs(nDevs);
         for (int i = 0; i < nDevs; i++) {
-            ids.setSizeTAtOffset(i * Pointer.SIZE, devices[i].getEntity());
+            ids.setSizeTAtIndex(i, devices[i].getEntity());
         }
 
         #declareReusablePtrsAndPErr()
@@ -382,29 +382,6 @@ public class CLPlatform extends CLAbstractEntity {
         error(CL.clGetDeviceIDs(getEntity(), type.value(), nDevs, getPeer(ids), 0));
         return getDevices(ids, onlyAvailable);
     }
-
-    /*
-    public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
-        
-        Pointer<Integer> errRef = allocateInt();
-        long[] props = getContextProps(getGLContextProperties());
-        Memory propsMem = toNSArray(props);
-        Pointer<SizeT> propsRef = allocateSizeT();
-        propsRef.setPointer(propsMem);
-        
-        Pointer<SizeT> pCount = allocateSizeT();
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, 0, (Pointer) null, pCount));
-
-        int nDevs = pCount.getValue().intValue();
-        if (nDevs == 0)
-            return new CLDevice[0];
-        Memory idsMem = new Memory(nDevs * Pointer.SIZE);
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, nDevs, idsMem, pCount));
-        cl_device_id[] ids = new cl_device_id[nDevs];
-        for (int i = 0; i < nDevs; i++)
-            ids[i] = new cl_device_id(idsMem.getPointer(i * Pointer.SIZE));
-        return getDevices(ids, onlyAvailable);
-    }*/
 
     /**
      * OpenCL profile string. Returns the profile name supported by the implementation. The profile name returned can be one of the following strings:

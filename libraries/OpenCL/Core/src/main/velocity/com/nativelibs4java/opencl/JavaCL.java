@@ -223,7 +223,7 @@ public class JavaCL {
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {
-            platforms[i] = new CLPlatform(ids.getSizeTAtOffset(i * Pointer.SIZE));
+            platforms[i] = new CLPlatform(ids.getSizeTAtIndex(i));
         }
         return platforms;
     }
