@@ -1,0 +1,6 @@
+Hi Jan,
+
+Thanks for your patience!
+
+It turns out the way JavaCL called clCreateContext used an "implementation-defined" case, according to the specs (cf. case of NULL properties parameter: http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateContext.html ).
+This should be fixed in the latest snapshot, could you please try

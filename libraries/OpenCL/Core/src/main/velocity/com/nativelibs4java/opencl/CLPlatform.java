@@ -109,22 +109,25 @@ public class CLPlatform extends CLAbstractEntity {
         return devices;
     }
 
-    static long[] getContextProps(Map<ContextProperties, Object> contextProperties) {
-        if (contextProperties == null)
-            return null;
-        final long[] properties = new long[contextProperties.size() * 2 + 1];
-        int iProp = 0;
-        for (Map.Entry<ContextProperties, Object> e : contextProperties.entrySet()) {
-            //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
-            properties[iProp++] = e.getKey().value();
-            Object v = e.getValue();
-            if (v instanceof Number)
-                properties[iProp++] = ((Number)v).longValue();
-            else if (v instanceof Pointer)
-                properties[iProp++] = ((Pointer)v).getPeer();
-            else
-                throw new IllegalArgumentException("Cannot convert value " + v + " to a context property value !");
-        }
+    long[] getContextProps(Map<ContextProperties, Object> contextProperties) {
+        int nContextProperties = contextProperties == null ? 0 : contextProperties.size();
+        final long[] properties = new long[(nContextProperties + 1) * 2 + 1];
+        properties[0] = CL_CONTEXT_PLATFORM;
+        properties[1] = getEntity();
+        int iProp = 2;
+        if (nContextProperties != 0) {
+			for (Map.Entry<ContextProperties, Object> e : contextProperties.entrySet()) {
+				//if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
+				properties[iProp++] = e.getKey().value();
+				Object v = e.getValue();
+				if (v instanceof Number)
+					properties[iProp++] = ((Number)v).longValue();
+				else if (v instanceof Pointer)
+					properties[iProp++] = ((Pointer)v).getPeer();
+				else
+					throw new IllegalArgumentException("Cannot convert value " + v + " to a context property value !");
+			}
+		}
         //properties[iProp] = 0;
         return properties;
     }
