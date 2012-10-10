@@ -6,7 +6,7 @@ rm -fR target-webstart
 mkdir target-webstart
 cd target-webstart
 
-for SUB in JavaCL Demos OpenGLDemos ; do
+for SUB in InteractiveImageDemo Demos OpenGLDemos ; do
 	cp ../$SUB/target/*-shaded.jar . || exit 1
 done
 
