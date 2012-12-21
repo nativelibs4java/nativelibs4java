@@ -530,7 +530,7 @@ public class CLDevice extends CLAbstractEntity {
     		try {
     			queue = createOutOfOrderQueue(context);
     			return true;
-    		} catch (CLException.InvalidQueueProperties ex) {
+    		} catch (CLException ex) {
     			return false;
     		} finally {
     			if (queue != null)

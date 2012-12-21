@@ -8,8 +8,7 @@ import com.nativelibs4java.opencl.library.*;
 import java.util.Map;
 import static org.junit.Assert.*;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import org.bridj.Pointer;
 import org.bridj.Platform;
@@ -25,6 +24,7 @@ import org.junit.runners.Parameterized;
  *
  * @author Kazo Csaba
  */
+@Ignore
 @SuppressWarnings("unchecked")
 public class OverheadTest extends AbstractCommon {
     public OverheadTest(CLDevice device) {
