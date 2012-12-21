@@ -24,8 +24,6 @@
 		<module>OpenCL4Java</module>
 		<module>Demos</module>
 		<module>JavaCL</module>
-		<module>JavaCL-Shaded</module>
-		<module>JavaCL-OSGi</module>
 		<module>Core</module>
 		<module>Blas</module>
 		<module>OpenGLDemos</module>
