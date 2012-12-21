@@ -23,7 +23,7 @@
 	</modules>
 	
 	<properties>
-		<javacl.version>1.0</javacl.version>
+		<javacl.version>1.0.0-RC3</javacl.version>
 		<scalaxy.version>0.3</scalaxy.version>
 	</properties>
 	

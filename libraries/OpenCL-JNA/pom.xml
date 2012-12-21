@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>javacl-parent-jna</artifactId>
-	<version>1.0</version>
+	<version>1.0.0-RC3</version>
 	<packaging>pom</packaging>
 	<name>Legacy JavaCL-JNA Parent Project</name>
 	<inceptionYear>2009</inceptionYear>
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
     
 	<properties>
-		<javacl-jna.version>1.0</javacl-jna.version>
+		<javacl-jna.version>1.0.0-RC3</javacl-jna.version>
 	</properties>
 	
 	<parent>
