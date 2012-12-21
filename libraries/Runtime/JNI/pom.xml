@@ -6,7 +6,7 @@
   <artifactId>jni</artifactId>
   <name>JNI BridJ Bindings</name>
   <url>http://code.google.com/p/bridj</url>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.7</version>
   <packaging>jar</packaging>
 
   <!--
@@ -17,7 +17,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.8-SNAPSHOT</version>
+	  <version>1.8</version>
 	  <relativePath>..</relativePath>
   </parent>
 

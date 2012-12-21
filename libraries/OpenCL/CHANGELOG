@@ -6,6 +6,28 @@ Current development version (1.0-SNAPSHOT)
 - Optimized low-level bindings on OpenCL 1.1+ platforms, with dynamic runtime switch (removed synchronized keyword from all native calls)
 - Optimized performance of many calls (CLKernel.setArgs/enqueueNDRange, CLBuffer.read/write...)
 
+- Update ATI download link
+- Ignore mismatching byte order for byte buffers, and replaced mentions to getKernelsDefaultByteOrder() by ge (issue #336)
+- Run tests on all detected devices, rather than just on the best one
+- List devices in program errors
+- Better CLDevice.toString (include platform name)
+- Disabled byte order hack
+- Fixed nasty regression in getBestDevice !
+- Fixed ati byte order hack
+- Fixed byte order hack for ATI platforms
+- Started deprecating CLKernel.enqueueNDRange with int[] parameters
+- Added CLBuffer.allocateCompatibleMemory(CLDevice)
+- Added client properties to CLContext (lazy + concurrent)
+- Fixes / optimized event callbacks (but broke API: CLEvent.EventCallback now only takes the completion status as argument, not the event anymore)
+- Un-deprecated + fixed CLContext.getKernelsDefaultByteOrder() ; 
+- Return CLUserEvent from CLContext.createUserEvent();
+- Make OpenCL 1.0 synchronization a warning
+- Adapted Linux library loading code to AMD App 2.7
+- Fixed library probe
+- Factorized some javadoc with macros
+- Finish renaming
+- Renamed getEntityPeer() to getEntity()
+
 Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 
 - Release artifacts are available in Maven Central
@@ -23,7 +45,7 @@ Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 - Added -cl-nv-verbose, -cl-nv-maxrregcount, -cl-nv-opt-level + proper log even without error when nv-verbose is set
 - Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
 - Changed signature of CLPlatform.listDevices (now takes a single CLDevice.Type, including All, instead of an EnumSet thereof)
-- Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
 
 Version 1.0.0-RC1 (r2130, 20110621)
 

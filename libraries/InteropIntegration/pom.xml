@@ -5,12 +5,12 @@
 	<artifactId>interop-integration-root</artifactId>
 	<packaging>pom</packaging>
 	<name>Interop Integration Root</name>
-	<version>0.6.2-SNAPSHOT</version>
+	<version>0.6.2</version>
 
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.8</version>
 		<relativePath>..</relativePath>
 	</parent>
 

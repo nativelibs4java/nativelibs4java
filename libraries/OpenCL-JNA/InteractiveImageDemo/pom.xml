@@ -6,13 +6,13 @@
   <artifactId>javacl-interactive-image-demo-jna</artifactId>
   <name>JavaCL Interactive Image Demo / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
   
 	<parent>
   	  <groupId>com.nativelibs4java</groupId>
   	  <artifactId>javacl-parent-jna</artifactId>
-  	  <version>1.0-SNAPSHOT</version>
+  	  <version>1.0</version>
   	  <relativePath>..</relativePath>
     </parent>
 

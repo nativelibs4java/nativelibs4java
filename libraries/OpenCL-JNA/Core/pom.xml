@@ -6,7 +6,7 @@
   <artifactId>javacl-core-jna</artifactId>
   <name>JavaCL Core / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
   
   
@@ -19,7 +19,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent-jna</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <version>1.0</version>
 	  <relativePath>..</relativePath>
   </parent>
 
@@ -33,7 +33,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-utils</artifactId>
-	  <version>1.5-SNAPSHOT</version>
+	  <version>1.5</version>
 	  <scope>compile</scope>
 	</dependency>
 	

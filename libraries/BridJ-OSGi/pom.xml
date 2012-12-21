@@ -5,13 +5,13 @@
 	<artifactId>bridj-osgi</artifactId>
 	<name>BridJ OSGi Bundle</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.6.2-SNAPSHOT</version>
+	<version>0.6.2</version>
 	<packaging>bundle</packaging>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.8</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>bridj</artifactId>
-			<version>0.6.2-SNAPSHOT</version>
+			<version>0.6.2</version>
 		</dependency>
        <dependency>
            <groupId>org.osgi</groupId>

@@ -5,13 +5,13 @@
 	<artifactId>javacl-osgi</artifactId>
 	<name>JavaCL OSGi Bundle</name>
 	<url>http://code.google.com/p/javacl/</url>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>bundle</packaging>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.8</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-shaded</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0</version>
 			<!--classifier>shaded</classifier-->
 		</dependency>
        <dependency>
