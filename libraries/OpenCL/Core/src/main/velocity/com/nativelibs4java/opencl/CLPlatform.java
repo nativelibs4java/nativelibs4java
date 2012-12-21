@@ -314,10 +314,6 @@ public class CLPlatform extends CLAbstractEntity {
 	 */
     @Deprecated
     public CLContext createGLCompatibleContext(CLDevice... devices) {
-        try {
-            return createContext(getGLContextProperties(this), devices);
-        } catch (Throwable th) {}
-        
         for (CLDevice device : devices) {
             if (!device.isGLSharingSupported())
                 continue;
