@@ -447,7 +447,6 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>InteropIntegration</module>
 				<module>Velocity</module>
 				<module>BridJ</module>
-				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 				<module>ScalaCL</module>
 				<module>Scalaxy</module>
@@ -469,7 +468,6 @@ Most of these wrappers are created automatically by JNAerator.
 			<modules>
 				<module>Velocity</module>
 				<module>BridJ</module>
-				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 				<module>ScalaCL</module>
 				<module>Scalaxy</module>
@@ -486,7 +484,6 @@ Most of these wrappers are created automatically by JNAerator.
 			<modules>
 				<module>Velocity</module>
 				<module>BridJ</module>
-				<module>BridJ-OSGi</module>
 				<module>jnaerator</module>
 			</modules>
 		</profile>

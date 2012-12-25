@@ -5,8 +5,7 @@
 	<artifactId>javacl</artifactId>
 	<name>JavaCL / BridJ</name>
 	<url>http://code.google.com/p/javacl/</url>
-	<packaging>jar</packaging>
-  
+	<packaging>bundle</packaging>
 	
 	<description>
 JavaCL is an Object-Oriented API that makes the C OpenCL API available to Java in a very natural way.
