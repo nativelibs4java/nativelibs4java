@@ -6,6 +6,7 @@ import org.bridj.Pointer;
 import org.bridj.SizeT;
 import org.bridj.TypedPointer;
 import org.bridj.ann.Library;
+import org.bridj.ann.Name;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.util.DefaultParameterizedType;
@@ -178,686 +179,1039 @@ public class PthreadLibrary {
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_atfork_arg1_callback extends Callback<pthread_atfork_arg1_callback > {
-		public abstract void apply();
+		abstract public void apply();
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_atfork_arg2_callback extends Callback<pthread_atfork_arg2_callback > {
-		public abstract void apply();
+		abstract public void apply();
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_atfork_arg3_callback extends Callback<pthread_atfork_arg3_callback > {
-		public abstract void apply();
+		abstract public void apply();
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_create_arg1_callback extends Callback<pthread_create_arg1_callback > {
-		public abstract Pointer<? > apply(Pointer<? > voidPtr1);
+		abstract public Pointer<? > apply(Pointer<? > voidPtr1);
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_key_create_arg1_callback extends Callback<pthread_key_create_arg1_callback > {
-		public abstract void apply(Pointer<? > voidPtr1);
+		abstract public void apply(Pointer<? > voidPtr1);
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_once_arg1_callback extends Callback<pthread_once_arg1_callback > {
-		public abstract void apply();
+		abstract public void apply();
 	};
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	/// <i>native declaration : /usr/include/pthread.h:0</i>
 	public static abstract class pthread_create_suspended_np_arg1_callback extends Callback<pthread_create_suspended_np_arg1_callback > {
-		public abstract Pointer<? > apply(Pointer<? > voidPtr1);
+		abstract public Pointer<? > apply(Pointer<? > voidPtr1);
 	};
 	/**
 	 * Original signature : <code>int sched_yield()</code><br>
 	 * <i>native declaration : /usr/include/sched.h:10</i>
 	 */
-	public static native int sched_yield();
+	native public static int sched_yield();
 	/**
 	 * Original signature : <code>int sched_get_priority_min(int)</code><br>
 	 * <i>native declaration : /usr/include/sched.h:11</i>
 	 */
-	public static native int sched_get_priority_min(int int1);
+	native public static int sched_get_priority_min(int int1);
 	/**
 	 * Original signature : <code>int sched_get_priority_max(int)</code><br>
 	 * <i>native declaration : /usr/include/sched.h:12</i>
 	 */
-	public static native int sched_get_priority_max(int int1);
+	native public static int sched_get_priority_max(int int1);
 	/**
 	 * Original signature : <code>char* asctime(tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:121</i>
 	 */
-	public static native Pointer<Byte > asctime(Pointer<tm > tmPtr1);
+	public static Pointer<Byte > asctime(Pointer<tm > tmPtr1) {
+		return Pointer.pointerToAddress(asctime(Pointer.getPeer(tmPtr1)), Byte.class);
+	}
+	@Ptr 
+	protected native static long asctime(@Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>clock_t clock()</code><br>
 	 * <i>native declaration : /usr/include/time.h:122</i>
 	 */
 	@Ptr 
-	public static native long clock();
+	native public static long clock();
 	/**
 	 * Original signature : <code>char* ctime(const time_t*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:123</i>
 	 */
-	public static native Pointer<Byte > ctime(Pointer<SizeT > time_tPtr1);
+	public static Pointer<Byte > ctime(Pointer<SizeT > time_tPtr1) {
+		return Pointer.pointerToAddress(ctime(Pointer.getPeer(time_tPtr1)), Byte.class);
+	}
+	@Ptr 
+	protected native static long ctime(@Ptr long time_tPtr1);
 	/**
 	 * Original signature : <code>double difftime(time_t, time_t)</code><br>
 	 * <i>native declaration : /usr/include/time.h:124</i>
 	 */
-	public static native double difftime(@Ptr long time_t1, @Ptr long time_t2);
+	native public static double difftime(@Ptr long time_t1, @Ptr long time_t2);
 	/**
 	 * Original signature : <code>tm* getdate(const char*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:125</i>
 	 */
-	public static native Pointer<tm > getdate(Pointer<Byte > charPtr1);
+	public static Pointer<tm > getdate(Pointer<Byte > charPtr1) {
+		return Pointer.pointerToAddress(getdate(Pointer.getPeer(charPtr1)), tm.class);
+	}
+	@Ptr 
+	protected native static long getdate(@Ptr long charPtr1);
 	/**
 	 * Original signature : <code>tm* gmtime(const time_t*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:126</i>
 	 */
-	public static native Pointer<tm > gmtime(Pointer<SizeT > time_tPtr1);
+	public static Pointer<tm > gmtime(Pointer<SizeT > time_tPtr1) {
+		return Pointer.pointerToAddress(gmtime(Pointer.getPeer(time_tPtr1)), tm.class);
+	}
+	@Ptr 
+	protected native static long gmtime(@Ptr long time_tPtr1);
 	/**
 	 * Original signature : <code>tm* localtime(const time_t*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:127</i>
 	 */
-	public static native Pointer<tm > localtime(Pointer<SizeT > time_tPtr1);
+	public static Pointer<tm > localtime(Pointer<SizeT > time_tPtr1) {
+		return Pointer.pointerToAddress(localtime(Pointer.getPeer(time_tPtr1)), tm.class);
+	}
+	@Ptr 
+	protected native static long localtime(@Ptr long time_tPtr1);
 	/**
 	 * Original signature : <code>time_t mktime(tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:128</i>
 	 */
 	@Ptr 
-	public static native long mktime(Pointer<tm > tmPtr1);
+	public static long mktime(Pointer<tm > tmPtr1) {
+		return mktime(Pointer.getPeer(tmPtr1));
+	}
+	@Ptr 
+	protected native static long mktime(@Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>size_t strftime(char*, size_t, const char*, tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:129</i>
 	 */
 	@Ptr 
-	public static native long strftime(Pointer<Byte > charPtr1, @Ptr long size_t1, Pointer<Byte > charPtr2, Pointer<tm > tmPtr1);
+	public static long strftime(Pointer<Byte > charPtr1, @Ptr long size_t1, Pointer<Byte > charPtr2, Pointer<tm > tmPtr1) {
+		return strftime(Pointer.getPeer(charPtr1), size_t1, Pointer.getPeer(charPtr2), Pointer.getPeer(tmPtr1));
+	}
+	@Ptr 
+	protected native static long strftime(@Ptr long charPtr1, @Ptr long size_t1, @Ptr long charPtr2, @Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>char* strptime(const char*, const char*, tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:130</i>
 	 */
-	public static native Pointer<Byte > strptime(Pointer<Byte > charPtr1, Pointer<Byte > charPtr2, Pointer<tm > tmPtr1);
+	public static Pointer<Byte > strptime(Pointer<Byte > charPtr1, Pointer<Byte > charPtr2, Pointer<tm > tmPtr1) {
+		return Pointer.pointerToAddress(strptime(Pointer.getPeer(charPtr1), Pointer.getPeer(charPtr2), Pointer.getPeer(tmPtr1)), Byte.class);
+	}
+	@Ptr 
+	protected native static long strptime(@Ptr long charPtr1, @Ptr long charPtr2, @Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>time_t time(time_t*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:131</i>
 	 */
 	@Ptr 
-	public static native long time(Pointer<SizeT > time_tPtr1);
+	public static long time(Pointer<SizeT > time_tPtr1) {
+		return time(Pointer.getPeer(time_tPtr1));
+	}
+	@Ptr 
+	protected native static long time(@Ptr long time_tPtr1);
 	/**
 	 * Original signature : <code>void tzset()</code><br>
 	 * <i>native declaration : /usr/include/time.h:134</i>
 	 */
-	public static native void tzset();
+	native public static void tzset();
 	/**
 	 * [TSF] Thread safe functions<br>
 	 * Original signature : <code>char* asctime_r(tm*, char*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:138</i>
 	 */
-	public static native Pointer<Byte > asctime_r(Pointer<tm > tmPtr1, Pointer<Byte > charPtr1);
+	public static Pointer<Byte > asctime_r(Pointer<tm > tmPtr1, Pointer<Byte > charPtr1) {
+		return Pointer.pointerToAddress(asctime_r(Pointer.getPeer(tmPtr1), Pointer.getPeer(charPtr1)), Byte.class);
+	}
+	@Ptr 
+	protected native static long asctime_r(@Ptr long tmPtr1, @Ptr long charPtr1);
 	/**
 	 * Original signature : <code>char* ctime_r(const time_t*, char*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:139</i>
 	 */
-	public static native Pointer<Byte > ctime_r(Pointer<SizeT > time_tPtr1, Pointer<Byte > charPtr1);
+	public static Pointer<Byte > ctime_r(Pointer<SizeT > time_tPtr1, Pointer<Byte > charPtr1) {
+		return Pointer.pointerToAddress(ctime_r(Pointer.getPeer(time_tPtr1), Pointer.getPeer(charPtr1)), Byte.class);
+	}
+	@Ptr 
+	protected native static long ctime_r(@Ptr long time_tPtr1, @Ptr long charPtr1);
 	/**
 	 * Original signature : <code>tm* gmtime_r(const time_t*, tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:140</i>
 	 */
-	public static native Pointer<tm > gmtime_r(Pointer<SizeT > time_tPtr1, Pointer<tm > tmPtr1);
+	public static Pointer<tm > gmtime_r(Pointer<SizeT > time_tPtr1, Pointer<tm > tmPtr1) {
+		return Pointer.pointerToAddress(gmtime_r(Pointer.getPeer(time_tPtr1), Pointer.getPeer(tmPtr1)), tm.class);
+	}
+	@Ptr 
+	protected native static long gmtime_r(@Ptr long time_tPtr1, @Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>tm* localtime_r(const time_t*, tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:141</i>
 	 */
-	public static native Pointer<tm > localtime_r(Pointer<SizeT > time_tPtr1, Pointer<tm > tmPtr1);
+	public static Pointer<tm > localtime_r(Pointer<SizeT > time_tPtr1, Pointer<tm > tmPtr1) {
+		return Pointer.pointerToAddress(localtime_r(Pointer.getPeer(time_tPtr1), Pointer.getPeer(tmPtr1)), tm.class);
+	}
+	@Ptr 
+	protected native static long localtime_r(@Ptr long time_tPtr1, @Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>time_t posix2time(time_t)</code><br>
 	 * <i>native declaration : /usr/include/time.h:144</i>
 	 */
 	@Ptr 
-	public static native long posix2time(@Ptr long time_t1);
+	native public static long posix2time(@Ptr long time_t1);
 	/**
 	 * Original signature : <code>void tzsetwall()</code><br>
 	 * <i>native declaration : /usr/include/time.h:148</i>
 	 */
-	public static native void tzsetwall();
+	native public static void tzsetwall();
 	/**
 	 * Original signature : <code>time_t time2posix(time_t)</code><br>
 	 * <i>native declaration : /usr/include/time.h:149</i>
 	 */
 	@Ptr 
-	public static native long time2posix(@Ptr long time_t1);
+	native public static long time2posix(@Ptr long time_t1);
 	/**
 	 * Original signature : <code>time_t timelocal(const tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:150</i>
 	 */
 	@Ptr 
-	public static native long timelocal(Pointer<tm > tmPtr1);
+	public static long timelocal(Pointer<tm > tmPtr1) {
+		return timelocal(Pointer.getPeer(tmPtr1));
+	}
+	@Ptr 
+	protected native static long timelocal(@Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>time_t timegm(const tm*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:151</i>
 	 */
 	@Ptr 
-	public static native long timegm(Pointer<tm > tmPtr1);
+	public static long timegm(Pointer<tm > tmPtr1) {
+		return timegm(Pointer.getPeer(tmPtr1));
+	}
+	@Ptr 
+	protected native static long timegm(@Ptr long tmPtr1);
 	/**
 	 * Original signature : <code>int nanosleep(timespec*, timespec*)</code><br>
 	 * <i>native declaration : /usr/include/time.h:155</i>
 	 */
-	public static native int nanosleep(Pointer<PthreadLibrary.timespec > timespecPtr1, Pointer<PthreadLibrary.timespec > timespecPtr2);
+	public static int nanosleep(Pointer timespecPtr1, Pointer timespecPtr2) {
+		return nanosleep(Pointer.getPeer(timespecPtr1), Pointer.getPeer(timespecPtr2));
+	}
+	protected native static int nanosleep(@Ptr long timespecPtr1, @Ptr long timespecPtr2);
 	/**
 	 * Prototypes for all PTHREAD interfaces<br>
 	 * Original signature : <code>int pthread_atfork(pthread_atfork_arg1_callback, pthread_atfork_arg2_callback, pthread_atfork_arg3_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:211</i>
 	 */
-	public static native int pthread_atfork(Pointer<PthreadLibrary.pthread_atfork_arg1_callback > arg1, Pointer<PthreadLibrary.pthread_atfork_arg2_callback > arg2, Pointer<PthreadLibrary.pthread_atfork_arg3_callback > arg3);
+	public static int pthread_atfork(Pointer<PthreadLibrary.pthread_atfork_arg1_callback > arg1, Pointer<PthreadLibrary.pthread_atfork_arg2_callback > arg2, Pointer<PthreadLibrary.pthread_atfork_arg3_callback > arg3) {
+		return pthread_atfork(Pointer.getPeer(arg1), Pointer.getPeer(arg2), Pointer.getPeer(arg3));
+	}
+	protected native static int pthread_atfork(@Ptr long arg1, @Ptr long arg2, @Ptr long arg3);
 	/**
 	 * Original signature : <code>int pthread_attr_destroy(pthread_attr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:213</i>
 	 */
-	public static native int pthread_attr_destroy(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1);
+	public static int pthread_attr_destroy(Pointer pthread_attr_tPtr1) {
+		return pthread_attr_destroy(Pointer.getPeer(pthread_attr_tPtr1));
+	}
+	protected native static int pthread_attr_destroy(@Ptr long pthread_attr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getdetachstate(const pthread_attr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:214</i>
 	 */
-	public static native int pthread_attr_getdetachstate(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_attr_getdetachstate(Pointer pthread_attr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_attr_getdetachstate(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_attr_getdetachstate(@Ptr long pthread_attr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getguardsize(const pthread_attr_t*, size_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:216</i>
 	 */
-	public static native int pthread_attr_getguardsize(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<SizeT > size_tPtr1);
+	public static int pthread_attr_getguardsize(Pointer pthread_attr_tPtr1, Pointer<SizeT > size_tPtr1) {
+		return pthread_attr_getguardsize(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(size_tPtr1));
+	}
+	protected native static int pthread_attr_getguardsize(@Ptr long pthread_attr_tPtr1, @Ptr long size_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getinheritsched(const pthread_attr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:218</i>
 	 */
-	public static native int pthread_attr_getinheritsched(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_attr_getinheritsched(Pointer pthread_attr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_attr_getinheritsched(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_attr_getinheritsched(@Ptr long pthread_attr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getschedparam(const pthread_attr_t*, sched_param*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:220</i>
 	 */
-	public static native int pthread_attr_getschedparam(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<sched_param > sched_paramPtr1);
+	public static int pthread_attr_getschedparam(Pointer pthread_attr_tPtr1, Pointer<sched_param > sched_paramPtr1) {
+		return pthread_attr_getschedparam(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(sched_paramPtr1));
+	}
+	protected native static int pthread_attr_getschedparam(@Ptr long pthread_attr_tPtr1, @Ptr long sched_paramPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getschedpolicy(const pthread_attr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:222</i>
 	 */
-	public static native int pthread_attr_getschedpolicy(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_attr_getschedpolicy(Pointer pthread_attr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_attr_getschedpolicy(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_attr_getschedpolicy(@Ptr long pthread_attr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getscope(const pthread_attr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:224</i>
 	 */
-	public static native int pthread_attr_getscope(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_attr_getscope(Pointer pthread_attr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_attr_getscope(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_attr_getscope(@Ptr long pthread_attr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getstack(const pthread_attr_t*, void**, size_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:225</i>
 	 */
-	public static native int pthread_attr_getstack(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Pointer<? > > voidPtrPtr1, Pointer<SizeT > size_tPtr1);
+	public static int pthread_attr_getstack(Pointer pthread_attr_tPtr1, Pointer<Pointer<? > > voidPtrPtr1, Pointer<SizeT > size_tPtr1) {
+		return pthread_attr_getstack(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(voidPtrPtr1), Pointer.getPeer(size_tPtr1));
+	}
+	protected native static int pthread_attr_getstack(@Ptr long pthread_attr_tPtr1, @Ptr long voidPtrPtr1, @Ptr long size_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getstackaddr(const pthread_attr_t*, void**)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:227</i>
 	 */
-	public static native int pthread_attr_getstackaddr(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<Pointer<? > > voidPtrPtr1);
+	public static int pthread_attr_getstackaddr(Pointer pthread_attr_tPtr1, Pointer<Pointer<? > > voidPtrPtr1) {
+		return pthread_attr_getstackaddr(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(voidPtrPtr1));
+	}
+	protected native static int pthread_attr_getstackaddr(@Ptr long pthread_attr_tPtr1, @Ptr long voidPtrPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_getstacksize(const pthread_attr_t*, size_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:229</i>
 	 */
-	public static native int pthread_attr_getstacksize(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<SizeT > size_tPtr1);
+	public static int pthread_attr_getstacksize(Pointer pthread_attr_tPtr1, Pointer<SizeT > size_tPtr1) {
+		return pthread_attr_getstacksize(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(size_tPtr1));
+	}
+	protected native static int pthread_attr_getstacksize(@Ptr long pthread_attr_tPtr1, @Ptr long size_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_init(pthread_attr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:231</i>
 	 */
-	public static native int pthread_attr_init(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1);
+	public static int pthread_attr_init(Pointer pthread_attr_tPtr1) {
+		return pthread_attr_init(Pointer.getPeer(pthread_attr_tPtr1));
+	}
+	protected native static int pthread_attr_init(@Ptr long pthread_attr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_setdetachstate(pthread_attr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:232</i>
 	 */
-	public static native int pthread_attr_setdetachstate(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, int int1);
+	public static int pthread_attr_setdetachstate(Pointer pthread_attr_tPtr1, int int1) {
+		return pthread_attr_setdetachstate(Pointer.getPeer(pthread_attr_tPtr1), int1);
+	}
+	protected native static int pthread_attr_setdetachstate(@Ptr long pthread_attr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_attr_setguardsize(pthread_attr_t*, size_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:234</i>
 	 */
-	public static native int pthread_attr_setguardsize(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, @Ptr long size_t1);
+	public static int pthread_attr_setguardsize(Pointer pthread_attr_tPtr1, @Ptr long size_t1) {
+		return pthread_attr_setguardsize(Pointer.getPeer(pthread_attr_tPtr1), size_t1);
+	}
+	protected native static int pthread_attr_setguardsize(@Ptr long pthread_attr_tPtr1, @Ptr long size_t1);
 	/**
 	 * Original signature : <code>int pthread_attr_setinheritsched(pthread_attr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:235</i>
 	 */
-	public static native int pthread_attr_setinheritsched(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, int int1);
+	public static int pthread_attr_setinheritsched(Pointer pthread_attr_tPtr1, int int1) {
+		return pthread_attr_setinheritsched(Pointer.getPeer(pthread_attr_tPtr1), int1);
+	}
+	protected native static int pthread_attr_setinheritsched(@Ptr long pthread_attr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_attr_setschedparam(pthread_attr_t*, sched_param*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:237</i>
 	 */
-	public static native int pthread_attr_setschedparam(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<sched_param > sched_paramPtr1);
+	public static int pthread_attr_setschedparam(Pointer pthread_attr_tPtr1, Pointer<sched_param > sched_paramPtr1) {
+		return pthread_attr_setschedparam(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(sched_paramPtr1));
+	}
+	protected native static int pthread_attr_setschedparam(@Ptr long pthread_attr_tPtr1, @Ptr long sched_paramPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_setschedpolicy(pthread_attr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:239</i>
 	 */
-	public static native int pthread_attr_setschedpolicy(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, int int1);
+	public static int pthread_attr_setschedpolicy(Pointer pthread_attr_tPtr1, int int1) {
+		return pthread_attr_setschedpolicy(Pointer.getPeer(pthread_attr_tPtr1), int1);
+	}
+	protected native static int pthread_attr_setschedpolicy(@Ptr long pthread_attr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_attr_setscope(pthread_attr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:241</i>
 	 */
-	public static native int pthread_attr_setscope(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, int int1);
+	public static int pthread_attr_setscope(Pointer pthread_attr_tPtr1, int int1) {
+		return pthread_attr_setscope(Pointer.getPeer(pthread_attr_tPtr1), int1);
+	}
+	protected native static int pthread_attr_setscope(@Ptr long pthread_attr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_attr_setstack(pthread_attr_t*, void*, size_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:242</i>
 	 */
-	public static native int pthread_attr_setstack(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<? > voidPtr1, @Ptr long size_t1);
+	public static int pthread_attr_setstack(Pointer pthread_attr_tPtr1, Pointer<? > voidPtr1, @Ptr long size_t1) {
+		return pthread_attr_setstack(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(voidPtr1), size_t1);
+	}
+	protected native static int pthread_attr_setstack(@Ptr long pthread_attr_tPtr1, @Ptr long voidPtr1, @Ptr long size_t1);
 	/**
 	 * Original signature : <code>int pthread_attr_setstackaddr(pthread_attr_t*, void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:244</i>
 	 */
-	public static native int pthread_attr_setstackaddr(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<? > voidPtr1);
+	public static int pthread_attr_setstackaddr(Pointer pthread_attr_tPtr1, Pointer<? > voidPtr1) {
+		return pthread_attr_setstackaddr(Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(voidPtr1));
+	}
+	protected native static int pthread_attr_setstackaddr(@Ptr long pthread_attr_tPtr1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_attr_setstacksize(pthread_attr_t*, size_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:246</i>
 	 */
-	public static native int pthread_attr_setstacksize(Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, @Ptr long size_t1);
+	public static int pthread_attr_setstacksize(Pointer pthread_attr_tPtr1, @Ptr long size_t1) {
+		return pthread_attr_setstacksize(Pointer.getPeer(pthread_attr_tPtr1), size_t1);
+	}
+	protected native static int pthread_attr_setstacksize(@Ptr long pthread_attr_tPtr1, @Ptr long size_t1);
 	/**
 	 * Original signature : <code>int pthread_cancel(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:247</i>
 	 */
-	public static native int pthread_cancel(PthreadLibrary.pthread_t pthread_t1);
+	public static int pthread_cancel(PthreadLibrary.pthread_t pthread_t1) {
+		return pthread_cancel(Pointer.getPeer(pthread_t1));
+	}
+	protected native static int pthread_cancel(@Ptr long pthread_t1);
 	/**
 	 * Original signature : <code>int pthread_cond_broadcast(pthread_cond_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:249</i>
 	 */
-	public static native int pthread_cond_broadcast(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1);
+	public static int pthread_cond_broadcast(Pointer pthread_cond_tPtr1) {
+		return pthread_cond_broadcast(Pointer.getPeer(pthread_cond_tPtr1));
+	}
+	protected native static int pthread_cond_broadcast(@Ptr long pthread_cond_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_cond_destroy(pthread_cond_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:250</i>
 	 */
-	public static native int pthread_cond_destroy(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1);
+	public static int pthread_cond_destroy(Pointer pthread_cond_tPtr1) {
+		return pthread_cond_destroy(Pointer.getPeer(pthread_cond_tPtr1));
+	}
+	protected native static int pthread_cond_destroy(@Ptr long pthread_cond_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_cond_init(pthread_cond_t*, const pthread_condattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:251</i>
 	 */
-	public static native int pthread_cond_init(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1, Pointer<PthreadLibrary.pthread_condattr_t > pthread_condattr_tPtr1);
+	public static int pthread_cond_init(Pointer pthread_cond_tPtr1, Pointer pthread_condattr_tPtr1) {
+		return pthread_cond_init(Pointer.getPeer(pthread_cond_tPtr1), Pointer.getPeer(pthread_condattr_tPtr1));
+	}
+	protected native static int pthread_cond_init(@Ptr long pthread_cond_tPtr1, @Ptr long pthread_condattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_cond_signal(pthread_cond_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:253</i>
 	 */
-	public static native int pthread_cond_signal(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1);
+	public static int pthread_cond_signal(Pointer pthread_cond_tPtr1) {
+		return pthread_cond_signal(Pointer.getPeer(pthread_cond_tPtr1));
+	}
+	protected native static int pthread_cond_signal(@Ptr long pthread_cond_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_cond_timedwait(pthread_cond_t*, pthread_mutex_t*, timespec*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:254</i>
 	 */
-	public static native int pthread_cond_timedwait(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1, Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1, Pointer<PthreadLibrary.timespec > timespecPtr1);
+	public static int pthread_cond_timedwait(Pointer pthread_cond_tPtr1, Pointer pthread_mutex_tPtr1, Pointer timespecPtr1) {
+		return pthread_cond_timedwait(Pointer.getPeer(pthread_cond_tPtr1), Pointer.getPeer(pthread_mutex_tPtr1), Pointer.getPeer(timespecPtr1));
+	}
+	protected native static int pthread_cond_timedwait(@Ptr long pthread_cond_tPtr1, @Ptr long pthread_mutex_tPtr1, @Ptr long timespecPtr1);
 	/**
 	 * Original signature : <code>int pthread_cond_wait(pthread_cond_t*, pthread_mutex_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:257</i>
 	 */
-	public static native int pthread_cond_wait(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1, Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1);
+	public static int pthread_cond_wait(Pointer pthread_cond_tPtr1, Pointer pthread_mutex_tPtr1) {
+		return pthread_cond_wait(Pointer.getPeer(pthread_cond_tPtr1), Pointer.getPeer(pthread_mutex_tPtr1));
+	}
+	protected native static int pthread_cond_wait(@Ptr long pthread_cond_tPtr1, @Ptr long pthread_mutex_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_condattr_destroy(pthread_condattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:259</i>
 	 */
-	public static native int pthread_condattr_destroy(Pointer<PthreadLibrary.pthread_condattr_t > pthread_condattr_tPtr1);
+	public static int pthread_condattr_destroy(Pointer pthread_condattr_tPtr1) {
+		return pthread_condattr_destroy(Pointer.getPeer(pthread_condattr_tPtr1));
+	}
+	protected native static int pthread_condattr_destroy(@Ptr long pthread_condattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_condattr_init(pthread_condattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:260</i>
 	 */
-	public static native int pthread_condattr_init(Pointer<PthreadLibrary.pthread_condattr_t > pthread_condattr_tPtr1);
+	public static int pthread_condattr_init(Pointer pthread_condattr_tPtr1) {
+		return pthread_condattr_init(Pointer.getPeer(pthread_condattr_tPtr1));
+	}
+	protected native static int pthread_condattr_init(@Ptr long pthread_condattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_condattr_getpshared(const pthread_condattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:261</i>
 	 */
-	public static native int pthread_condattr_getpshared(Pointer<PthreadLibrary.pthread_condattr_t > pthread_condattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_condattr_getpshared(Pointer pthread_condattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_condattr_getpshared(Pointer.getPeer(pthread_condattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_condattr_getpshared(@Ptr long pthread_condattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_condattr_setpshared(pthread_condattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:263</i>
 	 */
-	public static native int pthread_condattr_setpshared(Pointer<PthreadLibrary.pthread_condattr_t > pthread_condattr_tPtr1, int int1);
+	public static int pthread_condattr_setpshared(Pointer pthread_condattr_tPtr1, int int1) {
+		return pthread_condattr_setpshared(Pointer.getPeer(pthread_condattr_tPtr1), int1);
+	}
+	protected native static int pthread_condattr_setpshared(@Ptr long pthread_condattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_create(pthread_t*, const pthread_attr_t*, pthread_create_arg1_callback, void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:265</i>
 	 */
-	public static native int pthread_create(Pointer<PthreadLibrary.pthread_t > pthread_tPtr1, Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_arg1_callback > arg1, Pointer<? > voidPtr1);
+	public static int pthread_create(Pointer<Pointer > pthread_tPtr1, Pointer pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_arg1_callback > arg1, Pointer<? > voidPtr1) {
+		return pthread_create(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
+	}
+	protected native static int pthread_create(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_detach(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:269</i>
 	 */
-	public static native int pthread_detach(PthreadLibrary.pthread_t pthread_t1);
+	public static int pthread_detach(PthreadLibrary.pthread_t pthread_t1) {
+		return pthread_detach(Pointer.getPeer(pthread_t1));
+	}
+	protected native static int pthread_detach(@Ptr long pthread_t1);
 	/**
 	 * Original signature : <code>int pthread_equal(pthread_t, pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:270</i>
 	 */
-	public static native int pthread_equal(PthreadLibrary.pthread_t pthread_t1, PthreadLibrary.pthread_t pthread_t2);
+	public static int pthread_equal(PthreadLibrary.pthread_t pthread_t1, PthreadLibrary.pthread_t pthread_t2) {
+		return pthread_equal(Pointer.getPeer(pthread_t1), Pointer.getPeer(pthread_t2));
+	}
+	protected native static int pthread_equal(@Ptr long pthread_t1, @Ptr long pthread_t2);
 	/**
 	 * Original signature : <code>void pthread_exit(void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:272</i>
 	 */
-	public static native void pthread_exit(Pointer<? > voidPtr1);
+	public static void pthread_exit(Pointer<? > voidPtr1) {
+		pthread_exit(Pointer.getPeer(voidPtr1));
+	}
+	protected native static void pthread_exit(@Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_getconcurrency()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:273</i>
 	 */
-	public static native int pthread_getconcurrency();
+	native public static int pthread_getconcurrency();
 	/**
 	 * Original signature : <code>int pthread_getschedparam(pthread_t, int*, sched_param*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:274</i>
 	 */
-	public static native int pthread_getschedparam(PthreadLibrary.pthread_t pthread_t1, Pointer<Integer > intPtr1, Pointer<sched_param > sched_paramPtr1);
+	public static int pthread_getschedparam(PthreadLibrary.pthread_t pthread_t1, Pointer<Integer > intPtr1, Pointer<sched_param > sched_paramPtr1) {
+		return pthread_getschedparam(Pointer.getPeer(pthread_t1), Pointer.getPeer(intPtr1), Pointer.getPeer(sched_paramPtr1));
+	}
+	protected native static int pthread_getschedparam(@Ptr long pthread_t1, @Ptr long intPtr1, @Ptr long sched_paramPtr1);
 	/**
 	 * Original signature : <code>void* pthread_getspecific(pthread_key_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:275</i>
 	 */
-	public static native Pointer<? > pthread_getspecific(@Ptr long pthread_key_t1);
+	public static Pointer<? > pthread_getspecific(@Ptr long pthread_key_t1) {
+		return Pointer.pointerToAddress(pthread_getspecific$2(pthread_key_t1));
+	}
+	@Ptr 
+	@Name("pthread_getspecific") 
+	protected native static long pthread_getspecific$2(@Ptr long pthread_key_t1);
 	/**
 	 * Original signature : <code>int pthread_join(pthread_t, void**)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:276</i>
 	 */
-	public static native int pthread_join(PthreadLibrary.pthread_t pthread_t1, Pointer<Pointer<? > > voidPtrPtr1);
+	public static int pthread_join(PthreadLibrary.pthread_t pthread_t1, Pointer<Pointer<? > > voidPtrPtr1) {
+		return pthread_join(Pointer.getPeer(pthread_t1), Pointer.getPeer(voidPtrPtr1));
+	}
+	protected native static int pthread_join(@Ptr long pthread_t1, @Ptr long voidPtrPtr1);
 	/**
 	 * Original signature : <code>int pthread_key_create(pthread_key_t*, pthread_key_create_arg1_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:277</i>
 	 */
-	public static native int pthread_key_create(Pointer<SizeT > pthread_key_tPtr1, Pointer<PthreadLibrary.pthread_key_create_arg1_callback > arg1);
+	public static int pthread_key_create(Pointer<SizeT > pthread_key_tPtr1, Pointer<PthreadLibrary.pthread_key_create_arg1_callback > arg1) {
+		return pthread_key_create(Pointer.getPeer(pthread_key_tPtr1), Pointer.getPeer(arg1));
+	}
+	protected native static int pthread_key_create(@Ptr long pthread_key_tPtr1, @Ptr long arg1);
 	/**
 	 * Original signature : <code>int pthread_key_delete(pthread_key_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:278</i>
 	 */
-	public static native int pthread_key_delete(@Ptr long pthread_key_t1);
+	native public static int pthread_key_delete(@Ptr long pthread_key_t1);
 	/**
 	 * Original signature : <code>int pthread_mutex_destroy(pthread_mutex_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:279</i>
 	 */
-	public static native int pthread_mutex_destroy(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1);
+	public static int pthread_mutex_destroy(Pointer pthread_mutex_tPtr1) {
+		return pthread_mutex_destroy(Pointer.getPeer(pthread_mutex_tPtr1));
+	}
+	protected native static int pthread_mutex_destroy(@Ptr long pthread_mutex_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_getprioceiling(const pthread_mutex_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:280</i>
 	 */
-	public static native int pthread_mutex_getprioceiling(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_mutex_getprioceiling(Pointer pthread_mutex_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_mutex_getprioceiling(Pointer.getPeer(pthread_mutex_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutex_getprioceiling(@Ptr long pthread_mutex_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_init(pthread_mutex_t*, const pthread_mutexattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:281</i>
 	 */
-	public static native int pthread_mutex_init(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1, Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1);
+	public static int pthread_mutex_init(Pointer pthread_mutex_tPtr1, Pointer pthread_mutexattr_tPtr1) {
+		return pthread_mutex_init(Pointer.getPeer(pthread_mutex_tPtr1), Pointer.getPeer(pthread_mutexattr_tPtr1));
+	}
+	protected native static int pthread_mutex_init(@Ptr long pthread_mutex_tPtr1, @Ptr long pthread_mutexattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_lock(pthread_mutex_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:282</i>
 	 */
-	public static native int pthread_mutex_lock(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1);
+	public static int pthread_mutex_lock(Pointer pthread_mutex_tPtr1) {
+		return pthread_mutex_lock(Pointer.getPeer(pthread_mutex_tPtr1));
+	}
+	protected native static int pthread_mutex_lock(@Ptr long pthread_mutex_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_setprioceiling(pthread_mutex_t*, int, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:283</i>
 	 */
-	public static native int pthread_mutex_setprioceiling(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1, int int1, Pointer<Integer > intPtr1);
+	public static int pthread_mutex_setprioceiling(Pointer pthread_mutex_tPtr1, int int1, Pointer<Integer > intPtr1) {
+		return pthread_mutex_setprioceiling(Pointer.getPeer(pthread_mutex_tPtr1), int1, Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutex_setprioceiling(@Ptr long pthread_mutex_tPtr1, int int1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_trylock(pthread_mutex_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:284</i>
 	 */
-	public static native int pthread_mutex_trylock(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1);
+	public static int pthread_mutex_trylock(Pointer pthread_mutex_tPtr1) {
+		return pthread_mutex_trylock(Pointer.getPeer(pthread_mutex_tPtr1));
+	}
+	protected native static int pthread_mutex_trylock(@Ptr long pthread_mutex_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutex_unlock(pthread_mutex_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:285</i>
 	 */
-	public static native int pthread_mutex_unlock(Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1);
+	public static int pthread_mutex_unlock(Pointer pthread_mutex_tPtr1) {
+		return pthread_mutex_unlock(Pointer.getPeer(pthread_mutex_tPtr1));
+	}
+	protected native static int pthread_mutex_unlock(@Ptr long pthread_mutex_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_destroy(pthread_mutexattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:286</i>
 	 */
-	public static native int pthread_mutexattr_destroy(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1);
+	public static int pthread_mutexattr_destroy(Pointer pthread_mutexattr_tPtr1) {
+		return pthread_mutexattr_destroy(Pointer.getPeer(pthread_mutexattr_tPtr1));
+	}
+	protected native static int pthread_mutexattr_destroy(@Ptr long pthread_mutexattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_getprioceiling(const pthread_mutexattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:287</i>
 	 */
-	public static native int pthread_mutexattr_getprioceiling(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_mutexattr_getprioceiling(Pointer pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_mutexattr_getprioceiling(Pointer.getPeer(pthread_mutexattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutexattr_getprioceiling(@Ptr long pthread_mutexattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_getprotocol(const pthread_mutexattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:288</i>
 	 */
-	public static native int pthread_mutexattr_getprotocol(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_mutexattr_getprotocol(Pointer pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_mutexattr_getprotocol(Pointer.getPeer(pthread_mutexattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutexattr_getprotocol(@Ptr long pthread_mutexattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_getpshared(const pthread_mutexattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:289</i>
 	 */
-	public static native int pthread_mutexattr_getpshared(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_mutexattr_getpshared(Pointer pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_mutexattr_getpshared(Pointer.getPeer(pthread_mutexattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutexattr_getpshared(@Ptr long pthread_mutexattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_gettype(const pthread_mutexattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:290</i>
 	 */
-	public static native int pthread_mutexattr_gettype(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_mutexattr_gettype(Pointer pthread_mutexattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_mutexattr_gettype(Pointer.getPeer(pthread_mutexattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_mutexattr_gettype(@Ptr long pthread_mutexattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_init(pthread_mutexattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:291</i>
 	 */
-	public static native int pthread_mutexattr_init(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1);
+	public static int pthread_mutexattr_init(Pointer pthread_mutexattr_tPtr1) {
+		return pthread_mutexattr_init(Pointer.getPeer(pthread_mutexattr_tPtr1));
+	}
+	protected native static int pthread_mutexattr_init(@Ptr long pthread_mutexattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_setprioceiling(pthread_mutexattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:292</i>
 	 */
-	public static native int pthread_mutexattr_setprioceiling(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, int int1);
+	public static int pthread_mutexattr_setprioceiling(Pointer pthread_mutexattr_tPtr1, int int1) {
+		return pthread_mutexattr_setprioceiling(Pointer.getPeer(pthread_mutexattr_tPtr1), int1);
+	}
+	protected native static int pthread_mutexattr_setprioceiling(@Ptr long pthread_mutexattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_setprotocol(pthread_mutexattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:293</i>
 	 */
-	public static native int pthread_mutexattr_setprotocol(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, int int1);
+	public static int pthread_mutexattr_setprotocol(Pointer pthread_mutexattr_tPtr1, int int1) {
+		return pthread_mutexattr_setprotocol(Pointer.getPeer(pthread_mutexattr_tPtr1), int1);
+	}
+	protected native static int pthread_mutexattr_setprotocol(@Ptr long pthread_mutexattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_setpshared(pthread_mutexattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:294</i>
 	 */
-	public static native int pthread_mutexattr_setpshared(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, int int1);
+	public static int pthread_mutexattr_setpshared(Pointer pthread_mutexattr_tPtr1, int int1) {
+		return pthread_mutexattr_setpshared(Pointer.getPeer(pthread_mutexattr_tPtr1), int1);
+	}
+	protected native static int pthread_mutexattr_setpshared(@Ptr long pthread_mutexattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_mutexattr_settype(pthread_mutexattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:295</i>
 	 */
-	public static native int pthread_mutexattr_settype(Pointer<PthreadLibrary.pthread_mutexattr_t > pthread_mutexattr_tPtr1, int int1);
+	public static int pthread_mutexattr_settype(Pointer pthread_mutexattr_tPtr1, int int1) {
+		return pthread_mutexattr_settype(Pointer.getPeer(pthread_mutexattr_tPtr1), int1);
+	}
+	protected native static int pthread_mutexattr_settype(@Ptr long pthread_mutexattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>int pthread_once(pthread_once_t*, pthread_once_arg1_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:296</i>
 	 */
-	public static native int pthread_once(Pointer<PthreadLibrary.pthread_once_t > pthread_once_tPtr1, Pointer<PthreadLibrary.pthread_once_arg1_callback > arg1);
+	public static int pthread_once(Pointer pthread_once_tPtr1, Pointer<PthreadLibrary.pthread_once_arg1_callback > arg1) {
+		return pthread_once(Pointer.getPeer(pthread_once_tPtr1), Pointer.getPeer(arg1));
+	}
+	protected native static int pthread_once(@Ptr long pthread_once_tPtr1, @Ptr long arg1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_destroy(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:297</i>
 	 */
-	public static native int pthread_rwlock_destroy(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_destroy(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_destroy(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_destroy(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_init(pthread_rwlock_t*, const pthread_rwlockattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:298</i>
 	 */
-	public static native int pthread_rwlock_init(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1, Pointer<PthreadLibrary.pthread_rwlockattr_t > pthread_rwlockattr_tPtr1);
+	public static int pthread_rwlock_init(Pointer pthread_rwlock_tPtr1, Pointer pthread_rwlockattr_tPtr1) {
+		return pthread_rwlock_init(Pointer.getPeer(pthread_rwlock_tPtr1), Pointer.getPeer(pthread_rwlockattr_tPtr1));
+	}
+	protected native static int pthread_rwlock_init(@Ptr long pthread_rwlock_tPtr1, @Ptr long pthread_rwlockattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_rdlock(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:299</i>
 	 */
-	public static native int pthread_rwlock_rdlock(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_rdlock(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_rdlock(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_rdlock(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_tryrdlock(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:300</i>
 	 */
-	public static native int pthread_rwlock_tryrdlock(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_tryrdlock(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_tryrdlock(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_tryrdlock(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_trywrlock(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:301</i>
 	 */
-	public static native int pthread_rwlock_trywrlock(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_trywrlock(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_trywrlock(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_trywrlock(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_wrlock(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:302</i>
 	 */
-	public static native int pthread_rwlock_wrlock(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_wrlock(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_wrlock(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_wrlock(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_unlock(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:303</i>
 	 */
-	public static native int pthread_rwlock_unlock(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_unlock(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_unlock(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_unlock(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlockattr_destroy(pthread_rwlockattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:304</i>
 	 */
-	public static native int pthread_rwlockattr_destroy(Pointer<PthreadLibrary.pthread_rwlockattr_t > pthread_rwlockattr_tPtr1);
+	public static int pthread_rwlockattr_destroy(Pointer pthread_rwlockattr_tPtr1) {
+		return pthread_rwlockattr_destroy(Pointer.getPeer(pthread_rwlockattr_tPtr1));
+	}
+	protected native static int pthread_rwlockattr_destroy(@Ptr long pthread_rwlockattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlockattr_getpshared(const pthread_rwlockattr_t*, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:305</i>
 	 */
-	public static native int pthread_rwlockattr_getpshared(Pointer<PthreadLibrary.pthread_rwlockattr_t > pthread_rwlockattr_tPtr1, Pointer<Integer > intPtr1);
+	public static int pthread_rwlockattr_getpshared(Pointer pthread_rwlockattr_tPtr1, Pointer<Integer > intPtr1) {
+		return pthread_rwlockattr_getpshared(Pointer.getPeer(pthread_rwlockattr_tPtr1), Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_rwlockattr_getpshared(@Ptr long pthread_rwlockattr_tPtr1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlockattr_init(pthread_rwlockattr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:307</i>
 	 */
-	public static native int pthread_rwlockattr_init(Pointer<PthreadLibrary.pthread_rwlockattr_t > pthread_rwlockattr_tPtr1);
+	public static int pthread_rwlockattr_init(Pointer pthread_rwlockattr_tPtr1) {
+		return pthread_rwlockattr_init(Pointer.getPeer(pthread_rwlockattr_tPtr1));
+	}
+	protected native static int pthread_rwlockattr_init(@Ptr long pthread_rwlockattr_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlockattr_setpshared(pthread_rwlockattr_t*, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:308</i>
 	 */
-	public static native int pthread_rwlockattr_setpshared(Pointer<PthreadLibrary.pthread_rwlockattr_t > pthread_rwlockattr_tPtr1, int int1);
+	public static int pthread_rwlockattr_setpshared(Pointer pthread_rwlockattr_tPtr1, int int1) {
+		return pthread_rwlockattr_setpshared(Pointer.getPeer(pthread_rwlockattr_tPtr1), int1);
+	}
+	protected native static int pthread_rwlockattr_setpshared(@Ptr long pthread_rwlockattr_tPtr1, int int1);
 	/**
 	 * Original signature : <code>pthread_t pthread_self()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:310</i>
 	 */
-	public static native PthreadLibrary.pthread_t pthread_self();
+	public static PthreadLibrary.pthread_t pthread_self() {
+		return new PthreadLibrary.pthread_t(pthread_self$2());
+	}
+	@Ptr 
+	@Name("pthread_self") 
+	protected native static long pthread_self$2();
 	/**
 	 * Original signature : <code>int pthread_setcancelstate(int, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:312</i>
 	 */
-	public static native int pthread_setcancelstate(int int1, Pointer<Integer > intPtr1);
+	public static int pthread_setcancelstate(int int1, Pointer<Integer > intPtr1) {
+		return pthread_setcancelstate(int1, Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_setcancelstate(int int1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_setcanceltype(int, int*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:313</i>
 	 */
-	public static native int pthread_setcanceltype(int int1, Pointer<Integer > intPtr1);
+	public static int pthread_setcanceltype(int int1, Pointer<Integer > intPtr1) {
+		return pthread_setcanceltype(int1, Pointer.getPeer(intPtr1));
+	}
+	protected native static int pthread_setcanceltype(int int1, @Ptr long intPtr1);
 	/**
 	 * Original signature : <code>int pthread_setconcurrency(int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:314</i>
 	 */
-	public static native int pthread_setconcurrency(int int1);
+	native public static int pthread_setconcurrency(int int1);
 	/**
 	 * Original signature : <code>int pthread_setschedparam(pthread_t, int, sched_param*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:315</i>
 	 */
-	public static native int pthread_setschedparam(PthreadLibrary.pthread_t pthread_t1, int int1, Pointer<sched_param > sched_paramPtr1);
+	public static int pthread_setschedparam(PthreadLibrary.pthread_t pthread_t1, int int1, Pointer<sched_param > sched_paramPtr1) {
+		return pthread_setschedparam(Pointer.getPeer(pthread_t1), int1, Pointer.getPeer(sched_paramPtr1));
+	}
+	protected native static int pthread_setschedparam(@Ptr long pthread_t1, int int1, @Ptr long sched_paramPtr1);
 	/**
 	 * Original signature : <code>int pthread_setspecific(pthread_key_t, const void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:318</i>
 	 */
-	public static native int pthread_setspecific(@Ptr long pthread_key_t1, Pointer<? > voidPtr1);
+	public static int pthread_setspecific(@Ptr long pthread_key_t1, Pointer<? > voidPtr1) {
+		return pthread_setspecific(pthread_key_t1, Pointer.getPeer(voidPtr1));
+	}
+	protected native static int pthread_setspecific(@Ptr long pthread_key_t1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>void pthread_testcancel()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:320</i>
 	 */
-	public static native void pthread_testcancel();
+	native public static void pthread_testcancel();
 	/**
 	 * returns non-zero if pthread_create or cthread_fork have been called<br>
 	 * Original signature : <code>int pthread_is_threaded_np()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:324</i>
 	 */
-	public static native int pthread_is_threaded_np();
+	native public static int pthread_is_threaded_np();
 	/**
 	 * Original signature : <code>int pthread_threadid_np(pthread_t, __uint64_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:326</i>
 	 */
-	public static native int pthread_threadid_np(PthreadLibrary.pthread_t pthread_t1, Pointer<Long > __uint64_tPtr1);
+	public static int pthread_threadid_np(PthreadLibrary.pthread_t pthread_t1, Pointer<Long > __uint64_tPtr1) {
+		return pthread_threadid_np(Pointer.getPeer(pthread_t1), Pointer.getPeer(__uint64_tPtr1));
+	}
+	protected native static int pthread_threadid_np(@Ptr long pthread_t1, @Ptr long __uint64_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_longrdlock_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:328</i>
 	 */
-	public static native int pthread_rwlock_longrdlock_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_longrdlock_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_longrdlock_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_longrdlock_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_yieldwrlock_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:329</i>
 	 */
-	public static native int pthread_rwlock_yieldwrlock_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_yieldwrlock_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_yieldwrlock_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_yieldwrlock_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_downgrade_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:330</i>
 	 */
-	public static native int pthread_rwlock_downgrade_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_downgrade_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_downgrade_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_downgrade_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_upgrade_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:331</i>
 	 */
-	public static native int pthread_rwlock_upgrade_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_upgrade_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_upgrade_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_upgrade_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_tryupgrade_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:332</i>
 	 */
-	public static native int pthread_rwlock_tryupgrade_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_tryupgrade_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_tryupgrade_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_tryupgrade_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_held_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:333</i>
 	 */
-	public static native int pthread_rwlock_held_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_held_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_held_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_held_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_rdheld_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:334</i>
 	 */
-	public static native int pthread_rwlock_rdheld_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_rdheld_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_rdheld_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_rdheld_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_wrheld_np(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:335</i>
 	 */
-	public static native int pthread_rwlock_wrheld_np(Pointer<PthreadLibrary.pthread_rwlock_t > pthread_rwlock_tPtr1);
+	public static int pthread_rwlock_wrheld_np(Pointer pthread_rwlock_tPtr1) {
+		return pthread_rwlock_wrheld_np(Pointer.getPeer(pthread_rwlock_tPtr1));
+	}
+	protected native static int pthread_rwlock_wrheld_np(@Ptr long pthread_rwlock_tPtr1);
 	/**
 	 * SPI to set and get pthread name<br>
 	 * Original signature : <code>int pthread_getname_np(pthread_t, char*, size_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:338</i>
 	 */
-	public static native int pthread_getname_np(PthreadLibrary.pthread_t pthread_t1, Pointer<Byte > charPtr1, @Ptr long size_t1);
+	public static int pthread_getname_np(PthreadLibrary.pthread_t pthread_t1, Pointer<Byte > charPtr1, @Ptr long size_t1) {
+		return pthread_getname_np(Pointer.getPeer(pthread_t1), Pointer.getPeer(charPtr1), size_t1);
+	}
+	protected native static int pthread_getname_np(@Ptr long pthread_t1, @Ptr long charPtr1, @Ptr long size_t1);
 	/**
 	 * Original signature : <code>int pthread_setname_np(const char*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:339</i>
 	 */
-	public static native int pthread_setname_np(Pointer<Byte > charPtr1);
+	public static int pthread_setname_np(Pointer<Byte > charPtr1) {
+		return pthread_setname_np(Pointer.getPeer(charPtr1));
+	}
+	protected native static int pthread_setname_np(@Ptr long charPtr1);
 	/**
 	 * returns non-zero if the current thread is the main thread<br>
 	 * Original signature : <code>int pthread_main_np()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:341</i>
 	 */
-	public static native int pthread_main_np();
+	native public static int pthread_main_np();
 	/**
 	 * return the mach thread bound to the pthread<br>
 	 * Original signature : <code>mach_port_t pthread_mach_thread_np(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:344</i>
 	 */
-	public static native int pthread_mach_thread_np(PthreadLibrary.pthread_t pthread_t1);
+	public static int pthread_mach_thread_np(PthreadLibrary.pthread_t pthread_t1) {
+		return pthread_mach_thread_np(Pointer.getPeer(pthread_t1));
+	}
+	protected native static int pthread_mach_thread_np(@Ptr long pthread_t1);
 	/**
 	 * Original signature : <code>size_t pthread_get_stacksize_np(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:345</i>
 	 */
 	@Ptr 
-	public static native long pthread_get_stacksize_np(PthreadLibrary.pthread_t pthread_t1);
+	public static long pthread_get_stacksize_np(PthreadLibrary.pthread_t pthread_t1) {
+		return pthread_get_stacksize_np(Pointer.getPeer(pthread_t1));
+	}
+	@Ptr 
+	protected native static long pthread_get_stacksize_np(@Ptr long pthread_t1);
 	/**
 	 * Original signature : <code>void* pthread_get_stackaddr_np(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:346</i>
 	 */
-	public static native Pointer<? > pthread_get_stackaddr_np(PthreadLibrary.pthread_t pthread_t1);
+	public static Pointer<? > pthread_get_stackaddr_np(PthreadLibrary.pthread_t pthread_t1) {
+		return Pointer.pointerToAddress(pthread_get_stackaddr_np(Pointer.getPeer(pthread_t1)));
+	}
+	@Ptr 
+	protected native static long pthread_get_stackaddr_np(@Ptr long pthread_t1);
 	/**
 	 * Like pthread_cond_signal(), but only wake up the specified pthread<br>
 	 * Original signature : <code>int pthread_cond_signal_thread_np(pthread_cond_t*, pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:349</i>
 	 */
-	public static native int pthread_cond_signal_thread_np(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1, PthreadLibrary.pthread_t pthread_t1);
+	public static int pthread_cond_signal_thread_np(Pointer pthread_cond_tPtr1, PthreadLibrary.pthread_t pthread_t1) {
+		return pthread_cond_signal_thread_np(Pointer.getPeer(pthread_cond_tPtr1), Pointer.getPeer(pthread_t1));
+	}
+	protected native static int pthread_cond_signal_thread_np(@Ptr long pthread_cond_tPtr1, @Ptr long pthread_t1);
 	/**
 	 * Like pthread_cond_timedwait, but use a relative timeout<br>
 	 * Original signature : <code>int pthread_cond_timedwait_relative_np(pthread_cond_t*, pthread_mutex_t*, timespec*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:352</i>
 	 */
-	public static native int pthread_cond_timedwait_relative_np(Pointer<PthreadLibrary.pthread_cond_t > pthread_cond_tPtr1, Pointer<PthreadLibrary.pthread_mutex_t > pthread_mutex_tPtr1, Pointer<PthreadLibrary.timespec > timespecPtr1);
+	public static int pthread_cond_timedwait_relative_np(Pointer pthread_cond_tPtr1, Pointer pthread_mutex_tPtr1, Pointer timespecPtr1) {
+		return pthread_cond_timedwait_relative_np(Pointer.getPeer(pthread_cond_tPtr1), Pointer.getPeer(pthread_mutex_tPtr1), Pointer.getPeer(timespecPtr1));
+	}
+	protected native static int pthread_cond_timedwait_relative_np(@Ptr long pthread_cond_tPtr1, @Ptr long pthread_mutex_tPtr1, @Ptr long timespecPtr1);
 	/**
 	 * Like pthread_create(), but leaves the thread suspended<br>
 	 * Original signature : <code>int pthread_create_suspended_np(pthread_t*, const pthread_attr_t*, pthread_create_suspended_np_arg1_callback, void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:357</i>
 	 */
-	public static native int pthread_create_suspended_np(Pointer<PthreadLibrary.pthread_t > pthread_tPtr1, Pointer<PthreadLibrary.pthread_attr_t > pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_suspended_np_arg1_callback > arg1, Pointer<? > voidPtr1);
+	public static int pthread_create_suspended_np(Pointer<Pointer > pthread_tPtr1, Pointer pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_suspended_np_arg1_callback > arg1, Pointer<? > voidPtr1) {
+		return pthread_create_suspended_np(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
+	}
+	protected native static int pthread_create_suspended_np(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_kill(pthread_t, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:361</i>
 	 */
-	public static native int pthread_kill(PthreadLibrary.pthread_t pthread_t1, int int1);
+	public static int pthread_kill(PthreadLibrary.pthread_t pthread_t1, int int1) {
+		return pthread_kill(Pointer.getPeer(pthread_t1), int1);
+	}
+	protected native static int pthread_kill(@Ptr long pthread_t1, int int1);
 	/**
 	 * Original signature : <code>pthread_t pthread_from_mach_thread_np(mach_port_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:363</i>
 	 */
-	public static native PthreadLibrary.pthread_t pthread_from_mach_thread_np(int mach_port_t1);
+	public static PthreadLibrary.pthread_t pthread_from_mach_thread_np(int mach_port_t1) {
+		return new PthreadLibrary.pthread_t(pthread_from_mach_thread_np$2(mach_port_t1));
+	}
+	@Ptr 
+	@Name("pthread_from_mach_thread_np") 
+	protected native static long pthread_from_mach_thread_np$2(int mach_port_t1);
 	/**
 	 * Original signature : <code>int pthread_sigmask(int, const sigset_t*, sigset_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:365</i>
 	 */
-	public static native int pthread_sigmask(int int1, Pointer<Integer > sigset_tPtr1, Pointer<Integer > sigset_tPtr2);
+	public static int pthread_sigmask(int int1, Pointer<Integer > sigset_tPtr1, Pointer<Integer > sigset_tPtr2) {
+		return pthread_sigmask(int1, Pointer.getPeer(sigset_tPtr1), Pointer.getPeer(sigset_tPtr2));
+	}
+	protected native static int pthread_sigmask(int int1, @Ptr long sigset_tPtr1, @Ptr long sigset_tPtr2);
 	/**
 	 * Original signature : <code>void pthread_yield_np()</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:366</i>
 	 */
-	public static native void pthread_yield_np();
+	native public static void pthread_yield_np();
 	/// C type : extern char*[]
 	public Pointer<Pointer<Byte > > tzname() {
 		try {
@@ -911,54 +1265,6 @@ public class PthreadLibrary {
 			throw new RuntimeException($ex$);
 		}
 	}
-	public static class pthread_rwlock_t extends TypedPointer {
-		public pthread_rwlock_t(long address) {
-			super(address);
-		}
-		public pthread_rwlock_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_mutex_t extends TypedPointer {
-		public pthread_mutex_t(long address) {
-			super(address);
-		}
-		public pthread_mutex_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_condattr_t extends TypedPointer {
-		public pthread_condattr_t(long address) {
-			super(address);
-		}
-		public pthread_condattr_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_mutexattr_t extends TypedPointer {
-		public pthread_mutexattr_t(long address) {
-			super(address);
-		}
-		public pthread_mutexattr_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_attr_t extends TypedPointer {
-		public pthread_attr_t(long address) {
-			super(address);
-		}
-		public pthread_attr_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_rwlockattr_t extends TypedPointer {
-		public pthread_rwlockattr_t(long address) {
-			super(address);
-		}
-		public pthread_rwlockattr_t(Pointer address) {
-			super(address);
-		}
-	};
 	public static class pthread_t extends TypedPointer {
 		public pthread_t(long address) {
 			super(address);
@@ -966,26 +1272,5 @@ public class PthreadLibrary {
 		public pthread_t(Pointer address) {
 			super(address);
 		}
-	};
-	public static class pthread_once_t extends TypedPointer {
-		public pthread_once_t(long address) {
-			super(address);
-		}
-		public pthread_once_t(Pointer address) {
-			super(address);
-		}
-	};
-	public static class pthread_cond_t extends TypedPointer {
-		public pthread_cond_t(long address) {
-			super(address);
-		}
-		public pthread_cond_t(Pointer address) {
-			super(address);
-		}
-	};
-	/// Undefined type
-	/// Undefined type
-	public static interface timespec {
-		
 	};
 }
