@@ -49,9 +49,10 @@ public class CLDevice extends CLAbstractEntity {
         return platform;
     }
 
-    @Override
-    protected void clear() {
-    }
+	@Override
+	protected void clear() {
+		error(CL.clReleaseDevice(getEntity()));
+	}
 
     public String createSignature() {
         return getName() + "|" + getVendor() + "|" + getDriverVersion() + "|" + getProfile();
