@@ -38,6 +38,10 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <build>
   	<plugins>
+  	    <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+        </plugin>
   		<!--
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>

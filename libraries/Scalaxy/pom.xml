@@ -49,8 +49,8 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
@@ -62,8 +62,8 @@ Scalaxy makes Scala faster and hopefully safer to use in production, through com
 	<reporting>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</reporting>

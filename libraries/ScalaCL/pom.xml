@@ -16,11 +16,33 @@
 		<relativePath>..</relativePath>
 	</parent>
 	
-	<modules>
-		<module>Collections</module>
-		<module>Plugin</module>
-		<module>Test</module>
-	</modules>
+	
+	<profiles>
+		<profile>
+			<id>devel</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<maven.compiler.debug>true</maven.compiler.debug>
+			</properties>
+			<modules>
+                <module>Collections</module>
+                <module>Plugin</module>
+                <module>Test</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>coordinated-release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+                <module>Collections</module>
+                <module>Plugin</module>
+			</modules>
+		</profile>
+	</profiles>
 	
 	<properties>
 		<javacl.version>1.0.0-RC3</javacl.version>
@@ -95,8 +117,8 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
@@ -125,9 +147,8 @@
 	<reporting>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</reporting>
