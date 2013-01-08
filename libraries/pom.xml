@@ -64,7 +64,7 @@
 		<versionSpecificSubPackage></versionSpecificSubPackage>
 		<bridj.version>0.6.3-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.9-SNAPSHOT</maven-velocity-plugin.version>
-		<jnaerator.version>0.11</jnaerator.version>
+		<jnaerator.version>0.12-SNAPSHOT</jnaerator.version>
 		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
@@ -358,6 +358,23 @@ Most of these wrappers are created automatically by JNAerator.
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.8</version>
+                 <configuration>
+                     <minmemory>128m</minmemory>
+                     <maxmemory>512</maxmemory>
+                     <breakiterator>true</breakiterator>
+                     <quiet>true</quiet>
+                     <source>1.5</source>
+                     <verbose>false</verbose>
+                     <linksource>true</linksource>
+                     <show>public</show>
+                     <links>
+                         <link>http://download.oracle.com/javase/6/docs/api/</link>
+                         <link>http://nativelibs4java.sourceforge.net/bridj/api/stable/</link>
+                         <link>http://nativelibs4java.sourceforge.net/javacl/api/stable/</link>
+                     </links>
+                     <excludePackageNames>com.nativelibs4java.opencl.library</excludePackageNames>
+                 
+                 </configuration>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -365,23 +382,6 @@ Most of these wrappers are created automatically by JNAerator.
 							<goal>aggregate</goal>
 							<goal>jar</goal>
 						</goals>
-						<configuration>
-							<minmemory>128m</minmemory>
-							<maxmemory>512</maxmemory>
-							<breakiterator>true</breakiterator>
-							<quiet>true</quiet>
-							<source>1.5</source>
-							<verbose>false</verbose>
-							<linksource>true</linksource>
-							<show>public</show>
-							<links>
-								<link>http://download.oracle.com/javase/6/docs/api/</link>
-								<link>http://nativelibs4java.sourceforge.net/bridj/api/stable/</link>
-								<link>http://nativelibs4java.sourceforge.net/javacl/api/stable/</link>
-							</links>
-							<excludePackageNames>com.nativelibs4java.opencl.library</excludePackageNames>
-          
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
