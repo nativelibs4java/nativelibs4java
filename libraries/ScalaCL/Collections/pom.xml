@@ -14,7 +14,7 @@ ScalaCL Collections are GPGPU-stored collections which execute some of their ope
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>scalacl-parent</artifactId>
-		<version>0.3</version>
+		<version>0.3.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 

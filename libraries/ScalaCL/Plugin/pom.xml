@@ -17,7 +17,7 @@ For more info, please visit http://code.google.com/p/scalacl
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>scalacl-parent</artifactId>
-		<version>0.3</version>
+		<version>0.3.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	

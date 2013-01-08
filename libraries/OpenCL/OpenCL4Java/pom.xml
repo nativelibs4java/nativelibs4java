@@ -20,7 +20,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl-parent</artifactId>
-	  <version>1.0.0-RC3</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>..</relativePath>
   </parent>
 
@@ -30,7 +30,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
 	  <!--classifier>c-only</classifier-->
-	  <version>0.6.2</version>
+	  <version>0.6.3-SNAPSHOT</version>
 	</dependency>
 	
   </dependencies>
