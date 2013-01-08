@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ISSUES=
+for F in BridJ/CHANGELOG jnaerator/CHANGELOG OpenCL/CHANGELOG; do
+  cat $F | \
+  perl -p -e 's/&/&amp;/' | \
+  perl -p -e 's/</&lt;/' | \
+  perl -p -e 's/>/&gt;/' | \
+  perl -p -e 's/(http:[^ \$]+)/(<a href="\1">\1<\/a>/' | \
+  perl -p -e 's/([iI]ssue) #([0-9]+)/<a href="https:\/\/github.com\/ochafik\/nativelibs4java\/issues\/\2">\1 #\2<\/a>/' | \
+  perl -p -e 's/^([ \t]*)- (.*)/\1<li>\2<\/li>/' | \
+  tee $F.html
+done

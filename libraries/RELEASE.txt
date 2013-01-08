@@ -1,0 +1,53 @@
+- Update CHANGELOG files in jnaerator, BridJ, OpenCL
+- Move Velocity, Utils, BridJ, JNAerator, JavaCL, Parent to release versions
+- Remove ~/.m2/repository/com/nativelibs4java and make sure the following command succeeds (runs the tests):
+  mvn clean install -o
+- Upload artifacts with uploadGoogleCodeDownloads, after editing it to match versions:
+  scripts/uploadGoogleCodeDownloads
+- Prepare release notes:
+  - Run this
+    scripts/prepareReleaseNotes
+  - Paste first section of CHANGELOG.html files into a new post at http://ochafik.com/wp-admin
+- Tag new versions in git
+  git -a bridj-$BRIDJ_VERSION "BridJ version $BRIDJ_VERSION"
+  git -a jnaerator-$JNAERATOR_VERSION "JNAerator version $JNAERATOR_VERSION"
+  git -a javacl-$JAVACL_VERSION "JavaCL version $JAVACL_VERSION"
+  git push --tags
+- Deploy to staged repo:
+  mvn clean javadoc:jar deploy -DskipTests -Pgpg,coordinated-release
+- Close staged repo on http://oss.sonatype.org
+- Test staged repo with a dummy sbt project
+- Release stage repo
+- Upload release Javadocs to sourceforge FTP
+  cd BridJ
+  uploadJavadoc $BRIDJ_VERSION bridj/api
+  cd OpenCL
+  uploadJavadoc $JAVACL_VERSION javacl/api
+  ...
+- Move back to snapshot versions
+- Upload new snapshot javadocs to sourceforge FTP
+  cd BridJ
+  uploadJavadoc development bridj/api
+  cd OpenCL
+  uploadJavadoc development javacl/api
+- Log onto sourceforge and point javacl/current to $JAVACL_VERSION and bridj/current to $BRIDJ_VERSION
+- Deploy snapshots
+  mvn clean javadoc:jar deploy -DskipTests -Pgpg,coordinated-release
+- Edit JNLP files for all demos to point to new snapshot
+- Build WebStart artifacts:
+  cd jnaerator/jnaerator
+  for F in $PWD/jnaerator/jnaerator  $PWD/OpenCL/InteractiveImageDemo   $PWD/OpenCL/Demos; do
+    cd $F
+    mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install
+  done
+- Upload JNLP and JAR files to Sourceforge FTPs
+- Update wikis
+  - BridJ (front page, download, faq?)
+  - JNAerator (front page, ...?)
+  - JavaCL (front page, download)
+  - ScalaCL / Scalaxy (...)
+- Send emails to:
+  - jna-users (JNAerator + BridJ)
+  - nativelibs4java (BridJ, JNAerator, JavaCL, ScalaCL, Scalaxy)
+- Post blog links on Twitter, G+
+- Send blog links to DZone
