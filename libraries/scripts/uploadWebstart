@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# uploadJavadoc development bridj/api
+# uploadJavadoc 0.6.1 bridj/api
+
+cd `dirname $0`/..
+ROOT="$PWD"
+
+REMOTE_BASE=/home/project-web/nativelibs4java/htdocs
+
+/usr/bin/ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $ZIP_NAME" || echo "Please open a session with :
+ssh -t opentator,nativelibs4java@shell.sourceforge.net create
+"
+
+function fail() {
+    echo "# $@" >&2
+    exit 1
+}
+
+function pomVersion() {
+    POM="$1"
+    cat "$POM" | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'
+}
+
+function upload() {
+    FILE=$1
+    PATH=$2
+    [[ -f "$FILE" ]] || fail "File '$FILE' does not exist"
+    /usr/bin/scp "$FILE" "opentator,nativelibs4java@shell.sourceforge.net:$REMOTE_BASE/webstart/$PATH/" || fail "Remote copy failed"
+}
+
+function assertIsSnapshot() {
+    VERSION=$1
+    [[ $VERSION =~ .*-SNAPSHOT ]] || fail "Version '$VERSION' is not a snapshot"
+}
+function assertReferences() {
+    FILE=$1
+    PATTERN=$2
+    cat "$FILE" | grep "$PATTERN" > /dev/null || fail "$FILE does not refer to $PATTERN"
+}
+
+JNAERATOR_VERSION="`pomVersion jnaerator/pom.xml`"
+JNAERATOR_JNLP="$ROOT/jnaerator/webstart/JNAeratorStudio.jnlp"
+JNAERATOR_JAR_NAME="jnaerator-$JNAERATOR_VERSION-shaded.jar"
+assertIsSnapshot $JNAERATOR_VERSION
+assertReferences $JNAERATOR_JNLP "$JNAERATOR_JAR_NAME"
+
+JAVACL_VERSION="`pomVersion OpenCL/pom.xml`"
+assertIsSnapshot $JAVACL_VERSION
+
+cd $ROOT/jnaerator
+mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install || fail "Build failed"
+upload $ROOT/jnaerator/jnaerator/target/$JNAERATOR_JAR_NAME jnaerator
+upload "$JNAERATOR_JNLP" jnaerator
+
+cd $ROOT/OpenCL
+for NAME in HardwareReport InteractiveImageTransformDemo MandelbrotDemo ParticlesDemo JavaCL; do
+    JNLP="OpenCL/Core/src/main/jnlp/$NAME.jnlp"
+    assertReferences "$JNLP" "-$JAVACL_VERSION-shaded.jar"
+    upload "$JNLP" javacl
+done
+mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install || fail "Build failed"
+upload $ROOT/OpenCL/Demos/target/javacl-demos-$JAVACL_VERSION-shaded.jar javacl
+upload $ROOT/OpenCL/OpenGLDemos/target/javacl-opengl-demos-$JAVACL_VERSION-shaded.jar javacl
+upload $ROOT/OpenCL/InteractiveImageDemo/target/javacl-interactive-image-demo-$JAVACL_VERSION-shaded.jar javacl
+

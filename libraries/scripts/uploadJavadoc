@@ -27,11 +27,11 @@ cp -R apidocs $DIR_NAME
 rm -fR $ZIP_NAME
 zip -r $ZIP_NAME $DIR_NAME
 
-ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $ZIP_NAME" || echo "Please open a session with :
+/usr/bin/ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $ZIP_NAME" || echo "Please open a session with :
 ssh -t opentator,nativelibs4java@shell.sourceforge.net create
 "
 
-scp $ZIP_NAME opentator,nativelibs4java@shell.sourceforge.net:$REMOTE_BASE/$REMOTE_PATH/$ZIP_NAME
+/usr/bin/scp $ZIP_NAME opentator,nativelibs4java@shell.sourceforge.net:$REMOTE_BASE/$REMOTE_PATH/$ZIP_NAME
 
-ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $DIR_NAME ; unzip $ZIP_NAME ; rm $ZIP_NAME"
+/usr/bin/ssh opentator,nativelibs4java@shell.sourceforge.net "cd $REMOTE_BASE/$REMOTE_PATH ; rm -fR $DIR_NAME ; unzip $ZIP_NAME ; rm $ZIP_NAME"
 
