@@ -33,6 +33,7 @@ function assertIsSnapshot() {
     VERSION=$1
     [[ $VERSION =~ .*-SNAPSHOT ]] || fail "Version '$VERSION' is not a snapshot"
 }
+
 function assertReferences() {
     FILE=$1
     PATTERN=$2
@@ -48,19 +49,19 @@ assertReferences $JNAERATOR_JNLP "$JNAERATOR_JAR_NAME"
 JAVACL_VERSION="`pomVersion OpenCL/pom.xml`"
 assertIsSnapshot $JAVACL_VERSION
 
-cd $ROOT/jnaerator
-mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install || fail "Build failed"
-upload $ROOT/jnaerator/jnaerator/target/$JNAERATOR_JAR_NAME jnaerator
-upload "$JNAERATOR_JNLP" jnaerator
+# cd $ROOT/jnaerator
+# mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install || fail "Build failed"
+# upload $ROOT/jnaerator/jnaerator/target/$JNAERATOR_JAR_NAME jnaerator
+# upload "$JNAERATOR_JNLP" jnaerator
 
 cd $ROOT/OpenCL
-for NAME in HardwareReport InteractiveImageTransformDemo MandelbrotDemo ParticlesDemo JavaCL; do
-    JNLP="OpenCL/Core/src/main/jnlp/$NAME.jnlp"
-    assertReferences "$JNLP" "-$JAVACL_VERSION-shaded.jar"
-    upload "$JNLP" javacl
-done
 mvn -Pwebstart -Dstorepass=$KEYSTORE_PASS -DskipTests clean install || fail "Build failed"
 upload $ROOT/OpenCL/Demos/target/javacl-demos-$JAVACL_VERSION-shaded.jar javacl
 upload $ROOT/OpenCL/OpenGLDemos/target/javacl-opengl-demos-$JAVACL_VERSION-shaded.jar javacl
 upload $ROOT/OpenCL/InteractiveImageDemo/target/javacl-interactive-image-demo-$JAVACL_VERSION-shaded.jar javacl
 
+for NAME in HardwareReport InteractiveImageTransformDemo MandelbrotDemo ParticlesDemo JavaCL; do
+    JNLP="$ROOT/OpenCL/Core/src/main/jnlp/$NAME.jnlp"
+    #assertReferences "$JNLP" "-$JAVACL_VERSION-shaded.jar"
+    upload "$JNLP" javacl
+done
