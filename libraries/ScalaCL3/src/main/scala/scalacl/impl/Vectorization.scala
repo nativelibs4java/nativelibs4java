@@ -40,8 +40,8 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
   import definitions._
   
   private[impl]
-  def vectorize(context: Expr[scalacl.Context], block: Expr[Unit], owner: Symbol): Expr[Unit] = {
-    block.tree match {
+  def vectorize(context: Expr[scalacl.Context], block: Expr[Unit], owner: Symbol): Option[Expr[Unit]] = {
+    Option(block.tree) collect {
       //Foreach(range @ IntRange(from, to, byOpt, isUntil, Nil), Function(List(param), body)) =>
       case
         Apply(
@@ -98,18 +98,6 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
             ).tree
           )
         )
-      case Apply(TypeApply(Select(target, foreachName()), targs), List(function)) =>
-        println("NOT MATCHED(target, args):\n\t" + target + "\n\t" + function)
-        reify({})
-      case Foreach(collection, function) =>
-      //case Apply(TypeApply(Select(t, n), targs), args) =>
-        //println("NOT MATCHED: " + t + " (: " + t.getClass.getName + ")")
-        println("NOT MATCHED:\n\t" + collection + "\n\t" + function)
-        reify({})
-      //TypeApply(Select(collection, foreachName()), typeArgs), function @ Function(_, _)) =>
-      case _ =>
-        println("NOT MATCHED: " + block + " (: " + block.getClass.getName + ")")// + nodeToString(block))
-        reify({})
     }
   }
 }
