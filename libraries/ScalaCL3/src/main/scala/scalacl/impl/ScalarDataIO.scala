@@ -11,8 +11,9 @@ abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
   
   private[scalacl] val pointerIO: PointerIO[T] = io.asInstanceOf[PointerIO[T]]
   
-  private[scalacl] def foreachScalar(f: ScalarDataIO[_] => Unit): Unit =
+  private[scalacl] override def foreachScalar(f: ScalarDataIO[_] => Unit) {
     f(this)
+  }
     
   override def toArray(length: Int, buffers: Array[ScheduledBuffer[_]]): Array[T] = {
     val Array(buffer: ScheduledBuffer[T]) = buffers

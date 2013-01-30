@@ -14,6 +14,7 @@ private[impl] abstract class TupleDataIO[T : Manifest] extends DataIO[T] {
     (0 until length.toInt).par.map(i => get(i, pointers, 0)).toArray // TODO check
   }
 }
+
 class Tuple2DataIO[T1 : Manifest : DataIO, T2 : Manifest : DataIO]
   extends TupleDataIO[(T1, T2)] {
   val io1 = implicitly[DataIO[T1]]
@@ -21,7 +22,7 @@ class Tuple2DataIO[T1 : Manifest : DataIO, T2 : Manifest : DataIO]
   
   override def typeString = "(" + io1.typeString + ", " + io2.typeString + ")"
   override val bufferCount = io1.bufferCount + io2.bufferCount
-  def foreachScalar(f: ScalarDataIO[_] => Unit): Unit = {
+  private[scalacl] override def foreachScalar(f: ScalarDataIO[_] => Unit) {
     io1.foreachScalar(f)
     io2.foreachScalar(f)
   }

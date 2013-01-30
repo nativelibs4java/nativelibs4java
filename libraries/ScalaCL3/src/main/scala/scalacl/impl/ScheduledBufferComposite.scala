@@ -5,30 +5,31 @@ import com.nativelibs4java.opencl.CLEvent
 
 private[scalacl] trait ScheduledBufferComposite extends ScheduledData {
   
-  def foreachBuffer(f: ScheduledBuffer[_] => Unit): Unit
+  private[scalacl] def foreachBuffer(f: ScheduledBuffer[_] => Unit): Unit
 
-  def finish = 
+  override def finish = 
     foreachBuffer(_.finish)
     
   def release = 
     foreachBuffer(_.release)
     
-  def eventCompleted(event: CLEvent): Unit =
+  override def eventCompleted(event: CLEvent) {
     foreachBuffer(_.eventCompleted(event))
+  }
 
-  def startRead(out: ArrayBuffer[CLEvent]): ScheduledData = {
+  override def startRead(out: ArrayBuffer[CLEvent]) {
     foreachBuffer(_.startRead(out))
-    this
   }
 
-  def startWrite(out: ArrayBuffer[CLEvent]): ScheduledData = {
+  override def startWrite(out: ArrayBuffer[CLEvent]) {
     foreachBuffer(_.startWrite(out))
-    this
   }
 
-  def endRead(event: CLEvent): Unit =
+  override def endRead(event: CLEvent) {
     foreachBuffer(_.endRead(event))
+  }
 
-  def endWrite(event: CLEvent): Unit =
+  override def endWrite(event: CLEvent) {
     foreachBuffer(_.endWrite(event))
+  }
 }
