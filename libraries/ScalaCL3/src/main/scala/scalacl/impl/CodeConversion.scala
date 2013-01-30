@@ -62,7 +62,14 @@ trait CodeConversion {
   ParamDesc(x, ParamKindRead, Some(0))
     -> x[get_global_id(0)]
   */
-  def convertCode(code: u.Tree, explicitParamDescs: Seq[ParamDesc], fresh: String => String): (String, Seq[ParamDesc]) = {
+  case class CodeConversionResult(
+    code: String,
+	  capturedInputs: Seq[ParamDesc],
+	  capturedOutputs: Seq[ParamDesc],
+	  capturedConstants: Seq[ParamDesc]
+	)
+	
+  def convertCode(code: u.Tree, explicitParamDescs: Seq[ParamDesc], fresh: String => String): CodeConversionResult = {
     val converter = new OpenCLConverter {
 	    override val global = u
 	  }
@@ -75,7 +82,7 @@ trait CodeConversion {
 	      knownSymbols = explicitParamDescs.map(_.symbol.asInstanceOf[converter.global.Symbol]).toSet
 	    )
 
-	  val capturedParamDescs: Seq[ParamDesc] = {
+	  val capturedParams: Seq[ParamDesc] = {
 	    for (sym <- externalSymbols.capturedSymbols) yield {
 	      val tpe = externalSymbols.symbolTypes(sym)
 	      val usage = externalSymbols.symbolUsages(sym)
@@ -86,7 +93,15 @@ trait CodeConversion {
           usage = usage)
 	    }
 	  }
-	  val paramDescs = explicitParamDescs ++ capturedParamDescs
+	  val capturedInputs = capturedParams.filter(p => p.isArray && !p.usage.isOutput)
+	  val capturedOutputs = capturedParams.filter(p => p.isArray && p.usage.isOutput)
+	  val capturedConstants = capturedParams.filter(!_.isArray)
+	  
+	  val paramDescs =
+	    explicitParamDescs ++ 
+	    capturedInputs ++ 
+	    capturedOutputs ++ 
+	    capturedConstants
 	  val flat = converter.convert(tree)
 	  
 	  val globalIDIndexes =
@@ -143,7 +158,7 @@ trait CodeConversion {
       "kernel void f(" + params.mkString(", ") + ") {\n\t" +
         (result.statements ++ result.values.map(_ + ";")).mkString("\n\t") + "\n" +
       "}"
-    (convertedCode, capturedParamDescs)
+    CodeConversionResult(convertedCode, capturedInputs, capturedOutputs, capturedConstants)
     //externalSymbols.capturedSymbols.map(_.asInstanceOf[u.Symbol]))
 	}
 	

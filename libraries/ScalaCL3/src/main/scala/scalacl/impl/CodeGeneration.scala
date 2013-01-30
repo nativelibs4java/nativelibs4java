@@ -58,7 +58,7 @@ trait CodeGeneration extends CodeConversion {
       paramDescs: Seq[ParamDesc], 
       fresh: String => String): Expr[CLFunction[A, B]] = 
   {
-    val (code, capturedParamDescs) = convertCode(
+    val CodeConversionResult(code, capturedInputs, capturedOutputs, capturedConstants) = convertCode(
       body,
       paramDescs,
       fresh
@@ -68,18 +68,15 @@ trait CodeGeneration extends CodeConversion {
     val kernelIdExpr = expr[Long](Literal(Constant(kernelId)))
     
     val inputs = arrayApply[CLArray[_]](
-      capturedParamDescs
-        .filter(d => d.isArray && d.usage.isInput)
+      capturedInputs
         .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
     )
     val outputs = arrayApply[CLArray[_]](
-      capturedParamDescs
-        .filter(d => d.isArray && d.usage.isOutput)
+      capturedOutputs
         .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
     )
     val constants = arrayApply[AnyRef](
-      capturedParamDescs
-        .filter(!_.isArray)
+      capturedConstants
         .map(d => {
           val x = expr[Array[AnyRef]](Ident(d.symbol.asInstanceOf[Symbol]))
           (reify { x.splice.asInstanceOf[AnyRef] }).tree

@@ -39,11 +39,13 @@ class TaskTest {
   def simple {
     implicit val context = Context.best
     try {
-      val a = CLArray[Int](10)//(0 until 10).toArray.cl
+      val a = new CLArray[Int](3)
+      val f = 10
       task {
-        a(3) = 10
+        a(1) = 10 * f
       }
       println(a.toSeq)
+      assertEquals(Seq(0, 100, 0), a.toSeq)
     } finally {
       context.release()
     }
