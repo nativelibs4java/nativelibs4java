@@ -69,8 +69,8 @@ with MiscMatchers
         val actualTpe = try { symbol.typeSignature } catch { case _: Throwable => tpe }
         val symbolKind = getKind(symbol, actualTpe)
         if (symbolKind == SymbolKind.Other)
-          sys.error("Cannot handle usage of symbol " + symbol)
-        
+          sys.error("Cannot handle usage of symbol " + symbol + " (with type " + actualTpe + ")")
+        /*
         if (tpe.toString.endsWith(".type")) {
           println(s"""
           actualTpe: $actualTpe
@@ -81,6 +81,7 @@ with MiscMatchers
           symbol.typeSignature: ${ try { symbol.typeSignature } catch { case ex => ex.toString } }
           """)
         }
+        */
         if ((tpe ne null) && actualTpe != NoType) {
           symbolTypes.get(symbol) match {
             case Some(t) =>
@@ -98,16 +99,17 @@ with MiscMatchers
         }
       }
     }
-    lazy val primTypes = Set(IntTpe, LongTpe, ShortTpe, CharTpe, BooleanTpe, DoubleTpe, FloatTpe, ByteTpe)
-    
-    def getKind(symbol: Symbol, tpe: Type): SymbolKind = {
-      if (tpe <:< typeOf[CLArray[_]] || tpe <:< typeOf[CLFilteredArray[_]])
-        SymbolKind.ArrayLike
-      else if (primTypes.find(tpe <:< _) != None)
-        SymbolKind.Scalar
-      else
-        SymbolKind.Other
-    }
+  }
+  
+  private lazy val primTypes = Set(IntTpe, LongTpe, ShortTpe, CharTpe, BooleanTpe, DoubleTpe, FloatTpe, ByteTpe)
+  
+  private def getKind(symbol: Symbol, tpe: Type): SymbolKind = {
+    if (tpe <:< typeOf[CLArray[_]] || tpe <:< typeOf[CLFilteredArray[_]])
+      SymbolKind.ArrayLike
+    else if (primTypes.find(tpe <:< _) != None)
+      SymbolKind.Scalar
+    else
+      SymbolKind.Other
   }
   
   def getExternalSymbols(tree: Tree, knownSymbols: Set[Symbol] = Set()): KernelSymbols = {
@@ -132,7 +134,14 @@ with MiscMatchers
           symbols.localSymbols += tree.symbol
           super.traverse(tree)
         case _ =>
-          super.traverse(tree)
+          //val kind = getKind(tree.symbol, tree.tpe)
+          //if (kind != SymbolKind.Other) {
+          //  symbols.declareSymbolUsage(tree.symbol, tree.tpe, UsageKind.Input)
+          //} else 
+          {
+            //println(s"tree: $tree: ${tree.getClass.getName}")
+            super.traverse(tree)
+          }
       }
     }.traverse(tree)
     

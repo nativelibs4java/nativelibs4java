@@ -31,12 +31,14 @@
 package scalacl
 package impl
 
-import com.nativelibs4java.opencl.CLMem
-import org.bridj.{ Pointer, PointerIO }
+import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
 
+import com.nativelibs4java.opencl.CLMem
+import org.bridj.{ Pointer, PointerIO }
+
 abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
-  override val typeString = implicitly[ClassManifest[T]].erasure.getSimpleName
+  override val typeString = implicitly[ClassTag[T]].runtimeClass.getSimpleName
   override def bufferCount = 1
   
   private[scalacl] val pointerIO: PointerIO[T] = io.asInstanceOf[PointerIO[T]]
@@ -50,7 +52,7 @@ abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
     buffer.read().getArray.asInstanceOf[Array[T]]
   }
   
-  override def allocateBuffers(length: Long, values: Array[T])(implicit context: Context, m: ClassManifest[T]): Array[ScheduledBuffer[_]] = {
+  override def allocateBuffers(length: Long, values: Array[T])(implicit context: Context, m: ClassTag[T]): Array[ScheduledBuffer[_]] = {
     val pointer = Pointer.pointerToArray[T](values)
     Array(new ScheduledBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, pointer)))
   }
@@ -64,21 +66,21 @@ abstract class ScalarDataIO[T : Manifest](io: PointerIO[_]) extends DataIO[T] {
 
 object IntDataIO extends ScalarDataIO[Int](PointerIO.getIntInstance) {
   override def get(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int) =
-    buffers(bufferOffset).getIntAtOffset(index * 4)
+    buffers(bufferOffset).getIntAtIndex(index)
   override def set(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int, value: Int) =
-    buffers(bufferOffset).setIntAtOffset(index * 4, value)
+    buffers(bufferOffset).setIntAtIndex(index, value)
 }
 
 object FloatDataIO extends ScalarDataIO[Float](PointerIO.getFloatInstance) {
   override def get(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int) =
-    buffers(bufferOffset).getFloatAtOffset(index * 4)
+    buffers(bufferOffset).getFloatAtIndex(index)
   override def set(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int, value: Float) =
-    buffers(bufferOffset).setFloatAtOffset(index * 4, value)
+    buffers(bufferOffset).setFloatAtIndex(index, value)
 }
 
 object BooleanDataIO extends ScalarDataIO[Boolean](PointerIO.getBooleanInstance) {
   override def get(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int) =
-    buffers(bufferOffset).getByteAtOffset(index * 1) != 0
+    buffers(bufferOffset).getByteAtIndex(index) != 0
   override def set(index: Long, buffers: Array[Pointer[_]], bufferOffset: Int, value: Boolean) =
-    buffers(bufferOffset).setByteAtOffset(index * 1, (if (value) 1 else 0).asInstanceOf[Byte])
+    buffers(bufferOffset).setByteAtIndex(index, (if (value) 1 else 0).asInstanceOf[Byte])
 }

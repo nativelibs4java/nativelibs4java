@@ -51,11 +51,11 @@ case class CLFunction[U, V](
   
   // Task
   def apply(context: Context)(implicit ev1: U =:= Unit, ev2: V =:= Unit): CLEvent = {
-    apply(context, null, null, null)
+    apply(context, null)
   }
 
   // Task or NDRange
-  def apply(context: Context, params: KernelExecutionParameters, input: CLArray[U], output: CLArray[V]): CLEvent = {
+  def apply(context: Context, params: KernelExecutionParameters, input: CLArray[U] = null, output: CLArray[V] = null): CLEvent = {
     ScheduledData.schedule(
       if (input == null) captures.inputs else captures.inputs :+ input,
       if (output == null) captures.outputs else captures.outputs :+ output,

@@ -36,13 +36,11 @@ import language.experimental.macros
 import scala.reflect.macros.Context
 
 private[impl] object CLFunctionMacros 
-{
-  def cast[A, B](a: A): B = a.asInstanceOf[B]
-  
+{ 
   private val random = new java.util.Random(System.currentTimeMillis)
   
   /// These ids are not necessarily unique, but their values should be dispersed well
-  private def nextKernelId = random.nextLong
+  private[impl] def nextKernelId = random.nextLong
   
   private[impl]
   def convertFunction[A: c.WeakTypeTag, B: c.WeakTypeTag](c: Context)(f: c.Expr[A => B]): c.Expr[CLFunction[A, B]] = {
@@ -69,8 +67,9 @@ private[impl] object CLFunctionMacros
       }
     
     val generation = new CodeGeneration {
-	    override val u = c.universe
-	    
+	    override val global = c.universe
+      override def fresh(s: String) = c.fresh(s)
+      
       val inputParamDesc: Option[ParamDesc] = if (isUnit(inputTpe)) None else Some({
         val List(param) = params
         ParamDesc(
@@ -94,8 +93,7 @@ private[impl] object CLFunctionMacros
         f = cast(f),
         kernelId = nextKernelId,
         body = cast(bodyToConvert), 
-        paramDescs = inputParamDesc.toSeq ++ outputParamDesc.toSeq, 
-        fresh = c.fresh _
+        paramDescs = inputParamDesc.toSeq ++ outputParamDesc.toSeq 
       )
     }
     generation.result.asInstanceOf[c.Expr[CLFunction[A, B]]]
@@ -109,23 +107,16 @@ private[impl] object CLFunctionMacros
     c.typeCheck(block.tree) 
     
     val generation = new CodeGeneration {
-	    override val u = c.universe
-	    
+	    override val global = c.universe
+      override def fresh(s: String) = c.fresh(s)
+      
 	    // Create a fake Unit => Unit function.
-	    val f = 
-	      Function(
-	        List(
-	          ValDef(NoMods, newTermName(c.fresh("noarg")), TypeTree(UnitTpe), EmptyTree)
-          ), 
-          block.tree
-        )
-	    
+	    val f = blockToUnitFunction(cast(block.tree))
 	    val result = generateCLFunction[Unit, Unit](
-        f = cast(c.Expr[Unit => Unit](f)),
+        f = cast(f),
         kernelId = nextKernelId,
         body = cast(block.tree), 
-        paramDescs = Seq(), 
-        fresh = c.fresh _
+        paramDescs = Seq() 
       )
     }
     generation.result.asInstanceOf[c.Expr[CLFunction[Unit, Unit]]]

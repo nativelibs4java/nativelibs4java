@@ -31,9 +31,11 @@
 package scalacl
 package impl
 
+import scala.reflect.ClassTag
+import scala.collection.mutable.ArrayBuffer
+
 import com.nativelibs4java.opencl.{ CLMem, CLEvent }
 import org.bridj.{ Pointer, PointerIO }
-import scala.collection.mutable.ArrayBuffer
 
 private[scalacl] trait DataIO[T] {
   private[scalacl] def typeString: String
@@ -47,7 +49,7 @@ private[scalacl] trait DataIO[T] {
   
   private[scalacl] def toArray(length: Int, buffers: Array[ScheduledBuffer[_]]): Array[T]
   
-  private[scalacl] def allocateBuffers(length: Long, values: Array[T])(implicit context: Context, m: ClassManifest[T]): Array[ScheduledBuffer[_]] = {
+  private[scalacl] def allocateBuffers(length: Long, values: Array[T])(implicit context: Context, m: ClassTag[T]): Array[ScheduledBuffer[_]] = {
     val pointersBuf = new ArrayBuffer[Pointer[_]]
     foreachScalar(io => pointersBuf += Pointer.allocateArray(io.pointerIO, length))
     

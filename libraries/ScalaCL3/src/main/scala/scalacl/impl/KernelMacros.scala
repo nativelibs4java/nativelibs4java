@@ -36,10 +36,19 @@ import scala.reflect.macros.Context
 
 object KernelMacros {
   def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    // TODO
-    c.universe.reify {
-      {}
+    c.typeCheck(block.tree) 
+    
+    val vectorizer = new Vectorization with MiscMatchers {
+      override val global = c.universe
+      override def fresh(s: String) = c.fresh(s)
+      val result =
+        vectorize(
+          context.asInstanceOf[global.Expr[scalacl.Context]],
+          block.asInstanceOf[global.Expr[Unit]],
+          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]
+        )
     }
+    vectorizer.result.asInstanceOf[c.Expr[Unit]]
   }
   
   def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {

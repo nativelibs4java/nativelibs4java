@@ -35,19 +35,37 @@ import scalacl.CLFilteredArray
 import scala.reflect.api.Universe
 
 trait CodeGeneration extends CodeConversion {
-  val u: Universe
-  import u._
+  val global: Universe
+  import global._
   import definitions._
   
-  private 
+  private[impl] 
   def expr[T](tree: Tree): Expr[T] = {
     import scala.reflect.api.Mirror
     import scala.reflect.api.TreeCreator
-    Expr[T](u.rootMirror, new TreeCreator {
+    Expr[T](rootMirror, new TreeCreator {
       def apply[U <: Universe with Singleton](m: Mirror[U]) = {
         tree.asInstanceOf[U#Tree]
       }
     })
+  }
+  
+  def blockToUnitFunction(block: Tree) = { 
+    expr[Unit => Unit](
+      Function(
+        List(
+          ValDef(NoMods, newTermName(fresh("noarg")), TypeTree(UnitTpe), EmptyTree)
+        ), 
+        block
+      )
+    )
+  }
+  
+  def freshVal(owner: Symbol, nameBase: String, tpe: Type, rhs: Tree): (Symbol, ValDef) = {
+    val name = newTermName(fresh(nameBase))
+    val symbol = owner.newTermSymbol(name)
+    val vd = ValDef(Modifiers(), name, TypeTree(tpe), rhs)
+    (symbol, vd)
   }
   
   private[impl] 
@@ -55,30 +73,32 @@ trait CodeGeneration extends CodeConversion {
       f: Expr[A => B],
       kernelId: Long,
       body: Tree, 
-      paramDescs: Seq[ParamDesc], 
-      fresh: String => String): Expr[CLFunction[A, B]] = 
+      paramDescs: Seq[ParamDesc]): Expr[CLFunction[A, B]] = 
   {
     val CodeConversionResult(code, capturedInputs, capturedOutputs, capturedConstants) = convertCode(
       body,
-      paramDescs,
-      fresh
+      paramDescs
     )
 	  
     val codeExpr = expr[String](Literal(Constant(code)))
     val kernelIdExpr = expr[Long](Literal(Constant(kernelId)))
     
+    def ident(s: global.Symbol) = 
+      Ident(s.asInstanceOf[Symbol].name)
+      // Ident(s.asInstanceOf[Symbol])
+    
     val inputs = arrayApply[CLArray[_]](
       capturedInputs
-        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
+        .map(d => ident(d.symbol)).toList
     )
     val outputs = arrayApply[CLArray[_]](
       capturedOutputs
-        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
+        .map(d => ident(d.symbol)).toList
     )
     val constants = arrayApply[AnyRef](
       capturedConstants
         .map(d => {
-          val x = expr[Array[AnyRef]](Ident(d.symbol.asInstanceOf[Symbol]))
+          val x = expr[Array[AnyRef]](ident(d.symbol))
           (reify { x.splice.asInstanceOf[AnyRef] }).tree
         }).toList
     )

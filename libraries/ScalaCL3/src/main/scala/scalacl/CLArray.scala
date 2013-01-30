@@ -30,15 +30,18 @@
  */
 package scalacl
 import scalacl.impl._
-import com.nativelibs4java.opencl.CLMem
+
+import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
+
+import com.nativelibs4java.opencl.CLMem
 import com.nativelibs4java.opencl.CLEvent
 import org.bridj.Pointer
 
 import language.experimental.macros
 
 object CLArray {
-  def apply[T](values: T*)(implicit io: DataIO[T], context: Context, m: ClassManifest[T]) = {
+  def apply[T](values: T*)(implicit io: DataIO[T], context: Context, m: ClassTag[T]) = {
     val valuesArray = values.toArray
     val length = valuesArray.length
     new CLArray[T](length, io.allocateBuffers(length, valuesArray))
@@ -51,11 +54,11 @@ class CLArray[T](
 )(
   implicit io: DataIO[T], 
   val context: Context, 
-  m: ClassManifest[T]
+  m: ClassTag[T]
 )
 extends ScheduledBufferComposite 
 {
-  def this(length: Long)(implicit io: DataIO[T], context: Context, m: ClassManifest[T]) = {
+  def this(length: Long)(implicit io: DataIO[T], context: Context, m: ClassTag[T]) = {
     this(length, io.allocateBuffers(length))
   }
 
@@ -95,12 +98,12 @@ extends ScheduledBufferComposite
     execute(f, null)
   }
 
-  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] =
+  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassTag[U]): CLArray[U] =
     macro CLArrayMacros.mapImpl[T, U]
     
   private[scalacl] 
   def map[U](f: CLFunction[T, U])
-            (implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
+            (implicit io2: DataIO[U], m2: ClassTag[U]): CLArray[U] = {
 	val output = new CLArray[U](length)
     execute(f, output)
     output
@@ -121,7 +124,7 @@ extends ScheduledBufferComposite
 
   def reduce(f: (T, T) => T): T = sys.error("not implemented")
 
-  def zip[U](col: CLArray[U])(implicit m2: ClassManifest[U], io: DataIO[(T, U)]): CLArray[(T, U)] = 
+  def zip[U](col: CLArray[U])(implicit m2: ClassTag[U], io: DataIO[(T, U)]): CLArray[(T, U)] = 
 	new CLArray[(T, U)](length, buffers.clone ++ col.buffers.clone)
 	
   def zipWithIndex: CLArray[(T, Int)] = sys.error("not implemented")

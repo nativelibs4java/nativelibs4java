@@ -35,13 +35,6 @@ import com.nativelibs4java.opencl._
 import java.util.concurrent.locks._
 import collection.mutable.ArrayBuffer
 
-private[scalacl] case class KernelExecutionParameters(
-  globalSizes: Array[Long],
-  localSizes: Array[Long] = null,
-  globalOffsets: Array[Long] = null) {
-  def this(uniqueSize: Long) = this(Array(uniqueSize))
-}
-
 /**
  * Thin wrapper for OpenCL kernel sources, which can act as a fast cache key for the corresponding CLKernel
  */

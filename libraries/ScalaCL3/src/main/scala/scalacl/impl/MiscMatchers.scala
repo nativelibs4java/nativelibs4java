@@ -31,9 +31,10 @@
 package scalacl
 package impl
 
-trait MiscMatchers {
+trait MiscMatchers extends ConversionNames {
   val global: reflect.api.Universe
   import global._
+  import definitions._
   
   object WhileLoop {
     def unapply(tree: Tree) = tree match {
@@ -55,6 +56,42 @@ trait MiscMatchers {
         ) if (lab == lab2) =>
         Some(condition, content)
       case _ =>
+        None
+    }
+  }
+  
+  def predefModule = PredefModule
+  
+  object Foreach {
+    def unapply(tree: Tree): Option[(Tree, Function)] = Option(tree) collect {
+      case Apply(TypeApply(Select(collection, foreachName()), typeArgs), function @ Function(_, _)) =>
+        (collection, function)
+    }
+  }
+  
+  object IntRange {
+    def apply(from: Tree, to: Tree, by: Option[Tree], isUntil: Boolean, filters: List[Tree]) = sys.error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Tree, Option[Tree], Boolean, List[Tree])] = tree match {
+      case Apply(Select(Apply(Select(Select(predefModule), intWrapperName()), List(from)), funToName @ (toName() | untilName())), List(to)) =>
+        Option(funToName) collect {
+          case toName() =>
+            (from, to, None, false, Nil)
+          case untilName() =>
+            (from, to, None, true, Nil)
+        }
+      case Apply(Select(tg, n @ (byName() | withFilterName() | filterName())), List(arg)) =>
+       tg match {
+          case IntRange(from, to, by, isUntil, filters) =>
+            Option(n) collect {
+                case byName() if by == None =>
+                    (from, to, Some(arg), isUntil, filters)
+                case withFilterName() | filterName() =>
+                    (from, to, by, isUntil, filters :+ arg)
+            }
+          case _ =>
+            None
+        }
+      case _ => 
         None
     }
   }
