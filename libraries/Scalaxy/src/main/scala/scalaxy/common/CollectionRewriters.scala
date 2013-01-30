@@ -2,7 +2,7 @@
  * ScalaCL - putting Scala on the GPU with JavaCL / OpenCL
  * http://scalacl.googlecode.com/
  *
- * Copyright (c) 2009-2010, Olivier Chafik (http://ochafik.free.fr/)
+ * Copyright (c) 2009-2013, Olivier Chafik (http://ochafik.com/)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
