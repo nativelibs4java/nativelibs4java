@@ -13,10 +13,13 @@ Features of the new design:
 TODO:
 - Implement missing DataIO[T], including ASM-optimized case classes
 - Catch up with compiler plugin:
-  - Auto-vectorize for loops
-  - Provide static types to OpenCL conversion
-  - Create top-level objects for kernels code
-- Plug some v2 code back (filtered array compaction, reduceSymmetric, parallel sums...)
+  - Auto-vectorization
+     - 1D works, now add 2D
+     - add filters
+  - Import Scalaxy streams, make them work with scala.reflection.api.Universe
+  - Add argument flattening logic to compiler plugin (with intermediate tree vals for tuples)
+  - Create top-level objects for kernels code or use source file + pos as unique key
+- Plug some v2 runtime code back (filtered array compaction, reduceSymmetric, parallel sums...)
 - Benchmarks!
 
 Example that will eventually work:
