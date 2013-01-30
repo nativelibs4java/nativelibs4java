@@ -10,17 +10,19 @@ import scala.reflect.api.Universe
 sealed trait ParamMode {
   def isArray: Boolean = false
 }
-case object ParamModeReadArray extends ParamMode {
-  override def isArray = true
+object ParamMode {
+  case object ReadArray extends ParamMode {
+    override def isArray = true
+  }
+  case object ReadWriteArray extends ParamMode {
+    override def isArray = true
+  }
+  case object WriteArray extends ParamMode {
+    override def isArray = true
+  }
+  case object Scalar extends ParamMode
+  case object RangeIndex extends ParamMode
 }
-case object ParamModeReadWriteArray extends ParamMode {
-  override def isArray = true
-}
-case object ParamModeWriteArray extends ParamMode {
-  override def isArray = true
-}
-case object ParamModeScalar extends ParamMode
-case object ParamModeRangeIndex extends ParamMode
 
 trait CodeConversion {
   val u: Universe
@@ -44,14 +46,37 @@ trait CodeConversion {
   ParamDesc(x, ParamModeRead, Some(0))
     -> x[get_global_id(0)]
   */
-  def convertCode(code: u.Tree, paramDescs: Seq[ParamDesc], fresh: String => String): String = {
+  def convertCode(code: u.Tree, explicitParamDescs: Seq[ParamDesc], fresh: String => String): (String, Seq[u.Symbol]) = {
     val converter = new OpenCLConverter {
 	    override val global = u
 	  }
 	  
 	  val tree = code.asInstanceOf[converter.global.Tree]
 	  
-	  val symbols = converter.getExternalSymbols(tree)
+	  val externalSymbols =
+	    converter.getExternalSymbols(
+	      tree, 
+	      knownSymbols = explicitParamDescs.map(_.symbol.asInstanceOf[converter.global.Symbol]).toSet
+	    )
+
+	  val capturedParamDescs: Seq[ParamDesc] = {
+	    for (sym <- externalSymbols.capturedSymbols) yield {
+	      val tpe = externalSymbols.symbolTypes(sym)
+	      val kind = externalSymbols.getKind(sym, tpe)
+	      val usage = externalSymbols.symbolUsages(sym)
+	      val mode = (kind, usage) match {
+	        case (SymbolKind.ArrayLike, UsageKind.Input) => ParamMode.ReadArray
+	        case (SymbolKind.ArrayLike, UsageKind.Output) => ParamMode.WriteArray
+	        case (SymbolKind.ArrayLike, UsageKind.InputOutput) => ParamMode.ReadWriteArray
+	        case (SymbolKind.Scalar, UsageKind.Input) => ParamMode.Scalar
+	      }
+        ParamDesc(
+          sym.asInstanceOf[u.Symbol],
+          tpe.asInstanceOf[u.Type],
+          mode)
+	    }
+	  }
+	  val paramDescs = explicitParamDescs ++ capturedParamDescs
 	  val flat = converter.convert(tree)
 	  
 	  val globalIDIndexes =
@@ -64,10 +89,12 @@ trait CodeConversion {
       val r = ("\\b(" + paramDesc.symbol.name + ")\\b").r
       // TODO handle composite types, with replacements of all possible fibers (x._1, x._2._1, x._2._2)
 	    paramDesc match {
-        case ParamDesc(_, _, ParamModeReadArray | ParamModeWriteArray, Some(i), None, None) =>
+        case ParamDesc(_, _, ParamMode.ReadArray | ParamMode.WriteArray, Some(i), None, None) =>
           (s: String) => r.replaceAllIn(s, "$1[" + globalIDValNames(i) + "]")
-        case ParamDesc(_, _, ParamModeRangeIndex, Some(i), Some(from), Some(by)) =>
+        case ParamDesc(_, _, ParamMode.RangeIndex, Some(i), Some(from), Some(by)) =>
           (s: String) => r.replaceAllIn(s, "(" + from + " + " + globalIDValNames(i) + " * " + by + ")")
+        case _ =>
+          (s: String) => s
       }
     })
     
@@ -84,26 +111,29 @@ trait CodeConversion {
 	    val t = converter.convertTpe(paramDesc.tpe.asInstanceOf[converter.global.Type])
 
 	    paramDesc.implicitIndexDimension.map(_ => "global ").getOrElse("") +
-	    (if (paramDesc.mode == ParamModeReadArray) "const " else "") +
+	    (if (paramDesc.mode == ParamMode.ReadArray) "const " else "") +
 	    t +
 	    (if (paramDesc.mode.isArray) " *" else " ") +
 	    paramDesc.symbol.name
     })
     
-    s"""
-      /*
-	    code: $code
-	    symbols: $symbols
-	    paramDescs: $paramDescs
-	    globalIDIndexes: $globalIDIndexes
-	    result: $result
-	    params: $params
-	    */
-	  """ +
-    result.outerDefinitions.mkString("\n") +
-    "kernel f(" + params.mkString(", ") + ") {\n\t" +
-      (result.statements ++ result.values).mkString("\n\t") + "\n" +
-    "}"
+    val convertedCode =
+      s"""
+        /*
+        code: $code
+        externalSymbols: $externalSymbols
+        capturedSymbols: ${externalSymbols.capturedSymbols}
+        paramDescs: $paramDescs
+        globalIDIndexes: $globalIDIndexes
+        result: $result
+        params: $params
+        */
+      """ +
+      result.outerDefinitions.mkString("\n") +
+      "kernel void f(" + params.mkString(", ") + ") {\n\t" +
+        (result.statements ++ result.values).mkString("\n\t") + "\n" +
+      "}"
+    (convertedCode, externalSymbols.capturedSymbols.map(_.asInstanceOf[u.Symbol]))
 	}
 	
 }

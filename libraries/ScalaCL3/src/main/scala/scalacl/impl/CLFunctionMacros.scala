@@ -7,6 +7,8 @@ import scala.reflect.macros.Context
 
 private[impl] object CLFunctionMacros 
 {
+  def cast[A, B](a: A): B = a.asInstanceOf[B]
+  
   private val random = new java.util.Random(System.currentTimeMillis)
   
   /// These ids are not necessarily unique, but their values should be dispersed well
@@ -14,25 +16,29 @@ private[impl] object CLFunctionMacros
   
   private[impl] def convertFunction[T: c.WeakTypeTag, U: c.WeakTypeTag](c: Context)(f: c.Expr[T => U]): c.Expr[CLFunction[T, U]] = {
     import c.universe._
+    import definitions._
     
     val Function(List(param), body) = c.typeCheck(f.tree)
     
     val outSymbol = c.enclosingMethod.symbol.newTermSymbol(newTermName(c.fresh("out")))
     
+    val inputTpe = implicitly[c.WeakTypeTag[T]].tpe
+    val outputTpe = implicitly[c.WeakTypeTag[U]].tpe
+    
     val conversion = new CodeConversion {
 	    override val u = c.universe
-	    val code = convertCode(
-	      Assign(Ident(outSymbol), body).asInstanceOf[u.Tree],
+	    val (code, capturedSymbols) = convertCode(
+	      Assign(Ident(outSymbol).setType(outputTpe), body).asInstanceOf[u.Tree],
         Seq(
           ParamDesc(
             param.symbol.asInstanceOf[u.Symbol],
-            implicitly[c.WeakTypeTag[T]].tpe.asInstanceOf[u.Type],
-            ParamModeReadArray, 
+            inputTpe.asInstanceOf[u.Type],
+            ParamMode.ReadArray, 
             Some(0)),
           ParamDesc(
             outSymbol.asInstanceOf[u.Symbol], 
-            implicitly[c.WeakTypeTag[U]].tpe.asInstanceOf[u.Type],
-            ParamModeWriteArray, 
+            outputTpe.asInstanceOf[u.Type],
+            ParamMode.WriteArray, 
             Some(0))
         ),
         s => c.fresh(s)
@@ -42,9 +48,35 @@ private[impl] object CLFunctionMacros
 	  
     val src = c.Expr[String](Literal(Constant(code)))
     val id = c.Expr[Long](Literal(Constant(nextKernelId)))
-    c.universe.reify {
+    
+    //val captures = 
+    //  Apply(
+    //    Select(Ident(newTermName("scalacl")), newTypeName("Captures"))
+    val constants = c.Expr[Array[AnyRef]](
+      Apply(
+        TypeApply(
+          Select(Ident(ArrayModule), newTermName("apply")),
+          List(TypeTree(typeOf[AnyRef]))
+        ),
+        conversion.capturedSymbols.toList.map(s => {
+          
+          val x = c.Expr[Array[AnyRef]](Ident(s.asInstanceOf[Symbol]))
+          (c.universe.reify {
+            x.splice.asInstanceOf[AnyRef]
+          }).tree
+          //Ident(s.asInstanceOf[Symbol]))
+        })
+      )
+    )
+    val res = c.universe.reify {
       // TODO: add captured vars here.
-      new CLFunction[T, U](f.splice, new Kernel(id.splice, src.splice))
+      new CLFunction[T, U](
+        f.splice, 
+        new Kernel(id.splice, src.splice),
+        Captures(constants = constants.splice)
+      )
     }
+    println(res)
+    res
   }
 }

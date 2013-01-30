@@ -17,6 +17,15 @@ case class CLFilteredArray[T](array: CLArray[T], presenceMask: CLArray[Boolean])
   def compact: CLArray[T] = sys.error("not implemented")
 
   def toCLArray = compact
+    
+  def toArray: Array[T] =
+    toCLArray.toArray
+    
+  def toList: List[T] =
+    toArray.toList
+  
+  def toSeq: Seq[T] = 
+    toArray.toSeq
   
   override def toString = "(" + array + ", " + presenceMask + ")"
 }

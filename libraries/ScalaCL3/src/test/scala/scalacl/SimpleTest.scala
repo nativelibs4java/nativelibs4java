@@ -68,6 +68,7 @@ kernel void f(global const int* input, global char* output) {
 	  }
 	  
 	  val f = 0.2f
-	  a.map(x => x * 2 * f)
+	  val res = a.map(x => x * 2 * f)
+	  assertEquals(res.toList, values.map(x => x * 2 * f).toList)
 	}
 }

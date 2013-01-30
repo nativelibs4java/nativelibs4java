@@ -48,8 +48,12 @@ extends ScheduledBufferComposite
     buffer.read(p)
     p
   }
+  
   def toArray: Array[T] =
     io.toArray(length.toInt, buffers)
+    
+  def toList: List[T] =
+    toArray.toList
   
   def toSeq: Seq[T] = 
     toArray.toSeq

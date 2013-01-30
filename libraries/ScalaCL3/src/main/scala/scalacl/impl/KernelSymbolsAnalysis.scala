@@ -4,34 +4,6 @@ package impl
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 
-sealed trait SymbolKind
-object SymbolKind {
-  case object Array extends SymbolKind
-  case object Constant extends SymbolKind
-  case object ConvertiblePredefined extends SymbolKind
-  case object Other extends SymbolKind
-}
-
-sealed trait UsageKind {
-  def merge(usage: UsageKind): UsageKind
-}
-object UsageKind {
-  case object Input extends UsageKind {
-    override def merge(usage: UsageKind) = 
-      if (usage == Input) Input
-      else InputOutput
-  }
-  case object Output extends UsageKind {
-    override def merge(usage: UsageKind) = 
-      if (usage == Output) Output
-      else InputOutput
-  }
-  case object InputOutput extends UsageKind {
-    override def merge(usage: UsageKind) = 
-      this
-  }
-}
-
 trait KernelSymbolsAnalysis 
 extends ConversionNames
 with MiscMatchers
@@ -43,18 +15,46 @@ with MiscMatchers
   import collection._
   
   case class KernelSymbols(
-    symbolKinds: mutable.HashMap[Symbol, SymbolKind] = new mutable.HashMap[Symbol, SymbolKind],
-    symbolUsages: mutable.HashMap[Symbol, UsageKind] = new mutable.HashMap[Symbol, UsageKind],
-    localSymbols: mutable.HashSet[Symbol] = new mutable.HashSet[Symbol]
+    symbolKinds: mutable.HashMap[Symbol, SymbolKind] = 
+      new mutable.HashMap[Symbol, SymbolKind],
+    symbolUsages: mutable.HashMap[Symbol, UsageKind] = 
+      new mutable.HashMap[Symbol, UsageKind],
+    symbolTypes: mutable.HashMap[Symbol, Type] = 
+      new mutable.HashMap[Symbol, Type],
+    localSymbols: mutable.HashSet[Symbol] = 
+      new mutable.HashSet[Symbol]
   ) {
-    def declareSymbolUsage(symbol: Symbol, usage: UsageKind) {
+    lazy val symbols: Set[Symbol] = symbolKinds.keySet ++ symbolUsages.keySet ++ localSymbols
+    lazy val capturedSymbols: Seq[Symbol] = (symbols -- localSymbols).toSeq
+    
+    def declareSymbolUsage(symbol: Symbol, tpe: Type, usage: UsageKind) {
       if (symbol == NoSymbol) {
         // TODO error("Cannot declare usage of NoSymbol!")
       } else {
-        val symbolKind = getKind(symbol)
+        val actualTpe = try { symbol.typeSignature } catch { case _: Throwable => tpe }
+        val symbolKind = getKind(symbol, actualTpe)
         if (symbolKind == SymbolKind.Other)
           sys.error("Cannot handle usage of symbol " + symbol)
         
+        if (tpe.toString.endsWith(".type")) {
+          println(s"""
+          actualTpe: $actualTpe
+          tpe: $tpe
+          tpe.normalize: ${tpe.normalize}
+          tpe.typeSymbol: ${tpe.typeSymbol}
+          symbol: $symbol
+          symbol.typeSignature: ${ try { symbol.typeSignature } catch { case ex => ex.toString } }
+          """)
+        }
+        if ((tpe ne null) && actualTpe != NoType) {
+          symbolTypes.get(symbol) match {
+            case Some(t) =>
+              assert(t == actualTpe)
+            case None =>
+              symbolTypes(symbol) = actualTpe
+          }
+        }
+          
         symbolUsages.get(symbol) match {
           case Some(u) =>
             symbolUsages(symbol) = u.merge(usage)
@@ -63,9 +63,18 @@ with MiscMatchers
         }
       }
     }
-    def getKind(symbol: Symbol): SymbolKind = {
+    lazy val primTypes = Set(IntTpe, LongTpe, ShortTpe, CharTpe, BooleanTpe, DoubleTpe, FloatTpe, ByteTpe)
+    
+    def getKind(symbol: Symbol, tpe: Type): SymbolKind = {
       // TODO
-      SymbolKind.Array
+      //val tpe = symbolTypes.get(symbol).getOrElse(symbol.typeSignature)
+      //val tpe = symbol.typeSignature
+      if (tpe <:< typeOf[CLArray[_]] || tpe <:< typeOf[CLFilteredArray[_]])
+        SymbolKind.ArrayLike
+      else if (primTypes.find(tpe <:< _) != None)
+        SymbolKind.Scalar
+      else
+        SymbolKind.Other
     }
   }
   
@@ -76,18 +85,20 @@ with MiscMatchers
     new Traverser {
       override def traverse(tree: Tree) = tree match {
         case Ident(n) =>
-          symbols.declareSymbolUsage(tree.symbol, UsageKind.Input)
+          if (!knownSymbols.contains(tree.symbol))
+            symbols.declareSymbolUsage(tree.symbol, tree.tpe, UsageKind.Input)
         case Apply(Select(target, updateName()), List(index, value)) =>
-          symbols.declareSymbolUsage(target.symbol, UsageKind.Output)
+          if (!knownSymbols.contains(target.symbol))
+            symbols.declareSymbolUsage(target.symbol, target.tpe, UsageKind.Output)
           super.traverse(index)
           super.traverse(value)
         case Apply(Select(target, applyName()), List(index)) =>
-          symbols.declareSymbolUsage(target.symbol, UsageKind.Output)
+          if (!knownSymbols.contains(target.symbol))
+            symbols.declareSymbolUsage(target.symbol, target.tpe, UsageKind.Output)
           super.traverse(index)
         case ValDef(_, _, _, _) =>
           symbols.localSymbols += tree.symbol
           super.traverse(tree)
-          
         case _ =>
           super.traverse(tree)
       }

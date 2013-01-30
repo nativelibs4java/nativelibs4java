@@ -11,7 +11,10 @@ case class Captures(
   outputs: Array[CLArray[_]] = Array(),
   constants: Array[AnyRef] = Array())
 
-case class CLFunction[U, V](f: U => V, kernel: Kernel, captures: Captures = Captures())
+case class CLFunction[U, V](
+    f: U => V, 
+    kernel: Kernel, 
+    captures: Captures = Captures())
   extends Function1[U, V] {
 
   def apply(u: U) = f(u)

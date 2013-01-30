@@ -294,8 +294,9 @@ with KernelSymbolsAnalysis
       "?"
     } else if (tpe == NoType) 
       "void" 
-    else 
-      tpe.toString match {
+    else {
+      val t = tpe.normalize
+      t.toString match {
         case "Int" => "int"
         case "Long" => "long"
         case "Short" => "short"
@@ -305,7 +306,8 @@ with KernelSymbolsAnalysis
         case "Double" => "double"
         case "Boolean" => "char"
         case "org.bridj.SizeT" => "size_t"
-        case _ => throw new RuntimeException("Cannot convert unknown type " + tpe + " to OpenCL")
+        case _ => throw new RuntimeException("Cannot convert unknown type " + tpe + " (" + t + ") to OpenCL")
       }
+    }
   }
 }
