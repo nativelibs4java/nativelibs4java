@@ -29,14 +29,15 @@ extends ScheduledBufferComposite
     this(length, io.allocateBuffers(length))
   }
 
-  def apply(index: Long): T = error("not implemented")
-  def update(index: Long, value: T): Unit = error("not implemented")
+  def apply(index: Long): T = sys.error("not implemented")
+  def update(index: Long, value: T): Unit = sys.error("not implemented")
   
   override def clone: CLArray[T] =
     new CLArray[T](length, buffers.map(_.clone))
 
-  override def foreachBuffer(f: ScheduledBuffer[_] => Unit): Unit =
+  private[scalacl] override def foreachBuffer(f: ScheduledBuffer[_] => Unit) {
     buffers.foreach(f)
+  }
 
   override def toString =
     toArray.mkString("CLArray[" + io.typeString + "](", ", ", ")")
@@ -53,9 +54,12 @@ extends ScheduledBufferComposite
   def toSeq: Seq[T] = 
     toArray.toSeq
 
-  def foreach(f: T => Unit): Unit = macro CLArrayMacros.foreachImpl[T]
-  private[scalacl] def foreach(f: CLFunction[T, Unit]): Unit =
+  def foreach(f: T => Unit): Unit =
+    macro CLArrayMacros.foreachImpl[T]
+  
+  private[scalacl] def foreach(f: CLFunction[T, Unit]) {
     execute(f, null)
+  }
 
   def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = macro CLArrayMacros.mapImpl[T, U]
   private[scalacl] def map[U](f: CLFunction[T, U])(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
@@ -64,7 +68,7 @@ extends ScheduledBufferComposite
     output
   }
   
-  private def execute[U](f: CLFunction[T, U], output: CLArray[U]): Unit = {
+  private def execute[U](f: CLFunction[T, U], output: CLArray[U]) {
     val clf = f.asInstanceOf[CLFunction[T, U]]
     val params = KernelExecutionParameters(Array(length))
     clf.apply(context, params, this, output)
@@ -77,17 +81,17 @@ extends ScheduledBufferComposite
     new CLFilteredArray[T](this.clone, presenceMask)
   }
 
-  def reduce(f: (T, T) => T): T = error("not implemented")
+  def reduce(f: (T, T) => T): T = sys.error("not implemented")
 
   def zip[U](col: CLArray[U])(implicit m2: ClassManifest[U], io: DataIO[(T, U)]): CLArray[(T, U)] = 
 	new CLArray[(T, U)](length, buffers.clone ++ col.buffers.clone)
 	
-  def zipWithIndex: CLArray[(T, Int)] = error("not implemented")
+  def zipWithIndex: CLArray[(T, Int)] = sys.error("not implemented")
 
-  def copyTo(pointer: Pointer[T]): Unit = error("not implemented")
+  def copyTo(pointer: Pointer[T]): Unit = sys.error("not implemented")
 
-  def sum: T = error("not implemented")
-  def product: T = error("not implemented")
-  def min: T = error("not implemented")
-  def max: T = error("not implemented")
+  def sum: T = sys.error("not implemented")
+  def product: T = sys.error("not implemented")
+  def min: T = sys.error("not implemented")
+  def max: T = sys.error("not implemented")
 }

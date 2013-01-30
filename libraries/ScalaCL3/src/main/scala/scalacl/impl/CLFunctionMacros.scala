@@ -1,8 +1,9 @@
-package scalacl
-package impl
+package scalacl.impl
+import scalacl.CLArray
+import scalacl.CLFilteredArray
 
-import scala.reflect.makro.Context
 import language.experimental.macros
+import scala.reflect.macros.Context
 
 private[impl] object CLFunctionMacros 
 {
@@ -11,27 +12,38 @@ private[impl] object CLFunctionMacros
   /// These ids are not necessarily unique, but their values should be dispersed well
   private def nextKernelId = random.nextLong
   
-  private[impl] def convertFunction[T: c.TypeTag, U: c.TypeTag](c: Context)(f: c.Expr[T => U]): c.Expr[CLFunction[T, U]] = {
+  private[impl] def convertFunction[T: c.WeakTypeTag, U: c.WeakTypeTag](c: Context)(f: c.Expr[T => U]): c.Expr[CLFunction[T, U]] = {
     import c.universe._
     
     val Function(List(param), body) = c.typeCheck(f.tree)
     
-    val outName = newTermName(c.fresh("out"))
+    val outSymbol = c.enclosingMethod.symbol.newTermSymbol(newTermName(c.fresh("out")))
     
-    val code = CodeConversion.convertCode(c)(
-	    Assign(Ident(outName), body),
-	    dimensionallyIteratedInput = Some(param.symbol),
-	    dimensionallyIteratedOutput = Some(outName),
-	    dimensionRangeIndexes = None,
-	    dimensionRangeOffsets = None,
-	    dimensionRangeSteps = None,
-	    capturedInputs = Seq(),
-	    capturedOutputs = Seq(),
-	    capturedConstants = Seq()
-    )
+    val conversion = new CodeConversion {
+	    override val u = c.universe
+	    val code = convertCode(
+	      Assign(Ident(outSymbol), body).asInstanceOf[u.Tree],
+        Seq(
+          ParamDesc(
+            param.symbol.asInstanceOf[u.Symbol],
+            implicitly[c.WeakTypeTag[T]].tpe.asInstanceOf[u.Type],
+            ParamModeReadArray, 
+            Some(0)),
+          ParamDesc(
+            outSymbol.asInstanceOf[u.Symbol], 
+            implicitly[c.WeakTypeTag[U]].tpe.asInstanceOf[u.Type],
+            ParamModeWriteArray, 
+            Some(0))
+        ),
+        s => c.fresh(s)
+      )
+    }
+    val code = conversion.code
+	  
     val src = c.Expr[String](Literal(Constant(code)))
     val id = c.Expr[Long](Literal(Constant(nextKernelId)))
-    c.reify {
+    c.universe.reify {
+      // TODO: add captured vars here.
       new CLFunction[T, U](f.splice, new Kernel(id.splice, src.splice))
     }
   }

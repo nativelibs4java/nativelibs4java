@@ -38,7 +38,7 @@ private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit c
     }
   }
 
-  def performClone = this synchronized {
+  private def performClone = this synchronized {
     if (lazyCloneModel != null) {
       lazyCloneModel synchronized {
         buffer_ = context.context.createBuffer(CLMem.Usage.InputOutput, initialBuffer.getIO, initialBuffer.getElementCount)
@@ -58,7 +58,7 @@ private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit c
     super.startWrite(out)
   }
 
-  def write(in: Pointer[T]): Unit = {
+  def write(in: Pointer[T]) {
     ScheduledData.schedule(
         Array(),
         Array(this),
@@ -88,7 +88,7 @@ private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit c
     p
   }
   
-  def read(p: Pointer[T]): Unit = {
+  def read(p: Pointer[T]) {
     val event = ScheduledData.schedule(
       Array(this),
       Array(),

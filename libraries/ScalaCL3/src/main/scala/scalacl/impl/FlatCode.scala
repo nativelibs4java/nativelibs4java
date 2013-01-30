@@ -9,11 +9,11 @@ object FlatCodes {
 }
 case class FlatCode[T](
   /// External functions that are referenced by statements and / or values 
-  outerDefinitions: Seq[T], 
+  outerDefinitions: Seq[T] = Seq(), 
   /// List of variable definitions and other instructions (if statements, do / while loops...)
-  statements: Seq[T], 
+  statements: Seq[T] = Seq(), 
   /// Final values of the code in a "flattened tuple" style
-  values: Seq[T]
+  values: Seq[T] = Seq()
 ) {
   def mapEachValue(f: T => Seq[T]): FlatCode[T] =
     copy(values = values.flatMap(f))

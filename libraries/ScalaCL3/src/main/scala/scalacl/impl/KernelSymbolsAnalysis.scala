@@ -47,13 +47,13 @@ with MiscMatchers
     symbolUsages: mutable.HashMap[Symbol, UsageKind] = new mutable.HashMap[Symbol, UsageKind],
     localSymbols: mutable.HashSet[Symbol] = new mutable.HashSet[Symbol]
   ) {
-    def declareSymbolUsage(symbol: Symbol, usage: UsageKind): Unit = {
+    def declareSymbolUsage(symbol: Symbol, usage: UsageKind) {
       if (symbol == NoSymbol) {
         // TODO error("Cannot declare usage of NoSymbol!")
       } else {
         val symbolKind = getKind(symbol)
         if (symbolKind == SymbolKind.Other)
-          error("Cannot handle usage of symbol " + symbol)
+          sys.error("Cannot handle usage of symbol " + symbol)
         
         symbolUsages.get(symbol) match {
           case Some(u) =>

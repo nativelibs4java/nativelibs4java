@@ -6,8 +6,10 @@ object ScalaCLBuild extends Build {
 		organization := "com.nativelibs4java",
     version := "0.3-SNAPSHOT",
     
-    scalaVersion := "2.10.0-M4",
+    scalaVersion := "2.10.0",
     scalacOptions ++= Seq(
+      "-language:experimental.macros",
+      "-deprecation"
       //"-Xlog-free-terms", 
       //"-unchecked",
       //"-Ymacro-debug"
@@ -15,6 +17,9 @@ object ScalaCLBuild extends Build {
     
 		resolvers += "Sonatype OSS Repository" at "http://oss.sonatype.org/content/repositories/snapshots",
 		
+		libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _),
+    libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-reflect" % _),
+      
 		libraryDependencies ++= Seq(
         //"com.nativelibs4java" % "javacl" % "1.0-SNAPSHOT",
       "com.novocode" % "junit-interface" % "0.5" % "test->default"
