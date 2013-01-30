@@ -65,8 +65,12 @@ extends ScheduledBufferComposite
     execute(f, null)
   }
 
-  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = macro CLArrayMacros.mapImpl[T, U]
-  private[scalacl] def map[U](f: CLFunction[T, U])(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
+  def map[U](f: T => U)(implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] =
+    macro CLArrayMacros.mapImpl[T, U]
+    
+  private[scalacl] 
+  def map[U](f: CLFunction[T, U])
+            (implicit io2: DataIO[U], m2: ClassManifest[U]): CLArray[U] = {
 	val output = new CLArray[U](length)
     execute(f, output)
     output

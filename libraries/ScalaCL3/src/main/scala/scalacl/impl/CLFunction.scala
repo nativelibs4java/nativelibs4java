@@ -28,8 +28,10 @@ case class CLFunction[U, V](
         
         input.foreachBuffer(args += _.buffer)
         captures.inputs.foreach(_.foreachBuffer(args += _.buffer))
+        
         output.foreachBuffer(args += _.buffer)
         captures.outputs.foreach(_.foreachBuffer(args += _.buffer))
+        
         args ++= captures.constants
         kernel.enqueue(context, params, args.toArray, eventsToWaitFor)
       })

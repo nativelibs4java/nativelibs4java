@@ -27,19 +27,21 @@ private[impl] object CLFunctionMacros
     
     val conversion = new CodeConversion {
 	    override val u = c.universe
-	    val (code, capturedSymbols) = convertCode(
+	    val (code, capturedParamDescs) = convertCode(
 	      Assign(Ident(outSymbol).setType(outputTpe), body).asInstanceOf[u.Tree],
         Seq(
           ParamDesc(
-            param.symbol.asInstanceOf[u.Symbol],
-            inputTpe.asInstanceOf[u.Type],
-            ParamMode.ReadArray, 
-            Some(0)),
+            symbol = param.symbol.asInstanceOf[u.Symbol],
+            tpe = inputTpe.asInstanceOf[u.Type],
+            mode = ParamKind.ImplicitArrayElement,
+            usage = UsageKind.Input,
+            implicitIndexDimension = Some(0)),
           ParamDesc(
-            outSymbol.asInstanceOf[u.Symbol], 
-            outputTpe.asInstanceOf[u.Type],
-            ParamMode.WriteArray, 
-            Some(0))
+            symbol = outSymbol.asInstanceOf[u.Symbol], 
+            tpe = outputTpe.asInstanceOf[u.Type],
+            mode = ParamKind.ImplicitArrayElement,
+            usage = UsageKind.Output,
+            implicitIndexDimension = Some(0))
         ),
         s => c.fresh(s)
       )
@@ -49,34 +51,46 @@ private[impl] object CLFunctionMacros
     val src = c.Expr[String](Literal(Constant(code)))
     val id = c.Expr[Long](Literal(Constant(nextKernelId)))
     
-    //val captures = 
-    //  Apply(
-    //    Select(Ident(newTermName("scalacl")), newTypeName("Captures"))
-    val constants = c.Expr[Array[AnyRef]](
-      Apply(
-        TypeApply(
-          Select(Ident(ArrayModule), newTermName("apply")),
-          List(TypeTree(typeOf[AnyRef]))
-        ),
-        conversion.capturedSymbols.toList.map(s => {
-          
-          val x = c.Expr[Array[AnyRef]](Ident(s.asInstanceOf[Symbol]))
+    def arrayApply[A: TypeTag](values: List[Tree]): c.Expr[Array[A]] = {
+      c.Expr[Array[A]](
+        Apply(
+          TypeApply(
+            Select(Ident(ArrayModule), newTermName("apply")),
+            List(TypeTree(typeOf[A]))
+          ),
+          values
+        )
+      )
+    }
+    val inputs = arrayApply[CLArray[_]](
+      conversion.capturedParamDescs
+        .filter(d => d.isArray && d.usage.isInput)
+        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
+    )
+    val outputs = arrayApply[CLArray[_]](
+      conversion.capturedParamDescs
+        .filter(d => d.isArray && d.usage.isOutput)
+        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
+    )
+    val constants = arrayApply[AnyRef](
+      conversion.capturedParamDescs
+        .filter(!_.isArray)
+        .map(d => {
+          val x = c.Expr[Array[AnyRef]](Ident(d.symbol.asInstanceOf[Symbol]))
           (c.universe.reify {
             x.splice.asInstanceOf[AnyRef]
           }).tree
-          //Ident(s.asInstanceOf[Symbol]))
-        })
-      )
+        }).toList
     )
-    val res = c.universe.reify {
-      // TODO: add captured vars here.
+    c.universe.reify {
       new CLFunction[T, U](
         f.splice, 
         new Kernel(id.splice, src.splice),
-        Captures(constants = constants.splice)
+        Captures(
+          inputs = inputs.splice, 
+          outputs = outputs.splice, 
+          constants = constants.splice)
       )
     }
-    println(res)
-    res
   }
 }

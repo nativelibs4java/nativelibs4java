@@ -94,7 +94,7 @@ with MiscMatchers
           super.traverse(value)
         case Apply(Select(target, applyName()), List(index)) =>
           if (!knownSymbols.contains(target.symbol))
-            symbols.declareSymbolUsage(target.symbol, target.tpe, UsageKind.Output)
+            symbols.declareSymbolUsage(target.symbol, target.tpe, UsageKind.Output) // TODO: switch to Input, there's a bug in scheduling.
           super.traverse(index)
         case ValDef(_, _, _, _) =>
           symbols.localSymbols += tree.symbol

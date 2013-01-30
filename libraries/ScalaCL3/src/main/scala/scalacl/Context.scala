@@ -14,6 +14,14 @@ import scalacl.impl.ConcurrentCache
  */
 class Context(val context: CLContext, val queue: CLQueue) {
   private[scalacl] val kernels = new ConcurrentCache[Kernel, CLKernel]
+  
+  def release() {
+    queue.finish()
+    queue.release()
+    
+    kernels.clear(_.release)
+    context.release()
+  }
 }
 
 object Context {

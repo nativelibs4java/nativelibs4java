@@ -290,23 +290,22 @@ with KernelSymbolsAnalysis
   def convertTpt(tpt: TypeTree): String = convertTpe(tpt.tpe)
   def convertTpe(tpe: Type): String = {
     if (tpe == null) {
-      throw new RuntimeException("Null type cannot be converted to OpenCL !")
-      "?"
-    } else if (tpe == NoType) 
-      "void" 
-    else {
+      sys.error("Null type cannot be converted to OpenCL !")
+    } else {
       val t = tpe.normalize
-      t.toString match {
-        case "Int" => "int"
-        case "Long" => "long"
-        case "Short" => "short"
-        case "Char" => "short"
-        case "Byte" => "char"
-        case "Float" => "float"
-        case "Double" => "double"
-        case "Boolean" => "char"
-        case "org.bridj.SizeT" => "size_t"
-        case _ => throw new RuntimeException("Cannot convert unknown type " + tpe + " (" + t + ") to OpenCL")
+      if (t == NoType || t <:< typeOf[Unit]) "void"
+      else if (t <:< IntTpe) "int"
+      else if (t <:< LongTpe) "long"
+      else if (t <:< ShortTpe || t <:< CharTpe) "short"
+      else if (t <:< BooleanTpe || t <:< ByteTpe) "char"
+      else if (t <:< DoubleTpe) "double"
+      else if (t <:< FloatTpe) "float"
+      else if (t <:< typeOf[org.bridj.SizeT]) "size_t"
+      else if (t <:< typeOf[CLArray[_]]) {
+        val List(target) = t.asInstanceOf[TypeRef].args
+        convertTpe(target) + "*"
+      } else {
+        sys.error("Cannot convert unknown type " + tpe + " (" + t + "): " + tpe.getClass.getName + " to OpenCL")
       }
     }
   }

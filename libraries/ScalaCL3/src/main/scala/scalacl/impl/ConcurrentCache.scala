@@ -21,6 +21,17 @@ class ConcurrentCache[K, V <: AnyRef] {
       }
     }
   }
-  def clear =
-    map.clear
+  def clear(discardValue: V => Unit = null) = {
+    if (discardValue == null) {
+      map.clear()
+    } else {
+      while (!map.isEmpty) {
+        val it = map.values().iterator
+        while (it.hasNext) {
+          discardValue(it.next)
+          it.remove()
+        }
+      }
+    }
+  }
 }

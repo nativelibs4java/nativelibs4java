@@ -23,7 +23,7 @@ private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit c
 
   def buffer = buffer_
   
-  def release = this synchronized {
+  def release() = this synchronized {
     if (lazyCloneModel == null)
       buffer.release
   }
@@ -38,7 +38,7 @@ private[scalacl] class ScheduledBuffer[T](initialBuffer: CLBuffer[T])(implicit c
     }
   }
 
-  private def performClone = this synchronized {
+  private def performClone() = this synchronized {
     if (lazyCloneModel != null) {
       lazyCloneModel synchronized {
         buffer_ = context.context.createBuffer(CLMem.Usage.InputOutput, initialBuffer.getIO, initialBuffer.getElementCount)

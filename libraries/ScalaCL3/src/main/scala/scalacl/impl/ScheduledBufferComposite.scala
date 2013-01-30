@@ -7,10 +7,10 @@ private[scalacl] trait ScheduledBufferComposite extends ScheduledData {
   
   private[scalacl] def foreachBuffer(f: ScheduledBuffer[_] => Unit): Unit
 
-  override def finish = 
+  override def finish() = 
     foreachBuffer(_.finish)
     
-  def release = 
+  def release() = 
     foreachBuffer(_.release)
     
   override def eventCompleted(event: CLEvent) {
