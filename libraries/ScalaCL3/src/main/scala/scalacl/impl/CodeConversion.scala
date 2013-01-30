@@ -29,11 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl.impl
+
 import scalacl.CLArray
 import scalacl.CLFilteredArray
-
-//import language.experimental.macros
-//import scala.reflect.macros.Context
 
 import scala.reflect.api.Universe
 
@@ -135,19 +133,15 @@ trait CodeConversion {
 
     val convertedCode =
       s"""
-        /*
+      /*
         code: $code
-        externalSymbols: $externalSymbols
-        capturedSymbols: ${externalSymbols.capturedSymbols}
-        paramDescs: $paramDescs
-        globalIDIndexes: $globalIDIndexes
-        result: $result
-        params: $params
-        */
+        paramDescs:
+          ${paramDescs.mkString("\n            ")}
+      */
       """ +
       result.outerDefinitions.mkString("\n") +
       "kernel void f(" + params.mkString(", ") + ") {\n\t" +
-        (result.statements ++ result.values).mkString("\n\t") + "\n" +
+        (result.statements ++ result.values.map(_ + ";")).mkString("\n\t") + "\n" +
       "}"
     (convertedCode, capturedParamDescs)
     //externalSymbols.capturedSymbols.map(_.asInstanceOf[u.Symbol]))

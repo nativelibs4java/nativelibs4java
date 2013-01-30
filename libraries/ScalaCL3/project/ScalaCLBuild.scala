@@ -6,6 +6,8 @@ object ScalaCLBuild extends Build {
 		organization := "com.nativelibs4java",
     version := "0.3-SNAPSHOT",
     
+    fork := true,
+    
     scalaVersion := "2.10.0",
     scalacOptions ++= Seq(
       "-language:experimental.macros",

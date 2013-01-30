@@ -44,83 +44,90 @@ private[impl] object CLFunctionMacros
   /// These ids are not necessarily unique, but their values should be dispersed well
   private def nextKernelId = random.nextLong
   
-  private[impl] def convertFunction[T: c.WeakTypeTag, U: c.WeakTypeTag](c: Context)(f: c.Expr[T => U]): c.Expr[CLFunction[T, U]] = {
+  private[impl]
+  def convertFunction[A: c.WeakTypeTag, B: c.WeakTypeTag](c: Context)(f: c.Expr[A => B]): c.Expr[CLFunction[A, B]] = {
     import c.universe._
     import definitions._
     
-    val Function(List(param), body) = c.typeCheck(f.tree)
+    c.typeCheck(f.tree) 
     
     val outSymbol = c.enclosingMethod.symbol.newTermSymbol(newTermName(c.fresh("out")))
     
-    val inputTpe = implicitly[c.WeakTypeTag[T]].tpe
-    val outputTpe = implicitly[c.WeakTypeTag[U]].tpe
+    val inputTpe = implicitly[c.WeakTypeTag[A]].tpe
+    val outputTpe = implicitly[c.WeakTypeTag[B]].tpe
     
-    val conversion = new CodeConversion {
+    def isUnit(t: Type) =
+      t <:< UnitTpe || t == NoType
+
+    val Function(params, body) = f.tree
+    
+    val bodyToConvert = 
+      if (isUnit(outputTpe)) {
+        body
+      } else {
+        Assign(Ident(outSymbol).setType(outputTpe), body)
+      }
+    
+    val generation = new CodeGeneration {
 	    override val u = c.universe
-	    val (code, capturedParamDescs) = convertCode(
-	      Assign(Ident(outSymbol).setType(outputTpe), body).asInstanceOf[u.Tree],
-        Seq(
-          ParamDesc(
-            symbol = param.symbol.asInstanceOf[u.Symbol],
-            tpe = inputTpe.asInstanceOf[u.Type],
-            mode = ParamKind.ImplicitArrayElement,
-            usage = UsageKind.Input,
-            implicitIndexDimension = Some(0)),
-          ParamDesc(
-            symbol = outSymbol.asInstanceOf[u.Symbol], 
-            tpe = outputTpe.asInstanceOf[u.Type],
+	    
+      val inputParamDesc: Option[ParamDesc] = if (isUnit(inputTpe)) None else Some({
+        val List(param) = params
+        ParamDesc(
+          symbol = cast(param.symbol),
+          tpe = cast(inputTpe),
+          mode = ParamKind.ImplicitArrayElement,
+          usage = UsageKind.Input,
+          implicitIndexDimension = Some(0))
+      })
+      
+      val outputParamDesc: Option[ParamDesc] = if (isUnit(outputTpe)) None else Some({
+        ParamDesc(
+            symbol = cast(outSymbol), 
+            tpe = cast(outputTpe),
             mode = ParamKind.ImplicitArrayElement,
             usage = UsageKind.Output,
             implicitIndexDimension = Some(0))
-        ),
-        s => c.fresh(s)
+      })
+      
+	    val result = generateCLFunction[A, B](
+        f = cast(f),
+        kernelId = nextKernelId,
+        body = cast(bodyToConvert), 
+        paramDescs = inputParamDesc.toSeq ++ outputParamDesc.toSeq, 
+        fresh = c.fresh _
       )
     }
-    val code = conversion.code
-	  
-    val src = c.Expr[String](Literal(Constant(code)))
-    val id = c.Expr[Long](Literal(Constant(nextKernelId)))
+    generation.result.asInstanceOf[c.Expr[CLFunction[A, B]]]
+  }
+  
+  private[impl]
+  def convertTask(c: Context)(block: c.Expr[Unit]): c.Expr[CLFunction[Unit, Unit]] = {
+    import c.universe._
+    import definitions._
     
-    def arrayApply[A: TypeTag](values: List[Tree]): c.Expr[Array[A]] = {
-      c.Expr[Array[A]](
-        Apply(
-          TypeApply(
-            Select(Ident(ArrayModule), newTermName("apply")),
-            List(TypeTree(typeOf[A]))
-          ),
-          values
+    c.typeCheck(block.tree) 
+    
+    val generation = new CodeGeneration {
+	    override val u = c.universe
+	    
+	    // Create a fake Unit => Unit function.
+	    val f = 
+	      Function(
+	        List(
+	          ValDef(NoMods, newTermName(c.fresh("noarg")), TypeTree(UnitTpe), EmptyTree)
+          ), 
+          block.tree
         )
+	    
+	    val result = generateCLFunction[Unit, Unit](
+        f = cast(c.Expr[Unit => Unit](f)),
+        kernelId = nextKernelId,
+        body = cast(block.tree), 
+        paramDescs = Seq(), 
+        fresh = c.fresh _
       )
     }
-    val inputs = arrayApply[CLArray[_]](
-      conversion.capturedParamDescs
-        .filter(d => d.isArray && d.usage.isInput)
-        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
-    )
-    val outputs = arrayApply[CLArray[_]](
-      conversion.capturedParamDescs
-        .filter(d => d.isArray && d.usage.isOutput)
-        .map(d => Ident(d.symbol.asInstanceOf[Symbol])).toList
-    )
-    val constants = arrayApply[AnyRef](
-      conversion.capturedParamDescs
-        .filter(!_.isArray)
-        .map(d => {
-          val x = c.Expr[Array[AnyRef]](Ident(d.symbol.asInstanceOf[Symbol]))
-          (c.universe.reify {
-            x.splice.asInstanceOf[AnyRef]
-          }).tree
-        }).toList
-    )
-    c.universe.reify {
-      new CLFunction[T, U](
-        f.splice, 
-        new Kernel(id.splice, src.splice),
-        Captures(
-          inputs = inputs.splice, 
-          outputs = outputs.splice, 
-          constants = constants.splice)
-      )
-    }
+    generation.result.asInstanceOf[c.Expr[CLFunction[Unit, Unit]]]
   }
 }

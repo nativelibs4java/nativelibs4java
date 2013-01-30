@@ -29,36 +29,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl
+import impl._
 
-import com.nativelibs4java.opencl.CLContext
-import com.nativelibs4java.opencl.CLQueue
-import com.nativelibs4java.opencl.JavaCL
-import com.nativelibs4java.opencl.CLDevice
-import com.nativelibs4java.opencl.CLPlatform
-import scalacl.impl.Kernel
-import com.nativelibs4java.opencl.CLKernel
-import scalacl.impl.ConcurrentCache
+import org.junit._
+import Assert._
 
-/**
- * ScalaCL context, which gathers an OpenCL context and a command queue.
- */
-class Context(val context: CLContext, val queue: CLQueue) {
-  private[scalacl] val kernels = new ConcurrentCache[Kernel, CLKernel]
-  
-  def release() {
-    queue.finish()
-    queue.release()
-    
-    kernels.clear(_.release)
-    context.release()
-  }
-}
-
-object Context {
-  def best = {
-    val context = JavaCL.createBestContext(CLPlatform.DeviceFeature.GPU)
-    val queue = context.createDefaultOutOfOrderQueueIfPossible
-    //println("queue: " + queue + " (" + queue.getProperties + ")")
-    new Context(context, queue)
+class TaskTest {
+  @Test
+  def simple {
+    implicit val context = Context.best
+    try {
+      val a = CLArray[Int](10)//(0 until 10).toArray.cl
+      task {
+        a(3) = 10
+      }
+      println(a.toSeq)
+    } finally {
+      context.release()
+    }
   }
 }

@@ -57,7 +57,10 @@ class Kernel(protected val id: Long, protected val sources: String) {
     var kernel = getKernel(context)
     kernel synchronized {
       kernel.setArgs(args: _*)
-      kernel.enqueueNDRange(context.queue, params.globalOffsets, params.globalSizes, params.localSizes, eventsToWaitFor: _*)
+      if (params == null)
+        kernel.enqueueTask(context.queue, eventsToWaitFor: _*)
+      else
+        kernel.enqueueNDRange(context.queue, params.globalOffsets, params.globalSizes, params.localSizes, eventsToWaitFor: _*)
     }
   }
   

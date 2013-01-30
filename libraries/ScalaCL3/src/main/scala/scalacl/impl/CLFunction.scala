@@ -30,9 +30,9 @@
  */
 package scalacl.impl
 
-import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable.ArrayBuffer
-import com.nativelibs4java.opencl.CLQueue
+import com.nativelibs4java.opencl.CLEvent
+
 import scalacl.CLArray
 import scalacl.Context
 
@@ -48,23 +48,28 @@ case class CLFunction[U, V](
   extends Function1[U, V] {
 
   def apply(u: U) = f(u)
+  
+  // Task
+  def apply(context: Context)(implicit ev1: U =:= Unit, ev2: V =:= Unit): CLEvent = {
+    apply(context, null, null, null)
+  }
 
-  def apply(context: Context, params: KernelExecutionParameters, input: CLArray[U], output: CLArray[V]) = {
+  // Task or NDRange
+  def apply(context: Context, params: KernelExecutionParameters, input: CLArray[U], output: CLArray[V]): CLEvent = {
     ScheduledData.schedule(
       if (input == null) captures.inputs else captures.inputs :+ input,
       if (output == null) captures.outputs else captures.outputs :+ output,
       eventsToWaitFor => {
         val args = new ArrayBuffer[AnyRef]
         
-        input.foreachBuffer(args += _.buffer)
+        if (input != null) input.foreachBuffer(args += _.buffer)
         captures.inputs.foreach(_.foreachBuffer(args += _.buffer))
         
-        output.foreachBuffer(args += _.buffer)
+        if (output != null) output.foreachBuffer(args += _.buffer)
         captures.outputs.foreach(_.foreachBuffer(args += _.buffer))
         
         args ++= captures.constants
         kernel.enqueue(context, params, args.toArray, eventsToWaitFor)
       })
-
   }
 }
