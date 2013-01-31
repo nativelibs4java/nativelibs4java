@@ -152,7 +152,7 @@ trait CodeConversion extends OpenCLConverter {
 	    val t = convertTpe(paramDesc.tpe)
 
 	    (if (paramDesc.isArray) "global " else "") +
-	    (if (paramDesc.usage == UsageKind.Input) "const " else "") +
+	    (if (paramDesc.usage == UsageKind.Input && paramDesc.isArray) "const " else "") +
 	    t +
 	    (if (paramDesc.mode == ParamKind.ImplicitArrayElement) " *" else " ") +
 	    paramDesc.symbol.name

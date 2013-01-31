@@ -36,6 +36,7 @@ class MatrixTest {
     }
   }
   
+  @Ignore
   @Test
   def testMatrix {
     implicit val context = Context.best

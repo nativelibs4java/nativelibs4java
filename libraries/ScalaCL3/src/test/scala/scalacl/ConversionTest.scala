@@ -46,15 +46,32 @@ class ConversionTest extends CodeConversion with WithRuntimeUniverse {
     convertCode(typeCheck(block.tree), explicitParamDescs)
   }
   
+  def assertParamDesc(d: ParamDesc, name: String, tpe: Type, usage: UsageKind, kind: ParamKind) = {
+    assertEquals(name, d.symbol.name.toString)
+    assertEquals(tpe, d.tpe)
+    assertEquals(kind, d.mode)
+    assertEquals(usage, d.usage)
+  }
+  
   @Test
-  def capture1 {
-    val a: CLArray[Int] = null
-    val c = conv(reify { a(0) = 10 })
+  def simpleCaptures {
+    val in: CLArray[Int] = null
+    val out: CLArray[Int] = null
+    val f = 10
+    val c = conv(reify { out(1) = in(2) * f })
     assertEquals(
-      "kernel void f(global int* a) {\n" +
-        "\ta[0] = 10;\n" +
+      "kernel void f(global const int* in, global int* out, int f) {\n" +
+        "\tout[1] = (in[2] * f);\n" +
       "}",
       c.code
     )
+    val Seq(inDesc) = c.capturedInputs
+    assertParamDesc(inDesc, "in", typeOf[CLArray[Int]], UsageKind.Input, ParamKind.Normal)
+    
+    val Seq(outDesc) = c.capturedOutputs
+    assertParamDesc(outDesc, "out", typeOf[CLArray[Int]], UsageKind.Output, ParamKind.Normal)
+    
+    val Seq(fDesc) = c.capturedConstants
+    assertParamDesc(fDesc, "f", typeOf[Int], UsageKind.Input, ParamKind.Normal)
   }
 }

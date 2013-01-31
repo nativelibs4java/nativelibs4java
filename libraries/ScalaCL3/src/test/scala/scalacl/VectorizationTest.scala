@@ -64,6 +64,7 @@ class VectorizationTest extends Vectorization with WithRuntimeUniverse {
     ) 
   }
   
+  @Ignore
   @Test
   def notVectorizable2D {
     assertThat(
