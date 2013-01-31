@@ -416,7 +416,6 @@ Most of these wrappers are created automatically by JNAerator.
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.12</version>
                 <configuration>
-                    <forkMode>true</forkMode>
                     <!--<argLine>-d32</argLine>-->
                 </configuration>
 			</plugin>
