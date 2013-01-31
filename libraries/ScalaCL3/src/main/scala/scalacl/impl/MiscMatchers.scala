@@ -60,18 +60,6 @@ trait MiscMatchers extends ConversionNames {
     }
   }
   
-  def isTupleType(tpe: Type) = {
-    tpe match {
-      case TypeRef(pre, sym, args)
-      if !args.isEmpty &&
-         pre.typeSymbol == ScalaPackageClass && 
-         sym.name.toString.matches("Tuple\\d+") =>
-        true
-      case _ =>
-        false
-    }
-  }
-  
   private def predefModule = PredefModule
   
   object Foreach {

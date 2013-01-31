@@ -37,19 +37,13 @@ import scala.reflect.NameTransformer
 trait KernelSymbolsAnalysis 
 extends ConversionNames
 with MiscMatchers
+with TypeAnalysis
 { 
   val global: reflect.api.Universe
   import global._
   import definitions._
 
   import collection._
-  
-  sealed trait SymbolKind
-  object SymbolKind {
-    case object ArrayLike extends SymbolKind
-    case object Scalar extends SymbolKind
-    case object Other extends SymbolKind
-  }
   
   case class KernelSymbols(
     symbolUsages: mutable.HashMap[Symbol, UsageKind] = 
@@ -67,7 +61,7 @@ with MiscMatchers
         // TODO error("Cannot declare usage of NoSymbol!")
       } else {
         val actualTpe = try { symbol.typeSignature } catch { case _: Throwable => tpe }
-        val symbolKind = getKind(symbol, actualTpe)
+        val symbolKind = kindOf(symbol, actualTpe)
         if (symbolKind == SymbolKind.Other)
           sys.error("Cannot handle usage of symbol " + symbol + ": " + symbol.getClass.getName + " (with type " + actualTpe + ": " + actualTpe.getClass.getName + ")")
         
@@ -86,26 +80,6 @@ with MiscMatchers
           case None =>
             symbolUsages(symbol) = usage
         }
-      }
-    }
-  }
-  
-  private lazy val primTypes = Set(IntTpe, LongTpe, ShortTpe, CharTpe, BooleanTpe, DoubleTpe, FloatTpe, ByteTpe)
-  
-  private def getKind(symbol: Symbol, tpe: Type): SymbolKind = {
-    if (tpe <:< typeOf[CLArray[_]] || tpe <:< typeOf[CLFilteredArray[_]])
-      SymbolKind.ArrayLike
-    else if (primTypes.find(tpe <:< _) != None)
-      SymbolKind.Scalar
-    else {
-      tpe match {
-        case TypeRef(_, _, args) 
-        if isTupleType(tpe) &&
-           args.forall(t => getKind(t.typeSymbol, t) == SymbolKind.Scalar) 
-          =>
-          SymbolKind.Scalar
-        case _ =>
-          SymbolKind.Other
       }
     }
   }
@@ -132,7 +106,7 @@ with MiscMatchers
           symbols.localSymbols += tree.symbol
           super.traverse(tree)
         case _ =>
-          //val kind = getKind(tree.symbol, tree.tpe)
+          //val kind = kindOf(tree.symbol, tree.tpe)
           //if (kind != SymbolKind.Other) {
           //  symbols.declareSymbolUsage(tree.symbol, tree.tpe, UsageKind.Input)
           //} else 

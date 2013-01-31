@@ -35,7 +35,7 @@ import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._
 
-class MiscMatchersTest extends MiscMatchers with WithRuntimeUniverse {
+class TypeAnalysisTest extends TypeAnalysis with WithRuntimeUniverse {
   import global._
   
   case class CC(a: Int, b: Int)
@@ -48,5 +48,14 @@ class MiscMatchersTest extends MiscMatchers with WithRuntimeUniverse {
     assertFalse(isTupleType(typeOf[{ val x: Int }]))
     assertTrue(isTupleType(typeOf[(Int, Int)]))
     assertTrue(isTupleType(typeOf[(Int, Int, Float, (Double, Int))]))
+  }
+  
+  @Test
+  def testKinds {
+    assertEquals(SymbolKind.Scalar, kindOf(typeOf[Int]))
+    assertEquals(SymbolKind.Scalar, kindOf(typeOf[Float]))
+    assertEquals(SymbolKind.Scalar, kindOf(typeOf[(Int, Int)]))
+    assertEquals(SymbolKind.ArrayLike, kindOf(typeOf[CLArray[Int]]))
+    assertEquals(SymbolKind.ArrayLike, kindOf(typeOf[CLFilteredArray[Int]]))
   }
 }
