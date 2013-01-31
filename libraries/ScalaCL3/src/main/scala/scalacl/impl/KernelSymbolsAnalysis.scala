@@ -63,25 +63,14 @@ with MiscMatchers
     lazy val capturedSymbols: Seq[Symbol] = (symbols -- localSymbols).toSeq
     
     def declareSymbolUsage(symbol: Symbol, tpe: Type, usage: UsageKind) {
-      if (symbol == NoSymbol) {
+      if (symbol == NoSymbol || symbol.isModule || symbol.isType) {
         // TODO error("Cannot declare usage of NoSymbol!")
       } else {
         val actualTpe = try { symbol.typeSignature } catch { case _: Throwable => tpe }
         val symbolKind = getKind(symbol, actualTpe)
         if (symbolKind == SymbolKind.Other)
-          sys.error("Cannot handle usage of symbol " + symbol + " (with type " + actualTpe + ")")
-        /*
-        if (tpe.toString.endsWith(".type")) {
-          println(s"""
-          actualTpe: $actualTpe
-          tpe: $tpe
-          tpe.normalize: ${tpe.normalize}
-          tpe.typeSymbol: ${tpe.typeSymbol}
-          symbol: $symbol
-          symbol.typeSignature: ${ try { symbol.typeSignature } catch { case ex => ex.toString } }
-          """)
-        }
-        */
+          sys.error("Cannot handle usage of symbol " + symbol + ": " + symbol.getClass.getName + " (with type " + actualTpe + ": " + actualTpe.getClass.getName + ")")
+        
         if ((tpe ne null) && actualTpe != NoType) {
           symbolTypes.get(symbol) match {
             case Some(t) =>
@@ -108,8 +97,17 @@ with MiscMatchers
       SymbolKind.ArrayLike
     else if (primTypes.find(tpe <:< _) != None)
       SymbolKind.Scalar
-    else
-      SymbolKind.Other
+    else {
+      tpe match {
+        case TypeRef(_, _, args) 
+        if isTupleType(tpe) &&
+           args.forall(t => getKind(t.typeSymbol, t) == SymbolKind.Scalar) 
+          =>
+          SymbolKind.Scalar
+        case _ =>
+          SymbolKind.Other
+      }
+    }
   }
   
   def getExternalSymbols(tree: Tree, knownSymbols: Set[Symbol] = Set()): KernelSymbols = {

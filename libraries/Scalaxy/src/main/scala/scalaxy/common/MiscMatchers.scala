@@ -34,19 +34,6 @@ import pluginBase._
 import scala.reflect.NameTransformer
 import scala.tools.nsc.Global
 
-abstract sealed class ColType(name: String) {
-  override def toString = name
-}
-case object SeqType extends ColType("Seq")
-case object SetType extends ColType("Set")
-case object ListType extends ColType("List")
-case object VectorType extends ColType("Vector")
-case object ArrayType extends ColType("Array")
-case object IndexedSeqType extends ColType("IndexedSeq")
-case object MapType extends ColType("Map")
-case object OptionType extends ColType("Option")
-
-
 trait MiscMatchers extends PluginNames with WithOptions {
   val global: Global
   import global._

@@ -157,15 +157,6 @@ trait CodeConversion extends OpenCLConverter {
 	    (if (paramDesc.mode == ParamKind.ImplicitArrayElement) " *" else " ") +
 	    paramDesc.symbol.name
     })
-    
-    // TODO
-    //if (!result.values.isEmpty)
-    //  sys.error("Values of flattened code should be empty (only outerDefinitions and statements are supported as top level converted code!")
-      /*
-        code: $code
-        paramDescs:
-          ${paramDescs.mkString("\n            ")}
-      */
       
     val convertedCode =
       result.outerDefinitions.mkString("\n") +
@@ -173,7 +164,6 @@ trait CodeConversion extends OpenCLConverter {
         (result.statements ++ result.values.map(_ + ";")).mkString("\n\t") + "\n" +
       "}"
     CodeConversionResult(convertedCode, capturedInputs, capturedOutputs, capturedConstants)
-    //externalSymbols.capturedSymbols.map(_.asInstanceOf[Symbol]))
 	}
 	
 }

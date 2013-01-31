@@ -35,60 +35,18 @@ import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._
 
-class ConversionTest extends CodeConversion with WithRuntimeUniverse {
+class MiscMatchersTest extends MiscMatchers with WithRuntimeUniverse {
   import global._
   
-  private val context = reify { null: Context }
-  private val NotVectorizable: Option[Expr[Unit]] = None
-  private val Vectorizable = not(NotVectorizable)
-  
-  private def conv(block: Expr[Unit], explicitParamDescs: Seq[ParamDesc] = Seq()) = {
-    convertCode(typeCheck(block.tree), explicitParamDescs)
-  }
-  
-  def assertParamDesc(d: ParamDesc, name: String, tpe: Type, usage: UsageKind, kind: ParamKind) = {
-    assertEquals(name, d.symbol.name.toString)
-    assertEquals(tpe, d.tpe)
-    assertEquals(kind, d.mode)
-    assertEquals(usage, d.usage)
-  }
-  
-  @Test
-  def simpleCaptures {
-    val in: CLArray[Int] = null
-    val out: CLArray[Int] = null
-    val f = 10
-    val c = conv(reify { out(1) = in(2) * f })
-    assertEquals(
-      "kernel void f(global const int* in, global int* out, int f) {\n" +
-        "\tout[1] = (in[2] * f);\n" +
-      "}",
-      c.code
-    )
-    val Seq(inDesc) = c.capturedInputs
-    assertParamDesc(inDesc, "in", typeOf[CLArray[Int]], UsageKind.Input, ParamKind.Normal)
+  case class CC(a: Int, b: Int)
     
-    val Seq(outDesc) = c.capturedOutputs
-    assertParamDesc(outDesc, "out", typeOf[CLArray[Int]], UsageKind.Output, ParamKind.Normal)
-    
-    val Seq(fDesc) = c.capturedConstants
-    assertParamDesc(fDesc, "f", typeOf[Int], UsageKind.Input, ParamKind.Normal)
-  }
-  
-  @Ignore
   @Test
-  def simpleTuplesCaptures {
-    val in: CLArray[(Int, (Float, Short))] = null
-    val out: CLArray[Float] = null
-    val c = conv(reify {
-      val (i, p @ (f, s)) = in(0)
-      out(0) = i + f + s + p._1 + p._2
-    })
-    assertEquals(
-      "kernel void f(global const int* in, global int* out) {\n" +
-        "\tout[1] = (in[2] * f);\n" +
-      "}",
-      c.code
-    )
+  def testTuples {
+    assertFalse(isTupleType(typeOf[(Int)]))
+    assertFalse(isTupleType(typeOf[Int]))
+    assertFalse(isTupleType(typeOf[CC]))
+    assertFalse(isTupleType(typeOf[{ val x: Int }]))
+    assertTrue(isTupleType(typeOf[(Int, Int)]))
+    assertTrue(isTupleType(typeOf[(Int, Int, Float, (Double, Int))]))
   }
 }
