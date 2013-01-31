@@ -32,8 +32,16 @@ package scalacl
 package impl
 
 case class KernelExecutionParameters(
-  globalSizes: Array[Long],
-  localSizes: Array[Long] = null,
-  globalOffsets: Array[Long] = null) {
+    globalSizes: Array[Long],
+    localSizes: Array[Long] = null,
+    globalOffsets: Array[Long] = null) {
   def this(uniqueSize: Long) = this(Array(uniqueSize))
+  override def toString = {
+    def str(n: String, a: Array[Long]) = Option(a).map(aa => n + " = { " + aa.mkString(", ") + " }").toSeq
+    val strs =
+      str("globalSizes", globalSizes) ++
+      str("localSizes", localSizes) ++
+      str("globalOffsets", globalOffsets)
+    getClass.getSimpleName + "(" + strs.mkString(", ") + ")" 
+  }
 }
