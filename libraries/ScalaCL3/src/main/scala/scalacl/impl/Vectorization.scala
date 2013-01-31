@@ -39,21 +39,33 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
   import global._
   import definitions._
   
+  object PositiveIntConstantOrOne {
+    def unapply(treeOpt: Option[Tree]): Option[Int] = Option(treeOpt) collect {
+      case Some(Literal(Constant(n: Int))) => n
+      case None => 1
+    }
+  }
+  
   private[impl]
-  def vectorize(context: Expr[scalacl.Context], block: Expr[Unit], owner: Symbol): Option[Expr[Unit]] = {
-    Option(block.tree) collect {
-      case Foreach(range @ IntRange(from, to, byOpt, isUntil, Nil), Function(List(param), body)) =>
-        val (rangeSym, rangeValDef) = freshVal(owner, "range", typeOf[Range], range)
-        val (fromSym, fromValDef) = freshVal(owner, "from", IntTpe, from)
-        //val (toSym, toValDef) = freshVal(owner, "to", IntTpe, to)
+  def vectorize(context: Expr[scalacl.Context], block: Tree): Option[Expr[Unit]] = {
+    Option(block) collect {
+      case 
+        Foreach(
+          range @ IntRange(from, to, PositiveIntConstantOrOne(by), isUntil, Nil), 
+          Function(List(param), body)
+        ) 
+        =>
+        // TODO: get rid of that stupid range and compute the range size by our own means.
+        val rangeValDef =
+          freshVal("range", typeOf[Range], range)
+        val fromValDef = 
+          freshVal("from", IntTpe, Select(ident[Range](rangeValDef).tree, N("start")))
+        //val toValDef = freshVal("to", IntTpe, to)
         
-        val by: Int = byOpt match {
-          case None => 1
-          case Some(Literal(Constant(n: Int))) if n > 0 => n
-          case Some(by) => sys.error("Only positive constant steps are handled: " + by)
-        }
+        val byValDef = freshVal("by", IntTpe, Literal(Constant(by)))
         
-        val (bySym, byValDef) = freshVal(owner, "by", IntTpe, Literal(Constant(by)))
+        def newSymbol(name: TermName) =
+          NoSymbol.newTermSymbol(name)
         
         val paramDescs = Seq(
           ParamDesc(
@@ -62,12 +74,12 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
             mode = ParamKind.RangeIndex,
             usage = UsageKind.Input,
             implicitIndexDimension = Some(0),
-            rangeOffset = Some(fromSym),
-            rangeStep = Some(bySym))
+            rangeOffset = Some(newSymbol(fromValDef.name)),
+            rangeStep = Some(newSymbol(byValDef.name)))
         )
         
         val f = generateCLFunction[Unit, Unit](
-          f = blockToUnitFunction(block.tree),
+          f = blockToUnitFunction(block),
           kernelId = CLFunctionMacros.nextKernelId,
           body = body, 
           paramDescs = paramDescs 

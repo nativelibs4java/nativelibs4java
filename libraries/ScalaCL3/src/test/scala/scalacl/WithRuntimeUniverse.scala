@@ -28,36 +28,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
+package scalacl
 
-import language.experimental.macros
+import scala.reflect.runtime.{ universe => ru }
+import scala.reflect.runtime.{ currentMirror => cm }
+import scala.tools.reflect.ToolBox
 
-import scala.reflect.macros.Context
+trait WithRuntimeUniverse {
+  private var nextId = 0L
+  lazy val global = ru
+  import global._
 
-object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    //c.typeCheck(block.tree) 
-    
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
-      val result =
-        vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
-          c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
-          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
-        )
-    }
-    vectorizer.result.getOrElse({
-      c.error(c.enclosingPosition, "Kernel vectorization failed (only top-level foreach loops on ranges with constant positive steop are supported right now)")
-      c.universe.reify({})
-    }).asInstanceOf[c.Expr[Unit]]
+  def fresh(s: String) = synchronized {
+    val v = nextId
+    nextId += 1
+    s + v
   }
   
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    val ff = CLFunctionMacros.convertTask(c)(block)
-    c.universe.reify {
-      ff.splice(context.splice)
-    }
+  lazy val toolbox = cm.mkToolBox()
+  def typeCheck(tree: Tree): Tree = {
+    toolbox.typeCheck(tree.asInstanceOf[toolbox.u.Tree]).asInstanceOf[Tree]
   }
 }

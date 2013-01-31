@@ -37,11 +37,6 @@ import com.nativelibs4java.opencl.CLEvent
 import scalacl.CLArray
 import scalacl.Context
 
-case class Captures(
-  inputs: Array[CLArray[_]] = null,
-  outputs: Array[CLArray[_]] = null,
-  constants: Array[AnyRef] = null)
-
 case class CLFunction[U, V](
     f: U => V, 
     kernel: Kernel, 
@@ -74,7 +69,7 @@ case class CLFunction[U, V](
       input: CLArray[U],
       output: CLArray[V]): CLEvent = 
   {
-    println(s"Executing kernel with params = $params")
+    //println(s"Executing kernel with params = $params")
     ScheduledData.schedule(
       append(captures.inputs, input),
       append(captures.outputs, output),

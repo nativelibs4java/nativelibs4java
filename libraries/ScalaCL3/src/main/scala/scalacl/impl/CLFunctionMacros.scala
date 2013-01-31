@@ -47,8 +47,6 @@ private[impl] object CLFunctionMacros
     import c.universe._
     import definitions._
     
-    c.typeCheck(f.tree) 
-    
     val outSymbol = c.enclosingMethod.symbol.newTermSymbol(newTermName(c.fresh("out")))
     
     val inputTpe = implicitly[c.WeakTypeTag[A]].tpe
@@ -57,7 +55,7 @@ private[impl] object CLFunctionMacros
     def isUnit(t: Type) =
       t <:< UnitTpe || t == NoType
 
-    val Function(params, body) = f.tree
+    val Function(params, body) = c.typeCheck(f.tree)
     
     val bodyToConvert = 
       if (isUnit(outputTpe)) {
@@ -104,18 +102,17 @@ private[impl] object CLFunctionMacros
     import c.universe._
     import definitions._
     
-    c.typeCheck(block.tree) 
-    
     val generation = new CodeGeneration {
 	    override val global = c.universe
       override def fresh(s: String) = c.fresh(s)
       
 	    // Create a fake Unit => Unit function.
-	    val f = blockToUnitFunction(cast(block.tree))
+	    val typedBlock = c.typeCheck(block.tree)
+	    val f = blockToUnitFunction(cast(typedBlock))
 	    val result = generateCLFunction[Unit, Unit](
         f = cast(f),
         kernelId = nextKernelId,
-        body = cast(block.tree), 
+        body = cast(typedBlock), 
         paramDescs = Seq() 
       )
     }

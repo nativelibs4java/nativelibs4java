@@ -28,36 +28,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
+package scalacl
+package impl
 
-import language.experimental.macros
+import org.junit._
+import Assert._
+import org.hamcrest.CoreMatchers._
 
-import scala.reflect.macros.Context
-
-object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    //c.typeCheck(block.tree) 
-    
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
-      val result =
-        vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
-          c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
-          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
-        )
-    }
-    vectorizer.result.getOrElse({
-      c.error(c.enclosingPosition, "Kernel vectorization failed (only top-level foreach loops on ranges with constant positive steop are supported right now)")
-      c.universe.reify({})
-    }).asInstanceOf[c.Expr[Unit]]
+class VectorizationTest extends Vectorization with WithRuntimeUniverse {
+  import global._
+  
+  private val context = reify { null: Context }
+  private val NotVectorizable: Option[Expr[Unit]] = None
+  private val Vectorizable = not(NotVectorizable)
+  
+  private def vec(block: Expr[Unit]) = {
+    vectorize(context, typeCheck(block.tree))
   }
   
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    val ff = CLFunctionMacros.convertTask(c)(block)
-    c.universe.reify {
-      ff.splice(context.splice)
-    }
+  @Test
+  def notVectorizable0D {
+    assertThat(
+      vec(reify { 1 + 2 }),
+      is(NotVectorizable)
+    )
+  }
+  
+  @Test
+  def vectorizable1D {
+    assertThat(
+      vec(reify { 
+        for (i <- 0 until 10) (i + 2) 
+      }),
+      is(Vectorizable)
+    ) 
+  }
+  
+  @Test
+  def notVectorizable2D {
+    assertThat(
+      vec(reify { 
+        for (i <- 0 until 10; j <- 0 until 10) 
+          (i + j + 2) 
+      }),
+      is(NotVectorizable)
+    )
   }
 }

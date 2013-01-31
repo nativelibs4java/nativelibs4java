@@ -30,34 +30,10 @@
  */
 package scalacl.impl
 
-import language.experimental.macros
+import scalacl.CLArray
 
-import scala.reflect.macros.Context
+case class Captures(
+  inputs: Array[CLArray[_]] = null,
+  outputs: Array[CLArray[_]] = null,
+  constants: Array[AnyRef] = null)
 
-object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    //c.typeCheck(block.tree) 
-    
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
-      val result =
-        vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
-          c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
-          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
-        )
-    }
-    vectorizer.result.getOrElse({
-      c.error(c.enclosingPosition, "Kernel vectorization failed (only top-level foreach loops on ranges with constant positive steop are supported right now)")
-      c.universe.reify({})
-    }).asInstanceOf[c.Expr[Unit]]
-  }
-  
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    val ff = CLFunctionMacros.convertTask(c)(block)
-    c.universe.reify {
-      ff.splice(context.splice)
-    }
-  }
-}

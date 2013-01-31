@@ -60,11 +60,14 @@ trait MiscMatchers extends ConversionNames {
     }
   }
   
-  def predefModule = PredefModule
+  private def predefModule = PredefModule
   
   object Foreach {
     def unapply(tree: Tree): Option[(Tree, Function)] = Option(tree) collect {
-      case Apply(TypeApply(Select(collection, foreachName()), typeArgs), List(function @ Function(_, _))) =>
+      case Apply(TypeApply(Select(collection, foreachName()), _), List(function @ Function(_, _))) =>
+        (collection, function)
+      case Apply(Select(collection, foreachName()), List(function @ Function(_, _))) =>
+        // Non-typed foreach lacks the TypeApply.
         (collection, function)
     }
   }
@@ -92,6 +95,7 @@ trait MiscMatchers extends ConversionNames {
             None
         }
       case _ => 
+        println("Intrange not matched")
         None
     }
   }

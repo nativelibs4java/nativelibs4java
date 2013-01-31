@@ -64,11 +64,9 @@ trait CodeGeneration extends CodeConversion {
     )
   }
   
-  def freshVal(owner: Symbol, nameBase: String, tpe: Type, rhs: Tree): (Symbol, ValDef) = {
+  def freshVal(nameBase: String, tpe: Type, rhs: Tree): ValDef = {
     val name = newTermName(fresh(nameBase))
-    val symbol = owner.newTermSymbol(name)
-    val vd = ValDef(Modifiers(), name, TypeTree(tpe), rhs)
-    (symbol, vd)
+    ValDef(Modifiers(), name, TypeTree(tpe), rhs)
   }
   
   private[impl] 
