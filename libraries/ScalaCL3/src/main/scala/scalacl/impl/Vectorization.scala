@@ -42,18 +42,7 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
   private[impl]
   def vectorize(context: Expr[scalacl.Context], block: Expr[Unit], owner: Symbol): Option[Expr[Unit]] = {
     Option(block.tree) collect {
-      //Foreach(range @ IntRange(from, to, byOpt, isUntil, Nil), Function(List(param), body)) =>
-      case
-        Apply(
-          TypeApply(
-            Select(
-              range @ IntRange(from, to, byOpt, isUntil, Nil), 
-              foreachName()
-            ),
-            targs
-          ), 
-          List(Function(List(param), body))
-        ) =>
+      case Foreach(range @ IntRange(from, to, byOpt, isUntil, Nil), Function(List(param), body)) =>
         val (rangeSym, rangeValDef) = freshVal(owner, "range", typeOf[Range], range)
         val (fromSym, fromValDef) = freshVal(owner, "from", IntTpe, from)
         //val (toSym, toValDef) = freshVal(owner, "to", IntTpe, to)
@@ -83,10 +72,6 @@ trait Vectorization extends CodeGeneration with MiscMatchers {
           body = body, 
           paramDescs = paramDescs 
         )
-        //println(f)
-        //val f = generation.result.tree.asInstanceOf[c.Expr[CLFunction[Unit, Unit]]]
-        //reify({})
-        def ident[T](vd: ValDef) = expr[T](Ident(vd.name))//symbol))
         
         expr[Unit](
           Block(

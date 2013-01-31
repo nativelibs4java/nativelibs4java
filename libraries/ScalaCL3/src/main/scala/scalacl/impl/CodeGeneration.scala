@@ -50,6 +50,9 @@ trait CodeGeneration extends CodeConversion {
     })
   }
   
+  private[impl] 
+  def ident[T](vd: ValDef) = expr[T](Ident(vd.name))
+  
   def blockToUnitFunction(block: Tree) = { 
     expr[Unit => Unit](
       Function(

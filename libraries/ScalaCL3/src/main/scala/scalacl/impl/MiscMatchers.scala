@@ -64,7 +64,7 @@ trait MiscMatchers extends ConversionNames {
   
   object Foreach {
     def unapply(tree: Tree): Option[(Tree, Function)] = Option(tree) collect {
-      case Apply(TypeApply(Select(collection, foreachName()), typeArgs), function @ Function(_, _)) =>
+      case Apply(TypeApply(Select(collection, foreachName()), typeArgs), List(function @ Function(_, _))) =>
         (collection, function)
     }
   }
