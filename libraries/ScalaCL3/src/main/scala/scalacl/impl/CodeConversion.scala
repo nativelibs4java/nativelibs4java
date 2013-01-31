@@ -161,15 +161,13 @@ trait CodeConversion extends OpenCLConverter {
     // TODO
     //if (!result.values.isEmpty)
     //  sys.error("Values of flattened code should be empty (only outerDefinitions and statements are supported as top level converted code!")
-
-    val convertedCode =
-      s"""
       /*
         code: $code
         paramDescs:
           ${paramDescs.mkString("\n            ")}
       */
-      """ +
+      
+    val convertedCode =
       result.outerDefinitions.mkString("\n") +
       "kernel void f(" + params.mkString(", ") + ") {\n\t" +
         (result.statements ++ result.values.map(_ + ";")).mkString("\n\t") + "\n" +
