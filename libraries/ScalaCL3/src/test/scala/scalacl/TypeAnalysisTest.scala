@@ -38,13 +38,23 @@ import org.hamcrest.CoreMatchers._
 class TypeAnalysisTest extends TypeAnalysis with WithRuntimeUniverse {
   import global._
   
-  case class CC(a: Int, b: Int)
+  class EmptyClass
+  case class EmptyCaseClass
+  class ImmutableClass(a: Int, b: Int)
+  class MutableClass(var a: Int, b: Int)
+  case class ImmutableCaseClass(a: Int, b: Int)
+  case class MutableCaseClass(a: Int, b: Int) {
+    var v = 0
+  }
     
   @Test
   def testTuples {
     assertFalse(isTupleType(typeOf[(Int)]))
     assertFalse(isTupleType(typeOf[Int]))
-    assertFalse(isTupleType(typeOf[CC]))
+    assertFalse(isTupleType(typeOf[ImmutableCaseClass]))
+    assertFalse(isTupleType(typeOf[ImmutableClass]))
+    assertFalse(isTupleType(typeOf[MutableCaseClass]))
+    assertFalse(isTupleType(typeOf[MutableClass]))
     assertFalse(isTupleType(typeOf[{ val x: Int }]))
     assertTrue(isTupleType(typeOf[(Int, Int)]))
     assertTrue(isTupleType(typeOf[(Int, Int, Float, (Double, Int))]))
@@ -52,10 +62,32 @@ class TypeAnalysisTest extends TypeAnalysis with WithRuntimeUniverse {
   
   @Test
   def testKinds {
-    assertEquals(SymbolKind.Scalar, kindOf(typeOf[Int]))
-    assertEquals(SymbolKind.Scalar, kindOf(typeOf[Float]))
-    assertEquals(SymbolKind.Scalar, kindOf(typeOf[(Int, Int)]))
+    assertEquals(SymbolKind.Tuploid, kindOf(typeOf[Int]))
+    assertEquals(SymbolKind.Tuploid, kindOf(typeOf[Float]))
+    assertEquals(SymbolKind.Tuploid, kindOf(typeOf[(Int, Int)]))
+    
     assertEquals(SymbolKind.ArrayLike, kindOf(typeOf[CLArray[Int]]))
     assertEquals(SymbolKind.ArrayLike, kindOf(typeOf[CLFilteredArray[Int]]))
+    
+    assertEquals(SymbolKind.Tuploid, kindOf(typeOf[ImmutableClass]))
+    assertEquals(SymbolKind.Tuploid, kindOf(typeOf[ImmutableCaseClass]))
+    
+    assertEquals(SymbolKind.Other, kindOf(typeOf[MutableClass]))
+    assertEquals(SymbolKind.Other, kindOf(typeOf[MutableCaseClass]))
+    
+    assertEquals(SymbolKind.Other, kindOf(typeOf[EmptyClass]))
+    assertEquals(SymbolKind.Other, kindOf(typeOf[EmptyCaseClass]))
+  }
+  
+  @Test
+  def testTuploids {
+    assertTrue(isTuploid(typeOf[Int]))
+    assertTrue(isTuploid(typeOf[(Int, Int)]))
+    
+    assertTrue(isTuploid(typeOf[ImmutableCaseClass]))
+    assertTrue(isTuploid(typeOf[ImmutableClass]))
+    
+    assertFalse(isTuploid(typeOf[MutableCaseClass]))
+    assertFalse(isTuploid(typeOf[MutableClass]))
   }
 }
