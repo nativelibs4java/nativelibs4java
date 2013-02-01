@@ -103,6 +103,11 @@ trait CodeGeneration extends CodeConversion {
           (reify { x.splice.asInstanceOf[AnyRef] }).tree
         }).toList
     )
+    //println(s"""
+    //  code: $code
+    //  capturedInputs: $capturedInputs, 
+    //  capturedOutputs: $capturedOutputs, 
+    //  capturedConstants: $capturedConstants""") 
     reify {
       new CLFunction[A, B](
         f.splice, 

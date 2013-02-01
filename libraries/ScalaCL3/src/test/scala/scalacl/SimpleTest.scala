@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl
+package scalacl.impl
 
 import scalacl._
   
@@ -39,14 +39,6 @@ import scalacl.impl.Captures
 
 import org.junit._
 import Assert._
-
-/*
-
-kernel void f(global float*a, int dim1Offset, int dim1Step) {
-	int i = dim1Offset + global_index(0) * dim1Step;
-}
-
- */
 
 class SimpleTest {
   @Test
@@ -82,16 +74,15 @@ class SimpleTest {
 
 	  val values = Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	  val a = CLArray[Int](values: _*)
-	  //val a = new CLArray[Int](1000000)
-	  println(a)
+	  //println(a)
 		  
 	  def doit(print: Boolean, check: Boolean = false) {
 	    val b = a.map(trans)
 	    val fil = a.map(pred)
-		if (print) {
-		  println(b)
-		  println(fil)
-		}
+      if (print) {
+        println(b)
+        println(fil)
+      }
 	    if (check) {
 	      assertEquals(values.map(trans).toSeq, b.toArray.toSeq)
 	    }
@@ -99,10 +90,10 @@ class SimpleTest {
 	    b.release()
 	  }
 	  
-	  doit(true)
+	  doit(print = false, check = true)
 	  for (i <- 0 until 10) {
 	    val start = System.nanoTime
-		doit(false)
+	    doit(print = false)
 	    val timeMicros = (System.nanoTime - start) / 1000
 	    println((timeMicros / 1000.0) + " milliseconds")
 	  }
@@ -133,12 +124,33 @@ class SimpleTest {
 	  val clResult = {
       val f = CLArray(10, 20, 30, 40)
       val a = CLArray(0, 1, 2, 3)
-      a.map(x => f(x) + x)
+      
+      val r = if (false) {
+        val rr = new CLArray[Int](a.length)
+        kernel {
+          for (i <- 0 until a.length.toInt) {
+            rr(i) = f(i) + i
+          }
+        }
+        rr
+      } else {
+        a.map(x => f(x) + x)
+      }
+      //assertNotNull("result buffer doesn't have any write event", r.buffers(0).dataWrite)
+      //assertEquals("source buffer doesn't have expected read event", 1, a.buffers(0).dataReads.size)
+      //r.finish()
+      //Thread.sleep(500)
+      //assertNull("result buffer failed to clear its dataWrite upon finish()", r.buffers(0).dataWrite)
+      //assertEquals("source buffer failed to clear its dataReads upon finish()", 0, a.buffers(0).dataReads.size)
+      //assertEquals("captured buffer failed to clear its dataReads upon finish()", 0, f.buffers(0).dataReads.size)
+      
+      r
     }
 	  val result = {
       val f = Array(10, 20, 30, 40)
       val a = Array(0, 1, 2, 3)
-      a.map(x => f(x) + x)
+      val r = a.map(x => f(x) + x)
+      r
     }
 	  assertEquals(result.toList, clResult.toList)
 	  

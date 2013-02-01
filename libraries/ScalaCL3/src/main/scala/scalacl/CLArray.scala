@@ -50,7 +50,7 @@ object CLArray {
 
 class CLArray[T](
   val length: Long, 
-  protected val buffers: Array[ScheduledBuffer[_]]
+  private[scalacl] val buffers: Array[ScheduledBuffer[_]]
 )(
   implicit io: DataIO[T], 
   val context: Context, 
@@ -104,7 +104,7 @@ extends ScheduledBufferComposite
   private[scalacl] 
   def map[U](f: CLFunction[T, U])
             (implicit io2: DataIO[U], m2: ClassTag[U]): CLArray[U] = {
-	val output = new CLArray[U](length)
+    val output = new CLArray[U](length)
     execute(f, output)
     output
   }

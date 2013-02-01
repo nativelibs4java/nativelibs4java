@@ -79,16 +79,19 @@ case class CLFunction[U, V](
           
         if (input != null)
           input.foreachBuffer(addArg)
-        if (captures.inputs != null)
-          captures.inputs.foreach(_.foreachBuffer(addArg))
         
         if (output != null)
           output.foreachBuffer(addArg)
+        
+        if (captures.inputs != null)
+          captures.inputs.foreach(_.foreachBuffer(addArg))
+        
         if (captures.outputs != null)
           captures.outputs.foreach(_.foreachBuffer(addArg))
         
         if (captures.constants != null)
           args ++= captures.constants
+          
         kernel.enqueue(context, params, args.toArray, eventsToWaitFor)
       })
   }

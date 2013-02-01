@@ -75,17 +75,17 @@ private[scalacl] trait DefaultScheduledData extends ScheduledData {
       out += dataWrite
   }
 
+  override def endRead(event: CLEvent) {
+    if (event != null)
+      dataReads += event
+    scheduleLock.unlock
+  }
+
   override def startWrite(out: ArrayBuffer[CLEvent]) = {
     scheduleLock.lock
     out ++= dataReads
     if (dataWrite != null)
       out += dataWrite
-  }
-
-  override def endRead(event: CLEvent) {
-    if (event != null)
-      dataReads += event
-    scheduleLock.unlock
   }
 
   override def endWrite(event: CLEvent) {
