@@ -28,75 +28,75 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
-import com.nativelibs4java.opencl._
-import java.util.concurrent.locks._
+package scalacl
+package impl
+
+import org.junit._
+import Assert._
+import org.hamcrest.CoreMatchers._
+
 import collection.mutable.ArrayBuffer
 
-private[scalacl] trait DefaultScheduledData extends ScheduledData {
-  private[impl] val scheduleLock = new ReentrantLock
+import com.nativelibs4java.opencl.CLEvent
+import com.nativelibs4java.opencl.MockEvent
+import com.nativelibs4java.opencl.library.OpenCLLibrary._
 
-  private def locked[V](block: => V): V = {
-    scheduleLock.lock
-    try {
-      block
-    } finally {
-      scheduleLock.unlock
-    }
-  }
-  override def finish = {
+class DefaultScheduledDataTest {
+  val data = new DefaultScheduledData {}
+  def isLocked = data.scheduleLock.isLocked
+  assertFalse(isLocked)
+  
+  val e1 = new MockEvent(1)
+  val e2 = new MockEvent(2)
+  val e3 = new MockEvent(3)
+    
+  def read(event: CLEvent, expectReads: List[CLEvent], expectWrite: CLEvent) {
     val events = new ArrayBuffer[CLEvent]
-    locked {
-      if (dataWrite != null)
-        events += dataWrite
-      events ++= dataReads
-    }
-    CLEvent.waitFor(events.toArray: _*)
-    locked {
-      events.foreach(doEventCompleted(_))
-    }
+    data.startRead(events)
+    assertEquals("bad read events", Option(expectWrite).toSeq, events.toList)
+    assertTrue(isLocked)
+    
+    data.endRead(event)
+    assertEquals("bad dataWrite", expectWrite, data.dataWrite)
+    assertEquals("bad dataReads", expectReads ++ Option(event), data.dataReads.toList)
+    assertFalse(isLocked)
   }
-  private def doEventCompleted(event: CLEvent) {
-    if (event.equals(dataWrite)) {
-	    dataWrite = null
-	    dataReads.clear
-	  } else {
-	    dataReads -= event
-	  }
-  } 
-  override def eventCompleted(event: CLEvent) {
-    locked {
-      doEventCompleted(event)
-    }
+  
+  def write(event: CLEvent, expectReads: List[CLEvent], expectWrite: CLEvent) {
+    val events = new ArrayBuffer[CLEvent]
+    data.startWrite(events)
+    assertEquals("bad write events", expectReads ++ Option(expectWrite), events.toList)
+    assertTrue(isLocked)
+    
+    data.endWrite(event)
+    assertEquals("bad dataWrite", event, data.dataWrite)
+    assertEquals("bad dataReads", Nil, data.dataReads.toList)
+    assertFalse(isLocked)
   }
-  override def startRead(out: ArrayBuffer[CLEvent]) = {
-    scheduleLock.lock
-    if (dataWrite != null)
-      out += dataWrite
+  
+  @Test
+  def simpleReads {
+    read(e1, Nil, null)
+    read(e2, List(e1), null)
   }
-
-  override def startWrite(out: ArrayBuffer[CLEvent]) = {
-    scheduleLock.lock
-    out ++= dataReads
-    if (dataWrite != null)
-      out += dataWrite
+  
+  @Test
+  def simpleWrites {
+    write(e1, Nil, null)
+    write(e2, Nil, e1)    
   }
-
-  override def endRead(event: CLEvent) {
-    if (event != null)
-      dataReads += event
-    scheduleLock.unlock
+  
+  @Test
+  def simpleReadWriteRead {
+    read(e1, Nil, null)
+    write(e2, List(e1), null)
+    read(e3, Nil, e2)
   }
-
-  override def endWrite(event: CLEvent) {
-    if (event != null) {
-      // write will wait for all reads to complete anyway.
-      dataReads.clear()
-      dataWrite = event
-    }
-    scheduleLock.unlock
+  
+  @Test
+  def simpleWriteReadWrite {
+    write(e1, Nil, null)
+    read(e2, Nil, e1)
+    write(e3, List(e2), e1)
   }
-
-  private[impl] var dataWrite: CLEvent = _
-  private[impl] val dataReads = new ArrayBuffer[CLEvent]
 }
