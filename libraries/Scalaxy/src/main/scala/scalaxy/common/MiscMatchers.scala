@@ -249,15 +249,6 @@ trait MiscMatchers extends PluginNames with WithOptions {
         None
     }
   }
-  object TupleSelect {
-    def unapply(tree: Tree) = tree match {
-      case Select(Ident(nme.scala_), name) if name.toString.matches(""".*Tuple\d+""") =>
-        true
-      case _ =>
-        false
-      //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
-    }
-  }
   lazy val unitTpe = UnitClass.tpe
   def isUnit(tpe: Type) = normalize(tpe) match {
     case `unitTpe` | MethodType(_, `unitTpe`) =>
@@ -304,6 +295,16 @@ trait MiscMatchers extends PluginNames with WithOptions {
         Some((collection, name, typeArgs, args :+ newArgs))
       case _ =>
         None
+    }
+  }
+  
+  object TupleSelect {
+    def unapply(tree: Tree) = tree match {
+      case Select(Ident(nme.scala_), name) if name.toString.matches(""".*Tuple\d+""") =>
+        true
+      case _ =>
+        false
+      //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
     }
   }
   

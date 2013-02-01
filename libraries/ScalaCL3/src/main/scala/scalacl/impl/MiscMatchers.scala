@@ -31,7 +31,7 @@
 package scalacl
 package impl
 
-trait MiscMatchers extends ConversionNames {
+trait MiscMatchers extends ConversionNames with TypeAnalysis {
   val global: reflect.api.Universe
   import global._
   import definitions._
@@ -69,6 +69,20 @@ trait MiscMatchers extends ConversionNames {
       case Apply(Select(collection, foreachName()), List(function @ Function(_, _))) =>
         // Non-typed foreach lacks the TypeApply.
         (collection, function)
+    }
+  }
+  
+  object TupleCreation {
+    def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
+      case Apply(TypeApply(sel @ Select(_/*TupleSelect()*/, applyName()), types), components) 
+      //if isTupleType(sel.tpe) 
+      =>
+        components
+      case Apply(tt @ TypeTree(), components) 
+      if isTupleType(tree.tpe) =>
+        // TODO FIX THIS BROAD HACK !!! (test tt)
+        //println("tt.tpe = (" + tt.tpe + ": " + tt.tpe.getClass.getName + ")")
+        components
     }
   }
   

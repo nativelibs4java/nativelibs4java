@@ -29,25 +29,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl
+package impl
 
-import scala.reflect.runtime.{ universe => ru }
-import scala.reflect.runtime.{ currentMirror => cm }
-import scala.tools.reflect.ToolBox
+import org.junit._
+import Assert._
+import org.hamcrest.CoreMatchers._
 
-trait WithRuntimeUniverse {
-  private var nextId = 0L
-  lazy val global = ru
+class OpenCLConverterTest extends OpenCLConverter with WithRuntimeUniverse {
   import global._
-
-  def fresh(s: String) = synchronized {
-    val v = nextId
-    nextId += 1
-    s + v
-  }
+ 
+  def conv(x: Expr[_]) = convert(typeCheck(x))
+  def code(statements: Seq[String], values: Seq[String]) =
+    FlatCode[String](statements = statements, values = values)
   
-  lazy val toolbox = cm.mkToolBox()
-  def typeCheck(x: Expr[_]): Tree = typeCheck(x.tree)
-  def typeCheck(tree: Tree): Tree = {
-    toolbox.typeCheck(tree.asInstanceOf[toolbox.u.Tree]).asInstanceOf[Tree]
+  @Test
+  def testSimple {
+    assertEquals(
+      code(
+        Seq("int x = 10;"),
+        Seq("x", "(x * 2)")
+      ),
+      conv(reify {
+        val x = 10
+        (x, x * 2)
+      })
+    )
   }
 }

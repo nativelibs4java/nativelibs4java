@@ -88,7 +88,7 @@ extends MiscMatchers
       case Ident(name) =>
         valueCode(name.toString)
 
-      case If(condition, then, otherwise) =>
+      case If(condition, thenDo, otherwise) =>
         // val (a, b) = if ({ val d = 0 ; d != 0 }) (1, d) else (2, 0)
         // ->
         // val d = 0
@@ -96,7 +96,7 @@ extends MiscMatchers
         // val a = if (condition) 1 else 2
         // val b = if (condition) d else 0
         val FlatCode(dc, sc, Seq(vc)) = convert(condition)
-        val fct @ FlatCode(Seq(), st, vt) = convert(then)
+        val fct @ FlatCode(Seq(), st, vt) = convert(thenDo)
         val fco @ FlatCode(Seq(), so, vo) = convert(otherwise)
 
         def newIf(t: String, o: String, isValue: Boolean) =

@@ -75,9 +75,42 @@ class ConversionTest extends CodeConversion with WithRuntimeUniverse {
     assertParamDesc(fDesc, "f", typeOf[Int], UsageKind.Input, ParamKind.Normal)
   }
   
+  @Test
+  def simpleTupleResult {
+    val in: CLArray[Int] = null
+    val out: CLArray[(Int, Float)] = null
+    val c = conv(reify {
+      out(0) = (in(0), in(2).toFloat)
+    })
+    assertEquals(
+      "kernel void f(global const int* in, global int* out_1, global float* out_2) {\n" +
+        "\tout_1[0] = in[0];\n" +
+        "\tout_2[0] = ((float)in[2]);\n" +
+      "}",
+      c.code
+    )
+  }
+  
   @Ignore
   @Test
   def simpleTuplesCaptures {
+    val in: CLArray[(Int, (Float, Short))] = null
+    val out: CLArray[Float] = null
+    val c = conv(reify {
+      val (i, (f, s)) = in(0)
+      out(0) = i + f + s
+    })
+    assertEquals(
+      "kernel void f(global const int* in, global int* out) {\n" +
+        "\tout[1] = (in[2] * f);\n" +
+      "}",
+      c.code
+    )
+  }
+  
+  @Ignore
+  @Test
+  def aliasedTuplesCaptures {
     val in: CLArray[(Int, (Float, Short))] = null
     val out: CLArray[Float] = null
     val c = conv(reify {
