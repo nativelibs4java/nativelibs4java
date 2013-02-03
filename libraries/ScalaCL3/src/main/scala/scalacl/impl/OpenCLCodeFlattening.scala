@@ -47,8 +47,6 @@ extends MiscMatchers
   import global.definitions._
   import Flag._
   
-  def verbose: Boolean
-  
   /**
    * Phases :
    * - unique renaming
@@ -114,6 +112,21 @@ extends MiscMatchers
       }.transform(tree)
   }
 
+  def flatten(
+      tree: Tree, 
+      inputSymbols: Seq[(Symbol, Type)] = Seq(), 
+      owner: Symbol = NoSymbol,
+      renameSymbols: Boolean = true): FlatCode[Tree] = {
+    val actualTree =
+      if (renameSymbols)
+        renameDefinedSymbolsUniquely(tree)
+      else
+        tree
+    val tupleAnalyzer = new TupleAnalyzer(actualTree)
+    val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+    flattener.flattenTuplesAndBlocksWithInputSymbols(actualTree, inputSymbols, owner)
+  }
+  
   class TuplesAndBlockFlattener(val tupleAnalyzer: TupleAnalyzer) 
   {
     import tupleAnalyzer._
@@ -178,8 +191,7 @@ extends MiscMatchers
           case _ =>
             assert(getType(value) != NoType, value + ": " + value.getClass.getName)// + " = " + nodeToString(value) + ")")
             val tempVar = newVariable("tmp", symbolOwner, value.pos, false, value)
-            if (verbose)
-              println("Creating temp variable " + tempVar.symbol + " for " + value)
+            //println("Creating temp variable " + tempVar.symbol + " for " + value)
             hasNewStatements = true
             for (slice <- getTreeSlice(value))
               setSlice(tempVar.definition, slice)
@@ -539,13 +551,11 @@ extends MiscMatchers
               
               flattenTuplesAndBlocks(body)
             case _ =>
-              if (verbose) {
-                println("selector: " + selector.getClass.getName + " = " + selector)// + " = " + nodeToString(selector))
-                println("selector.symbol = " + selector.symbol)
-                println("extract(selector): " + extract(selector).getClass.getName + " = " + extract(selector))// + " = " + nodeToString(extract(selector)))
-                println("extract(selector).symbol = " + extract(selector).symbol)
-                println("sliceReplacements = \n\t" + sliceReplacements.mkString("\n\t"))
-              }
+              //println("selector: " + selector.getClass.getName + " = " + selector)// + " = " + nodeToString(selector))
+              //println("selector.symbol = " + selector.symbol)
+              //println("extract(selector): " + extract(selector).getClass.getName + " = " + extract(selector))// + " = " + nodeToString(extract(selector)))
+              //println("extract(selector).symbol = " + extract(selector).symbol)
+              //println("sliceReplacements = \n\t" + sliceReplacements.mkString("\n\t"))
               throw new RuntimeException("Unable to connect the matched pattern with its corresponding single case")
               //FlatCode[Tree](Seq(), Seq(), Seq())
           }

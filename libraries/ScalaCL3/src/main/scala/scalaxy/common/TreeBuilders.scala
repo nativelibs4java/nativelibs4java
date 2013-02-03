@@ -397,10 +397,10 @@ extends MiscMatchers
     ( classOf[java.lang.Double], DoubleTpe, 0.0),
     ( classOf[java.lang.Float], FloatTpe, 0.0f)
   )
-  val classToType: Map[Class[_], Type] =
+  lazy val classToType: Map[Class[_], Type] =
     (anyValTypeInfos.map { case (cls, tpe, defVal) => cls -> tpe }).toMap
     
-  val typeToDefaultValue: Map[Type, AnyVal] =
+  lazy val typeToDefaultValue: Map[Type, AnyVal] =
     (anyValTypeInfos.map { case (cls, tpe, defVal) => tpe -> defVal }).toMap
   
   def newConstant(v: Any, tpe: Type = null) = typed {

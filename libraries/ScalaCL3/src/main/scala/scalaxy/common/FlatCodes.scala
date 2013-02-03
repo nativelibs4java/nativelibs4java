@@ -29,7 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalaxy.common
-  
+
+import scala.reflect.ClassTag
+
 object FlatCodes {
   def EmptyFlatCode[T] = FlatCode[T](Seq(), Seq(), Seq())
   
@@ -89,6 +91,27 @@ case class FlatCode[T](
     pt(statements)
     println("\t--")
     pt(values)
+  }
+  
+  def flatMap[V : ClassTag](f: T => FlatCode[V]): FlatCode[V] = 
+  {
+    val Array(convDefs, convStats, convVals) =
+      Array(outerDefinitions, statements, values).map(_ map f)
+    
+    val outerDefinitions2 = 
+      Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.toString.startsWith("#"))
+    
+    val statements2 = 
+      Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
+    
+    val values2: Seq[V] = 
+      convVals.flatMap(_.values)
+      
+    FlatCode[V](
+      outerDefinitions2,
+      statements2,
+      values2
+    )
   }
 }
 

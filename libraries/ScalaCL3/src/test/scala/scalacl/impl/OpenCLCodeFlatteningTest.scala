@@ -72,12 +72,8 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
     }
   }
   
-  def flatten(x: Expr[_], inputSymbols: Seq[(Symbol, Type)] = Seq(), owner: Symbol = NoSymbol): FlatCode[Tree] = {
-    //val renamed = renameDefinedSymbolsUniquely(body)
-    val tree = typeCheck(x.tree)
-    val tupleAnalyzer = new TupleAnalyzer(tree)
-    val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
-    flattener.flattenTuplesAndBlocksWithInputSymbols(tree, inputSymbols, owner)
+  def flat(x: Expr[_], inputSymbols: Seq[(Symbol, Type)] = Seq(), owner: Symbol = NoSymbol): FlatCode[Tree] = {
+    flatten(typeCheck(x.tree), inputSymbols, owner)
   }
   
   def assertEquals(a: FlatCode[Tree], b: FlatCode[Tree]) {
@@ -92,7 +88,7 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
         reify { x },
         reify { x + 1 }
       )),
-      flatten(
+      flat(
         reify { (x, x + 1) },
         inputSymbols(reify { x })
       )
@@ -113,7 +109,7 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
           reify { p._2 }
         )
       ),
-      flatten(
+      flat(
         reify { val pp = p; pp },
         inputSymbols(reify { p })
       )

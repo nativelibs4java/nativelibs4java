@@ -31,21 +31,23 @@
 package scalacl.impl
 
 import scalaxy.common.MiscMatchers
+import scalaxy.common.WithMacroContext
 
 import language.experimental.macros
 
 import scala.reflect.macros.Context
 
 object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
+  def kernelImpl(c: Context)(block: c.Expr[Unit])(contextExpr: c.Expr[scalacl.Context]): c.Expr[Unit] = {
     //c.typeCheck(block.tree) 
     
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
+    val vectorizer = new Vectorization with MiscMatchers with WithMacroContext {
+      override val context = c
+      //override val global = c.universe
+      //override def fresh(s: String) = c.fresh(s)
       val result =
         vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
+          contextExpr.asInstanceOf[global.Expr[scalacl.Context]],
           c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
           c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
         )
@@ -56,10 +58,10 @@ object KernelMacros {
     }).asInstanceOf[c.Expr[Unit]]
   }
   
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
+  def taskImpl(c: Context)(block: c.Expr[Unit])(contextExpr: c.Expr[scalacl.Context]): c.Expr[Unit] = {
     val ff = CLFunctionMacros.convertTask(c)(block)
     c.universe.reify {
-      ff.splice(context.splice)
+      ff.splice(contextExpr.splice)
     }
   }
 }

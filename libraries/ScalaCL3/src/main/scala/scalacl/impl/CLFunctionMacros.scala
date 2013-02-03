@@ -32,12 +32,14 @@ package scalacl.impl
 import scalacl.CLArray
 import scalacl.CLFilteredArray
 
+import scalaxy.common.WithMacroContext
+
 import language.experimental.macros
 import scala.reflect.macros.Context
 
 private[impl] object CLFunctionMacros 
 { 
-  private val random = new java.util.Random(System.currentTimeMillis)
+  private lazy val random = new java.util.Random(System.currentTimeMillis)
   
   /// These ids are not necessarily unique, but their values should be dispersed well
   private[impl] def nextKernelId = random.nextLong
@@ -64,9 +66,10 @@ private[impl] object CLFunctionMacros
         Assign(Ident(outSymbol).setType(outputTpe), body)
       }
     
-    val generation = new CodeGeneration {
-	    override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
+    val generation = new CodeGeneration with WithMacroContext {
+      override val context = c
+	    //override val global = c.universe
+      //override def fresh(s: String) = c.fresh(s)
       
       import global._
       
@@ -104,9 +107,10 @@ private[impl] object CLFunctionMacros
     import c.universe._
     import definitions._
     
-    val generation = new CodeGeneration {
-	    override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
+    val generation = new CodeGeneration with WithMacroContext {
+      override val context = c
+	    //override val global = c.universe
+      //override def fresh(s: String) = c.fresh(s)
       
 	    // Create a fake Unit => Unit function.
 	    val typedBlock = c.typeCheck(block.tree)

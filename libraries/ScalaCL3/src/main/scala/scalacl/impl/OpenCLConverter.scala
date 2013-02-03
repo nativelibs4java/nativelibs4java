@@ -40,7 +40,8 @@ import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 
 trait OpenCLConverter 
-extends CommonScalaNames
+extends OpenCLCodeFlattening
+with CommonScalaNames
 with MiscMatchers
 with KernelSymbolsAnalysis
 { 
@@ -57,6 +58,15 @@ with KernelSymbolsAnalysis
   def valueCode(v: String) = FlatCode[String](Seq(), Seq(), Seq(v))
   def emptyCode = FlatCode[String](Seq(), Seq(), Seq())
   def statementCode(s: String) = FlatCode[String](Seq(), Seq(s), Seq())
+  
+  def flattenAndConvert(
+      tree: Tree, 
+      inputSymbols: Seq[(Symbol, Type)] = Seq(), 
+      owner: Symbol = NoSymbol,
+      renameSymbols: Boolean = true): FlatCode[String] = {
+    val flat = flatten(tree, inputSymbols, owner, renameSymbols)
+    flat.flatMap(convert _)
+  }
   
   def convert(body: Tree): FlatCode[String] = {
     def cast(expr: Tree, clType: String) =

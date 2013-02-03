@@ -28,26 +28,60 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.nativelibs4java.opencl.CLMem
+package scalaxy.common
 
 import language.experimental.macros
+import scala.reflect.macros.Context
 
-package object scalacl {
-  import impl._
+import scala.reflect.runtime.{ universe => ru }
+import scala.reflect.runtime.{ currentMirror => cm }
+import scala.tools.reflect.ToolBox
 
-  implicit val intDataIO = IntDataIO
-  implicit val floatDataIO = FloatDataIO
-  implicit val booleanDataIO = BooleanDataIO
-  implicit def tuple2DataIO[T1 : Manifest : DataIO, T2 : Manifest : DataIO] = {
-    new Tuple2DataIO[T1, T2]
+trait WithMacroContext {
+  
+  val context: Context
+  lazy val global = context.universe
+  import global._
+  import global.definitions._
+  
+  def withSymbol[T <: Tree](sym: Symbol, tpe: Type = NoType)(tree: T): T = {
+    tree.symbol = sym
+    if (tpe != NoType)
+      tree.tpe = tpe
+    tree
+  }
+  def typed[T <: Tree](tree: T): T = 
+    context.typeCheck(tree.asInstanceOf[context.universe.Tree]).asInstanceOf[T]
+    
+  def inferImplicitValue(pt: Type): Tree =
+    context.inferImplicitValue(pt.asInstanceOf[context.universe.Type]).asInstanceOf[Tree]
+    
+  def setInfo(sym: Symbol, tpe: Type): Symbol = {
+    //sym.setInfo(tpe)
+    sym
+  }
+    
+  def setType(sym: Symbol, tpe: Type): Symbol = {
+    //sym.tpe = tpe
+    sym
+  }
+    
+  def setType(tree: Tree, tpe: Type): Tree = {
+    tree.tpe = tpe
+    tree
+  }
+    
+  def setPos(tree: Tree, pos: Position): Tree = { 
+    tree.pos = pos
+    tree
   }
   
-  implicit class ArrayConversions[A : Manifest : DataIO](array: Array[A])(implicit context: Context) {
-    def toCLArray = CLArray[A](array: _*)
-    def cl = toCLArray
-  }
+  def fresh(s: String) = 
+    context.fresh(s)
   
-  def kernel(block: Unit)(implicit contextExpr: Context): Unit = macro KernelMacros.kernelImpl
-  
-  def task(block: Unit)(implicit contextExpr: Context): Unit = macro KernelMacros.taskImpl
+  def typeCheck(x: Expr[_]): Tree = 
+    context.typeCheck(x.tree.asInstanceOf[context.universe.Tree]).asInstanceOf[Tree]
+    
+  def typeCheck(tree: Tree, pt: Type = NoType): Tree =
+    context.typeCheck(tree.asInstanceOf[context.universe.Tree], pt.asInstanceOf[context.universe.Type]).asInstanceOf[Tree]
 }

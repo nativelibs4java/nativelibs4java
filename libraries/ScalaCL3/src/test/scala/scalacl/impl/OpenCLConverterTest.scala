@@ -40,15 +40,19 @@ import org.hamcrest.CoreMatchers._
 class OpenCLConverterTest extends OpenCLConverter with WithRuntimeUniverse {
   import global._
  
-  def conv(x: Expr[_]) = convert(typeCheck(x))
-  def code(statements: Seq[String], values: Seq[String]) =
+  def conv(x: Expr[_]): FlatCode[String] = {
+    //convert(typeCheck(x))
+    flattenAndConvert(typeCheck(x))
+  }
+  
+  def code(statements: Seq[String], values: Seq[String]): FlatCode[String] =
     FlatCode[String](statements = statements, values = values)
   
   @Test
   def testSimple {
     assertEquals(
       code(
-        Seq("int x = 10;"),
+        Seq("const int x = 10;"),
         Seq("x", "(x * 2)")
       ),
       conv(reify {
