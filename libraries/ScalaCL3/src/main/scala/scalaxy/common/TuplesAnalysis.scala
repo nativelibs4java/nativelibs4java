@@ -46,6 +46,7 @@ extends MiscMatchers
   import global.definitions._
   
   case class TupleInfo(tpe: Type, components: Seq[TupleInfo]) {
+    assert(tpe != null)
     lazy val flattenTypes: Seq[Type] = {
       components match {
         case Seq() =>
@@ -74,6 +75,7 @@ extends MiscMatchers
   private val tupleInfos = new scala.collection.mutable.HashMap[Type, TupleInfo]
   
   def getTupleInfo(tpe: Type): TupleInfo = {
+    assert(tpe != null)
     val actualTpe = normalize(tpe)
     tupleInfos.getOrElseUpdate(
       actualTpe, 
@@ -89,7 +91,7 @@ extends MiscMatchers
           case NoType => 
             TupleInfo(NoType, Seq())
           case _ =>
-            throw new RuntimeException("Unhandled type : " + tpe + " (" + actualTpe + ": " + actualTpe.getClass.getName + ")")
+            throw new RuntimeException("Unhandled type : " + tpe + " (" + actualTpe + ": " + Option(actualTpe).map(_.getClass.getName) + ")")
             //System.exit(0)
             null
         }
@@ -111,22 +113,41 @@ extends MiscMatchers
         case (paths, i) => paths.map(path => i :: path) 
       }
   }
+  def getType(tree: Tree) = {
+    if (tree.tpe == null || tree.tpe == NoType) {
+      if (tree.symbol == null || tree.symbol == NoSymbol)
+        NoType
+      else
+        tree.symbol.typeSignature
+    } else {
+      tree.tpe
+    }
+  }
   def applyFiberPath(rootGen: TreeGen, path: List[Int]): Tree = {
     def sub(invertedPath: List[Int]): Tree = invertedPath match {
       case Nil => 
-        rootGen()
+        println(s"rootGen = $rootGen: ${rootGen.getClass.getName}")
+        val res = rootGen()
+        println("rootGen.tpe = " + getType(res))
+        typed { res }
       case i :: rest =>
         val inner = applyFiberPath(rootGen, rest)
         val name = N("_" + (i + 1))
         
         //println("Getting member " + i + " of (" + inner + ": " + inner.tpe + ") ; invertedPath = " + invertedPath)
-        val info = getTupleInfo(inner.tpe)
-        assert(i < info.components.size, "bad path : i = " + i + ", type = " + inner.tpe + ", path = " + path + ", root = " + rootGen())
-        assert(inner.tpe != null && inner.tpe != NoType, "Cannot apply tuple path on untyped tree")
-        val sym = inner.tpe member name
-        withSymbol(sym, info.components(i).tpe) {
-          Select(inner, name)
-        }
+        val innerTpe = getType(inner)
+        assert(innerTpe != NoType, "Cannot apply tuple path on untyped tree")
+        val info = getTupleInfo(innerTpe)
+        assert(i < info.components.size, "bad path : i = " + i + ", type = " + innerTpe + ", path = " + path + ", root = " + rootGen())
+        val sym = innerTpe member name
+        println(s"innerTpe($innerTpe).member(name($name)) = sym($sym: ${sym.typeSignature})")
+        val res = typeCheck(
+          Select(inner, sym),
+          info.components(i).tpe
+        )
+        println("sub.tpe = " + getType(res))
+        res
+        
     }
     sub(path.reverse)
   }
@@ -153,12 +174,13 @@ extends MiscMatchers
       TupleSlice(baseSymbol, sliceOffset + offset, length)
     
     def toTreeGen(analyzer: TupleAnalyzer): TreeGen = () => {
-      val info = getTupleInfo(baseSymbol.asType.toType)
-      val root: TreeGen = () => ident(baseSymbol, baseSymbol.name)
+      val info = getTupleInfo(baseSymbol.typeSignature)
+      val root: TreeGen = () => ident(baseSymbol, baseSymbol.typeSignature, baseSymbol.name)
       assert(sliceLength == 1)
       //TupleCreation((0 until sliceLength).map(i => applyFiberPath(root, info.flattenPaths(sliceOffset + i))):_*)
       val flatPaths = info.flattenPaths
       assert(sliceOffset < flatPaths.size, "slice offset = " + sliceOffset + ", flat paths = " + flatPaths)
+      println(s"baseSymbol = $baseSymbol, ${baseSymbol.typeSignature}, ${root().symbol.typeSignature}")
       var res = applyFiberPath(root, flatPaths(sliceOffset))
       //analyzer.setSlice(res, this)
       //res = replace(res)
@@ -253,7 +275,7 @@ extends MiscMatchers
 
     def setSlice(tree: Tree, slice: TupleSlice) = {
       //println("Setting slice " + slice + " for tree " + tree)
-      val info = getTupleInfo(slice.baseSymbol.asType.toType)
+      val info = getTupleInfo(slice.baseSymbol.typeSignature)
       val n = info.flattenPaths.size
       assert(slice.sliceOffset + slice.sliceLength <= n, "invalid slice for type " + tree.tpe + " : " + slice + ", flat types = " + info.flattenTypes)
       treeTupleSlices((/*tree.id, */tree)) = slice

@@ -68,7 +68,9 @@ private[impl] object CLFunctionMacros
 	    override val global = c.universe
       override def fresh(s: String) = c.fresh(s)
       
-      val inputParamDesc: Option[ParamDesc] = if (isUnit(inputTpe)) None else Some({
+      import global._
+      
+      val inputParamDesc: Option[ParamDesc] = if (isUnit(inputTpe.asInstanceOf[global.Type])) None else Some({
         val List(param) = params
         ParamDesc(
           symbol = cast(param.symbol),
@@ -78,7 +80,7 @@ private[impl] object CLFunctionMacros
           implicitIndexDimension = Some(0))
       })
       
-      val outputParamDesc: Option[ParamDesc] = if (isUnit(outputTpe)) None else Some({
+      val outputParamDesc: Option[ParamDesc] = if (isUnit(outputTpe.asInstanceOf[global.Type])) None else Some({
         ParamDesc(
             symbol = cast(outSymbol), 
             tpe = cast(outputTpe),

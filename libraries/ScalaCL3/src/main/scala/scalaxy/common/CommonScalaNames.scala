@@ -1,7 +1,7 @@
 package scalaxy.common
 
 import scala.reflect.api.Universe
-import reflect.NameTransformer
+import scala.reflect.NameTransformer
 
 trait CommonScalaNames {
   val global: Universe
@@ -118,7 +118,8 @@ trait CommonScalaNames {
   lazy val ScalaReflectPackage = M("scala.reflect")
   lazy val ScalaCollectionPackage = M("scala.collection")
   lazy val ScalaMathPackage = M("scala.math")
-  lazy val ScalaMathPackageClass  = ScalaMathPackage.asType.toType.typeSymbol
+  lazy val ScalaMathPackageClass =
+    ScalaMathPackage.asModule.moduleClass
   lazy val ScalaMathCommonClass = C("scala.MathCommon")
   
   lazy val SeqModule          = M("scala.collection.Seq")

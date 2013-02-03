@@ -28,38 +28,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
+package scalaxy.common
 
-import scalaxy.common.MiscMatchers
+import org.junit._
+import Assert._
+import org.hamcrest.CoreMatchers._
 
-import language.experimental.macros
-
-import scala.reflect.macros.Context
-
-object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    //c.typeCheck(block.tree) 
+class TuploidsTest extends Tuploids with WithRuntimeUniverse {
+  import global._
+  
+  class EmptyClass()
+  case class EmptyCaseClass()
+  class ImmutableClass(a: Int, b: Int)
+  class MutableClass(var a: Int, b: Int)
+  case class ImmutableCaseClass(a: Int, b: Int)
+  case class MutableCaseClass(a: Int, b: Int) {
+    var v = 0
+  }
     
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
-      val result =
-        vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
-          c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
-          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
-        )
-    }
-    vectorizer.result.getOrElse({
-      c.error(c.enclosingPosition, "Kernel vectorization failed (only top-level foreach loops on ranges with constant positive steop are supported right now)")
-      c.universe.reify({})
-    }).asInstanceOf[c.Expr[Unit]]
+  @Test
+  def testTuples {
+    assertFalse(isTupleType(typeOf[(Int)]))
+    assertFalse(isTupleType(typeOf[Int]))
+    assertFalse(isTupleType(typeOf[ImmutableCaseClass]))
+    assertFalse(isTupleType(typeOf[ImmutableClass]))
+    assertFalse(isTupleType(typeOf[MutableCaseClass]))
+    assertFalse(isTupleType(typeOf[MutableClass]))
+    assertFalse(isTupleType(typeOf[{ val x: Int }]))
+    assertTrue(isTupleType(typeOf[(Int, Int)]))
+    assertTrue(isTupleType(typeOf[(Int, Int, Float, (Double, Int))]))
   }
   
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    val ff = CLFunctionMacros.convertTask(c)(block)
-    c.universe.reify {
-      ff.splice(context.splice)
-    }
+  @Test
+  def testTuploids {
+    assertTrue(isTuploidType(typeOf[Int]))
+    assertTrue(isTuploidType(typeOf[(Int, Int)]))
+    
+    assertTrue(isTuploidType(typeOf[ImmutableCaseClass]))
+    assertTrue(isTuploidType(typeOf[ImmutableClass]))
+                        
+    assertFalse(isTuploidType(typeOf[MutableCaseClass]))
+    assertFalse(isTuploidType(typeOf[MutableClass]))
   }
 }

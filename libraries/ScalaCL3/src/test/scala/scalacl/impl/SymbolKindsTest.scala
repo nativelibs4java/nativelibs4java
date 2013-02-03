@@ -31,13 +31,13 @@
 package scalacl
 package impl
 
-import scalaxy.common.Tuploids
+import scalaxy.common._
 
 import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._
 
-class TypeAnalysisTest extends Tuploids with SymbolKinds with WithRuntimeUniverse {
+class SymbolKindsTest extends SymbolKinds with WithRuntimeUniverse {
   import global._
   
   class EmptyClass()
@@ -47,19 +47,6 @@ class TypeAnalysisTest extends Tuploids with SymbolKinds with WithRuntimeUnivers
   case class ImmutableCaseClass(a: Int, b: Int)
   case class MutableCaseClass(a: Int, b: Int) {
     var v = 0
-  }
-    
-  @Test
-  def testTuples {
-    assertFalse(isTupleType(typeOf[(Int)]))
-    assertFalse(isTupleType(typeOf[Int]))
-    assertFalse(isTupleType(typeOf[ImmutableCaseClass]))
-    assertFalse(isTupleType(typeOf[ImmutableClass]))
-    assertFalse(isTupleType(typeOf[MutableCaseClass]))
-    assertFalse(isTupleType(typeOf[MutableClass]))
-    assertFalse(isTupleType(typeOf[{ val x: Int }]))
-    assertTrue(isTupleType(typeOf[(Int, Int)]))
-    assertTrue(isTupleType(typeOf[(Int, Int, Float, (Double, Int))]))
   }
   
   @Test
@@ -81,15 +68,4 @@ class TypeAnalysisTest extends Tuploids with SymbolKinds with WithRuntimeUnivers
     assertEquals(SymbolKind.Other, kindOf(typeOf[EmptyCaseClass]))
   }
   
-  @Test
-  def testTuploids {
-    assertTrue(isTuploidType(typeOf[Int]))
-    assertTrue(isTuploidType(typeOf[(Int, Int)]))
-    
-    assertTrue(isTuploidType(typeOf[ImmutableCaseClass]))
-    assertTrue(isTuploidType(typeOf[ImmutableClass]))
-                        
-    assertFalse(isTuploidType(typeOf[MutableCaseClass]))
-    assertFalse(isTuploidType(typeOf[MutableClass]))
-  }
 }

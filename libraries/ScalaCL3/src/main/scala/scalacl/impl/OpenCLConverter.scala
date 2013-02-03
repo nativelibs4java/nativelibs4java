@@ -32,6 +32,9 @@ package scalacl
 package impl
 
 import scalaxy.common.CommonScalaNames
+import scalaxy.common.FlatCode
+import scalaxy.common.FlatCodes._
+import scalaxy.common.MiscMatchers
 
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
@@ -45,19 +48,7 @@ with KernelSymbolsAnalysis
   import global._
   import definitions._
 
-  //import global.FlagValues._
-  import FlatCodes.merge
-  
   def nodeToStringNoComment(tree: Tree): String = tree.toString // TODO
-  
-  class Ids(start: Long = 1) {
-    private var nx = start
-    def next = this.synchronized {
-      val v = nx
-      nx += 1
-      v
-    }
-  }
   
   var openclLabelIds = new Ids
   
@@ -66,6 +57,7 @@ with KernelSymbolsAnalysis
   def valueCode(v: String) = FlatCode[String](Seq(), Seq(), Seq(v))
   def emptyCode = FlatCode[String](Seq(), Seq(), Seq())
   def statementCode(s: String) = FlatCode[String](Seq(), Seq(s), Seq())
+  
   def convert(body: Tree): FlatCode[String] = {
     def cast(expr: Tree, clType: String) =
       convert(expr).mapEachValue(v => Seq("((" + clType + ")" + v + ")"))
@@ -132,8 +124,8 @@ with KernelSymbolsAnalysis
         merge(Seq(target, singleArg).map(convert):_*) { case Seq(t, a) => Seq(t + "[" + a + "]") }
       case Apply(Select(target, updateName()), List(index, value)) =>
         val convs = Seq(target, index, value).map(convert)
-        println("convs = " + convs)
-        println("target.tpe = " + target.tpe)
+        //println("convs = " + convs)
+        //println("target.tpe = " + target.tpe)
         merge(convs: _*) { case Seq(t, i, v) => Seq(t + "[" + i + "] = " + v) }
       case Assign(lhs, rhs) =>
         merge(Seq(lhs, rhs).map(convert):_*) { case Seq(l, r) => Seq(l + " = " + r + ";") }

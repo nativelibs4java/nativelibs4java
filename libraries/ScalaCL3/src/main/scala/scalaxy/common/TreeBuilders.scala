@@ -43,12 +43,15 @@ extends MiscMatchers
   type TreeGen = () => Tree
   
   def withSymbol[T <: Tree](sym: Symbol, tpe: Type = NoType)(tree: T): T
-  def typed(tree: Tree): Tree
+  def typed[T <: Tree](tree: T): T
+  def typeCheck(tree: Tree, pt: Type): Tree
   def fresh(s: String): String
   def inferImplicitValue(pt: Type): Tree
   def setInfo(sym: Symbol, tpe: Type): Symbol
   def setType(sym: Symbol, tpe: Type): Symbol
+  def setType(tree: Tree, tpe: Type): Tree
   def setPos(tree: Tree, pos: Position): Tree
+  
   
   def primaryConstructor(tpe: Type): Symbol = {
     tpe.members.iterator
@@ -122,7 +125,7 @@ extends MiscMatchers
   def newApply(target: Tree/*, targetType: Type*/, name: Name, typeArgs: List[TypeTree] = Nil, args: List[Tree] = Nil) = {
     val targetType = 
       if (target.tpe == NoType || target.tpe == null) 
-        target.symbol.asType.toType 
+        target.symbol.typeSignature 
       else 
         target.tpe
         
@@ -158,43 +161,47 @@ extends MiscMatchers
     newApply(collectionModuleTree, applyName, List(typeExpr), values.toList)
     
   def newScalaPackageTree = 
-    withSymbol(ScalaPackage) { 
-      Ident(N("scala")) 
-    }
+    Ident(ScalaPackage)
     
   def newScalaCollectionPackageTree =
+    Ident(ScalaCollectionPackage)/*
     withSymbol(ScalaCollectionPackage) { 
       Select(newScalaPackageTree, N("collection")) 
-    }
+    }*/
     
   def newSomeModuleTree = typed {
-    withSymbol(SomeModule) { 
+    Ident(SomeModule)
+    /*withSymbol(SomeModule) { 
       Select(newScalaPackageTree, N("Some"))
-    }
+    }*/
   }
     
   def newNoneModuleTree = typed {
+    Ident(NoneModule)/*
     withSymbol(NoneModule) {
       Select(newScalaPackageTree, N("None"))
-    }
+    }*/
   }
     
   def newSeqModuleTree = typed {
+    Ident(SeqModule)/*
     withSymbol(SeqModule) {
       Select(newScalaCollectionPackageTree, N("Seq"))
-    }
+    }*/
   }
     
   def newSetModuleTree = typed {
+    Ident(SetModule)/*
     withSymbol(SetModule) {
       Select(newScalaCollectionPackageTree, N("Set"))
-    }
+    }*/
   }
     
   def newArrayModuleTree = typed {
+    Ident(ArrayModule)/*
     withSymbol(ArrayModule) {
       Select(newScalaPackageTree, N("Array"))
-    }
+    }*/
   }
     
   def newSeqApply(typeExpr: TypeTree, values: Tree*) =
@@ -253,7 +260,7 @@ extends MiscMatchers
   def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
-    val sym = a.symbol.asType.toType member updateName()
+    val sym = a.tpe member updateName()
     typed {
       atPos(pos) {
         apply(sym)(
@@ -269,14 +276,14 @@ extends MiscMatchers
 
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
     assert(op != NoSymbol)
-    withSymbol(op) {
+    //withSymbol(op) {
       Apply(
-        withSymbol(op) {
-          Select(a, op)
-        }, 
+        //withSymbol(op) {
+          Select(a, op),
+        //}, 
         List(b)
       )
-    }
+    //}
   }
 
   def newIsNotNull(target: Tree) = typed {
@@ -284,7 +291,7 @@ extends MiscMatchers
   }
   
   def newArrayLength(a: Tree) =
-    withSymbol(a.symbol.asType.toType.member(lengthName()), IntTpe) {
+    withSymbol(a.tpe.member(lengthName()), IntTpe) {
       Select(a, lengthName())
     }
   
@@ -304,12 +311,16 @@ extends MiscMatchers
     else
       binOp(a, BooleanTpe.member(ZOR), b)
   }
-  def ident(sym: Symbol, n: Name, pos: Position = NoPosition) = {
+  def ident(sym: Symbol, tpe: Type, n: Name, pos: Position = NoPosition): Ident = {
     assert(sym != NoSymbol)
-    val v = Ident(n)
-    val tpe = sym.asType.toType
+    typed {
+      Ident(sym)
+    }
+    /*val v = Ident(sym)
+    //val tpe = sym.typeSignature
     setPos(v, pos)
     withSymbol(sym, tpe) { v }
+    */
   }
 
   def boolNot(a: => Tree) = {
@@ -363,7 +374,7 @@ extends MiscMatchers
               else
                 List(body),
               Apply(
-                ident(labSym, lab, pos),
+                ident(labSym, NoType, lab, pos),
                 Nil
               )
             ),
@@ -508,7 +519,7 @@ extends MiscMatchers
     typed { initialValue }
     var tpe = initialValue.tpe
     //if (ConstantType.unapply(tpe))//.isInstanceOf[ConstantType])
-      tpe = tpe.normalize.widen
+      tpe = normalize(tpe)
     val name = fresh(prefix)
     val sym = 
       symbolOwner.newTermSymbol(name, pos, (if (mutable) Flag.MUTABLE else NoFlags) | Flag.LOCAL)
@@ -516,7 +527,7 @@ extends MiscMatchers
       setInfo(sym, tpe)
       
     VarDef(
-      () => ident(sym, newTermName(name), pos), 
+      () => ident(sym, tpe, newTermName(name), pos), 
       sym,
       withSymbol(sym, tpe) {
         ValDef(

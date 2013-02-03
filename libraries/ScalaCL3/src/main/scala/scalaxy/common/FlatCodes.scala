@@ -28,38 +28,52 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
-
-import scalaxy.common.MiscMatchers
-
-import language.experimental.macros
-
-import scala.reflect.macros.Context
-
-object KernelMacros {
-  def kernelImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    //c.typeCheck(block.tree) 
-    
-    val vectorizer = new Vectorization with MiscMatchers {
-      override val global = c.universe
-      override def fresh(s: String) = c.fresh(s)
-      val result =
-        vectorize(
-          context.asInstanceOf[global.Expr[scalacl.Context]],
-          c.typeCheck(block.tree).asInstanceOf[global.Tree]/*,
-          c.enclosingMethod.symbol.asInstanceOf[global.Symbol]*/
-        )
-    }
-    vectorizer.result.getOrElse({
-      c.error(c.enclosingPosition, "Kernel vectorization failed (only top-level foreach loops on ranges with constant positive steop are supported right now)")
-      c.universe.reify({})
-    }).asInstanceOf[c.Expr[Unit]]
-  }
+package scalaxy.common
   
-  def taskImpl(c: Context)(block: c.Expr[Unit])(context: c.Expr[scalacl.Context]): c.Expr[Unit] = {
-    val ff = CLFunctionMacros.convertTask(c)(block)
-    c.universe.reify {
-      ff.splice(context.splice)
-    }
+object FlatCodes {
+  def EmptyFlatCode[T] = FlatCode[T](Seq(), Seq(), Seq())
+  
+  def merge[T](fcs: FlatCode[T]*)(f: Seq[T] => Seq[T]): FlatCode[T] =
+    fcs.reduceLeft(_ ++ _).mapValues(f)
+ 
+}
+case class FlatCode[T](
+  /// External functions that are referenced by statements and / or values 
+  outerDefinitions: Seq[T] = Seq(), 
+  /// List of variable definitions and other instructions (if statements, do / while loops...)
+  statements: Seq[T] = Seq(), 
+  /// Final values of the code in a "flattened tuple" style
+  values: Seq[T] = Seq()
+) {
+  def mapEachValue(f: T => Seq[T]): FlatCode[T] =
+    copy(values = values.flatMap(f))
+  
+  def mapValues(f: Seq[T] => Seq[T]): FlatCode[T] =
+    copy(values = f(values))
+  
+  def ++(fc: FlatCode[T]) =
+    FlatCode(outerDefinitions ++ fc.outerDefinitions, statements ++ fc.statements, values ++ fc.values)
+
+  def >>(fc: FlatCode[T]) =
+        FlatCode(outerDefinitions ++ fc.outerDefinitions, statements ++ fc.statements ++ values, fc.values)
+
+  def noValues =
+        FlatCode(outerDefinitions, statements ++ values, Seq())
+
+  def addOuters(outerDefs: Seq[T]) =
+    copy(outerDefinitions = outerDefinitions ++ outerDefs)
+    
+  def addStatements(stats: Seq[T]) = 
+    copy(statements = statements ++ stats)
+
+  def printDebug(name: String = "") = {
+    def pt(seq: Seq[T]) = println("\t" + seq.map(_.toString.replaceAll("\n", "\n\t")).mkString("\n\t"))
+    println("FlatCode(" + name + "):")
+    pt(outerDefinitions)
+    println("\t--")
+    pt(statements)
+    println("\t--")
+    pt(values)
   }
 }
+

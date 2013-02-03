@@ -31,6 +31,8 @@
 package scalacl
 package impl
 
+import scalaxy.common._
+
 import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._

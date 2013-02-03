@@ -31,48 +31,71 @@
 package scalacl
 package impl
 
+import scalaxy.common._
+
 import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._
 
-class VectorizationTest extends Vectorization with WithRuntimeUniverse {
+class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniverse {
   import global._
+ 
+  /*
+  def conv(x: Expr[_]) = convert(typeCheck(x))
+  def code(statements: Seq[String], values: Seq[String]) =
+    FlatCode[String](statements = statements, values = values)
   
-  private val context = reify { null: Context }
-  private val NotVectorizable: Option[Expr[Unit]] = None
-  private val Vectorizable = not(NotVectorizable)
+  def flattenWithInputSymbols(body: Tree, inputSymbols: Seq[Symbol]): FlatCode[String] = {
+    val renamed = renameDefinedSymbolsUniquely(body)
+    val tupleAnalyzer = new TupleAnalyzer(renamed)
+    val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+    val Seq(uniqueParam) = inputSymbols
+    val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
+    
+  }
+  */
+  def flatten(x: Expr[_]): FlatCode[Tree] = {
+    flatten(typeCheck(x.tree))
+  }
   
-  private def vec(block: Expr[Unit]) = {
-    vectorize(context, typeCheck(block.tree))
+  def code(statements: Seq[Expr[_]] = Seq(), values: Seq[Expr[_]] = Seq()) =
+    FlatCode[Tree](
+      statements = statements.map(x => typeCheck(x.tree)), 
+      values = values.map(x => typeCheck(x.tree))
+    )
+    
+  def flatten(tree: Tree, inputSymbols: Seq[(Symbol, Type)] = Seq(), owner: Symbol = NoSymbol): FlatCode[Tree] = {
+    //val renamed = renameDefinedSymbolsUniquely(body)
+    val tupleAnalyzer = new TupleAnalyzer(tree)
+    val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+    flattener.flattenTuplesAndBlocksWithInputSymbols(tree, inputSymbols, owner)
+  }
+  
+  def assertEquals(a: FlatCode[Tree], b: FlatCode[Tree]) {
+    Assert.assertEquals(a.toString, b.toString)
   }
   
   @Test
-  def notVectorizable0D {
-    assertThat(
-      vec(reify { 1 + 2 }),
-      is(NotVectorizable)
+  def simpleTupleValue {
+    val x = 10
+    assertEquals(
+      code(values = List(
+        reify { x },
+        reify { x + 1 }
+      )),
+      flatten(reify { (x, x + 1) })
     )
   }
   
   @Test
-  def vectorizable1D {
-    assertThat(
-      vec(reify { 
-        for (i <- 0 until 10) (i + 2) 
-      }),
-      is(Vectorizable)
-    ) 
-  }
-  
-  @Ignore
-  @Test
-  def notVectorizable2D {
-    assertThat(
-      vec(reify { 
-        for (i <- 0 until 10; j <- 0 until 10) 
-          (i + j + 2) 
-      }),
-      is(NotVectorizable)
+  def simpleTupleReference {
+    val p = (10, 12)
+    assertEquals(
+      code(values = List(
+        reify { p._1 },
+        reify { p._2 }
+      )),
+      flatten(reify { val pp = p; pp })
     )
   }
 }

@@ -29,25 +29,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl
+package impl
 
-import scala.reflect.runtime.{ universe => ru }
-import scala.reflect.runtime.{ currentMirror => cm }
-import scala.tools.reflect.ToolBox
+import scalaxy.common._
 
-trait WithRuntimeUniverse {
-  private var nextId = 0L
-  lazy val global = ru
+import org.junit._
+import Assert._
+import org.hamcrest.CoreMatchers._
+
+class VectorizationTest extends Vectorization with WithRuntimeUniverse {
   import global._
-
-  def fresh(s: String) = synchronized {
-    val v = nextId
-    nextId += 1
-    s + v
+  
+  private val context = reify { null: Context }
+  private val NotVectorizable: Option[Expr[Unit]] = None
+  private val Vectorizable = not(NotVectorizable)
+  
+  private def vec(block: Expr[Unit]) = {
+    vectorize(context, typeCheck(block.tree))
   }
   
-  lazy val toolbox = cm.mkToolBox()
-  def typeCheck(x: Expr[_]): Tree = typeCheck(x.tree)
-  def typeCheck(tree: Tree): Tree = {
-    toolbox.typeCheck(tree.asInstanceOf[toolbox.u.Tree]).asInstanceOf[Tree]
+  @Test
+  def notVectorizable0D {
+    assertThat(
+      vec(reify { 1 + 2 }),
+      is(NotVectorizable)
+    )
+  }
+  
+  @Test
+  def vectorizable1D {
+    assertThat(
+      vec(reify { 
+        for (i <- 0 until 10) (i + 2) 
+      }),
+      is(Vectorizable)
+    ) 
+  }
+  
+  @Ignore
+  @Test
+  def notVectorizable2D {
+    assertThat(
+      vec(reify { 
+        for (i <- 0 until 10; j <- 0 until 10) 
+          (i + j + 2) 
+      }),
+      is(NotVectorizable)
+    )
   }
 }

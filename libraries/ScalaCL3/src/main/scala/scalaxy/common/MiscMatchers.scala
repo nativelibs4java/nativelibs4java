@@ -30,7 +30,6 @@
  */
 package scalaxy.common
 
-import scala.reflect.NameTransformer
 import scala.reflect.api.Universe
 
 trait MiscMatchers extends Tuploids {
@@ -255,7 +254,7 @@ trait MiscMatchers extends Tuploids {
         None
     }
   }
-  lazy val unitTpe = UnitClass.asType.toType
+  lazy val unitTpe = UnitTpe
   def isUnit(tpe: Type) = normalize(tpe) match {
     case `unitTpe` | MethodType(_, `unitTpe`) =>
       true
@@ -301,6 +300,16 @@ trait MiscMatchers extends Tuploids {
         Some((collection, name, typeArgs, args :+ newArgs))
       case _ =>
         None
+    }
+  }
+  
+  object Foreach {
+    def unapply(tree: Tree): Option[(Tree, Function)] = Option(tree) collect {
+      case Apply(TypeApply(Select(collection, foreachName()), _), List(function @ Function(_, _))) =>
+        (collection, function)
+      case Apply(Select(collection, foreachName()), List(function @ Function(_, _))) =>
+        // Non-typed foreach lacks the TypeApply.
+        (collection, function)
     }
   }
   
@@ -352,19 +361,9 @@ trait MiscMatchers extends Tuploids {
   object IndexedSeqApply extends CollectionApply(IndexedSeqModule, IndexedSeqClass)
   object ListApply extends CollectionApply(ListModule, ListClass)
   
-  def normalize(tpe: Type) = {
-    var t = tpe
-    if (t != null) {
-      var d = t.normalize
-      if (d != null) {
-        t = d
-        d = t.widen
-        if (d != null)
-          t = d
-      }
-    }
-    t
-  }
+  
+  def normalize(tpe: Type): Type =
+    Option(tpe).map(_.normalize.widen).orNull
   
   object OptionTree {
     val optionClass = OptionClass
@@ -390,7 +389,7 @@ trait MiscMatchers extends Tuploids {
     lazy val println  = this("println")
 
     def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
-    def apply(name: String): Symbol  = PredefModule.asType.toType member newTermName(name)
+    def apply(name: String): Symbol  = PredefModule.asModule.moduleClass.asType.toType member newTermName(name)
     def unapply(tree: Tree): Boolean = tree.symbol == PredefModule
   }
   object ArrayOps {
@@ -438,7 +437,7 @@ trait MiscMatchers extends Tuploids {
           Some(s)
         case None =>
           if ((tree ne null) && (tree.symbol ne null) && tree.symbol != NoSymbol)
-            unapply(tree.symbol.asType.toType)
+            unapply(tree.symbol.typeSignature)
           else
             None
       }
@@ -448,7 +447,7 @@ trait MiscMatchers extends Tuploids {
 
   object ArrayTabulate {
     /** This is the one all the other ones go through. */
-    lazy val tabulateSyms = ArrayModule.asType.toType.members.filter(_.name == tabulateName()).toSet//filter (_.paramss.flatten.size == 3)
+    lazy val tabulateSyms = ArrayModule.asModule.moduleClass.asType.toType.members.filter(_.name == tabulateName()).toSet//filter (_.paramss.flatten.size == 3)
 
     def apply(componentType: Tree, lengths: List[Tree], function: Tree, manifest: Tree) = sys.error("not implemented")
     def unapply(tree: Tree): Option[(Tree, List[Tree], Tree, Tree)] = {

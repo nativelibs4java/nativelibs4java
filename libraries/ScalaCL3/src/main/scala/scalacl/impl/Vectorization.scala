@@ -29,10 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl.impl
+
+import scala.reflect.api.Universe
+
 import scalacl.CLArray
 import scalacl.CLFilteredArray
 
-import scala.reflect.api.Universe
+import scalaxy.common.MiscMatchers
 
 trait Vectorization extends CodeGeneration with MiscMatchers {
   val global: Universe

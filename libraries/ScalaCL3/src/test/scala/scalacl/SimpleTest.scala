@@ -28,14 +28,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scalacl.impl
+package scalacl
+package impl
 
-import scalacl._
-  
 import com.nativelibs4java.opencl.CLMem
-import scalacl.impl.Kernel
-import scalacl.impl.CLFunction
-import scalacl.impl.Captures
 
 import org.junit._
 import Assert._
