@@ -31,74 +31,13 @@
 package scalacl
 package impl
 
-trait TypeAnalysis extends ConversionNames {
+import scalaxy.common.Tuploids
+import scalaxy.common.CommonScalaNames
+
+trait SymbolKinds extends Tuploids with CommonScalaNames {
   val global: reflect.api.Universe
   import global._
   import definitions._
-  
-  private lazy val primTypes = Set(IntTpe, LongTpe, ShortTpe, CharTpe, BooleanTpe, DoubleTpe, FloatTpe, ByteTpe)
-  
-  def isPrimitiveType(tpe: Type) = primTypes.contains(tpe.normalize)
-  
-  def getTupleComponentTypes(tpe: Type): List[Type] = { 
-    tpe match {
-      case ref @ TypeRef(pre, sym, args) 
-      if isTupleTypeRef(ref) => args
-    }
-  }
-  
-  def isTupleTypeRef(ref: TypeRef): Boolean = {
-    !ref.args.isEmpty &&
-    ref.pre.typeSymbol == ScalaPackageClass && 
-    ref.sym.name.toString.matches("Tuple\\d+")
-  }
-  
-  def isTupleType(tpe: Type): Boolean = {
-    tpe match {
-      case ref @ TypeRef(pre, sym, args)
-      if isTupleTypeRef(ref) =>
-        true
-      case _ =>
-        false
-    }
-  }
-  
-  private def isValOrVar(s: Symbol): Boolean =
-    s.isTerm && !s.isMethod && !s.isJava
-  
-  private def isStableNonLazyVal(ts: TermSymbol): Boolean = {
-    //println(s"""
-    //  isVal = ${ts.isVal}
-    //  isStable = ${ts.isStable}
-    //  isVar = ${ts.isVar}
-    //  isSetter = ${ts.isSetter}
-    //  isGetter = ${ts.isGetter}
-    //  isLazy = ${ts.isLazy}
-    //""")
-    val res = ts.isStable && ts.isVal && !ts.isLazy
-    //println("res = " + res)
-    res
-  }
-  private def isImmutableClassMember(s: Symbol): Boolean = {
-    //println(s + " <- " + s.owner + " overrides " + s.allOverriddenSymbols)
-    //println(s"\tisFinal = ${s.isFinal}, isMethod = ${s.isMethod}, isTerm = ${s.isTerm}")
-    if (isValOrVar(s)) {
-      isStableNonLazyVal(s.asTerm)
-    } else {
-      // Either a method or a sub-type
-      true
-    }
-  }
-  
-  // A tuploid is a scalar, a tuple of tuploids or an immutable case class with tuploid fields.
-  def isTuploid(tpe: Type): Boolean = { 
-    isPrimitiveType(tpe) ||
-    isTupleType(tpe) && getTupleComponentTypes(tpe).forall(isTuploid _) ||
-    {
-      tpe.declarations.exists(isValOrVar _) &&
-      tpe.declarations.forall(isImmutableClassMember _)
-    }
-  }
   
   sealed trait SymbolKind
   object SymbolKind {
@@ -118,7 +57,7 @@ trait TypeAnalysis extends ConversionNames {
   def kindOf(symbol: Symbol, tpe: Type): SymbolKind = {
     if (tpe <:< typeOf[CLArray[_]] || tpe <:< typeOf[CLFilteredArray[_]])
       SymbolKind.ArrayLike
-    else if (isTuploid(tpe))
+    else if (isTuploidType(tpe))
       SymbolKind.Tuploid
     else
       SymbolKind.Other

@@ -31,11 +31,13 @@
 package scalacl
 package impl
 
+import scalaxy.common.CommonScalaNames
+
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 
 trait OpenCLConverter 
-extends ConversionNames
+extends CommonScalaNames
 with MiscMatchers
 with KernelSymbolsAnalysis
 { 
@@ -82,8 +84,8 @@ with KernelSymbolsAnalysis
         out("\n}")
     }*/
     body match {
-      //case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
-      //  tupleArgs.map(convert).reduceLeft(_ ++ _)
+      case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
+        tupleArgs.map(convert).reduceLeft(_ ++ _)
       case Literal(Constant(value)) =>
         if (value == ())
           emptyCode
@@ -129,7 +131,10 @@ with KernelSymbolsAnalysis
       case Apply(Select(target, applyName()), List(singleArg)) =>
         merge(Seq(target, singleArg).map(convert):_*) { case Seq(t, a) => Seq(t + "[" + a + "]") }
       case Apply(Select(target, updateName()), List(index, value)) =>
-        merge(Seq(target, index, value).map(convert):_*) { case Seq(t, i, v) => Seq(t + "[" + i + "] = " + v) }
+        val convs = Seq(target, index, value).map(convert)
+        println("convs = " + convs)
+        println("target.tpe = " + target.tpe)
+        merge(convs: _*) { case Seq(t, i, v) => Seq(t + "[" + i + "] = " + v) }
       case Assign(lhs, rhs) =>
         merge(Seq(lhs, rhs).map(convert):_*) { case Seq(l, r) => Seq(l + " = " + r + ";") }
       case Typed(expr, tpt) =>

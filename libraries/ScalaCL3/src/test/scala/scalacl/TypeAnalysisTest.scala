@@ -31,15 +31,17 @@
 package scalacl
 package impl
 
+import scalaxy.common.Tuploids
+
 import org.junit._
 import Assert._
 import org.hamcrest.CoreMatchers._
 
-class TypeAnalysisTest extends TypeAnalysis with WithRuntimeUniverse {
+class TypeAnalysisTest extends Tuploids with SymbolKinds with WithRuntimeUniverse {
   import global._
   
-  class EmptyClass
-  case class EmptyCaseClass
+  class EmptyClass()
+  case class EmptyCaseClass()
   class ImmutableClass(a: Int, b: Int)
   class MutableClass(var a: Int, b: Int)
   case class ImmutableCaseClass(a: Int, b: Int)
@@ -81,13 +83,13 @@ class TypeAnalysisTest extends TypeAnalysis with WithRuntimeUniverse {
   
   @Test
   def testTuploids {
-    assertTrue(isTuploid(typeOf[Int]))
-    assertTrue(isTuploid(typeOf[(Int, Int)]))
+    assertTrue(isTuploidType(typeOf[Int]))
+    assertTrue(isTuploidType(typeOf[(Int, Int)]))
     
-    assertTrue(isTuploid(typeOf[ImmutableCaseClass]))
-    assertTrue(isTuploid(typeOf[ImmutableClass]))
-    
-    assertFalse(isTuploid(typeOf[MutableCaseClass]))
-    assertFalse(isTuploid(typeOf[MutableClass]))
+    assertTrue(isTuploidType(typeOf[ImmutableCaseClass]))
+    assertTrue(isTuploidType(typeOf[ImmutableClass]))
+                        
+    assertFalse(isTuploidType(typeOf[MutableCaseClass]))
+    assertFalse(isTuploidType(typeOf[MutableClass]))
   }
 }

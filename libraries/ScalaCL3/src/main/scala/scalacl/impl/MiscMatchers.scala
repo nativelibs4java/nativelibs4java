@@ -31,7 +31,9 @@
 package scalacl
 package impl
 
-trait MiscMatchers extends ConversionNames with TypeAnalysis {
+import scalaxy.common.Tuploids
+
+trait MiscMatchers extends Tuploids {
   val global: reflect.api.Universe
   import global._
   import definitions._
@@ -74,9 +76,8 @@ trait MiscMatchers extends ConversionNames with TypeAnalysis {
   
   object TupleCreation {
     def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
-      case Apply(TypeApply(sel @ Select(_/*TupleSelect()*/, applyName()), types), components) 
-      //if isTupleType(sel.tpe) 
-      =>
+      case Apply(TypeApply(Select(_/*TupleSelect()*/, applyName()), types), components) 
+      if isTupleType(tree.tpe) =>
         components
       case Apply(tt @ TypeTree(), components) 
       if isTupleType(tree.tpe) =>

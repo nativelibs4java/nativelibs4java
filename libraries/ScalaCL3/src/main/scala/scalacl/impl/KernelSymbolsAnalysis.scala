@@ -31,13 +31,15 @@
 package scalacl
 package impl
 
+import scalaxy.common.CommonScalaNames
+
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 
 trait KernelSymbolsAnalysis 
-extends ConversionNames
+extends CommonScalaNames
 with MiscMatchers
-with TypeAnalysis
+with SymbolKinds
 { 
   val global: reflect.api.Universe
   import global._
