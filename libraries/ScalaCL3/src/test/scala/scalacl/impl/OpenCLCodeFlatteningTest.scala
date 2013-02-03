@@ -54,25 +54,34 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
     
   }
   */
-  def flatten(x: Expr[_]): FlatCode[Tree] = {
-    flatten(typeCheck(x.tree))
+  def unwrap(tree: Tree): Tree = tree match {
+    case Block(List(sub), Literal(Constant(()))) => sub
+    case _ => tree
   }
   
   def code(statements: Seq[Expr[_]] = Seq(), values: Seq[Expr[_]] = Seq()) =
     FlatCode[Tree](
-      statements = statements.map(x => typeCheck(x.tree)), 
-      values = values.map(x => typeCheck(x.tree))
+      statements = statements.map(x => unwrap(typeCheck(x.tree))), 
+      values = values.map(x => unwrap(typeCheck(x.tree)))
     )
-    
-  def flatten(tree: Tree, inputSymbols: Seq[(Symbol, Type)] = Seq(), owner: Symbol = NoSymbol): FlatCode[Tree] = {
+  
+  def inputSymbols(xs: Expr[_]*): Seq[(Symbol, Type)] = {
+    for (x <- xs.toSeq) yield {
+      val i @ Ident(n) = typeCheck(x.tree)
+      (i.symbol, i.tpe)
+    }
+  }
+  
+  def flatten(x: Expr[_], inputSymbols: Seq[(Symbol, Type)] = Seq(), owner: Symbol = NoSymbol): FlatCode[Tree] = {
     //val renamed = renameDefinedSymbolsUniquely(body)
+    val tree = typeCheck(x.tree)
     val tupleAnalyzer = new TupleAnalyzer(tree)
     val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
     flattener.flattenTuplesAndBlocksWithInputSymbols(tree, inputSymbols, owner)
   }
   
   def assertEquals(a: FlatCode[Tree], b: FlatCode[Tree]) {
-    Assert.assertEquals(a.toString, b.toString)
+    Assert.assertEquals(a.transform(_.toList).toString, b.transform(_.toList).toString)
   }
   
   @Test
@@ -83,7 +92,10 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
         reify { x },
         reify { x + 1 }
       )),
-      flatten(reify { (x, x + 1) })
+      flatten(
+        reify { (x, x + 1) },
+        inputSymbols(reify { x })
+      )
     )
   }
   
@@ -91,11 +103,20 @@ class OpenCLCodeFlatteningTest extends OpenCLCodeFlattening with WithRuntimeUniv
   def simpleTupleReference {
     val p = (10, 12)
     assertEquals(
-      code(values = List(
-        reify { p._1 },
-        reify { p._2 }
-      )),
-      flatten(reify { val pp = p; pp })
+      code(
+        statements = List(
+          reify { val p$10 = p._1 }, // TODO: remove these two unneeded decls
+          reify { val p$21 = p._2 }
+        ),
+        values = List(
+          reify { p._1 },
+          reify { p._2 }
+        )
+      ),
+      flatten(
+        reify { val pp = p; pp },
+        inputSymbols(reify { p })
+      )
     )
   }
 }

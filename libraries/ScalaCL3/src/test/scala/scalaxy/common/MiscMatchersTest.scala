@@ -39,7 +39,7 @@ class MiscMatchersTest extends MiscMatchers with WithRuntimeUniverse {
     
   def extractTupleComponentTypes(x: Expr[_]) =
     TupleCreation.unapply(typeCheck(x.tree)).map(_.map(_.tpe.normalize.widen))
-    
+  
   @Test
   def testTuples {
     assertEquals(

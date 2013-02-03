@@ -126,10 +126,7 @@ extends MiscMatchers
   def applyFiberPath(rootGen: TreeGen, path: List[Int]): Tree = {
     def sub(invertedPath: List[Int]): Tree = invertedPath match {
       case Nil => 
-        println(s"rootGen = $rootGen: ${rootGen.getClass.getName}")
-        val res = rootGen()
-        println("rootGen.tpe = " + getType(res))
-        typed { res }
+        typed { rootGen() }
       case i :: rest =>
         val inner = applyFiberPath(rootGen, rest)
         val name = N("_" + (i + 1))
@@ -140,13 +137,11 @@ extends MiscMatchers
         val info = getTupleInfo(innerTpe)
         assert(i < info.components.size, "bad path : i = " + i + ", type = " + innerTpe + ", path = " + path + ", root = " + rootGen())
         val sym = innerTpe member name
-        println(s"innerTpe($innerTpe).member(name($name)) = sym($sym: ${sym.typeSignature})")
-        val res = typeCheck(
+        //println(s"innerTpe($innerTpe).member(name($name)) = sym($sym: ${sym.typeSignature})")
+        typeCheck(
           Select(inner, sym),
           info.components(i).tpe
         )
-        println("sub.tpe = " + getType(res))
-        res
         
     }
     sub(path.reverse)
@@ -180,7 +175,7 @@ extends MiscMatchers
       //TupleCreation((0 until sliceLength).map(i => applyFiberPath(root, info.flattenPaths(sliceOffset + i))):_*)
       val flatPaths = info.flattenPaths
       assert(sliceOffset < flatPaths.size, "slice offset = " + sliceOffset + ", flat paths = " + flatPaths)
-      println(s"baseSymbol = $baseSymbol, ${baseSymbol.typeSignature}, ${root().symbol.typeSignature}")
+      //println(s"baseSymbol = $baseSymbol, ${baseSymbol.typeSignature}, ${root().symbol.typeSignature}")
       var res = applyFiberPath(root, flatPaths(sliceOffset))
       //analyzer.setSlice(res, this)
       //res = replace(res)
@@ -206,7 +201,7 @@ extends MiscMatchers
       case TupleCreation(components) =>
         //println("Found tuple creation with components " + components)
         var currentOffset = 0
-        val ret = new scala.collection.mutable.ArrayBuffer[(Symbol, TupleSlice)]
+        val ret = ArrayBuffer[(Symbol, TupleSlice)]()
         for ((component, i) <- components.zipWithIndex) {
           val compTpes = flattenTypes(component.tpe)
           val compSize = compTpes.size
@@ -220,7 +215,7 @@ extends MiscMatchers
           }
           currentOffset += compSize
         }
-        Some(ret)
+        Some(ret.toList)
       case _ =>
         throw new RuntimeException("Not a bound tuple : " + tree + " (" + tree.getClass.getName + ")")//\n\tnodes = " + nodeToString(tree))
         //System.exit(1)

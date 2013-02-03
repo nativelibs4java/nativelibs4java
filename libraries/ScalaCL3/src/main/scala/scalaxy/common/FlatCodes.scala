@@ -37,6 +37,7 @@ object FlatCodes {
     fcs.reduceLeft(_ ++ _).mapValues(f)
  
 }
+
 case class FlatCode[T](
   /// External functions that are referenced by statements and / or values 
   outerDefinitions: Seq[T] = Seq(), 
@@ -45,6 +46,20 @@ case class FlatCode[T](
   /// Final values of the code in a "flattened tuple" style
   values: Seq[T] = Seq()
 ) {
+  def map[V](f: T => V): FlatCode[V] =
+    FlatCode[V](
+      outerDefinitions = outerDefinitions.map(f),
+      statements = statements.map(f),
+      values = values.map(f)
+    )
+
+  def transform(f: Seq[T] => Seq[T]): FlatCode[T] =
+    FlatCode[T](
+      outerDefinitions = f(outerDefinitions),
+      statements = f(statements),
+      values = f(values)
+    )
+    
   def mapEachValue(f: T => Seq[T]): FlatCode[T] =
     copy(values = values.flatMap(f))
   
