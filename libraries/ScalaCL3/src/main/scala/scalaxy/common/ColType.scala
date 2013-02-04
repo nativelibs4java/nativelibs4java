@@ -30,60 +30,15 @@
  */
 package scalaxy.common
 
-import language.experimental.macros
-import scala.reflect.macros.Context
-
-import scala.reflect.runtime.{ universe => ru }
-import scala.reflect.runtime.{ currentMirror => cm }
-import scala.tools.reflect.ToolBox
-
-trait WithMacroContext {
-  
-  val context: Context
-  lazy val global = context.universe
-  import global._
-  import global.definitions._
-  
-  def verbose = true
-  
-  def withSymbol[T <: Tree](sym: Symbol, tpe: Type = NoType)(tree: T): T = {
-    tree.symbol = sym
-    if (tpe != NoType)
-      tree.tpe = tpe
-    tree
-  }
-  def typed[T <: Tree](tree: T): T = 
-    context.typeCheck(tree.asInstanceOf[context.universe.Tree]).asInstanceOf[T]
-    
-  def inferImplicitValue(pt: Type): Tree =
-    context.inferImplicitValue(pt.asInstanceOf[context.universe.Type]).asInstanceOf[Tree]
-    
-  def setInfo(sym: Symbol, tpe: Type): Symbol = {
-    //sym.setInfo(tpe)
-    sym
-  }
-    
-  def setType(sym: Symbol, tpe: Type): Symbol = {
-    //sym.tpe = tpe
-    sym
-  }
-    
-  def setType(tree: Tree, tpe: Type): Tree = {
-    tree.tpe = tpe
-    tree
-  }
-    
-  def setPos(tree: Tree, pos: Position): Tree = { 
-    tree.pos = pos
-    tree
-  }
-  
-  def fresh(s: String) = 
-    context.fresh(s)
-  
-  def typeCheck(x: Expr[_]): Tree = 
-    context.typeCheck(x.tree.asInstanceOf[context.universe.Tree]).asInstanceOf[Tree]
-    
-  def typeCheck(tree: Tree, pt: Type = NoType): Tree =
-    context.typeCheck(tree.asInstanceOf[context.universe.Tree], pt.asInstanceOf[context.universe.Type]).asInstanceOf[Tree]
+abstract sealed class ColType(name: String) {
+  override def toString = name
 }
+case object SeqType extends ColType("Seq")
+case object SetType extends ColType("Set")
+case object ListType extends ColType("List")
+case object VectorType extends ColType("Vector")
+case object ArrayType extends ColType("Array")
+case object IndexedSeqType extends ColType("IndexedSeq")
+case object MapType extends ColType("Map")
+case object OptionType extends ColType("Option")
+

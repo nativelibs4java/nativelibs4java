@@ -50,6 +50,9 @@ trait CommonScalaNames {
   lazy val XOR = encode("^")
   lazy val ZAND = encode("&&")
   lazy val ZOR = encode("||")
+  
+  lazy val THIS = newTermName("this")
+  lazy val SELF = newTermName("self")
 
   val addAssignName = N(NameTransformer.encode("+="))
   val toArrayName = N("toArray")

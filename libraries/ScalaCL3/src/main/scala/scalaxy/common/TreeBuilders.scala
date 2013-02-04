@@ -38,7 +38,7 @@ extends MiscMatchers
   val global: Universe
 
   import global._
-  import global.definitions._
+  import definitions._
   
   type TreeGen = () => Tree
   
@@ -52,6 +52,55 @@ extends MiscMatchers
   def setType(tree: Tree, tpe: Type): Tree
   def setPos(tree: Tree, pos: Position): Tree
   
+  def ownerChain(s: Symbol): List[Symbol] = {
+    if (s == NoSymbol)
+      Nil
+    else {
+      val o = s.owner
+      o :: ownerChain(o)
+    }
+  }
+    
+  def replaceOccurrences(
+      tree: Tree, 
+      mappingsSym: Map[Symbol, TreeGen], 
+      symbolReplacements: Map[Symbol, Symbol], 
+      treeReplacements: Map[Tree, TreeGen]) = 
+  {
+    def key(s: Symbol) =
+      ownerChain(s).map(_.toString)
+      
+    val mappings = mappingsSym.map { 
+      case (sym, treeGen) => 
+        (key(sym), (sym, treeGen)) 
+    }
+    val result = new Transformer {
+      override def transform(tree: Tree): Tree = {
+        treeReplacements.get(tree).map(_()).getOrElse(
+          tree match {
+            case Ident(n) if tree.symbol != NoSymbol =>
+              val treeKey = key(tree.symbol)
+              mappings.get(treeKey).map({ 
+                case (sym, treeGen) =>
+                  typeCheck(
+                    treeGen(),
+                    tree.symbol.asType.toType
+                  )
+              }).getOrElse(super.transform(tree))
+            case _ =>
+              super.transform(tree)
+          }
+        )
+      }
+    }.transform(tree)
+
+    //for ((fromSym, toSym) <- symbolReplacements)
+    //  new ChangeOwnerTraverser(fromSym, toSym).traverse(result)
+      
+    typed {
+      result
+    }
+  }
   
   def primaryConstructor(tpe: Type): Symbol = {
     tpe.members.iterator

@@ -30,9 +30,9 @@
  */
 package scalaxy.common
 
-
 import scala.collection.immutable.Stack
 import scala.collection.mutable.ArrayBuffer
+
 import scala.reflect.NameTransformer
 import scala.reflect.api.Universe
 
@@ -43,7 +43,7 @@ extends MiscMatchers
   val global: Universe
 
   import global._
-  import global.definitions._
+  import definitions._
   
   case class TupleInfo(tpe: Type, components: Seq[TupleInfo]) {
     assert(tpe != null)

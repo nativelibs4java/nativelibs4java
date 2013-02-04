@@ -37,6 +37,8 @@ trait MiscMatchers extends Tuploids {
   import global._
   import definitions._
 
+  def verbose: Boolean
+
   @deprecated
   def isPackageReference(tree: Tree, packageName: String) = {
     tree.toString.matches(packageName + ".(package|`package`)")
