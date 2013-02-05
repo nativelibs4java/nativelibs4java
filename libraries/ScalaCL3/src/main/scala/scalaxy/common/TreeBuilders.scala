@@ -353,8 +353,14 @@ extends MiscMatchers
   }
   def ident(sym: Symbol, tpe: Type, n: Name, pos: Position = NoPosition): Ident = {
     assert(sym != NoSymbol)
-    typed {
-      Ident(sym)
+    val i = Ident(sym)
+    try {
+      typeCheck(
+        i,
+        sym.typeSignature
+      ).asInstanceOf[Ident]
+    } catch { case _: Throwable =>
+      i
     }
     /*val v = Ident(sym)
     //val tpe = sym.typeSignature

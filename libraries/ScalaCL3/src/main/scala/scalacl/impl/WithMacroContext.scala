@@ -47,7 +47,11 @@ trait WithMacroContext {
   def verbose = true
   
   def withSymbol[T <: Tree](sym: Symbol, tpe: Type = NoType)(tree: T): T = {
-    tree.symbol = sym
+    try {
+      tree.symbol = sym
+    } catch { case _: Throwable =>
+      // TODO: remove this ugly stuff. 
+    }
     if (tpe != NoType)
       tree.tpe = tpe
     tree
@@ -84,7 +88,7 @@ trait WithMacroContext {
   def typeCheck(x: Expr[_]): Tree = 
     context.typeCheck(x.tree.asInstanceOf[context.universe.Tree]).asInstanceOf[Tree]
     
-  def typeCheck(tree: Tree, pt: Type = NoType): Tree = {
+  def typeCheck(tree: Tree, pt: Type): Tree = {
     if (tree.tpe =:= pt)
       tree
     else

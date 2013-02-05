@@ -337,13 +337,16 @@ extends MiscMatchers
             Seq(withSymbol(s.symbol) { Ident(name) })
           )
         case Select(target, name) =>
+          //println("CONVERTING select " + tree)
           val FlatCode(defs, stats, vals) = flattenTuplesAndBlocks(target, sideEffectFree = getType(target) != NoType)
           //println(s"NAME = '$name', encoded = '${NameTransformer.encode(name.toString)}, decoded = '${NameTransformer.decode(name.toString)}") 
-          FlatCode[Tree](
+          val res = FlatCode[Tree](
             defs,
             stats,
             vals.map(v => Select(v, NameTransformer.decode(name.toString)))
           )
+          //println("\tres = " + res)
+          res
         case Apply(ident @ Ident(functionName), args) =>
           val f = args.map(flattenTuplesAndBlocks(_))
           // TODO assign vals to new vars before the calls, to ensure a correct evaluation order !
@@ -360,7 +363,25 @@ extends MiscMatchers
               )
             )
           )
+        case Assign(lhs, rhs) =>
+          merge(Seq(lhs, rhs).map(flattenTuplesAndBlocks(_)):_*) { 
+            case Seq(l, r) => 
+              Seq(Assign(l, r)) 
+          }
+        case Apply(Select(target, updateName()), List(index, value)) if isTupleType(getType(value)) =>
+          //println(s"CONVERTING update $tree (isTupleType(${getType(value)}) = ${isTupleType(getType(value))})")
+          val indexVal = newVariable("index", symbolOwner, tree.pos, false, index)
+          
+          val mf = Seq(target, value).map(flattenTuplesAndBlocks(_))
+          val m = merge(mf/*Seq(target, value).map(flattenTuplesAndBlocks(_))*/:_*) { 
+            case Seq(t, v) => 
+              Seq(Apply(Select(t, updateName()), List(indexVal(), v)))
+            //case s =>
+            //  sys.error(s"CONVERTED Seq(target = $target, value = $value, mf = $mf) to $s")
+          }
+          m.copy(statements = Seq(indexVal.definition) ++ m.statements)
         case Apply(target, args) =>
+          //println("CONVERTING apply " + tree)
           /*
           val convArgs = args.map(flattenTuplesAndBlocks(_, symbolOwner))
           target match { 
@@ -373,7 +394,7 @@ extends MiscMatchers
           val argsConv = args.map(flattenTuplesAndBlocks(_))
           val tpes = flattenTypes(getType(tree))
           // TODO assign vals to new vars before the calls, to ensure a correct evaluation order !
-          FlatCode[Tree](
+          val res = FlatCode[Tree](
             defs1 ++ argsConv.flatMap(_.outerDefinitions),
             stats1 ++ argsConv.flatMap(_.statements),
             vals1.zip(argsConv.flatMap(_.values)).zip(tpes).map { 
@@ -381,10 +402,10 @@ extends MiscMatchers
                 setType(Apply(v1, List(v2)), tpe) 
             }
           )
-        case f: DefDef =>
+          //println(s"CONVERTED apply $tree\n\tres = $res, \n\ttpes = $tpes, \n\targsConv = $argsConv, \n\tvals1 = $vals1")
+          res
+        case f @ DefDef(_, _, _, _, _, _) =>
           FlatCode[Tree](Seq(f), Seq(), Seq())
-        case Assign(lhs, rhs) =>
-          merge(Seq(lhs, rhs).map(flattenTuplesAndBlocks(_)):_*) { case Seq(l, r) => Seq(Assign(l, r)) }
         case WhileLoop(condition, content) =>
           // TODO clean this up !!!
           val flatCondition = flattenTuplesAndBlocks(condition)

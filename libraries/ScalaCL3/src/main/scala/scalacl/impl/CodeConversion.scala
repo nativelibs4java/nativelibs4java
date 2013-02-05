@@ -120,7 +120,8 @@ trait CodeConversion extends OpenCLConverter {
 	    capturedInputs ++ 
 	    capturedOutputs ++ 
 	    capturedConstants
-	  val flat = convert(code)
+	  // val flat = convert(code)
+	  val flat = flattenAndConvert(code, paramDescs.map(d => (d.symbol, d.tpe)))
 	  
 	  val globalIDIndexes =
 	    paramDescs.flatMap(_.implicitIndexDimension).toSet

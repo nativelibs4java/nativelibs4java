@@ -64,8 +64,12 @@ with KernelSymbolsAnalysis
       inputSymbols: Seq[(Symbol, Type)] = Seq(), 
       owner: Symbol = NoSymbol,
       renameSymbols: Boolean = true): FlatCode[String] = {
+    //println(s"tree = $tree")
     val flat = flatten(tree, inputSymbols, owner, renameSymbols)
-    flat.flatMap(convert _)
+    //println(s"flat = $flat")
+    val res = flat.flatMap(convert _)
+    //println(s"res = $res")
+    res
   }
   
   def convert(body: Tree): FlatCode[String] = {
