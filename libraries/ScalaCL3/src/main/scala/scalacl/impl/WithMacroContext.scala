@@ -84,6 +84,13 @@ trait WithMacroContext {
   def typeCheck(x: Expr[_]): Tree = 
     context.typeCheck(x.tree.asInstanceOf[context.universe.Tree]).asInstanceOf[Tree]
     
-  def typeCheck(tree: Tree, pt: Type = NoType): Tree =
-    context.typeCheck(tree.asInstanceOf[context.universe.Tree], pt.asInstanceOf[context.universe.Type]).asInstanceOf[Tree]
+  def typeCheck(tree: Tree, pt: Type = NoType): Tree = {
+    if (tree.tpe =:= pt)
+      tree
+    else
+      context.typeCheck(
+        tree.asInstanceOf[context.universe.Tree],
+        pt.asInstanceOf[context.universe.Type]
+      ).asInstanceOf[Tree]
+  }
 }

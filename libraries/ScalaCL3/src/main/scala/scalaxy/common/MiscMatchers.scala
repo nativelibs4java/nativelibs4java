@@ -39,11 +39,15 @@ trait MiscMatchers extends Tuploids {
 
   def verbose: Boolean
 
-  @deprecated
-  def isPackageReference(tree: Tree, packageName: String) = {
-    tree.toString.matches(packageName + ".(package|`package`)")
+  def ownerChain(s: Symbol): List[Symbol] = {
+    if (s == NoSymbol)
+      Nil
+    else {
+      val o = s.owner
+      o :: ownerChain(o)
+    }
   }
-  
+
   // See scala.reflect.internal.TreeInfo.methPart
   def methPart(tree: Tree): Tree = tree match {
     case Apply(f, _) => methPart(f)
@@ -98,27 +102,15 @@ trait MiscMatchers extends Tuploids {
         
     def unapply(tree: Tree): Option[(Type, Name, List[Tree])] = tree match {
       case Apply(f @ Select(left, name), args) =>
-        if (isPackageReference(left, "scala.math"))
+        if (left.symbol == ScalaMathPackage ||
+            left.symbol == ScalaMathPackageClass || 
+            left.tpe == ScalaMathPackageClass.asType.toType)
           Some((f.tpe, name, args))
-        else if (tree.symbol != NoSymbol && tree.symbol.owner == ScalaMathCommonClass)
+        else if (tree.symbol != NoSymbol && 
+            tree.symbol.owner == ScalaMathCommonClass)
           Some((f.tpe, name, args))
         else
           None
-      /*case
-        Apply(
-          f @ Select(
-            Select(
-              Select(
-                Ident(scalaName()),
-                mathName()
-              ),
-              packageName()
-            ),
-            funName
-          ),
-          args
-        ) =>
-        Some((f.tpe, funName, args))*/
       case _ =>
         None
     }

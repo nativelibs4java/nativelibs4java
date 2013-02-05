@@ -52,15 +52,6 @@ extends MiscMatchers
   def setType(tree: Tree, tpe: Type): Tree
   def setPos(tree: Tree, pos: Position): Tree
   
-  def ownerChain(s: Symbol): List[Symbol] = {
-    if (s == NoSymbol)
-      Nil
-    else {
-      val o = s.owner
-      o :: ownerChain(o)
-    }
-  }
-    
   def replaceOccurrences(
       tree: Tree, 
       mappingsSym: Map[Symbol, TreeGen], 

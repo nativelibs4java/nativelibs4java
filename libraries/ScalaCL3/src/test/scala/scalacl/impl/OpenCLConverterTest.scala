@@ -49,7 +49,7 @@ class OpenCLConverterTest extends OpenCLConverter with WithRuntimeUniverse {
     FlatCode[String](statements = statements, values = values)
   
   @Test
-  def testSimple {
+  def testSimpleTuple {
     assertEquals(
       code(
         Seq("const int x = 10;"),
@@ -58,6 +58,20 @@ class OpenCLConverterTest extends OpenCLConverter with WithRuntimeUniverse {
       conv(reify {
         val x = 10
         (x, x * 2)
+      })
+    )
+  }
+  
+  @Test
+  def testSimpleMath {
+    import scala.math._
+    assertEquals(
+      code(
+        Seq(),
+        Seq("cos(10)")
+      ),
+      conv(reify {
+        cos(10)
       })
     )
   }

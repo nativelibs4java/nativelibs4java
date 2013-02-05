@@ -117,12 +117,13 @@ trait CommonScalaNames {
 
   def C(name: String) = rootMirror.staticClass(name)
   def M(name: String) = rootMirror.staticModule(name)
+  def P(name: String) = rootMirror.staticPackage(name)
   
-  lazy val ScalaReflectPackage = M("scala.reflect")
-  lazy val ScalaCollectionPackage = M("scala.collection")
-  lazy val ScalaMathPackage = M("scala.math")
+  lazy val ScalaReflectPackage = P("scala.reflect")
+  lazy val ScalaCollectionPackage = P("scala.collection")
+  lazy val ScalaMathPackage = P("scala.math")
   lazy val ScalaMathPackageClass =
-    ScalaMathPackage.asModule.moduleClass
+    ScalaMathPackage.moduleClass//.asModule.moduleClass
   lazy val ScalaMathCommonClass = C("scala.MathCommon")
   
   lazy val SeqModule          = M("scala.collection.Seq")
