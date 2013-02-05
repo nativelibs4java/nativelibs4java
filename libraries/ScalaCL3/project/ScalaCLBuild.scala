@@ -23,7 +23,7 @@ object ScalaCLBuild extends Build {
     libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-reflect" % _),
       
 		libraryDependencies ++= Seq(
-      //"com.nativelibs4java" % "javacl" % "1.0-SNAPSHOT",
+      "com.nativelibs4java" % "javacl" % "1.0-SNAPSHOT",
       "com.novocode" % "junit-interface" % "0.5" % "test->default"
     ),    
 
