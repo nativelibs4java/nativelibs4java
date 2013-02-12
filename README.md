@@ -10,11 +10,13 @@ This repository hosts source code for the following (related) projects :
 
     [CHANGELOG](https://github.com/ochafik/nativelibs4java/blob/master/libraries/OpenCL/CHANGELOG) | [FAQ](http://code.google.com/p/javacl/wiki/FAQ) | [JavaDoc](http://nativelibs4java.sourceforge.net/javacl/api/stable/) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 *   [ScalaCL](http://code.google.com/p/scalacl/) provides GPGPU-powered collections for Scala, with map/filter operations running straight on the GPU (converts Scala code to OpenCL).
-    ScalaCL moved to its own repository: [ochafik/ScalaCL](https://github.com/ochafik/ScalaCL). 
+
+    _ScalaCL moved to its own repository: [ochafik/ScalaCL](https://github.com/ochafik/ScalaCL)._
 
     [FAQ](http://code.google.com/p/scalacl/wiki/FAQ) | [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 *   [Scalaxy](http://code.google.com/p/scalaxy/) plugs into the Scala compiler to optimize Scala code (in particular, makes for loops much faster)
-    Scalaxy moved to its own repository: [ochafik/Scalaxy](https://github.com/ochafik/Scalaxy).
+
+    _Scalaxy moved to its own repository: [ochafik/Scalaxy](https://github.com/ochafik/Scalaxy)._
 
 Please read [Olivier Chafik's blog](http://ochafik.com/blog/) for announcements.
 
