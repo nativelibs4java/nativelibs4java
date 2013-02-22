@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
-	<artifactId>scalacl-parent</artifactId>
+	<artifactId>scalacl-legacy-parent</artifactId>
 	<version>0.3.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ScalaCL Parent Project</name>
@@ -58,12 +58,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalaxy</artifactId>
+				<artifactId>scalaxy-legacy</artifactId>
 				<version>${scalaxy.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalaxy</artifactId>
+				<artifactId>scalaxy-legacy</artifactId>
 				<type>test-jar</type>
 				<version>${scalaxy.version}</version>
 			</dependency>
@@ -76,18 +76,18 @@
 			
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl</artifactId>
+				<artifactId>scalacl-legacy</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl</artifactId>
+				<artifactId>scalacl-legacy</artifactId>
 				<classifier>shaded</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl-compiler-plugin</artifactId>
+				<artifactId>scalacl-legacy-compiler-plugin</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>scalacl-test</artifactId>
+  <artifactId>scalacl-legacy-test</artifactId>
   <packaging>jar</packaging>
   <version>0.3.1-SNAPSHOT</version>
   <name>ScalaCLv2 Test</name>
@@ -21,7 +21,7 @@
     </dependency>
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>
-  		<artifactId>scalacl</artifactId>
+  		<artifactId>scalacl-legacy</artifactId>
   		<version>0.3.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
@@ -54,7 +54,7 @@
             <compilerPlugins>
               <compilerPlugin>
                 <groupId>com.nativelibs4java</groupId>
-                <artifactId>scalacl-compiler-plugin</artifactId>
+                <artifactId>scalacl-legacy-compiler-plugin</artifactId>
                 <version>0.3.1-SNAPSHOT</version>
               </compilerPlugin>
             </compilerPlugins>
