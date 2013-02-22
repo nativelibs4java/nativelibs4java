@@ -68,7 +68,7 @@
 		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
-		<scala.version>2.9.2</scala.version>
+		<scala.version>2.10.0</scala.version>
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
