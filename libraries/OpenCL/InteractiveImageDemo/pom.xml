@@ -48,6 +48,18 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>full-package</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <shadedArtifactAttached>${shadedArtifactAttached}</shadedArtifactAttached>
+                    </configuration>
+                </execution>
+            </executions>
 		</plugin>
 
 	</plugins>
