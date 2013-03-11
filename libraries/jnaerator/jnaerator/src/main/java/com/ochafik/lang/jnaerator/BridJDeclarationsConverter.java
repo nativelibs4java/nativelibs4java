@@ -328,7 +328,7 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
                                     followedCall = new New(nativeMethod.getValueType(), followedCall);
                                 else {
                                     Expression ptrExpr = expr(typeRef(org.bridj.Pointer.class));
-                                    if (returnType.targetTypeConversion == null || returnType.targetTypeConversion.type == ConvType.Void)
+                                    if (returnType.type != ConvType.Pointer || Arrays.asList("org.bridj.Pointer<? >").contains(String.valueOf(returnType.getTypeRef(false))))
                                         followedCall = methodCall(ptrExpr, "pointerToAddress", followedCall);
                                     else
                                         followedCall = methodCall(ptrExpr, "pointerToAddress", followedCall, result.typeConverter.typeLiteral(getSingleTypeParameter(nativeMethod.getValueType())));
