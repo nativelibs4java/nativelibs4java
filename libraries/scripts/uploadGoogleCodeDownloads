@@ -4,12 +4,32 @@
 #
 # http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/jnaerator/CHANGELOG
 #
-BRIDJ_VERSION=0.6.2
-JNAERATOR_VERSION=0.11
-JAVACL_VERSION=1.0.0-RC3
+function fail {
+    echo "#" >&2
+    echo "# ERROR: $@" >&2
+    echo "#" >&2
+    exit 1
+}
+
+function getVersion {
+    POM=$1
+    [[ -f "$POM" ]] || fail "No such POM file: $POM"
+    cat "$POM" | grep "<version>" | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'
+}
+
+cd `dirname $0`
+cd ..
+
+BRIDJ_VERSION=`getVersion BridJ/pom.xml`
+JNAERATOR_VERSION=`getVersion jnaerator/pom.xml`
+JAVACL_VERSION=`getVersion OpenCL/pom.xml`
+
+[[ $BRIDJ_VERSION =~ .*-SNAPSHOT || $JNAERATOR_VERSION =~ .*-SNAPSHOT || $JAVACL_VERSION =~ .*-SNAPSHOT ]] && fail "Found snapshot versions: BRIDJ_VERSION = $BRIDJ_VERSION, JNAERATOR_VERSION = $JNAERATOR_VERSION, JAVACL_VERSION = $JAVACL_VERSION"
 
 USER=$1
 PASSWORD=$2
+
+[[ -n "$USER" && -n "$PASSWORD" ]]Ê|| fail "Please provide a username and a password for Google Code"
 
 # Modified script to add full description:
 # wget http://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py
@@ -22,8 +42,10 @@ function upload_artifact() {
     CLASSIFIER="$5"
     SUMMARY="$6"
     
+    SUMMARY_FILE="${PROJECT}_SUMMARY"
+    [[ -f "$SUMMARY_FILE" ]]Ê|| fail "Summary file '$SUMMARY_FILE' not found"
     
-    DESCRIPTION="`cat ${PROJECT}_SUMMARY`
+    DESCRIPTION="`cat "$SUMMARY_FILE"`
 
 For more details, see https://github.com/ochafik/nativelibs4java/blob/master/libraries/$DIR_NAME/CHANGELOG"
     
