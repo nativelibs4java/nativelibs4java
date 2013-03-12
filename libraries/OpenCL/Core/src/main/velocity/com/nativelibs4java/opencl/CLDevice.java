@@ -38,7 +38,7 @@ public class CLDevice extends CLAbstractEntity {
     private final boolean needsRelease;
 
     CLDevice(CLPlatform platform, long device) {
-    		this(platform, device, true);
+    		this(platform, device, false);
     }
     CLDevice(CLPlatform platform, long device, boolean needsRelease) {
         super(device);
