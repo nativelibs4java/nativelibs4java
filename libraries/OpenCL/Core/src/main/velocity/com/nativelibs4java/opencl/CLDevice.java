@@ -34,11 +34,16 @@ public class CLDevice extends CLAbstractEntity {
 
     #declareInfosGetter("infos", "CL.clGetDeviceInfo")
     
-    volatile CLPlatform platform;
+    private volatile CLPlatform platform;
+    private final boolean needsRelease;
 
     CLDevice(CLPlatform platform, long device) {
+    		this(platform, device, true);
+    }
+    CLDevice(CLPlatform platform, long device, boolean needsRelease) {
         super(device);
         this.platform = platform;
+        this.needsRelease = needsRelease;
     }
     
     public synchronized CLPlatform getPlatform() {
@@ -51,7 +56,8 @@ public class CLDevice extends CLAbstractEntity {
 
 	@Override
 	protected void clear() {
-		error(CL.clReleaseDevice(getEntity()));
+		if (needsRelease)
+			error(CL.clReleaseDevice(getEntity()));
 	}
 
     public String createSignature() {
