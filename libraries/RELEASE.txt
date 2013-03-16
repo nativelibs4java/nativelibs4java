@@ -2,19 +2,12 @@
 - Move Velocity, Utils, BridJ, JNAerator, JavaCL, Parent to release versions
 - Remove ~/.m2/repository/com/nativelibs4java and make sure the following command succeeds (runs the tests):
   mvn clean install -o
-- Upload artifacts with uploadGoogleCodeDownloads, after editing it to match versions:
-  scripts/uploadGoogleCodeDownloads
+- Deploy to staged repo, create release tags and upload artifacts to Google Code
+  scripts/tagAndUpload_BridJ_JNAerator_JavaCL
 - Prepare release notes:
   - Run this
     scripts/prepareReleaseNotes
   - Paste first section of CHANGELOG.html files into a new post at http://ochafik.com/wp-admin
-- Tag new versions in git
-  git -a bridj-$BRIDJ_VERSION "BridJ version $BRIDJ_VERSION"
-  git -a jnaerator-$JNAERATOR_VERSION "JNAerator version $JNAERATOR_VERSION"
-  git -a javacl-$JAVACL_VERSION "JavaCL version $JAVACL_VERSION"
-  git push --tags
-- Deploy to staged repo:
-  mvn clean javadoc:jar deploy -DskipTests -Pgpg,coordinated-release
 - Close staged repo on http://oss.sonatype.org
 - Test staged repo with a dummy sbt project
 - Release stage repo

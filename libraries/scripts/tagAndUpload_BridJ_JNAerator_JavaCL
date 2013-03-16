@@ -17,19 +17,40 @@ function getVersion {
     cat "$POM" | grep "<version>" | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'
 }
 
+function listPOMs {
+    find $1 -name pom.xml
+}
+
 cd `dirname $0`
 cd ..
 
 BRIDJ_VERSION=`getVersion BridJ/pom.xml`
 JNAERATOR_VERSION=`getVersion jnaerator/pom.xml`
 JAVACL_VERSION=`getVersion OpenCL/pom.xml`
+ROOT_VERSION=`getVersion pom.xml`
 
-[[ $BRIDJ_VERSION =~ .*-SNAPSHOT || $JNAERATOR_VERSION =~ .*-SNAPSHOT || $JAVACL_VERSION =~ .*-SNAPSHOT ]] && fail "Found snapshot versions: BRIDJ_VERSION = $BRIDJ_VERSION, JNAERATOR_VERSION = $JNAERATOR_VERSION, JAVACL_VERSION = $JAVACL_VERSION"
+HAS_SNAPSHOT_VERSION=0
+for POM in pom.xml `listPOMs BridJ` `listPOMs jnaerator` `listPOMs OpenCL`; do
+    VERSION=`getVersion "$POM"`
+    if [[ $VERSION =~ .*-SNAPSHOT ]]; then
+        HAS_SNAPSHOT_VERSION=1
+        echo "Found SNAPSHOT version in '$POM': $VERSION"
+    fi
+done
+
+[[ $HAS_SNAPSHOT_VERSION -eq 0 ]] || fail "Please update versions to release versions and try again"
 
 USER=$1
 PASSWORD=$2
 
 [[ -n "$USER" && -n "$PASSWORD" ]]Ê|| fail "Please provide a username and a password for Google Code"
+
+mvn clean javadoc:jar deploy -DskipTests -Pgpg,coordinated-release || fail "Deployment failed"
+
+git -a bridj-$BRIDJ_VERSION "BridJ version $BRIDJ_VERSION" || fail "Failed to create git tag for BridJ"
+git -a jnaerator-$JNAERATOR_VERSION "JNAerator version $JNAERATOR_VERSION" || fail "Failed to create git tag for JNAerator"
+git -a javacl-$JAVACL_VERSION "JavaCL version $JAVACL_VERSION" || fail "Failed to create git tag for JavaCL"
+git push --tags || fail "Failed to push newly-created git tags"
 
 # Modified script to add full description:
 # wget http://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py
