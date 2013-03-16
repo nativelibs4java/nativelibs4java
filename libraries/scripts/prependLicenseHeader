@@ -1,0 +1,18 @@
+#!/bin/bash
+
+LICENSE=$1
+ROOT=src/
+GLOB=*.java
+
+for F in `find $ROOT -name "$GLOB"`; do
+    cat $LICENSE > $F.tmp
+    cat $F >> $F.tmp
+    mv $F $F.old
+    mv $F.tmp $F
+done
+
+echo 'Finalize with:
+
+  find $ROOT -name "$GLOB.old" -exec rm \'{}\'
+  
+"  
