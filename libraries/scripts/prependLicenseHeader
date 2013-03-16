@@ -1,10 +1,12 @@
 #!/bin/bash
 
-LICENSE=$1
-ROOT=src/
-GLOB=*.java
+LICENSE="$1"
+ROOT="src/"
+GLOB="*.java"
 
-for F in `find $ROOT -name "$GLOB"`; do
+#[[ -f "$LICENSE" ]]Ê|| exit 1
+
+for F in `find $ROOT -name "$GLOB"` ; do
     cat $LICENSE > $F.tmp
     cat $F >> $F.tmp
     mv $F $F.old
@@ -13,6 +15,6 @@ done
 
 echo 'Finalize with:
 
-  find $ROOT -name "$GLOB.old" -exec rm \'{}\'
+  find '$ROOT' -name "'$GLOB'.old" -exec rm '"'"'{}'"'"' '"'"';'"'"'
   
-"  
+'
