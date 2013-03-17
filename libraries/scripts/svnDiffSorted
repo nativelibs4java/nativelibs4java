@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# svn has recently started outputting diffs in a random order:
+# http://comments.gmane.org/gmane.comp.version-control.subversion.user/109502
+
+FILES=`svn status $@ | awk '{ print $2 }' | sort`
+
+for FILE in $FILES ; do
+    if [[ -f $FILE ]]; then
+        svn diff $FILE
+    fi
+done
