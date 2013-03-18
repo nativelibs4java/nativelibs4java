@@ -586,6 +586,7 @@ public class Platform {
             String fileName = new File(libraryResource).getName();
 			File libFile = new File(extractedLibrariesTempDir, fileName);
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
+			//using an file channnel with the transferto transferFrom should be more ok
 			while ((len = in.read(b)) > 0)
 				out.write(b, 0, len);
 			out.close();
