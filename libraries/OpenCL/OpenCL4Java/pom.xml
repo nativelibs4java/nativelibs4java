@@ -30,7 +30,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
 	  <!--classifier>c-only</classifier-->
-	  <version>0.6.3-SNAPSHOT</version>
+	  <version>0.7-SNAPSHOT</version>
 	</dependency>
 	
   </dependencies>

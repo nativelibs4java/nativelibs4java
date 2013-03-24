@@ -62,7 +62,7 @@
 	<properties>
 		<mainClass></mainClass>
 		<versionSpecificSubPackage></versionSpecificSubPackage>
-		<bridj.version>0.6.3-SNAPSHOT</bridj.version>
+		<bridj.version>0.7-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.9-SNAPSHOT</maven-velocity-plugin.version>
 		<jnaerator.version>0.12-SNAPSHOT</jnaerator.version>
 		

@@ -5,7 +5,7 @@
 	<artifactId>interop-integration-root</artifactId>
 	<packaging>pom</packaging>
 	<name>Interop Integration Root</name>
-	<version>0.6.3-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 
 	<parent>
 		<groupId>com.nativelibs4java</groupId>

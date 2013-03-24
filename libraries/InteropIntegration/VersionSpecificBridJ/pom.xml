@@ -4,7 +4,7 @@
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>bridj-version-specific-tests</artifactId>
 	<name>BridJ Version-Specific Tests</name>
-	<version>0.6.3-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<parent>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>bridj</artifactId>
-			<version>0.6.3-SNAPSHOT</version>
+			<version>0.7-SNAPSHOT</version>
 			<classifier>version-specific-packages</classifier>
 		</dependency>
 	</dependencies>
