@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 
 This file is part of JNAerator (http://jnaerator.googlecode.com/).
 
@@ -213,8 +213,9 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     public void initTypes() {
 
         result.prim("void", JavaPrim.Void);
+        result.prim("VOID", JavaPrim.Void);
 
-        result.prim("UTF32Char", JavaPrim.Char);
+        result.prim("UTF32Char", JavaPrim.Int);
         result.prim("unichar", JavaPrim.Char);
 
         result.prim("int64_t", JavaPrim.Long);
@@ -229,6 +230,8 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         result.prim("UINT", JavaPrim.Int);
         result.prim("SHORT", JavaPrim.Short);
         result.prim("USHORT", JavaPrim.Short);
+        result.prim("CHAR", JavaPrim.Byte);
+        result.prim("byte", JavaPrim.Byte);
         result.prim("BYTE", JavaPrim.Byte);
         result.prim("UBYTE", JavaPrim.Byte);
         result.prim("DOUBLE", JavaPrim.Double);
@@ -520,7 +523,10 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                         TypeRef tr = typeDefsEncountered.add(name) ? result.getTypeDef(name) : null;
                         if (tr != null) {
                             if (!isResoluble(tr, libraryClassName)) {
-                                simpleTypeRef.replaceBy(typeRef(result.getFakePointer(libraryClassName, name)));
+                                if (convertToJavaRef)
+                                    simpleTypeRef.replaceBy(typeRef(result.getFakePointer(libraryClassName, name)));
+                                else
+                                    simpleTypeRef.replaceBy(tr.clone());
                                 return;
                             }
                                 
@@ -1129,6 +1135,9 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         return expr(typeRef(ident).setMarkedAsResolved(true));
     }
     /// @see http://java.sun.com/docs/books/tutorial/java/nutsandbolts/_keywords.html
+    public static Set<String> JAVA_OBJECT_METHODS = new HashSet<String>(Arrays.asList(
+    		"notify", "notifyAll", "equals", "finalize", "getClass", "hashCode", "clone", "toString", "wait" // not allowed for function names
+	));
     public static Set<String> JAVA_KEYWORDS = new HashSet<String>(Arrays.asList(
             "null",
             "true",
@@ -1182,8 +1191,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             "float",
             "native",
             "super",
-            "while",
-            "wait" // not allowed for function names
+            "while"
             ));
     //static String keywords = " true false double float wait new null boolean return class public protected private ";
 
@@ -1242,7 +1250,8 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     }
 
     public boolean isJavaKeyword(String name) {
-        return JAVA_KEYWORDS.contains(name);
+        return JAVA_KEYWORDS.contains(name) || 
+        		JAVA_OBJECT_METHODS.contains(name); // not really keywords, but roughly same restrictions apply.
     }
 
     public Identifier getValidJavaIdentifier(Identifier name) {

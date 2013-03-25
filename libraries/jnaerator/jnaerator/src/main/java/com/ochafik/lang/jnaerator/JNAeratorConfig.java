@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -78,7 +78,7 @@ public class JNAeratorConfig {
             com.sun.jna.Library.class,
             null,
             "jna-runtime.jar.files"),
-        JNAerator(false, true, true,
+        JNAerator(false, true, false,
             com.sun.jna.Callback.class,
             com.sun.jna.Pointer.class,
             com.sun.jna.Memory.class,
@@ -87,7 +87,7 @@ public class JNAeratorConfig {
             null,
             null,
             com.sun.jna.Library.class,
-            com.ochafik.lang.jnaerator.runtime.Bits.class,
+            null,
             "jnaerator-runtime.jar.files") {
 
             @Override
@@ -113,21 +113,7 @@ public class JNAeratorConfig {
                 return "BridJ (faster runtime that supports C++)";
             }
 
-        };//,
-//        IPhone(
-//            false,
-//            false,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null,
-//            null
-//        );
+        };
 
         public static final Runtime DEFAULT = BridJ;//JNAerator;
         public enum Ann {
@@ -271,6 +257,7 @@ public class JNAeratorConfig {
 
 		public final List<String> includes = new ArrayList<String>();
 		public final Map<String, String> macros = new LinkedHashMap<String, String>();
+		public final Map<String, String> forcedTypeDefs = new LinkedHashMap<String, String>();
 		public final List<String> frameworksPath = new ArrayList<String>();
 
 		public List<String> includeStrings = new ArrayList<String>();

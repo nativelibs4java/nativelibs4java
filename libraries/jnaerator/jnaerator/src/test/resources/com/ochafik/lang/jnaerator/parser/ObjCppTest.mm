@@ -44,6 +44,8 @@ typedef const CHAR *LPCCH, *PCCH;
 long value = (int)(__u.__u >> 31);
 --
 long long l = 0x8000000000000000;
+long long ll = 10LL;
+unsigned long long ull = 10ULL;
 --
 void f(struct s i);
 --
@@ -349,6 +351,15 @@ struct Test {__
 --
 libvlc_instance_t* libvlc_new(char *const *);
 --
+__extension__ typedef long long __time64_t;
+--
+void f(int __restrict__ a);
+--
+extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void __cdecl __debugbreak(void)
+{
+  __asm__ __volatile__("int $3");
+}
+--
 void f(struct x * const);
 --
 typedef __success(return >= 0) long HRESULT;
@@ -377,9 +388,11 @@ static __inline__  int __inline_isnormalf( float __x ) {
 }
 
 - (BOOL)tryLock;
+@optional
 - (BOOL)lockBeforeDate:(NSDate *)limit;
 
 //- (void)setName:(NSString *)n ;
+@required
 - (void)setName:(NSString in*)n;
 //- (NSString *)name ;
 - (NSString *)name;
@@ -440,7 +453,13 @@ typedef struct {
 
 @end
 --
-@interface NSObject (NSCoderMethods)
+@interface NSObject (NSCoderMethods) {
+}
+enum {
+    NSMachPortDeallocateNone = 0,
+    NSMachPortDeallocateSendRight = (1UL << 0),
+    NSMachPortDeallocateReceiveRight = (1UL << 1)
+};
 
 + (NSInteger)version;
 + (void)setVersion:(NSInteger)aVersion;

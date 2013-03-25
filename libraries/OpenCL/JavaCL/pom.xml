@@ -5,8 +5,7 @@
 	<artifactId>javacl</artifactId>
 	<name>JavaCL / BridJ</name>
 	<url>http://code.google.com/p/javacl/</url>
-	<packaging>jar</packaging>
-  
+	<packaging>bundle</packaging>
 	
 	<description>
 JavaCL is an Object-Oriented API that makes the C OpenCL API available to Java in a very natural way.
@@ -22,11 +21,16 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	</parent>
 	
 	<dependencies>
-	
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-core</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+		 	<version>4.3.0</version>
+		 	<scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math</artifactId>
@@ -51,6 +55,67 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+                    <execution>
+                        <id>full-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>${shadedArtifactAttached}</shadedArtifactAttached>
+                        </configuration>
+                    </execution>
+                </executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Version>${project.version}</Bundle-Version>
+						<Bundle-Activator>
+							com.nativelibs4java.opencl.OSGiBundleActivator
+						</Bundle-Activator>
+						<Private-Package>
+							org.bridj.relocated.*
+						</Private-Package>
+						<Import-Package>
+							org.osgi.framework
+						</Import-Package>
+						<Export-Package>
+							com.nativelibs4java.opencl,
+							com.nativelibs4java.opencl.library,
+							com.nativelibs4java.opencl.util,
+							com.nativelibs4java.opencl.util.fft,
+							com.nativelibs4java.util,
+							com.ochafik.util.string,
+							
+							org.bridj,
+							org.bridj.ann,
+							org.bridj.cpp,
+							org.bridj.cpp.com,
+							org.bridj.cpp.com.shell,
+							org.bridj.demangling,
+							org.bridj.jawt,
+							org.bridj.objc,
+							org.bridj.dyncall,
+							org.bridj.util,
+							
+							org.bridj.lib.darwin_universal,
+							org.bridj.lib.linux_x64,
+							org.bridj.lib.linux_x86,
+							org.bridj.lib.sunos_x86,
+							org.bridj.lib.win32,
+							org.bridj.lib.win64
+						</Export-Package>
+					</instructions>
+				</configuration>
 			</plugin>
 			
 		</plugins>

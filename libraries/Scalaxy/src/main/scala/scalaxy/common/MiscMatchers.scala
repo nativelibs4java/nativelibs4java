@@ -2,7 +2,7 @@
  * ScalaCL - putting Scala on the GPU with JavaCL / OpenCL
  * http://scalacl.googlecode.com/
  *
- * Copyright (c) 2009-2010, Olivier Chafik (http://ochafik.free.fr/)
+ * Copyright (c) 2009-2013, Olivier Chafik (http://ochafik.com/)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,19 +33,6 @@ import pluginBase._
 
 import scala.reflect.NameTransformer
 import scala.tools.nsc.Global
-
-abstract sealed class ColType(name: String) {
-  override def toString = name
-}
-case object SeqType extends ColType("Seq")
-case object SetType extends ColType("Set")
-case object ListType extends ColType("List")
-case object VectorType extends ColType("Vector")
-case object ArrayType extends ColType("Array")
-case object IndexedSeqType extends ColType("IndexedSeq")
-case object MapType extends ColType("Map")
-case object OptionType extends ColType("Option")
-
 
 trait MiscMatchers extends PluginNames with WithOptions {
   val global: Global
@@ -262,15 +249,6 @@ trait MiscMatchers extends PluginNames with WithOptions {
         None
     }
   }
-  object TupleSelect {
-    def unapply(tree: Tree) = tree match {
-      case Select(Ident(nme.scala_), name) if name.toString.matches(""".*Tuple\d+""") =>
-        true
-      case _ =>
-        false
-      //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
-    }
-  }
   lazy val unitTpe = UnitClass.tpe
   def isUnit(tpe: Type) = normalize(tpe) match {
     case `unitTpe` | MethodType(_, `unitTpe`) =>
@@ -317,6 +295,16 @@ trait MiscMatchers extends PluginNames with WithOptions {
         Some((collection, name, typeArgs, args :+ newArgs))
       case _ =>
         None
+    }
+  }
+  
+  object TupleSelect {
+    def unapply(tree: Tree) = tree match {
+      case Select(Ident(nme.scala_), name) if name.toString.matches(""".*Tuple\d+""") =>
+        true
+      case _ =>
+        false
+      //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
     }
   }
   

@@ -6,13 +6,13 @@
   <artifactId>mono4java</artifactId>
   <name>Mono4Java</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>jar</packaging>
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>mono4java-parent</artifactId>
-	  <version>0.2-SNAPSHOT</version>
+	  <version>0.2</version>
 	  <relativePath>..</relativePath>
   </parent>
 

@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -27,6 +27,7 @@ import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.com.IUnknown;
 
 import com.ochafik.lang.jnaerator.BridJTypeConversion.NL4JConversion;
+import com.ochafik.lang.jnaerator.TypeConversion.ConvType;
 //import org.bridj.structs.StructIO;
 //import org.bridj.structs.Array;
 
@@ -312,6 +313,9 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
                         }
                         followedArgs.add(followedArg);
                     }
+                    if (varArgType != null) {
+                        followedArgs.add(varRef(varArgName));
+                    }
                     
                     Expression followedCall = methodCall(rawMethod.getName().toString(), followedArgs.toArray(new Expression[followedArgs.size()]));
                     boolean isVoid = "void".equals(String.valueOf(nativeMethod.getValueType()));
@@ -320,7 +324,16 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
                     else {
                         switch (returnType.type) {
                             case Pointer:
-                                followedCall = methodCall(expr(typeRef(org.bridj.Pointer.class)), "pointerToAddress", followedCall, result.typeConverter.typeLiteral(getSingleTypeParameter(nativeMethod.getValueType())));
+                                if (returnType.isTypedPointer)
+                                    followedCall = new New(nativeMethod.getValueType(), followedCall);
+                                else {
+                                    Expression ptrExpr = expr(typeRef(org.bridj.Pointer.class));
+                                    Expression targetTypeExpr = result.typeConverter.typeLiteral(getSingleTypeParameter(nativeMethod.getValueType()));
+                                    if (targetTypeExpr == null || (returnType.targetTypeConversion != null && returnType.targetTypeConversion.type == ConvType.Void))
+                                        followedCall = methodCall(ptrExpr, "pointerToAddress", followedCall);
+                                    else
+                                        followedCall = methodCall(ptrExpr, "pointerToAddress", followedCall, targetTypeExpr);
+                                }
                                 break;
                             case Enum:
                                 followedCall = methodCall(expr(typeRef(org.bridj.FlagSet.class)), "fromValue", followedCall, result.typeConverter.typeLiteral(getSingleTypeParameter(nativeMethod.getValueType())));
@@ -458,21 +471,18 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
 
         //    private static StructIO<MyStruct> io = StructIO.getInstance(MyStruct.class);
         
-        Function defaultConstructor = new Function(Type.JavaMethod, ident(structName), null).setBody(block(stat(methodCall("super")))).addModifiers(ModifierType.Public);
-        if (childSignatures.addMethod(defaultConstructor))
-            structJavaClass.addDeclaration(defaultConstructor);
-        
         if (isUnion)
             structJavaClass.addAnnotation(new Annotation(result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.Union)));
 
         int iVirtual = 0, iConstructor = 0;
 		//List<Declaration> children = new ArrayList<Declaration>();
+        boolean succeeded = true;
 		for (Declaration d : struct.getDeclarations()) {
             //if (isUnion)
             //    iChild[0] = 0;
 
 			if (d instanceof VariablesDeclaration) {
-				convertVariablesDeclaration((VariablesDeclaration)d, childSignatures, structJavaClass, iChild, false, structName, callerLibraryClass, callerLibrary);
+                succeeded = convertVariablesDeclaration((VariablesDeclaration)d, childSignatures, structJavaClass, iChild, false, structName, callerLibraryClass, callerLibrary) && succeeded;
 			} else if (!onlyFields) {
 				if (d instanceof TaggedTypeRefDeclaration) {
 					TaggedTypeRef tr = ((TaggedTypeRefDeclaration) d).getTaggedTypeRef();
@@ -529,10 +539,18 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
 			}
 		}
         
-        String ptrName = "pointer";
-		Function castConstructor = new Function(Type.JavaMethod, ident(structName), null, new Arg(ptrName, typeRef(result.config.runtime.pointerClass))).setBody(block(stat(methodCall("super", varRef(ptrName))))).addModifiers(ModifierType.Public);
-        if (childSignatures.addMethod(castConstructor))
-            structJavaClass.addDeclaration(castConstructor);
+        if (succeeded) {
+            Function defaultConstructor = new Function(Type.JavaMethod, ident(structName), null).setBody(block(stat(methodCall("super")))).addModifiers(ModifierType.Public);
+            if (childSignatures.addMethod(defaultConstructor))
+                structJavaClass.addDeclaration(defaultConstructor);
+
+            String ptrName = "pointer";
+            Function castConstructor = new Function(Type.JavaMethod, ident(structName), null, new Arg(ptrName, typeRef(result.config.runtime.pointerClass))).setBody(block(stat(methodCall("super", varRef(ptrName))))).addModifiers(ModifierType.Public);
+            if (childSignatures.addMethod(castConstructor))
+                structJavaClass.addDeclaration(castConstructor);
+        } else {
+            structJavaClass.addModifiers(ModifierType.Abstract);
+        }
         
 		return structJavaClass;
 	}
@@ -588,6 +606,8 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
 
         if (conv == null) {
 			throw new UnsupportedConversionException(mutatedType, "failed to convert type to Java");
+		} else if (conv.isUndefined) {
+			throw new UnsupportedConversionException(mutatedType, "failed to convert type to Java (undefined type)");
 		} else if ("void".equals(String.valueOf(conv.getTypeRef(useRawTypes)))) {
 			throw new UnsupportedConversionException(mutatedType, "void type !");
 			//out.add(new EmptyDeclaration("SKIPPED:", v.formatComments("", true, true, false), v.toString()));
@@ -681,7 +701,7 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
         return out;
     }
 	@Override
-    public void convertVariablesDeclaration(VariablesDeclaration v, Signatures signatures, DeclarationsHolder out, int[] iChild, boolean isGlobal, Identifier holderName, Identifier callerLibraryClass, String callerLibrary) {
+    public boolean convertVariablesDeclaration(VariablesDeclaration v, Signatures signatures, DeclarationsHolder out, int[] iChild, boolean isGlobal, Identifier holderName, Identifier callerLibraryClass, String callerLibrary) {
         try { 
 			TypeRef valueType = v.getValueType();
 			for (Declarator vs : v.getDeclarators()) {
@@ -719,14 +739,18 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
                     out.addDeclaration(vd);
                 }
 				//}
-				iChild[0]++;
+				
 			}
+            return true;
 		} catch (Throwable e) {
             if (!(e instanceof UnsupportedConversionException))
                 e.printStackTrace();
-			if (!result.config.limitComments)
-				out.addDeclaration(new EmptyDeclaration(e.toString()));
-		}
+//			if (!result.config.limitComments)
+            out.addDeclaration(new EmptyDeclaration(e.toString()));
+            return false;
+		} finally {
+            iChild[0]++;
+        }
     }
     int nextAnonymousFieldId;
 	

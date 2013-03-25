@@ -37,6 +37,9 @@ public abstract class Primitive {
     public String getTypeRef() {
         return getWrapperName();
     }
+    public String getRawTypeRef() {
+    	    return getTypeRef();	
+    }
 /*
     public String getV1() {
         return       v1;
@@ -176,6 +179,7 @@ public abstract class Primitive {
             bridJPrimitives.add(new Primitive("Pointer") {
             		public String value(String intValue) { return "(Pointer)Pointer.pointerToAddress(" + intValue + ")"; }
             		public String getTypeRef() { return "Pointer<?>"; }
+            		public String getRawTypeRef() { return "Pointer"; }
             });
             bridJPrimitives = Collections.unmodifiableList(bridJPrimitives);
         }

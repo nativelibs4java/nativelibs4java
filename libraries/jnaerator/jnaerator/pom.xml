@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>jnaerator-parent</artifactId>
-		<version>0.11-SNAPSHOT</version>
+		<version>0.12-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -72,6 +72,18 @@ Users who are looking for ready-to-use libraries should check the NativeLibs4Jav
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+                    <execution>
+                        <id>full-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>${shadedArtifactAttached}</shadedArtifactAttached>
+                        </configuration>
+                    </execution>
+                </executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

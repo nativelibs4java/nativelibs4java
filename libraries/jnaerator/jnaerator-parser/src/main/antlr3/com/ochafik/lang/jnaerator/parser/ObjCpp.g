@@ -39,9 +39,6 @@ scope ModifierKinds {
 	EnumSet<ModifierKind> allowedKinds;
 	EnumSet<ModifierKind> forbiddenKinds;
 }
-scope IsTypeDef {
-	boolean isTypeDef;
-}
 scope ModContext {
 	boolean isObjCArgDef;
 	boolean isInExtMod;
@@ -219,12 +216,6 @@ import static com.ochafik.lang.jnaerator.parser.StoredDeclarations.*;
 			return false;
 		ModContext_scope scope = (ModContext_scope)ModContext_stack.get(ModContext_stack.size() - 1);
 		return scope.isInExtMod;
-	}
-	boolean isTypeDef() {
-		if (IsTypeDef_stack.isEmpty())
-			return false;
-		IsTypeDef_scope scope = (IsTypeDef_scope)IsTypeDef_stack.get(IsTypeDef_stack.size() - 1);
-		return scope.isTypeDef;
 	}
 	void defineTypeIdentifierInParentScope(Identifier i) {
 		if (i != null && i.isPlain())
@@ -523,7 +514,6 @@ externDeclarations returns [ExternDeclarations declaration]
 	;
 
 declaration returns [Declaration declaration, List<Modifier> modifiers, String preComment, int startTokenIndex, Template template]
-scope IsTypeDef;
 scope ModContext;
 @before {
 	checkInterrupt();
@@ -553,7 +543,8 @@ scope ModContext;
 	}
 }
 	:	
-	
+	    // GCC extension.
+		( { next("__extension__") }? IDENTIFIER )?
 		( tp=templatePrefix { $template = $tp.template; } )?
 		{
 		  $modifiers = new ArrayList<Modifier>();
@@ -751,8 +742,6 @@ objCClassDef returns [Struct struct]
 			'{'
 			(
 				'@package' | // TODO keep in AST 
-				'@required' | // TODO keep in AST 
-				'@optional' | // TODO keep in AST 
 				'@public' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Public); } | 
 				'@private' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Private); } | 
 				'@protected' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Protected); } |
@@ -767,6 +756,8 @@ objCClassDef returns [Struct struct]
 		)?
 		{ $struct.setNextMemberVisibility(Struct.MemberVisibility.Public); }
 		(
+		    '@required' | // TODO keep in AST 
+		    '@optional' | // TODO keep in AST
 			objCMethodDecl { 
 				$struct.addDeclaration($objCMethodDecl.function);
 			} |
@@ -776,7 +767,7 @@ objCClassDef returns [Struct struct]
 			typeDef {
 				$struct.addDeclaration($typeDef.typeDef); 
 			} |
-			vd=varDecl ';' { !($vd.decl instanceof VariablesDeclaration) }? {
+			vd=varDecl ';' {
 				$struct.addDeclaration($vd.decl);
 			} |
 			lineDirective
@@ -793,11 +784,16 @@ functionPointerOrSimpleVarDecl returns [Declaration decl]
 			$decl = $functionPointerVarDecl.decl; 
 		}
 	;
-					
+
+// TODO parse modifiers : assign, nonatomic, readonly, copy...
+objCPropertyAttribute
+    :
+        IDENTIFIER ( '=' IDENTIFIER )?
+    ;
 objCPropertyDecl returns [Property property]
 	:
 		'@property' 
-		( '(' IDENTIFIER ( ',' IDENTIFIER ) * ) ? // TODO parse modifiers : assign, nonatomic, readonly, copy...
+		( '(' objCPropertyAttribute ( ',' objCPropertyAttribute ) * ) ? 
 		functionPointerOrSimpleVarDecl ';' {
 			$property = new Property($functionPointerOrSimpleVarDecl.decl);
 		}
@@ -1231,9 +1227,7 @@ arrayTypeMutator returns [TypeMutator mutator]
 	;
 
 templatePrefix returns [Template template]
-scope IsTypeDef;
 @init {
-	$IsTypeDef::isTypeDef = true;
 	$template = new Template();
 }
 	:	
@@ -1295,8 +1289,6 @@ functionSignatureSuffix returns [FunctionSignature signature]
 		)?
 		(
 			ii=IDENTIFIER {
-				if (isTypeDef())
-					addTypeIdent($ii.text);
 				$signature.getFunction().setName(new SimpleIdentifier($IDENTIFIER.text));
 			}
 		)?
@@ -1352,6 +1344,9 @@ mutableTypeRef returns [TypeRef type]
 					$type = $m1.mutator.mutateType($type);
 				}
 			) |
+			( { next(ModifierKind.StorageClassSpecifier) }? m=IDENTIFIER {
+			    $type.addModifiers(ModifierType.parseModifier($m.text));
+			}) |
 			(
 				f1=functionSignatureSuffix { 
 					assert $f1.signature != null && $f1.signature.getFunction() != null;
@@ -1404,9 +1399,13 @@ declarator  returns [Declarator decl]
 	;
 
 typeDef returns [TypeDef typeDef]
-scope IsTypeDef;
-@init {
-	$IsTypeDef::isTypeDef = true;
+@after {
+	for (Declarator d : $typeDef.getDeclarators()) {
+		String n = d.resolveName();
+		if (n != null) {
+			addTypeIdent(n);
+		}
+	}
 }
 	:	'typedef'
 	 	varDecl ';' {
@@ -1476,9 +1475,6 @@ directDeclarator returns [Declarator decl]
 		(
 			{ parseModifier(next()) == null }?=> IDENTIFIER {
 				$decl = mark(new DirectDeclarator($IDENTIFIER.text), getLine($IDENTIFIER));
-				if (isTypeDef()) {
-					addTypeIdent($IDENTIFIER.text);
-				}
 			} | 
 			'(' inner=declarator ')' {
 				$decl = $inner.decl;
@@ -1572,7 +1568,8 @@ scope ModifierKinds;
 				isTypeIdentifier(next()) || 
 				(
 					parseModifier(next(1)) == null &&
-					(isTypeDef() || !next(2, "=", ",", ";", ":", "[", "(", ")"))
+					//(isTypeDef() || !next(2, "=", ",", ";", ":", "[", "(", ")"))
+					!next(2, "=", ",", ";", ":", "[", "(", ")")
 				) 
 			}?=> an=typeName { $type = $an.type; } |
 			structCore { $type = $structCore.struct; } |
@@ -1704,7 +1701,9 @@ qualifiedIdentifier returns [Identifier identifier]
 qualifiedCppFunctionName returns [Identifier identifier]
 	:	i1=simpleCppFunctionName { $identifier = $i1.identifier; }
 		(
-			'::' ix=simpleCppFunctionName { $identifier = $identifier.derive(QualificationSeparator.Colons, $ix.identifier); }
+			'::' ix=simpleCppFunctionName { 
+			    $identifier = $identifier.derive(QualificationSeparator.Colons, $ix.identifier); 
+            }
 		)*
 	;
 	
@@ -2043,8 +2042,10 @@ statement returns [Statement stat]
 			$stat = $b.statement; 
 		} |
 		// GCC inline asm (see http://ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html)
-		{ next("__asm__") }?=> IDENTIFIER '('
-			STRING* ( ':' gccAsmInOuts )*
+		 
+		{ next("__asm__", "asm") }?=> IDENTIFIER
+		( { next("__volatile__", "volatile") }?=> IDENTIFIER )? '('
+			STRING* ( ':' gccAsmInOuts? )*
 		')' ';' ? |
 		// MSVC inline asm soup
 		{ next("__asm") }?=> IDENTIFIER '{'
@@ -2316,11 +2317,18 @@ HexDigit
 
 fragment
 IntegerConstantSuffix
-	:	('u' | 'U') |
-		(
-			('l' | 'L')
-			('l' | 'L')?
-		)
+	:	UnsignedConstantSuffix LongConstantSuffix? |
+	    LongConstantSuffix
+	;
+
+fragment
+UnsignedConstantSuffix
+	:	('u' | 'U')
+	;
+
+fragment
+LongConstantSuffix
+	:	('l' | 'L') ('l' | 'L')?
 	;
 
 HEXADECIMAL_NUMBER

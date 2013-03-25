@@ -1,10 +1,28 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0.0-RC3 (20130107)
+
+- Fixed nasty regression in getBestDevice !
+- Fixed ati byte order hack
+- Fixed byte order hack for ATI platforms
+- Fixes / optimized event callbacks (but broke API: CLEvent.EventCallback now only takes the completion status as argument, not the event anymore)
+- Fixed library probe
 - Fixed handling of image2d_t and image3d_t in Maven plugin (contrib. from Remi Emonet, request #308 and issue #307)
 - Fixed OpenGL interop on Windows (issue #312)
+- Fixed error about mismatching byte order for byte buffers, and replaced mentions to getKernelsDefaultByteOrder() by getByteOrder() (issue #336)
+- Fixed AMD App 2.7 Linux library loading code for 
+- Fixed AMD download link in demos.
 - Added CLEvent.FIRE_AND_FORGET to avoid returning events from all the methods that accept a vararg eventsToWaitFor.
-- Optimized low-level bindings on OpenCL 1.1+ platforms, with dynamic runtime switch (removed synchronized keyword from all native calls)
-- Optimized performance of many calls (CLKernel.setArgs/enqueueNDRange, CLBuffer.read/write...)
+- Added naive OSGi support to the main JAR.
+- Added list of devices in program errors.
+- Added CLBuffer.allocateCompatibleMemory(CLDevice)
+- Added client properties to CLContext (lazy + concurrent)
+- Optimized low-level bindings on OpenCL 1.1+ platforms, with dynamic runtime switch (removed synchronized keyword from all native calls), and made OpenCL 1.0 synchronization a warning.
+- Enhanced CLDevice.toString (include platform name)
+- Deprecated CLKernel.enqueueNDRange with int[] parameters
+- Return CLUserEvent from CLContext.createUserEvent();
 
 Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 
@@ -23,7 +41,7 @@ Version 1.0.0-RC2 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc)
 - Added -cl-nv-verbose, -cl-nv-maxrregcount, -cl-nv-opt-level + proper log even without error when nv-verbose is set
 - Enhanced handling of endianness : warn when creating contexts with devices that have mismatching endianness, throw when creating buffer out of Buffer / Pointer with bad endianness
 - Changed signature of CLPlatform.listDevices (now takes a single CLDevice.Type, including All, instead of an EnumSet thereof)
-- Moved sources to github  (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
 
 Version 1.0.0-RC1 (r2130, 20110621)
 

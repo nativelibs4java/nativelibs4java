@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -397,9 +397,10 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 //		}
 		
 		//List<Declaration> children = new ArrayList<Declaration>();
+		boolean succeeded = true;
 		for (Declaration d : struct.getDeclarations()) {
 			if (d instanceof VariablesDeclaration) {
-				convertVariablesDeclaration((VariablesDeclaration)d, childSignatures, structJavaClass, iChild, false, structName, callerLibraryClass, callerLibrary);
+				succeeded = convertVariablesDeclaration((VariablesDeclaration)d, childSignatures, structJavaClass, iChild, false, structName, callerLibraryClass, callerLibrary) && succeeded;
 			} else if (!onlyFields) {
 				if (d instanceof TaggedTypeRefDeclaration) {
 					TaggedTypeRef tr = ((TaggedTypeRefDeclaration) d).getTaggedTypeRef();
@@ -462,7 +463,12 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 			Struct byRef = publicStaticClass(ident("ByReference"), structName, Struct.Type.JavaClass, null, ident(ident(result.config.runtime.structClass), "ByReference"));
 			Struct byVal = publicStaticClass(ident("ByValue"), structName, Struct.Type.JavaClass, null, ident(ident(result.config.runtime.structClass), "ByValue"));
 			
-			if (result.config.runtime != JNAeratorConfig.Runtime.JNA) {
+			if (!succeeded) {
+				byRef.addModifiers(ModifierType.Abstract);
+				byVal.addModifiers(ModifierType.Abstract);
+			}
+			
+			if (succeeded && result.config.runtime != JNAeratorConfig.Runtime.JNA) {
 				if (!inheritsFromStruct) {
 					structJavaClass.addDeclaration(createNewStructMethod("newByReference", byRef));
 					structJavaClass.addDeclaration(createNewStructMethod("newByValue", byVal));
@@ -474,6 +480,9 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 
 			structJavaClass.addDeclaration(decl(byRef));
 			structJavaClass.addDeclaration(decl(byVal));
+		}
+		if (!succeeded) {
+			structJavaClass.addModifiers(ModifierType.Abstract);
 		}
 		return structJavaClass;
 	}
@@ -602,7 +611,7 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 	}
     int nextAnonymousFieldId;
     @Override
-	public void convertVariablesDeclaration(VariablesDeclaration v, Signatures signatures, DeclarationsHolder out, int[] iChild, boolean isGlobal, Identifier holderName, Identifier callerLibraryClass, String callerLibrary) {
+	public boolean convertVariablesDeclaration(VariablesDeclaration v, Signatures signatures, DeclarationsHolder out, int[] iChild, boolean isGlobal, Identifier holderName, Identifier callerLibraryClass, String callerLibrary) {
 		//List<Declaration> out = new ArrayList<Declaration>();
 		try {
 			TypeRef valueType = v.getValueType();
@@ -624,7 +633,7 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 					if (d.getBits() > 0) {
 						int bits = d.getBits();
                                                 if (!result.config.runtime.hasBitFields)
-                                                    throw new UnsupportedConversionException(d, "This runtime does not support bit fields : " + result.config.runtime);
+                                                    throw new UnsupportedConversionException(d, "This runtime does not support bit fields : " + result.config.runtime + " (please use BridJ instead)");
                                                 
 						vd.addAnnotation(new Annotation(result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.Bits), expr(bits)));
 						String st = vd.getValueType().toString(), mst = st;
@@ -660,9 +669,11 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
 				}
 				iChild[0]++;
 			}
+            return true;
 		} catch (UnsupportedConversionException e) {
-			if (!result.config.limitComments)
+			//if (!result.config.limitComments)
 				out.addDeclaration(new EmptyDeclaration(e.toString()));
+            return false;
 		}
 	}
 	TaggedTypeRefDeclaration publicStaticClassDecl(Identifier name, Identifier parentName, Struct.Type type, Element toCloneCommentsFrom, Identifier... interfaces) {
@@ -831,17 +842,35 @@ public class JNADeclarationsConverter extends DeclarationsConverter {
                 orderedFieldNames.add(expr(name));
 			}
             
-            String initOrderName = "initFieldOrder";
-            Function initOrder = new Function(Type.JavaMethod, ident(initOrderName), typeRef(Void.TYPE)).setBody(block(
-                stat(
-                    methodCall("setFieldOrder", new Expression.NewArray(typeRef(String.class), new Expression[0], orderedFieldNames.toArray(new Expression[orderedFieldNames.size()])))
-                )
-            )).addModifiers(ModifierType.Protected);
-            if (signatures.add(initOrder.computeSignature(SignatureType.JavaStyle))) {
-                    structJavaClass.addDeclaration(initOrder);
-                    Statement callInitOrder = stat(methodCall(initOrderName));
-                emptyConstructor.getBody().addStatement(callInitOrder);
-                fieldsConstr.getBody().addStatement(callInitOrder.clone());
+            String getFieldOrderName = "getFieldOrder";
+            Expression selfList = methodCall(
+                expr(typeRef(Arrays.class)), 
+                "asList",
+                orderedFieldNames.toArray(new Expression[orderedFieldNames.size()])
+            );
+            Block getFieldOrderImpl;
+            if (nativeStruct.getParents().isEmpty()) {
+                getFieldOrderImpl = block(new Statement.Return(selfList));
+            } else {
+                String fieldOrderName = "fieldOrder";
+                VariablesDeclaration vd = 
+                    new VariablesDeclaration(
+                        typeRef(List.class), 
+                        new DirectDeclarator(
+                            fieldOrderName, 
+                            new Expression.New(
+                                typeRef(ArrayList.class),
+                                (Expression)methodCall(varRef("super"), getFieldOrderName))));
+                getFieldOrderImpl = block(
+                    vd,
+                    stat(methodCall(varRef(fieldOrderName), "addAll", selfList)),
+                    new Statement.Return(varRef(fieldOrderName))
+                );
+            }
+            Function getFieldOrder = new Function(Type.JavaMethod, ident(getFieldOrderName), typeRef(List.class)).setBody(getFieldOrderImpl).addModifiers(ModifierType.Protected);
+            
+            if (signatures.add(getFieldOrder.computeSignature(SignatureType.JavaStyle))) {
+                structJavaClass.addDeclaration(getFieldOrder);
             }
             
 			int nArgs = fieldsConstr.getArgs().size();

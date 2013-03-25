@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -178,12 +178,6 @@ public abstract class Structure<S extends Structure<S, V, R>, V extends S, R ext
 		return (S[])super.toArray(array);
 	}
 
-
-	//@Override
-	protected Integer getBitsAnnotation(Field field) {
-		Bits bits = field.getAnnotation(Bits.class);
-		return bits == null ? null : bits.value();
-	}
 	/** Simply does a memcmp between the two memory blocks of the two structures
      */
 	//@Override

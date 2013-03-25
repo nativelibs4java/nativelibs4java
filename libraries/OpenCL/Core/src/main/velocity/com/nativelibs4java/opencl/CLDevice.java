@@ -34,11 +34,16 @@ public class CLDevice extends CLAbstractEntity {
 
     #declareInfosGetter("infos", "CL.clGetDeviceInfo")
     
-    volatile CLPlatform platform;
+    private volatile CLPlatform platform;
+    private final boolean needsRelease;
 
     CLDevice(CLPlatform platform, long device) {
+    		this(platform, device, false);
+    }
+    CLDevice(CLPlatform platform, long device, boolean needsRelease) {
         super(device);
         this.platform = platform;
+        this.needsRelease = needsRelease;
     }
     
     public synchronized CLPlatform getPlatform() {
@@ -49,9 +54,11 @@ public class CLDevice extends CLAbstractEntity {
         return platform;
     }
 
-    @Override
-    protected void clear() {
-    }
+	@Override
+	protected void clear() {
+		if (needsRelease)
+			error(CL.clReleaseDevice(getEntity()));
+	}
 
     public String createSignature() {
         return getName() + "|" + getVendor() + "|" + getDriverVersion() + "|" + getProfile();
@@ -530,7 +537,7 @@ public class CLDevice extends CLAbstractEntity {
     		try {
     			queue = createOutOfOrderQueue(context);
     			return true;
-    		} catch (CLException.InvalidQueueProperties ex) {
+    		} catch (CLException ex) {
     			return false;
     		} finally {
     			if (queue != null)

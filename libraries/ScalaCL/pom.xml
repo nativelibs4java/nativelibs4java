@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
-	<artifactId>scalacl-parent</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<artifactId>scalacl-legacy-parent</artifactId>
+	<version>0.3.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ScalaCL Parent Project</name>
 	<inceptionYear>2011</inceptionYear>
@@ -12,19 +12,41 @@
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.9-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
-	<modules>
-		<module>Collections</module>
-		<module>Plugin</module>
-		<module>Test</module>
-	</modules>
+	
+	<profiles>
+		<profile>
+			<id>devel</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<maven.compiler.debug>true</maven.compiler.debug>
+			</properties>
+			<modules>
+                <module>Collections</module>
+                <module>Plugin</module>
+                <module>Test</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>coordinated-release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+                <module>Collections</module>
+                <module>Plugin</module>
+			</modules>
+		</profile>
+	</profiles>
 	
 	<properties>
 		<javacl.version>1.0-SNAPSHOT</javacl.version>
-		<scalaxy.version>0.3-SNAPSHOT</scalaxy.version>
+		<scalaxy.version>0.3.1-SNAPSHOT</scalaxy.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -36,12 +58,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalaxy</artifactId>
+				<artifactId>scalaxy-legacy</artifactId>
 				<version>${scalaxy.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalaxy</artifactId>
+				<artifactId>scalaxy-legacy</artifactId>
 				<type>test-jar</type>
 				<version>${scalaxy.version}</version>
 			</dependency>
@@ -54,18 +76,18 @@
 			
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl</artifactId>
+				<artifactId>scalacl-legacy</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl</artifactId>
+				<artifactId>scalacl-legacy</artifactId>
 				<classifier>shaded</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
-				<artifactId>scalacl-compiler-plugin</artifactId>
+				<artifactId>scalacl-legacy-compiler-plugin</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -95,8 +117,8 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
@@ -125,9 +147,8 @@
 	<reporting>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
-				<version>${scala.version}</version>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</reporting>

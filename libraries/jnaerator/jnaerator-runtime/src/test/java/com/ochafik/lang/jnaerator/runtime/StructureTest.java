@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -18,6 +18,9 @@
 */
 package com.ochafik.lang.jnaerator.runtime;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.*;
 //import com.sun.jna.*;
 
@@ -32,6 +35,10 @@ public class StructureTest {
 		public TestStruct(int value) {
 			super();
 			this.value = value;
+		}
+		@Override
+		protected List<String> getFieldOrder() {
+			return Arrays.asList("value");
 		}
 		protected ByReference newByReference() { return new ByReference(); }
 		protected ByValue newByValue() { return new ByValue(); }

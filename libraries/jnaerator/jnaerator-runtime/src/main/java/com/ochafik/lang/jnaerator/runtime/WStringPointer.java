@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -17,6 +17,9 @@
 	along with JNAerator.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.ochafik.lang.jnaerator.runtime;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -47,6 +50,10 @@ public class WStringPointer extends Structure<WStringPointer, WStringPointer.ByV
 	public WStringPointer(String value) {
 		super();
 		this.value = new WString(value);
+	}
+	@Override
+	protected List<String> getFieldOrder() {
+		return Arrays.asList("value");
 	}
 	public static class ByValue extends WStringPointer implements com.sun.jna.Structure.ByValue {}
 	public static class ByReference extends WStringPointer implements com.sun.jna.Structure.ByReference {}

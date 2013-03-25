@@ -1,4 +1,19 @@
-Current development version (0.11-SNAPSHOT)
+Current development version (0.12-SNAPSHOT)
+
+- Added support for JNA 3.5.1 (implement getFieldOrder in all structs, see issue #384)
+- Dropped support for bit fields in JNA structs (users should implement bit manipulation logic manually or use BridJ).
+- Dropped old shared library (DLL, Mach-O) scanning code, superseded by dyncall/dynload and BridJ's demanglers.
+- Fixed parsing of unsigned long constants (issue #362, issue #374)
+- Fixed generation of raw bindings for callback return types (issue #386)
+- Fixed generation of raw bindings with varargs (issue #386, patch contributed by twitwi!)
+- Fixed handling of library names with hyphens (issue #260)
+- Fixed support of identifiers with Object method names (issue #375)
+- Fixed support of enums inside objc classes (issue #370)
+- Fixed parsing of `@optional` and `@required` objective-c annotations (issue #369)
+- Fixed UTF32Char, added VOID, CHAR and byte as predefined types (issue #363)
+...
+
+Version 0.11 (20130107)
 
 - Fixed infinite loops in simple typedefs (issue #288)
 - Fixed some -beautifyNames cases (issue #315)
@@ -8,6 +23,7 @@ Current development version (0.11-SNAPSHOT)
 - Fixed long / long long / short pointer function return types
 - Fixed generation of BridJ C++ constructors
 - Fixed enum names that collide with Java identifiers (issue #334)
+- Added a type definition override switch, useful force mismatching 32/64bits types to some predefined types (for instance, -TmyVal=intptr_t) 
 - Added raw bindings generation for BridJ
 - Added parsing of 'using' C++ statements
 - Added TypeRef.resolvedJavaIdentifier

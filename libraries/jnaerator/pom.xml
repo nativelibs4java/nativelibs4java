@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>jnaerator-parent</artifactId>
-	<version>0.11-SNAPSHOT</version>
+	<version>0.12-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
     <name>JNAerator Parent Project</name>
@@ -11,12 +11,12 @@
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.9-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
 	<properties>
-		<jna.version>3.4.0</jna.version>
+		<jna.version>3.5.1</jna.version>
 		<rococoa.version>0.5</rococoa.version>
 	</properties>
 	
@@ -24,7 +24,6 @@
 		<module>anarres</module>
 		<module>ochafik-util</module>
 		<module>ochafik-swing</module>
-		<module>jna-jnaerator</module>
 		<module>jnaerator-runtime</module>
 		<module>jnaerator-rococoa-runtime</module>
 		<module>jnaerator-parser</module>
@@ -114,7 +113,7 @@
 			<dependency>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>anarres-jnaerator</artifactId>
-				<version>1.2.8-SNAPSHOT</version>
+				<version>1.2.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jdt.core.compiler</groupId>

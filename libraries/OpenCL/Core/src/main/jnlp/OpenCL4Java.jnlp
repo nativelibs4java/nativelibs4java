@@ -14,7 +14,7 @@
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<extension name="BridJ" href="http://nativelibs4java.sourceforge.net/webstart/bridj/0.7-SNAPSHOT/bridj.jnlp"/>
+		<extension name="BridJ" href="http://nativelibs4java.sourceforge.net/webstart/bridj/0.6.3-SNAPSHOT/bridj.jnlp"/>
 		<!--jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/scalacl/1.0-SNAPSHOT/scalacl-1.0-SNAPSHOT.jar"/-->
 		<!--jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/-->
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/opencl4java/1.0-SNAPSHOT/opencl4java-1.0-SNAPSHOT.jar"/>

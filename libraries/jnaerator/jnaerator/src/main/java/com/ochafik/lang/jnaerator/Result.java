@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -335,6 +335,9 @@ public class Result extends Scanner {
 			if (declarativePower(e) > declarativePower(oldEnum)) {
 				enumsByName.put(name, e);
                 e.setResolvedJavaIdentifier(typeConverter.computeTaggedTypeIdentifierInJava(e));
+                Identifier originalName = e.getOriginalTag();
+                if (originalName != null)
+                    enumsByName.put(originalName, e);
 	
 				//if (e.getTag() != null) {
 				//	enumsByName.put(e.getTag(), e);
@@ -509,6 +512,9 @@ public class Result extends Scanner {
 				
 				if (declarativePower(struct) > declarativePower(oldStruct)) {
 					structsByName.put(name, struct);
+                    Identifier originalName = struct.getOriginalTag();
+                    if (originalName != null)
+                        structsByName.put(originalName, struct);
 
                     Identifier resolvedJavaIdentifier = typeConverter.computeTaggedTypeIdentifierInJava(struct);
                     struct.setResolvedJavaIdentifier(resolvedJavaIdentifier);
@@ -567,9 +573,17 @@ public class Result extends Scanner {
 	}
     
     
-
+	static String camelCase(String name) {
+		StringBuilder out = new StringBuilder();
+		for (String s : name.split("[^\\w]+")) {
+			String t = s.trim();
+			if (t.length() > 0)
+				out.append(StringUtils.capitalize(t));
+		}
+		return out.toString();
+	}
 	public Identifier getLibraryClassSimpleName(String library) {
-		return ident(StringUtils.capitalize(library) + "Library");
+		return ident(camelCase(library) + "Library");
 	}
 	public Identifier getLibraryClassFullName(String library) {
 		return ident(getLibraryPackage(library), getLibraryClassSimpleName(library));

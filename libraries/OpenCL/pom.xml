@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.9-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
@@ -24,10 +24,10 @@
 		<module>OpenCL4Java</module>
 		<module>Demos</module>
 		<module>JavaCL</module>
-		<module>JavaCL-Shaded</module>
-		<module>JavaCL-OSGi</module>
 		<module>Core</module>
+		<!-- Blas requires ujmp, which is not in Maven Central:
 		<module>Blas</module>
+		-->
 		<module>OpenGLDemos</module>
 		<module>Tutorials</module>
 	</modules>

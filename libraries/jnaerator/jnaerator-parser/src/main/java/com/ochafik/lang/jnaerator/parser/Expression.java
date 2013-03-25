@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.ochafik.lang.jnaerator.parser.Identifier.SimpleIdentifier;
 import com.ochafik.util.listenable.Pair;
+import java.math.BigInteger;
 
 public abstract class Expression extends Element {
 	private static final long MAX_UINT_VALUE = 2L * Integer.MAX_VALUE;
@@ -1090,6 +1091,13 @@ public abstract class Expression extends Element {
 			setIntForm(intForm);
 			setValue(value);
             setOriginalTextualRepresentation(originalTextualRepresentation);
+            
+			checkType();
+		}
+		public Constant(Type type, Object value, String originalTextualRepresentation) {
+			setType(type);
+			setValue(value);
+            setOriginalTextualRepresentation(originalTextualRepresentation);
 			
 			checkType();
 		}
@@ -1137,13 +1145,6 @@ public abstract class Expression extends Element {
 		public static Constant newNull() {
             return new Constant(Constant.Type.Null, null, null);
         }
-		public Constant(Type type, Object value, String originalTextualRepresentation) {
-			setType(type);
-			setValue(value);
-            setOriginalTextualRepresentation(originalTextualRepresentation);
-			
-			checkType();
-		}
 		
 		public void setIntForm(IntForm intForm) {
 			this.intForm = intForm;
@@ -1358,66 +1359,107 @@ public abstract class Expression extends Element {
 		}
 
 		public static Constant parseDecimal(String string) {
-			return parseDecimal(string, 10, IntForm.Decimal, false);
+			return parseInteger(string, 10, IntForm.Decimal, false);
 		}
 		
-        public static Constant parseDecimal(final String string, int radix, IntForm form, boolean negate) {
-            return parseDecimal(string, radix, form, negate, string);
+        public static Constant parseInteger(final String string, int radix, IntForm form, boolean negate) {
+            return parseInteger(string, radix, form, negate, string);
         }
-		public static Constant parseDecimal(String string, int radix, IntForm form, boolean negate, final String orig) {
+		public static Constant parseInteger(String string, int radix, IntForm form, boolean negate, final String orig) {
             string = string.trim().toLowerCase();
-			int len = string.length();
-			boolean unsigned = false;
-			if (string.endsWith("ll") || string.endsWith("li"))
-				return new Constant(Type.Long, Long.parseLong(string.substring(0, len - 2), radix), orig);
-			else if (string.endsWith("l"))
-				string = string.substring(0, len - 1);
-			else if (string.endsWith("s"))
-				return new Constant(Type.Short, Long.parseLong(string.substring(0, len - 1), radix), orig);
-			//else if (string.endsWith("b"))
-			//	return new Constant(Type.Byte, Long.parseLong(string.substring(0, len - 1), radix));
-			else if (string.endsWith("u")) {
-				string = string.substring(0, len - 1);
-				unsigned = true;
-			}
-			
-			long val;
-			if (string.equals("ffffffffffffffff"))
-				val = 0xffffffffffffffffL;
-			else {
-				if (string.startsWith("+"))
-					string = string.substring(1);
+			if (string.startsWith("+"))
+                string = string.substring(1);
 				
-				/*int len2 = string.length();
-				if (len2 > 0 && !Character.isDigit(string.charAt(len2 - 1))) {
-					string = string.substring(0, len2 - 1);
-					len2--;
-				}*/
-				try {
-					if (string.length() == 16) // only for large longs (otherwise would need to prepend "0" to avoid sign issues)
-						val = new java.math.BigInteger(string, radix).longValue();
-					else
-						val = Long.parseLong(string, radix);
-				} catch (NumberFormatException ex) {
-					unsigned = true;
-					val = Long.parseLong(string.substring(0, string.length() - 1), radix);
-					val = val * radix + Short.parseShort(string.substring(string.length() - 1));
-				}
-			}
-			
-			if (negate) {
-				val = -val;
-//				form = IntForm.Decimal;
-			}
-			
-			//TODO handle unsigned properly !
-			if ((form == IntForm.Hex && len <= 8) || val > Integer.MIN_VALUE && val < Integer.MAX_VALUE)
-				return new Constant(form == IntForm.Hex || unsigned ? Type.UInt : Type.Int, form, (int)val, orig);
-			else if (val >= 0 && val < MAX_UINT_VALUE)
-				return new Constant(Type.UInt, form, (int)val, orig);
-			else
-				return new Constant(unsigned ? Type.ULong : Type.Long, form, val, orig);
-			
+            Type tpe = Type.Int;
+            boolean unsigned = false;
+            char c;
+            while (string.length() > 0 &&
+                    ((c = string.charAt(string.length() - 1)) == 'u' || c == 'i' || c == 'l' || c == 's')) {
+                if (string.endsWith("ll") || string.endsWith("li")) {
+                    tpe = Type.Long;
+                    string = string.substring(0, string.length() - 2);
+                } else if (string.endsWith("l") /*) {
+                    tpe = Type.Long;
+                    string = string.substring(0, string.length() - 1);
+                } else if (*/ || string.endsWith("i")) {
+                    string = string.substring(0, string.length() - 1);
+                } else if (string.endsWith("s")) {
+                    tpe = Type.Short;
+                    string = string.substring(0, string.length() - 1);
+                } else if (string.endsWith("u")) {
+                    unsigned = true;
+                    string = string.substring(0, string.length() - 1);
+                }
+            }
+            Object value;
+            if (string.equals("ffffffffffffffff")) {
+                tpe = Type.Long;
+				value = 0xffffffffffffffffL;
+            } else {
+                long longValue;
+                if (tpe == Type.Long && unsigned || string.length() == 16) {
+                    longValue = new BigInteger(string, radix).longValue();
+                } else {
+                    longValue = Long.parseLong(string, radix);
+                }
+                switch (tpe) {
+                    case Bool:
+                        assert !negate;
+                        value = (boolean)(longValue != 0);
+                        break;
+                    case Byte:
+                        if (longValue > Byte.MAX_VALUE) {
+                            tpe = Type.Short;
+                            value = (short)(negate ? -longValue : longValue);
+                        } else {
+                            byte v = (byte)(longValue & 0xff);
+                            value = negate ? -v : v;
+                        }
+                        break;
+                    case Char:
+                        assert !negate;
+                        value = (char)(longValue & 0xffff);
+                        break;
+                    case Short:
+                        if (longValue > 2 * Short.MAX_VALUE) {
+                            tpe = Type.Int;
+                            value = (int)(negate ? -longValue : longValue);
+                        } else {
+                            short v = (short)(longValue & 0xffff);
+                            value = negate ? -v : v;
+                        }
+                        break;
+                    case Int:
+                        if (longValue > 2L * Integer.MAX_VALUE) {
+                            tpe = Type.Long;
+                            value = negate ? -longValue : longValue;
+                        } else {
+                            if (longValue > Integer.MAX_VALUE)
+                                tpe = Type.UInt;
+                            int v = (int)(longValue & 0xffffffff);
+                            value = negate ? -v : v;
+                        }
+                        break;
+                    case Long:
+                        value = negate ? -longValue : longValue;
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Can't parse decimal of type " + tpe);
+                }
+            }
+            
+            if (unsigned || form == IntForm.Hex) {
+                switch (tpe) {
+                    case Int:
+                        tpe = Type.UInt;
+                        break;
+                    case Long:
+                        tpe = Type.ULong;
+                        break;
+                    // TODO: handle UShort, UByte
+                }
+            }
+			return new Constant(tpe, form, value, orig);
 		}
 
 		public static Constant parseHex(final String orig, boolean negate) {
@@ -1427,7 +1469,7 @@ public abstract class Expression extends Element {
 				throw new IllegalArgumentException("Expected hex literal, got " + string);
 			
 			try {
-				return parseDecimal(string.substring(2), 16, IntForm.Hex, negate, orig);
+				return parseInteger(string.substring(2), 16, IntForm.Hex, negate, orig);
 			} catch (NumberFormatException ex) {
 				throw new NumberFormatException("Parsing hex : \"" + string +"\"");
 			}
@@ -1438,7 +1480,7 @@ public abstract class Expression extends Element {
 			if (!string.startsWith("0"))
 				throw new IllegalArgumentException("Expected octal literal, got " + string);
 			
-			return parseDecimal(string.substring(1), 8, IntForm.Octal, negate);
+			return parseInteger(string.substring(1), 8, IntForm.Octal, negate);
 		}
 
 		public static Constant parseFloat(final String orig) {
@@ -1461,10 +1503,17 @@ public abstract class Expression extends Element {
             if (s == null)
                 return null;
             
-            String low = s.toLowerCase();
-            for (String end : trailingTypeInfos) {
-                if (low.endsWith(end))
-                    return s.substring(0, s.length() - end.length());
+            while (s.length() > 0) {
+                switch (Character.toLowerCase(s.charAt(s.length() - 1))) {
+                case 'u':
+                case 'l':
+                case 'i':
+                case 's':
+                    s = s.substring(0, s.length() - 1);
+                    break;
+                default:
+                    return s;
+                }
             }
             return s;
         }
@@ -1480,7 +1529,15 @@ public abstract class Expression extends Element {
                     txt = trimTrailingTypeInfo(txt);
                     break;
                 case UInt:
+                    if (intForm != IntForm.Hex && (getValue() instanceof Long) && ((Long)getValue()) > Integer.MAX_VALUE) {
+                        txt = null;
+                        break;
+                    }
                 case ULong:
+                    if (intForm == IntForm.Hex) {
+                        txt = trimTrailingTypeInfo(txt);
+                        break;
+                    }
                 case IntegerString:
                     txt = null;
                     break;
@@ -1495,8 +1552,6 @@ public abstract class Expression extends Element {
 				type = Type.Long;
 				break;
 			case UInt:
-                if ((getValue() instanceof Long) && ((Long)getValue()) > Integer.MAX_VALUE)
-                    txt = null;
             case IntegerString:
 			    type = Type.Int;
 				break;

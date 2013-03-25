@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function listFile {
-	unzip -l $1 | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | grep -v "META-INF" | grep -v "Archive: " | sort | tee jnaerator/src/main/resources/$2
+	unzip -l $1 | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | grep -v "META-INF" | grep -v "Archive: " | sort > jnaerator/src/main/resources/$2
 }
 
 # unzip -l jna-jnaerator/target/jna-jnaerator-3.2.7.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/jna-runtime.jar.files
@@ -9,9 +9,15 @@ function listFile {
 # unzip -l ~/nativelibs4java/Structs/target/nl4j-runtime-structs-jna-*.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/nl4j-runtime-structs-jna.jar.files
 # unzip -l ~/nativelibs4java/BridJ/target/bridj-0.6.jar | sed -E 's/^.*[0-9]+:[0-9]+ +//' | grep '\.' | sort | tee jnaerator/src/main/resources/bridj.jar.files
 
-JNA_VERSION=3.4.0
-JNAERATOR_VERSION=0.11-SNAPSHOT
-BRIDJ_VERSION=0.6.2-SNAPSHOT
+cd `dirname $0`
+cd ../jnaerator
+
+JNA_VERSION=`cat pom.xml | grep jna.version | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'`
+
+JNAERATOR_VERSION=`cat pom.xml | grep "<version>" | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'`
+BRIDJ_VERSION=`cat ../pom.xml | grep bridj.version | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'`
+
+[[ -n "$JNA_VERSION" && -n "$JNAERATOR_VERSION" && -n "$BRIDJ_VERSION" ]] || ( echo "Failed to get versions: JNA = $JNA_VERSION, JNAerator = $JNAERATOR_VERSION, BridJ = $BRIDJ_VERSION" ; exit 1 )
 
 listFile ~/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar jna-runtime.jar.files
 listFile jnaerator-runtime/target/jnaerator-runtime-*-shaded.jar jnaerator-runtime.jar.files

@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2009-2011 Olivier Chafik, All Rights Reserved
+	Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 	
 	This file is part of JNAerator (http://jnaerator.googlecode.com/).
 	
@@ -102,7 +102,7 @@ public class PreprocessorUtils {
 		return sourceContent;
 	}
 
-	public static Preprocessor createPreProcessor(JNAeratorConfig.PreprocessorConfig config, final MacroUseCallback macrosDependenciesOut) throws IOException, LexerException {
+	public static Preprocessor createPreProcessor(final JNAeratorConfig.PreprocessorConfig config, final MacroUseCallback macrosDependenciesOut) throws IOException, LexerException {
 		Preprocessor preprocessor = new Preprocessor() {
             HashSet<VirtualFile> filesAlreadyIncluded = new HashSet<VirtualFile>();
 	
@@ -159,6 +159,9 @@ public class PreprocessorUtils {
                     public Macro put(String key, Macro value) {
                         if (key != null)
                             used(key);
+                        if (config.forcedTypeDefs.containsKey(key)) {
+                            return null;
+                        }
                         return super.put(key, value);
                     }
 

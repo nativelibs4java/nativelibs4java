@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# http://code.google.com/p/support/wiki/ScriptedUploads
+#
+# http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/jnaerator/CHANGELOG
+#
+function fail {
+    echo "#" >&2
+    echo "# ERROR: $@" >&2
+    echo "#" >&2
+    exit 1
+}
+
+function getVersion {
+    POM=$1
+    [[ -f "$POM" ]] || fail "No such POM file: $POM"
+    cat "$POM" | grep "<version>" | head -n 1 | sed 's/[^>]*>//' | sed 's/<.*//'
+}
+
+function listPOMs {
+    find $1 -name pom.xml
+}
+
+cd `dirname $0`
+cd ..
+
+BRIDJ_VERSION=`getVersion BridJ/pom.xml`
+JNAERATOR_VERSION=`getVersion jnaerator/pom.xml`
+JAVACL_VERSION=`getVersion OpenCL/pom.xml`
+ROOT_VERSION=`getVersion pom.xml`
+
+HAS_SNAPSHOT_VERSION=0
+for POM in pom.xml `listPOMs BridJ` `listPOMs jnaerator` `listPOMs OpenCL`; do
+    VERSION=`getVersion "$POM"`
+    if [[ $VERSION =~ .*-SNAPSHOT ]]; then
+        HAS_SNAPSHOT_VERSION=1
+        echo "Found SNAPSHOT version in '$POM': $VERSION"
+    fi
+done
+
+[[ $HAS_SNAPSHOT_VERSION -eq 0 ]] || fail "Please update versions to release versions and try again"
+
+USER=$1
+PASSWORD=$2
+
+[[ -n "$USER" && -n "$PASSWORD" ]]Ê|| fail "Please provide a username and a password for Google Code"
+
+mvn clean javadoc:jar deploy -DskipTests -Pgpg,coordinated-release || fail "Deployment failed"
+
+git -a bridj-$BRIDJ_VERSION "BridJ version $BRIDJ_VERSION" || fail "Failed to create git tag for BridJ"
+git -a jnaerator-$JNAERATOR_VERSION "JNAerator version $JNAERATOR_VERSION" || fail "Failed to create git tag for JNAerator"
+git -a javacl-$JAVACL_VERSION "JavaCL version $JAVACL_VERSION" || fail "Failed to create git tag for JavaCL"
+git push --tags || fail "Failed to push newly-created git tags"
+
+# Modified script to add full description:
+# wget http://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py
+
+function upload_artifact() {
+    DIR_NAME="$1"
+    PROJECT="$2"
+    NAME="$3"
+    VERSION="$4"
+    CLASSIFIER="$5"
+    SUMMARY="$6"
+    
+    SUMMARY_FILE="${PROJECT}_SUMMARY"
+    [[ -f "$SUMMARY_FILE" ]]Ê|| fail "Summary file '$SUMMARY_FILE' not found"
+    
+    DESCRIPTION="`cat "$SUMMARY_FILE"`
+
+For more details, see https://github.com/ochafik/nativelibs4java/blob/master/libraries/$DIR_NAME/CHANGELOG"
+    
+    if [[ -z "$CLASSIFIER" ]]; then
+        CLASSIFIER_SUFFIX=""
+    else
+        CLASSIFIER_SUFFIX="-$CLASSIFIER"
+    fi
+
+    FILE="$HOME/.m2/repository/com/nativelibs4java/$NAME/$VERSION/$NAME-$VERSION$CLASSIFIER_SUFFIX.jar"
+    
+    if [[ ! -f "${PROJECT}_SUMMARY" ]]; then
+        echo "Failed to read ${PROJECT}_SUMMARY"
+        exit 1
+    fi
+    if [[ ! -f "$FILE" ]]; then
+        echo "Failed to read $FILE"
+        exit 1
+    fi
+    
+
+    $(dirname $0)/googlecode_upload.py -u "$USER" -w "$PASSWORD" -l Featured -s "$SUMMARY" -d "$DESCRIPTION" -p $PROJECT "$FILE" || ( echo "Upload failed" ; exit 1 )
+}
+
+  	 
+upload_artifact jnaerator jnaerator jnaerator $JNAERATOR_VERSION shaded "JNAerator $JNAERATOR_VERSION"
+
+for CLASSIFIER in "" "unix-only" "linux-only" "windows-only" "c-only" "android"; do
+    if [[ -z "$CLASSIFIER" ]]; then
+        SUMMARY_SUFFIX=""
+    else
+        SUMMARY_SUFFIX=" (`echo "$CLASSIFIER" | tr - " "`)"
+    fi
+    upload_artifact BridJ bridj bridj $BRIDJ_VERSION "$CLASSIFIER" "BridJ $BRIDJ_VERSION$SUMMARY_SUFFIX"
+done
+
+upload_artifact OpenCL javacl javacl $JAVACL_VERSION shaded "JavaCL $JAVACL_VERSION"
+upload_artifact OpenCL javacl javacl-jna $JAVACL_VERSION shaded "JavaCL $JAVACL_VERSION (JNA version)"
+upload_artifact OpenCL javacl javacl-demos $JAVACL_VERSION shaded "JavaCL Demos $JAVACL_VERSION"
+upload_artifact OpenCL javacl javacl-interactive-image-demo $JAVACL_VERSION shaded "JavaCL Interactive Image Demo $JAVACL_VERSION"
+
