@@ -85,6 +85,7 @@ import static org.bridj.Pointer.*;
 public class CLProgram extends CLAbstractEntity {
 
     protected final CLContext context;
+    protected boolean loadedFromBinary;
 
 	#declareInfosGetter("infos", "CL.clGetProgramInfo")
 
@@ -139,6 +140,8 @@ public class CLProgram extends CLAbstractEntity {
 		do {
 			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
+        if (getEntity() != 0)
+            loadedFromBinary = true;
 	}
 
     /**
@@ -427,7 +430,7 @@ public class CLProgram extends CLAbstractEntity {
 	 * Get the source code of this program
 	 */
 	public synchronized String getSource() {
-		if (source == null)
+		if (source == null && !loadedFromBinary)
 			source = infos.getString(getEntity(), CL_PROGRAM_SOURCE);
 		
 		return source;
@@ -780,7 +783,7 @@ public class CLProgram extends CLAbstractEntity {
         if (deleteTempFiles != null)
         		deleteTempFiles.run();
         
-        	if (isCached() && !readBinaries) {
+        	if (isCached() && !readBinaries && !loadedFromBinary) {
         		JavaCL.userCacheDir.mkdirs();
         		try {
                     Map<CLDevice, byte[]> binaries = getBinaries();
