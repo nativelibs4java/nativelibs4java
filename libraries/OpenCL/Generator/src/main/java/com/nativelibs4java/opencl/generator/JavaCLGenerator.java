@@ -463,7 +463,8 @@ public class JavaCLGenerator extends JNAerator {
                     if (macroName.equals("__LINE__") ||
                             macroName.equals("__FILE__") ||
                             macroName.equals("__COUNTER__") ||
-                            config.preprocessorConfig.macros.containsKey(macroName))
+                            config.preprocessorConfig.explicitMacros.containsKey(macroName) ||
+                            config.preprocessorConfig.implicitMacros.containsKey(macroName))
                         continue;
                     
                     String[] parts = macroName.split("_+");
