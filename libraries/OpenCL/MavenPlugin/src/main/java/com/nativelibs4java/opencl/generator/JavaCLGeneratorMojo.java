@@ -130,7 +130,7 @@ public class JavaCLGeneratorMojo
             if (!javaOutDir.exists())
                 javaOutDir.mkdirs();
             config.outputDir = javaOutDir;
-            config.addSourceFile(file, null, false, true);
+            config.addSourceFile(file, null, false, true, true);
             config.addRootDir(root);
             
             final String fileName = file.getName();
