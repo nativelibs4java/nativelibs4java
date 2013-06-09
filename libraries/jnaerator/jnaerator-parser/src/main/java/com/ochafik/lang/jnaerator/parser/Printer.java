@@ -194,6 +194,11 @@ public class Printer implements Visitor {
     }
 
     public void visitEnum(Enum e) {
+        formatComments(e, false, true, true);
+        if (!e.getAnnotations().isEmpty()) {
+            implode(e.getAnnotations(), "\n" + indent).append("\n", indent);
+        }
+
         modifiersStringPrefix(e);
         if (!e.getAnnotations().isEmpty()) {
             implode(e.getAnnotations(), "\n" + indent).append("\n", indent);
@@ -628,7 +633,7 @@ public class Printer implements Visitor {
 
         TaggedTypeRef tr = e.getTaggedTypeRef();
         formatComments(e, false, true, true);
-        formatComments(tr, false, true, true);
+//        formatComments(tr, false, true, true);
         //append(tr, tr.isForwardDeclaration() ? ";" : null, e.getCommentAfter());
         append(tr, ";", e.getCommentAfter());
     }
@@ -978,10 +983,9 @@ public class Printer implements Visitor {
         }
 
         String suffix = skipLineAfter ? "\n" + indent : "";
-        if (uniqueLine != null && allowLineComments) {
-            return "/// " + uniqueLine.replace("\\u", "\\\\u") + suffix;
-        }
-
+//        if (uniqueLine != null && allowLineComments) {
+//            return "/// " + uniqueLine.replace("\\u", "\\\\u") + suffix;
+//        }
 
         String content = beginEachCommentLineWithStar
                 ? " * " + StringUtils.implode(nakedComments, "\n").replaceAll("\n", "<br>\n" + indent + " * ") + "\n" + indent
