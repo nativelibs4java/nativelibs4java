@@ -190,8 +190,7 @@ public class CLProgram extends CLAbstractEntity {
 
         ZipInputStream zin = new ZipInputStream(new GZIPInputStream(new BufferedInputStream(in)));
         ZipEntry ze;
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-
+        
         String source = null;
         
         boolean first = true;
@@ -204,25 +203,25 @@ public class CLProgram extends CLAbstractEntity {
                 throw new IOException("Expected signature to be the first zip entry, got '" + signature + "' instead !");
 
             first = false;
-            bout.reset();
             int len;
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
             while ((len = zin.read(b)) > 0)
                 bout.write(b, 0, len);
 
             byte[] data = bout.toByteArray();
             if (isSignature) {
                 if (expectedContentSignatureString != null) {
-					String contentSignatureString = new String(data, textEncoding);
-					if (!expectedContentSignatureString.equals(contentSignatureString))
-						throw new IOException("Content signature does not match expected one :\nExpected '" + expectedContentSignatureString + "',\nGot '" + contentSignatureString + "'");
-				}
-			} else if (signature.equals(SourceZipEntryName)) {
-				source = new String(data, textEncoding);
-			} else {
-				List<CLDevice> devices = devicesBySignature.get(signature);
-				for (CLDevice device : devices)
-					ret.put(device, data);
-			}
+                    String contentSignatureString = new String(data, textEncoding);
+                    if (!expectedContentSignatureString.equals(contentSignatureString))
+                        throw new IOException("Content signature does not match expected one :\nExpected '" + expectedContentSignatureString + "',\nGot '" + contentSignatureString + "'");
+                }
+            } else if (signature.equals(SourceZipEntryName)) {
+                source = new String(data, textEncoding);
+            } else {
+                List<CLDevice> devices = devicesBySignature.get(signature);
+                for (CLDevice device : devices)
+                    ret.put(device, data);
+            }
         }
         zin.close();
         return new Pair<Map<CLDevice, byte[]>, String>(ret, source);
