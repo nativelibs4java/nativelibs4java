@@ -18,6 +18,9 @@ final class ReusablePointers {
             int2 = allocateInt().withoutValidityInformation();
     
     public final ReusablePointer
+            int3_1 = new ReusablePointer(4 * 3);
+    
+    public final ReusablePointer
             kernelArg = new ReusablePointer(8 * 16); // double16 arguments !
     
     public final Pointer<cl_event> event_out = allocateTypedPointer(cl_event.class).withoutValidityInformation();

@@ -95,34 +95,36 @@ public class CLProgram extends CLAbstractEntity {
         this.context = context;
         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
-	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries, String source) {
-		super(0, true);
-		this.context = context;
-		this.source = source;
+    CLProgram(CLContext context, Map<CLDevice, byte[]> binaries, String source) {
+        super(0, true);
+        this.context = context;
+        this.source = source;
 
-		setBinaries(binaries);
-	}
-    
-	protected void setBinaries(Map<CLDevice, byte[]> binaries) {
+        setBinaries(binaries);
+    }
+
+    protected void setBinaries(Map<CLDevice, byte[]> binaries) {
         if (this.devices == null) {
-        		this.devices = new CLDevice[binaries.size()];
-        		int iDevice = 0;
-        		for (CLDevice device : binaries.keySet())
-        			this.devices[iDevice++] = device;
+            this.devices = new CLDevice[binaries.size()];
+            int iDevice = 0;
+            for (CLDevice device : binaries.keySet())
+                this.devices[iDevice++] = device;
         }
         int nDevices = this.devices.length;
         if (binaries.size() != nDevices)
         		throw new IllegalArgumentException("Not enough binaries in provided map : expected " + nDevices + " (devices = " + Arrays.asList(devices) + "), got " + binaries.size() + " (" + binaries.keySet() + ")");
-        Pointer<SizeT> lengths = allocateSizeTs(nDevices);
-		Pointer<SizeT> deviceIds = allocateSizeTs(nDevices);
-		Pointer<Pointer<?>> binariesArray = allocatePointers(nDevices);
-		Pointer<Byte>[] binariesMems = new Pointer[nDevices];
+        
+        #declareReusablePtrsAndPErr()
+        Pointer<SizeT> lengths = ptrs.sizeT3_1.allocatedSizeTs(nDevices);
+        Pointer<SizeT> deviceIds = ptrs.sizeT3_2.allocatedSizeTs(nDevices);
+        Pointer<SizeT> binariesArray = ptrs.sizeT3_3.allocatedSizeTs(nDevices);
+        Pointer<Byte>[] binariesMems = new Pointer[nDevices];
 
-		int iDevice = 0;
-		for (CLDevice device : devices) {
-			byte[] binary = binaries.get(device);
+        int iDevice = 0;
+        for (CLDevice device : devices) {
+            byte[] binary = binaries.get(device);
             if (binary == null)
-            		throw new IllegalArgumentException("No binary for device " + device + " in provided binaries");
+                throw new IllegalArgumentException("No binary for device " + device + " in provided binaries");
 
             binariesArray.setPointerAtIndex(iDevice, binariesMems[iDevice] = pointerToBytes(binary));
             lengths.setSizeTAtIndex(iDevice, binary.length);
@@ -132,17 +134,16 @@ public class CLProgram extends CLAbstractEntity {
         }
         nDevices = iDevice;
         if (nDevices == 0)
-        		return;
+            return;
         	
-        #declareReusablePtrsAndPErr()
         int previousAttempts = 0;
-        Pointer<Integer> statuses = allocateInts(nDevices);
-		do {
-			setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
-		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
+        Pointer<Integer> statuses = ptrs.int3_1.allocatedInts(nDevices);
+        do {
+            setEntity(CL.clCreateProgramWithBinary(context.getEntity(), nDevices, getPeer(deviceIds), getPeer(lengths), getPeer(binariesArray), getPeer(statuses), getPeer(pErr)));
+        } while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         if (getEntity() != 0)
             loadedFromBinary = true;
-	}
+    }
 
     /**
      * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext#loadProgram(java.io.InputStream) }
@@ -260,13 +261,14 @@ public class CLProgram extends CLAbstractEntity {
 		}
         
         String[] sources = this.sources.toArray(new String[this.sources.size()]);
-        Pointer<SizeT> pLengths = allocateSizeTs(sources.length);
+        #declareReusablePtrsAndPErr()
+        
+        Pointer<SizeT> pLengths = ptrs.sizeT3_1.allocatedSizeTs(sources.length);
         long[] lengths = new long[sources.length];
         for (int i = 0; i < sources.length; i++) {
             pLengths.setSizeTAtIndex(i, sources[i].length());
         }
         
-        #declareReusablePtrsAndPErr()
         long program;
         int previousAttempts = 0;
         Pointer<Pointer<Byte>> pSources = pointerToCStrings(sources);
@@ -280,7 +282,6 @@ public class CLProgram extends CLAbstractEntity {
                 );
         } while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
         Pointer.release(pSources);
-        Pointer.release(pLengths);
         setEntity(program);
     }
     
@@ -446,31 +447,34 @@ public class CLProgram extends CLAbstractEntity {
                 build();
         }
         
-		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
-		int n = (int)s.getValidBytes() / Platform.SIZE_T_SIZE;
-		long[] sizes = s.getSizeTs(n);
-		//int[] sizes = new int[n];
-		//for (int i = 0; i < n; i++) {
-		//	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
-		//}
+        Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
+        int n = (int)s.getValidBytes() / Platform.SIZE_T_SIZE;
+        long[] sizes = s.getSizeTs(n);
+        //int[] sizes = new int[n];
+        //for (int i = 0; i < n; i++) {
+        //	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
+        //}
 
-		Pointer<?>[] binMems = (Pointer<?>[])new Pointer[n];
-		Pointer<Pointer<?>> ptrs = allocatePointers(n);
-		for (int i = 0; i < n; i++) {
-			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
-		}
-		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
+        Pointer<?>[] binMems = (Pointer<?>[])new Pointer[n];
+        #declareReusablePtrs()
+        Pointer<SizeT> binPtrs = ptrs.sizeT3_1.allocatedSizeTs(n);//allocatePointers(n);
+        for (int i = 0; i < n; i++) {
+            binPtrs.setPointerAtIndex(i, binMems[i] = allocateBytes(sizes[i]));
+        }
+        error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, binPtrs.getValidBytes(), binPtrs, null));
 
-		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
+        Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         int iBin = n == devices.length + 1 ? 1 : 0;
         for (int i = 0; i < devices.length; i++) {
             CLDevice device = devices[i];
-			Pointer<?> bytes = binMems[iBin + i];
-            if (bytes != null)
+            Pointer<?> bytes = binMems[iBin + i];
+            if (bytes != null) {
                 ret.put(device, bytes.getBytes((int)sizes[iBin + i]));
-		}
-		return ret;
-	}
+                Pointer.release(bytes);
+            }
+        }
+        return ret;
+    }
 
 	/**
 	 * Returns the context of this program
@@ -810,30 +814,31 @@ public class CLProgram extends CLAbstractEntity {
         error(CL.clReleaseProgram(getEntity()));
     }
 
-	/**
+    /**
 #documentCallsFunction("clCreateKernelsInProgram")
-	 * Return all the kernels found in the program.
-	 */
-	public CLKernel[] createKernels() throws CLBuildException {
+     * Return all the kernels found in the program.
+     */
+    public CLKernel[] createKernels() throws CLBuildException {
         synchronized (this) {
-            if (!built)
-                build();
+           if (!built)
+               build();
         }
-		Pointer<Integer> pCount = allocateInt();
-		int previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, 0, getPeer(pCount)), previousAttempts++)) {}
+        #declareReusablePtrs()
+        Pointer<Integer> pCount = ptrs.int1;
+        int previousAttempts = 0;
+        while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, 0, getPeer(pCount)), previousAttempts++)) {}
 
-		int count = pCount.getInt();
-		Pointer<SizeT> kerns = allocateSizeTs(count);
-		previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, getPeer(kerns), getPeer(pCount)), previousAttempts++)) {}
+        int count = pCount.getInt();
+        Pointer<SizeT> kerns = ptrs.sizeT3_1.allocatedSizeTs(count);
+        previousAttempts = 0;
+        while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, getPeer(kerns), getPeer(pCount)), previousAttempts++)) {}
 
-		CLKernel[] kernels = new CLKernel[count];
-		for (int i = 0; i < count; i++)
-			kernels[i] = new CLKernel(this, null, kerns.getSizeTAtIndex(i));
+        CLKernel[] kernels = new CLKernel[count];
+        for (int i = 0; i < count; i++)
+            kernels[i] = new CLKernel(this, null, kerns.getSizeTAtIndex(i));
 
-		return kernels;
-	}
+        return kernels;
+    }
 
     /**
 #documentCallsFunction("clCreateKernel")
