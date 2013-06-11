@@ -17,6 +17,15 @@ final class ReusablePointers {
             int1 = allocateInt().withoutValidityInformation(),
             int2 = allocateInt().withoutValidityInformation();
     
+    public final Pointer<SizeT>
+            sizeT1 = allocateSizeT().withoutValidityInformation();
+    
+    public final Pointer<Long>
+            long1 = allocateLong().withoutValidityInformation();
+    
+    public final Pointer<Pointer<?>>
+            ptr1 = allocatePointer().withoutValidityInformation();
+    
     public final ReusablePointer
             int3_1 = new ReusablePointer(4 * 3);
     

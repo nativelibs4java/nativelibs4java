@@ -17,7 +17,8 @@ abstract class CLInfoGetter {
     protected abstract int getInfo(long entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut);
 
     public String getString(@Ptr long entity, int infoName) {
-        Pointer<SizeT> pLen = allocateSizeT();
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT1;
         error(getInfo(entity, infoName, 0, null, pLen));
 
         long len = pLen.getSizeT();
@@ -33,8 +34,9 @@ abstract class CLInfoGetter {
     }
 
     public Pointer getPointer(@Ptr long entity, int infoName) {
-        Pointer<SizeT> pLen = allocateSizeT();
-        Pointer<Pointer<?>> mem = allocatePointer();
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT1;
+        Pointer<Pointer<?>> mem = ptrs.ptr1;
         error(getInfo(entity, infoName, Pointer.SIZE, mem, pLen));
         if (pLen.getSizeT() != Pointer.SIZE) {
             throw new RuntimeException("Not a pointer : len = " + pLen.get());
@@ -43,7 +45,8 @@ abstract class CLInfoGetter {
     }
 
     public Pointer<?> getMemory(@Ptr long entity, int infoName) {
-        Pointer<SizeT> pLen = allocateSizeT();
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT1;
         error(getInfo(entity, infoName, 0, null, pLen));
 
         int len = (int)pLen.getSizeT();
@@ -54,9 +57,10 @@ abstract class CLInfoGetter {
     }
 
     public long[] getNativeSizes(@Ptr long entity, int infoName, int n) {
-        int nBytes = SizeT.SIZE * n;
-        Pointer<SizeT> pLen = pointerToSizeT(nBytes);
-        Pointer<SizeT> mem = allocateSizeTs(n);
+        long nBytes = SizeT.SIZE * n;
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT3_1.pointerToSizeTs(nBytes);
+        Pointer<SizeT> mem = ptrs.sizeT3_2.allocatedSizeTs(n);
         error(getInfo(entity, infoName, nBytes, mem, pLen));
 
         int actualLen = (int)pLen.getSizeT();
@@ -80,8 +84,9 @@ abstract class CLInfoGetter {
     }
 
     public boolean getBool(@Ptr long entity, int infoName) {
-        Pointer<SizeT> pLen = allocateSizeT();
-        Pointer<Byte> mem = allocateBytes(8);
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT1;
+        Pointer<?> mem = ptrs.sizeT3_1.allocatedBytes(8);
         error(getInfo(entity, infoName, 8, mem, pLen));
 
         long len = pLen.getSizeT();
@@ -104,8 +109,9 @@ abstract class CLInfoGetter {
     }
 
     public long getIntOrLong(@Ptr long entity, int infoName) {
-        Pointer<SizeT> pLen = allocateSizeT();
-        Pointer<Long> mem = allocateLong();
+        #declareReusablePtrs()
+        Pointer<SizeT> pLen = ptrs.sizeT1;
+        Pointer<Long> mem = ptrs.long1;
         error(getInfo(entity, infoName, 8, mem, pLen));
 
         switch ((int)pLen.getSizeT()) {
