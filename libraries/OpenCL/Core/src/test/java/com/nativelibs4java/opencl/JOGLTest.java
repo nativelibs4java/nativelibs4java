@@ -33,6 +33,7 @@ import com.jogamp.common.nio.*;
 
 import java.nio.ByteOrder;
 
+@org.junit.Ignore
 public class JOGLTest {
 
     @BeforeClass
