@@ -20,14 +20,16 @@ abstract class CLInfoGetter {
         Pointer<SizeT> pLen = allocateSizeT();
         error(getInfo(entity, infoName, 0, null, pLen));
 
-        int len = (int)pLen.getSizeT();
+        long len = pLen.getSizeT();
         if (len == 0) {
             return "";
         }
         Pointer<?> buffer = allocateBytes(len + 1);
         error(getInfo(entity, infoName, len, buffer, null));
-
-        return buffer.getCString();
+        String s = buffer.getCString();
+        Pointer.release(buffer);
+        Pointer.release(pLen);
+        return s;
     }
 
     public Pointer getPointer(@Ptr long entity, int infoName) {

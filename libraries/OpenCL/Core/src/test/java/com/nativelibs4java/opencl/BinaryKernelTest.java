@@ -39,8 +39,8 @@ public class BinaryKernelTest extends AbstractCommon {
 				  "   b[i]=a[i];\n" +
 				  "} ");
 		program.build();
-		program.getSource();
 		Map<CLDevice, byte[]> binaries = program.getBinaries();
+		String src = program.getSource();
 		program.release();
 		
 		CLProgram binaryProgram = context.createProgram(binaries, null);

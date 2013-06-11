@@ -190,7 +190,6 @@ public class CLProgram extends CLAbstractEntity {
 
         ZipInputStream zin = new ZipInputStream(new GZIPInputStream(new BufferedInputStream(in)));
         ZipEntry ze;
-        
         String source = null;
         
         boolean first = true;
@@ -269,17 +268,19 @@ public class CLProgram extends CLAbstractEntity {
         
         #declareReusablePtrsAndPErr()
         long program;
-		int previousAttempts = 0;
-		Pointer<Pointer<Byte>> pSources = pointerToCStrings(sources);
-		do {
-			program = CL.clCreateProgramWithSource(
-				context.getEntity(), 
-				sources.length, 
-				getPeer(pSources),
-				getPeer(pLengths), 
-				getPeer(pErr)
-			);
-		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
+        int previousAttempts = 0;
+        Pointer<Pointer<Byte>> pSources = pointerToCStrings(sources);
+        do {
+                program = CL.clCreateProgramWithSource(
+                        context.getEntity(), 
+                        sources.length, 
+                        getPeer(pSources),
+                        getPeer(pLengths), 
+                        getPeer(pErr)
+                );
+        } while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
+        Pointer.release(pSources);
+        Pointer.release(pLengths);
         setEntity(program);
     }
     
@@ -688,22 +689,27 @@ public class CLProgram extends CLAbstractEntity {
 		"os.version",
 		"os.name"
 	};
-    
-	protected Set<String> getProgramBuildInfo(long pgm, Pointer<SizeT> deviceIds) {
-		Pointer<SizeT> len = allocateSizeT();
-		int bufLen = 2048 * 32; //TODO find proper size
-		Pointer<?> buffer = allocateBytes(bufLen);
-
+  
+	private String getProgramBuildInfo(long pgm, long deviceId) {
+		Pointer<SizeT> pLen = allocateSizeT();
+		error(CL.clGetProgramBuildInfo(pgm, deviceId, CL_PROGRAM_BUILD_LOG, 0, 0, getPeer(pLen)));
+		long len = pLen.getSizeT();
+		Pointer<?> buffer = allocateBytes(len);
+		error(CL.clGetProgramBuildInfo(pgm, deviceId, CL_PROGRAM_BUILD_LOG, len, getPeer(buffer), 0));
+		String s = buffer.getCString();
+		Pointer.release(pLen);
+		Pointer.release(buffer);
+		return s;
+	}  
+	private Set<String> getProgramBuildInfo(long pgm, Pointer<SizeT> deviceIds) {
 		Set<String> errs = new HashSet<String>();
 		if (deviceIds == null) {
-			error(CL.clGetProgramBuildInfo(pgm, 0, CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
-			String s = buffer.getCString();
+		  String s = getProgramBuildInfo(pgm, 0);
 			if (s.length() > 0)
 				errs.add(s);
 		} else {
 			for (SizeT device : deviceIds) {
-				error(CL.clGetProgramBuildInfo(pgm, device.longValue(), CL_PROGRAM_BUILD_LOG, bufLen, getPeer(buffer), getPeer(len)));
-				String s = buffer.getCString();
+			  String s = getProgramBuildInfo(pgm, device.longValue());
 				if (s.length() > 0)
 					errs.add(s);
 			}
@@ -763,20 +769,21 @@ public class CLProgram extends CLAbstractEntity {
         }
         Pointer<Byte> pOptions = pointerToCString(getOptionsString());
         int err = CL.clBuildProgram(
-        	getEntity(), 
-        	nDevices, 
-        	getPeer(deviceIds), 
-        	getPeer(pOptions), 
-        	0, 
-        	0
+            getEntity(), 
+            nDevices, 
+            getPeer(deviceIds), 
+            getPeer(pOptions), 
+            0, 
+            0
 		);
+        Pointer.release(pOptions);
         Set<String> errors = getProgramBuildInfo(getEntity(), deviceIds);
         
         if (err != CL_SUCCESS) {
             throw new CLBuildException(this, "Compilation failure : " + errorString(err) + " (devices: " + Arrays.asList(getDevices()) + ")", errors);
         } else {
-        	if (!errors.isEmpty())
-        		JavaCL.log(Level.INFO, "Build info :\n\t" + StringUtils.implode(errors, "\n\t"));	
+            if (!errors.isEmpty())
+                JavaCL.log(Level.INFO, "Build info :\n\t" + StringUtils.implode(errors, "\n\t"));	
         }
         built = true;
         if (deleteTempFiles != null)
@@ -785,11 +792,11 @@ public class CLProgram extends CLAbstractEntity {
         	if (isCached() && !readBinaries && !loadedFromBinary) {
         		JavaCL.userCacheDir.mkdirs();
         		try {
-                    Map<CLDevice, byte[]> binaries = getBinaries();
-                    if (!binaries.isEmpty()) {
-                        writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
-                        assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
-                    }
+                Map<CLDevice, byte[]> binaries = getBinaries();
+                if (!binaries.isEmpty()) {
+                    writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
+                    assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
+                }
         		} catch (Exception ex) {
         			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
         		}
@@ -844,6 +851,7 @@ public class CLProgram extends CLAbstractEntity {
 		do {
 			kernel = CL.clCreateKernel(getEntity(), getPeer(pName), getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
+        Pointer.release(pName);
 
         CLKernel kn = new CLKernel(this, name, kernel);
         if (args.length != 0)

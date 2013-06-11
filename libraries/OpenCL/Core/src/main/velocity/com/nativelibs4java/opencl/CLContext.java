@@ -594,7 +594,6 @@ public class CLContext extends CLAbstractEntity {
 				getPeer(pBuffer),
 				getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
-		
 		return new CLImage3D(this, mem, format);
 	}
 
@@ -698,7 +697,6 @@ public class CLContext extends CLAbstractEntity {
 				getPeer(data),
 				getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
-
 		return new CLBuffer<T>(this, byteCount, mem, retainBufferReference ? data : null, io);
 	}
 

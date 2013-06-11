@@ -403,6 +403,7 @@ public class CLBuffer<T> extends CLMem {
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
 		long mem = getEntity();
+		assert mem != 0;
 		error(CL.clRetainMemObject(mem));
         PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));
