@@ -54,14 +54,14 @@ public class JavaCLGeneratorMojo
 
     /**
      * Output directory for JNAerated Java sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/java"
+     * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
     private File javaOutputDirectory;
 
     /**
      * Output directory for JNAerated Java test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/java"
+     * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
     private File testJavaOutputDirectory;

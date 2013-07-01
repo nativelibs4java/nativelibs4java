@@ -1,9 +1,7 @@
 package com.nativelibs4java.opencl.generator;
 
 import com.nativelibs4java.opencl.*;
-import com.ochafik.io.IOUtils;
 import com.ochafik.lang.jnaerator.*;
-import com.ochafik.lang.jnaerator.PreprocessorUtils.MacroUseCallback;
 import com.ochafik.lang.jnaerator.TypeConversion.JavaPrimitive;
 import com.ochafik.lang.jnaerator.TypeConversion.TypeConversionMode;
 import com.ochafik.lang.jnaerator.UniversalReconciliator;
@@ -22,7 +20,6 @@ import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
 import java.io.PrintStream;
 
 import java.util.regex.Pattern;
-import org.anarres.cpp.LexerException;
 
 public class JavaCLGenerator extends JNAerator {
 
@@ -37,7 +34,7 @@ public class JavaCLGenerator extends JNAerator {
         config.genCPlusPlus = false;
         config.gccLong = true;
         config.putTopStructsInSeparateFiles = false;
-        config.runtime = JNAeratorConfig.Runtime.JNAerator;//NL4JStructs;
+        config.runtime = JNAeratorConfig.Runtime.BridJ;//NL4JStructs;
         config.fileToLibrary = new Adapter<File, String>() {
             @Override
             public String adapt(File value) {
@@ -89,6 +86,11 @@ public class JavaCLGenerator extends JNAerator {
     public Result createResult(final ClassOutputter outputter, Feedback feedback) {
         return new Result(config, outputter, feedback) {
 
+            @Override
+            public Identifier getLibraryClassFullName(String library) {
+                return null;
+            }
+            
             @Override
             public void init() {
                 typeConverter = new BridJTypeConversion(this) {
@@ -343,7 +345,13 @@ public class JavaCLGenerator extends JNAerator {
                     ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(pair.getSecond()))));
                     return ret;
                 }
+                Identifier ref = result.typeConverter.findRef(starget.getName(), target, libraryClassName, true);
+                if (ref != null) {
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(ref))));
+                    return ret;
+                }
             }
+            throw new UnsupportedConversionException(valueType, "Unknown pointed target type");
         } else if (valueType instanceof TypeRef.SimpleTypeRef) {
             TypeRef.SimpleTypeRef sr = (TypeRef.SimpleTypeRef)valueType;
             String name = sr.getName() == null ? sr.toString() : sr.getName().toString();
@@ -492,31 +500,31 @@ public class JavaCLGenerator extends JNAerator {
         }
     }
 
-    
-    @Override
-    protected void autoConfigure() {
-        super.autoConfigure();
-
-            /*
-        __OPENCL_VERSION__
-        __ENDIAN_LITTLE__
-
-        __IMAGE_SUPPORT__
-        __FAST_RELAXED_MATH__
-        */
-
-    }
+//    
+//    @Override
+//    protected void autoConfigure() {
+//        super.autoConfigure();
+//
+//            /*
+//        __OPENCL_VERSION__
+//        __ENDIAN_LITTLE__
+//
+//        __IMAGE_SUPPORT__
+//        __FAST_RELAXED_MATH__
+//        */
+//
+//    }
 
     public static void main(String[] args) {
         JNAerator.main(new JavaCLGenerator(new JNAeratorConfig()),
             new String[] {
-                "-o", "target/generated-sources/main/java",
+                "-o", "target/generated-sources/test",
                 //"-o", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/generated-sources/main/java",
                 "-noJar",
                 "-noComp",
                 "-v",
-                "-addRootDir", "src/main/opencl",
-                "src/main/opencl",
+                "-addRootDir", "src/test/opencl",
+                "src/test/opencl/com/nativelibs4java/opencl/generator/Structs.c",
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
                 //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
