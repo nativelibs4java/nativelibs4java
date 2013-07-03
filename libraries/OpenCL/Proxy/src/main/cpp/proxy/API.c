@@ -4,7 +4,7 @@ jclass gOpenCLProxyInterface = NULL;
 jmethodID gclGetPlatformIDsMethod = NULL;
 jobject gOpenCLProxyImplementation = NULL;
 
-#define PROXIED_CLASS_SIG "com/nativelibs4java/opencl/library/ProxiedOpenCLLibrary"
+#define PROXIED_CLASS_SIG "com/nativelibs4java/opencl/library/ProxiedOpenCLImplementation"
 
 void bindJavaAPI(void *instanceData) {
   jclass proxyClass = NULL;

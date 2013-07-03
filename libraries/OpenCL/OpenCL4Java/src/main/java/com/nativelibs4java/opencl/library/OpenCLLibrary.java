@@ -24,7 +24,7 @@ import org.bridj.ann.Runtime;
  */
 @Library("OpenCL")
 @Runtime(CRuntime.class)
-public class OpenCLLibrary implements IOpenCLLibrary {
+public class OpenCLLibrary implements IOpenCLImplementation {
 
     public static abstract class clGetGLContextInfoKHR_fn extends Callback<clGetGLContextInfoKHR_fn> {
 

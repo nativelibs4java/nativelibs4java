@@ -6,7 +6,7 @@ import org.bridj.TypedPointer;
 import org.bridj.ann.Optional;
 import org.bridj.ann.Ptr;
 
-public interface IOpenCLLibrary {
+public interface IOpenCLImplementation {
 
     
     public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
