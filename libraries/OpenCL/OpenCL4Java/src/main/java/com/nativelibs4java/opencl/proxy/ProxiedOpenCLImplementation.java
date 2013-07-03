@@ -48,7 +48,10 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
         @Field(0)
         public Pointer<?> icdDispatchTable = ProxiedOpenCLImplementation.icdDispatchTable;
         @Field(1)
-        public int platformIndex;
+        public int implementationIndex;
+        @Field(2)
+        public int entityIndex;
+        
         
         public IcdEntity() {
             super();
@@ -57,31 +60,26 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
             super(peer);
         }
     }
-    protected static class PlatformId extends IcdEntity {
-        
-        public PlatformId() {
-            super();
-        }
-        public PlatformId(Pointer<? extends PlatformId> peer, Object... targs) {
-            super(peer);
-        }
-        
+    
+    public static IcdEntity createEntity(int implementationIndex, int entityIndex) {
+        IcdEntity entity = new IcdEntity();
+        entity.implementationIndex = implementationIndex;
+        entity.entityIndex = entityIndex;
+        BridJ.writeToNative(entity);
+        return entity;
     }
     
-    private final List<IOpenCLImplementation> platforms;
-    private final List<PlatformId> platformIds;
+    private final List<IOpenCLImplementation> implementations;
+    private final List<IcdEntity> platformIds;
 
-    public ProxiedOpenCLImplementation(List<IOpenCLImplementation> platforms) {
-        this.platforms = new ArrayList<IOpenCLImplementation>(platforms);
+    public ProxiedOpenCLImplementation(List<IOpenCLImplementation> implementations) {
+        this.implementations = new ArrayList<IOpenCLImplementation>(implementations);
         
-        List<PlatformId> platformIds = new ArrayList<PlatformId>();
-        for (IOpenCLImplementation implementation : this.platforms) {
-            PlatformId platformId = new PlatformId();
-            platformId.platformIndex = platforms.size();
-            BridJ.writeToNative(platformId);
-
-            platforms.add(implementation);
-            platformIds.add(platformId);
+        List<IcdEntity> platformIds = new ArrayList<IcdEntity>();
+        for (IOpenCLImplementation implementation : this.implementations) {
+            int implementationIndex = implementations.size();
+            implementations.add(implementation);
+            platformIds.add(createEntity(implementationIndex, implementationIndex));
         }
         this.platformIds = platformIds;
     }
@@ -92,7 +90,7 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
         IcdEntity icdEntity = icdEntityPtr.get();
         if (!icdDispatchTable.equals(icdEntity.icdDispatchTable))
             throw new IllegalArgumentException("Not an ICD entity, or different ICD dispatch table: " + icdEntityPeer);
-        IOpenCLImplementation implementation = platforms.get(icdEntity.platformIndex);
+        IOpenCLImplementation implementation = implementations.get(icdEntity.implementationIndex);
         return implementation;
     }
     
@@ -692,7 +690,7 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
 
     @Override
     public int clUnloadCompiler() {
-        for (IOpenCLImplementation implementation : platforms) {
+        for (IOpenCLImplementation implementation : implementations) {
             int res = implementation.clUnloadCompiler();
             if (res != CL_SUCCESS)
                 return res;
