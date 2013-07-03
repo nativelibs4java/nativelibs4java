@@ -46,7 +46,11 @@ CPPFLAGS += -std=c99
 CPPFLAGS += -U_FORTIFY_SOURCE
 
 ifdef BUILD_OS_darwin
-CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+#CPPFLAGS  += -I/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home/include 
+#CPPFLAGS	+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+CPPFLAGS  += -I/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/include
+CPPFLAGS  += -I/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/include/darwin
+LDFLAGS  += -L/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/jli -ljli
 LDFLAGS		+= -ldl -framework Foundation -all_load 
 endif
 
