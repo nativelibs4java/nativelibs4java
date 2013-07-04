@@ -178,8 +178,18 @@ public class VelocityMojo
 		}*/
     }
 
-    private boolean executeAll(File velocitySources, boolean isTest) throws MojoExecutionException {
+    private VelocityEngine createEngine(String canoPath) throws Exception {
     	VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
+        ve.setProperty("velocimacro.permissions.allow.inline.to.replace.global", "true");
+        ve.setProperty("velocimacro.permissions.allow.inline.local.scope", "false");
+	ve.setProperty("velocimacro.context.localscope", "false");
+        ve.setProperty("file.resource.loader.path", canoPath);
+        ve.init();
+        return ve;
+    }
+
+    private boolean executeAll(File velocitySources, boolean isTest) throws MojoExecutionException {
     	
         List<File> files = new ArrayList<File>();
 		String canoPath;
@@ -189,10 +199,6 @@ public class VelocityMojo
 
 			canoPath = sourcePathRoot.getCanonicalPath();
             getLog().info("Velocity root path = " + canoPath);
-            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
-			ve.setProperty("file.resource.loader.path", canoPath);//file.getParent());
-			
-			ve.init();
 					
 			
 		} catch (Exception ex) {
@@ -239,6 +245,7 @@ public class VelocityMojo
 				if (cano.startsWith(File.separator))
 					cano = cano.substring(File.separator.length());
 				
+	    	VelocityEngine ve = createEngine(canoPath);
                 org.apache.velocity.Template template = ve.getTemplate(cano);//file.getName());
 
                 VelocityContext context = new VelocityContext();//execution.getParameters());
