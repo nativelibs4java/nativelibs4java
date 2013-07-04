@@ -10,6 +10,7 @@ import java.util.List;
  * @author Olivier
  */
 public abstract class Primitive {
+
     private final Class<?> type, wrapper, bufferType;
     private final String size;
     private final String name, capName, wrapperName, bufferName;
@@ -24,35 +25,37 @@ public abstract class Primitive {
     }
 
     public boolean isSignedIntegral() {
-    		return 
-    			type == int.class ||
-    			type == short.class ||
-    			type == long.class ||
-    			type == byte.class;
+        return type == int.class
+                || type == short.class
+                || type == long.class
+                || type == byte.class;
     }
-    
+
     public String getName() {
         return name;
     }
+
     public String getTypeRef() {
         return getWrapperName();
     }
+
     public String getRawTypeRef() {
-    	    return getTypeRef();	
+        return getTypeRef();
     }
-/*
-    public String getV1() {
-        return       v1;
-    }
+    /*
+     public String getV1() {
+     return       v1;
+     }
 
-    public String getV2() {
-        return       v2;
-    }
+     public String getV2() {
+     return       v2;
+     }
 
-    public String getV3() {
-        return       v3;
-    }
-*/
+     public String getV3() {
+     return       v3;
+     }
+     */
+
     public String getSize() {
         return size;
     }
@@ -72,30 +75,30 @@ public abstract class Primitive {
     public String getBufferName() {
         return bufferName;
     }
-    
+
     public String value(String intValue) {
-    		return intValue;
+        return intValue;
     }
 
     public String rawValue(String intValue) {
-    		return value(intValue);
+        return value(intValue);
     }
 
     public Primitive(String integralClassName) {
         this.type = null;
-		wrapper = null;
-		bufferType = null;
-		size = integralClassName + ".SIZE";
-		//v1 = "new " + integralClassName + "(1)";
-		//v2 = "new " + integralClassName + "(2)";
-		//v3 = "new " + integralClassName + "(3)";
-		
-		name = integralClassName;
+        wrapper = null;
+        bufferType = null;
+        size = integralClassName + ".SIZE";
+        //v1 = "new " + integralClassName + "(1)";
+        //v2 = "new " + integralClassName + "(2)";
+        //v3 = "new " + integralClassName + "(3)";
+
+        name = integralClassName;
         capName = integralClassName;
         wrapperName = integralClassName;
         bufferName = null;
-	}
-    
+    }
+
     public Primitive(Class<?> type) {
         this.type = type;
         if (type == Integer.TYPE) {
@@ -154,75 +157,110 @@ public abstract class Primitive {
             //v1 = "true";
             //v2 = "false";
             //v3 = "true";
-        } else
+        } else {
             throw new IllegalArgumentException();
+        }
 
         name = type.getName();
         capName = Character.toUpperCase(name.charAt(0)) + name.substring(1);
         wrapperName = wrapper.getSimpleName();
         bufferName = bufferType.getSimpleName();
     }
-
     static List<Primitive> bridJPrimitives;
+
     public static synchronized List<Primitive> getBridJPrimitives() {
         if (bridJPrimitives == null) {
             bridJPrimitives = new ArrayList<Primitive>();
             bridJPrimitives.addAll(getPrimitives());
             bridJPrimitives.add(new Primitive("CLong") {
-            		public String value(String intValue) { return "new CLong(" + intValue + ")"; }
-            		public String rawValue(String intValue) { return "(long)" + intValue; }
+                public String value(String intValue) {
+                    return "new CLong(" + intValue + ")";
+                }
+
+                public String rawValue(String intValue) {
+                    return "(long)" + intValue;
+                }
             });
             bridJPrimitives.add(new Primitive("SizeT") {
-            		public String value(String intValue) { return "new SizeT(" + intValue + ")"; }
-            		public String rawValue(String intValue) { return "(long)" + intValue; }
+                public String value(String intValue) {
+                    return "new SizeT(" + intValue + ")";
+                }
+
+                public String rawValue(String intValue) {
+                    return "(long)" + intValue;
+                }
             });
             bridJPrimitives.add(new Primitive("Pointer") {
-            		public String value(String intValue) { return "(Pointer)Pointer.pointerToAddress(" + intValue + ")"; }
-            		public String getTypeRef() { return "Pointer<?>"; }
-            		public String getRawTypeRef() { return "Pointer"; }
+                public String value(String intValue) {
+                    return "(Pointer)Pointer.pointerToAddress(" + intValue + ")";
+                }
+
+                public String getTypeRef() {
+                    return "Pointer<?>";
+                }
+
+                public String getRawTypeRef() {
+                    return "Pointer";
+                }
             });
             bridJPrimitives = Collections.unmodifiableList(bridJPrimitives);
         }
         return bridJPrimitives;
     }
-
     static List<Primitive> primitives;
+
     public static synchronized List<Primitive> getPrimitives() {
         if (primitives == null) {
             primitives = new ArrayList<Primitive>();
             primitives.addAll(getPrimitivesNoBool());
             primitives.add(new Primitive(Boolean.TYPE) {
-            		public String value(String intValue) { return "(((" + intValue + ") % 2) == 1)"; }
+                public String value(String intValue) {
+                    return "(((" + intValue + ") % 2) == 1)";
+                }
             });
             primitives = Collections.unmodifiableList(primitives);
         }
         return primitives;
     }
-
     static List<Primitive> primitivesNoBool;
+
     public static synchronized List<Primitive> getPrimitivesNoBool() {
         if (primitivesNoBool == null) {
             primitivesNoBool = new ArrayList<Primitive>();
             primitivesNoBool.add(new Primitive(Integer.TYPE) {
-            		public String value(String intValue) { return intValue; }
+                public String value(String intValue) {
+                    return intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Long.TYPE) {
-            		public String value(String intValue) { return "(long)" + intValue; }
+                public String value(String intValue) {
+                    return "(long)" + intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Short.TYPE) {
-            		public String value(String intValue) { return "(short)" + intValue; }
+                public String value(String intValue) {
+                    return "(short)" + intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Byte.TYPE) {
-            		public String value(String intValue) { return "(byte)" + intValue; }
+                public String value(String intValue) {
+                    return "(byte)" + intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Character.TYPE) {
-            		public String value(String intValue) { return "(char)" + intValue; }
+                public String value(String intValue) {
+                    return "(char)" + intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Float.TYPE) {
-            		public String value(String intValue) { return "(float)" + intValue; }
+                public String value(String intValue) {
+                    return "(float)" + intValue;
+                }
             });
             primitivesNoBool.add(new Primitive(Double.TYPE) {
-            		public String value(String intValue) { return "(double)" + intValue; }
+                public String value(String intValue) {
+                    return "(double)" + intValue;
+                }
             });
             primitivesNoBool = Collections.unmodifiableList(primitivesNoBool);
         }

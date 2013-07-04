@@ -15,7 +15,6 @@ package com.nativelibs4java.velocity;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -35,69 +34,71 @@ import org.apache.velocity.app.Velocity;
 
 /**
  * Generates source code with velocity templates
+ *
  * @goal generate
  * @phase generate-sources
  * @description Generates source code with velocity templates
  */
 public class VelocityMojo
-    extends AbstractMojo
-{
+        extends AbstractMojo {
+
     /**
      * Extra properties
+     *
      * @parameter
      * @optional
      */
     private Map<String, String> properties;
-     
-	/**
+    /**
      * Source folder for velocity templates
+     *
      * @parameter expression="${basedir}/src/"
      * @required
      */
     private File sourcePathRoot;
-
     /**
      * Source folder for velocity templates
+     *
      * @parameter expression="${basedir}/src/main/velocity/"
      * @required
      */
     private File velocitySources;
-
-	/**
+    /**
      * Source folder for velocity test templates
+     *
      * @parameter expression="${basedir}/src/test/velocity/"
      * @required
      */
     private File velocityTestSources;
-
     /**
      * Output directory for generated sources.
+     *
      * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
     private File sourcesOutputDirectory;
-
     /**
      * Output directory for generated test sources.
+     *
      * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
     private File testSourcesOutputDirectory;
-
     /**
      * Output directory for resources.
+     *
      * @parameter expression="${project.build.directory}/generated-resources/"
      * @optional
      */
     private File resourcesOutputDirectory;
-
     /**
      * Output directory test resources.
-     * @parameter expression="${project.build.directory}/generated-test-resources/"
+     *
+     * @parameter
+     * expression="${project.build.directory}/generated-test-resources/"
      * @optional
      */
     private File testResourcesOutputDirectory;
-
     /**
      * @parameter expression="${project}"
      * @required
@@ -106,21 +107,26 @@ public class VelocityMojo
      */
     private MavenProject project;
 
-	static void listVeloFiles(File f, Collection<File> out) throws IOException {
-        if (f.isHidden())
+    static void listVeloFiles(File f, Collection<File> out) throws IOException {
+        if (f.isHidden()) {
             return;
+        }
 
         String n = f.getName().toLowerCase();
         if (f.isDirectory()) {
-            if (n.equals(".svn") || n.equals("CVS"))
+            if (n.equals(".svn") || n.equals("CVS")) {
                 return;
+            }
 
-            for (File ff : f.listFiles())
+            for (File ff : f.listFiles()) {
                 listVeloFiles(ff.getAbsoluteFile(), out);
+            }
         } else if (f.isFile()) {
-			//if (n.endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
-			if (!n.startsWith("."))//endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
+            //if (n.endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
+            if (!n.startsWith("."))//endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
+            {
                 out.add(f);
+            }
         }
     }
 
@@ -131,7 +137,7 @@ public class VelocityMojo
         String abs = vmFile.getCanonicalPath();
         String rel = abs.substring(canoRoot.length());
         String relLow = rel.toLowerCase();
-        for (String suf : new String[] { ".vm", ".velo", ".velocity" }) {
+        for (String suf : new String[]{".vm", ".velo", ".velocity"}) {
             if (relLow.endsWith(suf)) {
                 rel = rel.substring(0, rel.length() - suf.length());
                 break;
@@ -146,92 +152,93 @@ public class VelocityMojo
 
         return new File(out.getCanonicalPath() + rel);
     }
+
     public void execute()
-        throws MojoExecutionException
-    {
+            throws MojoExecutionException {
         if (executeAll(velocitySources, false)) {
-			//File jf = new File(outputDirectory, "java");
-			//if (jf.exists())
-			//	outputDirectory = jf;
-			project.addCompileSourceRoot(sourcesOutputDirectory.toString());
-			Resource res = new Resource();
-			res.setDirectory(resourcesOutputDirectory.getAbsolutePath());
-			project.addResource(res);
-		}
-        
+            //File jf = new File(outputDirectory, "java");
+            //if (jf.exists())
+            //	outputDirectory = jf;
+            project.addCompileSourceRoot(sourcesOutputDirectory.toString());
+            Resource res = new Resource();
+            res.setDirectory(resourcesOutputDirectory.getAbsolutePath());
+            project.addResource(res);
+        }
+
         if (executeAll(velocityTestSources, true)) {
-			//File jf = new File(testOutputDirectory, "java");
-			//if (jf.exists())
-			//	testOutputDirectory = jf;
-			project.addTestCompileSourceRoot(testSourcesOutputDirectory.toString());
-			Resource res = new Resource();
-			res.setDirectory(testResourcesOutputDirectory.getAbsolutePath());
-			project.addTestResource(res);
-		}
-        
-		/*if (templates == null)
-			getLog().error("Did not find <templates> !");
-		else {
-			getLog().info("Found " + templates.size() + " templates");
-			for (Template conf : templates)
-				conf.execute(this);
-		}*/
+            //File jf = new File(testOutputDirectory, "java");
+            //if (jf.exists())
+            //	testOutputDirectory = jf;
+            project.addTestCompileSourceRoot(testSourcesOutputDirectory.toString());
+            Resource res = new Resource();
+            res.setDirectory(testResourcesOutputDirectory.getAbsolutePath());
+            project.addTestResource(res);
+        }
+
+        /*if (templates == null)
+         getLog().error("Did not find <templates> !");
+         else {
+         getLog().info("Found " + templates.size() + " templates");
+         for (Template conf : templates)
+         conf.execute(this);
+         }*/
     }
 
     private VelocityEngine createEngine(String canoPath) throws Exception {
-    	VelocityEngine ve = new VelocityEngine();
+        VelocityEngine ve = new VelocityEngine();
         ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new MavenLogChute(getLog()));
         ve.setProperty("velocimacro.permissions.allow.inline.to.replace.global", "true");
         ve.setProperty("velocimacro.permissions.allow.inline.local.scope", "false");
-	ve.setProperty("velocimacro.context.localscope", "false");
+        ve.setProperty("velocimacro.context.localscope", "false");
         ve.setProperty("file.resource.loader.path", canoPath);
         ve.init();
         return ve;
     }
 
     private boolean executeAll(File velocitySources, boolean isTest) throws MojoExecutionException {
-    	
+
         List<File> files = new ArrayList<File>();
-		String canoPath;
-		try {
-			velocitySources = velocitySources.getCanonicalFile();
-			listVeloFiles(velocitySources, files);
+        String canoPath;
+        try {
+            velocitySources = velocitySources.getCanonicalFile();
+            listVeloFiles(velocitySources, files);
 
-			canoPath = sourcePathRoot.getCanonicalPath();
+            canoPath = sourcePathRoot.getCanonicalPath();
             getLog().info("Velocity root path = " + canoPath);
-					
-			
-		} catch (Exception ex) {
-			throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
-		}
 
-		
+
+        } catch (Exception ex) {
+            throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
+        }
+
+
         getLog().info("Found " + files.size() + " files in '" + velocitySources + "'...");
         getLog().info("Got Maven properties : " + project.getProperties());
         getLog().info("Got properties : " + properties);
-        
-        if (files.isEmpty())
+
+        if (files.isEmpty()) {
             return false;
+        }
 
-		for (File file : files) {
+        for (File file : files) {
             try {
-				file = file.getCanonicalFile();
+                file = file.getCanonicalFile();
 
-				String name = file.getName();
-				if (name.endsWith("~") || name.endsWith(".bak")) {
-					getLog().info("Skipping: '" + name + "'");
+                String name = file.getName();
+                if (name.endsWith("~") || name.endsWith(".bak")) {
+                    getLog().info("Skipping: '" + name + "'");
                     continue;
-				}
-				String lowName = name.toLowerCase();
-				
-				File outputDirectory;
-				boolean isSource = name.endsWith(".java") || name.endsWith(".scala");
-				if (isSource) {
-					outputDirectory = isTest ? testSourcesOutputDirectory : sourcesOutputDirectory;
-				} else {
-					outputDirectory = isTest ? testResourcesOutputDirectory : resourcesOutputDirectory;
-				}
-				
+                }
+                String lowName = name.toLowerCase();
+
+                File outputDirectory;
+                boolean isSource = name.endsWith(".java") || name.endsWith(".scala");
+                if (isSource) {
+                    outputDirectory = isTest ? testSourcesOutputDirectory : sourcesOutputDirectory;
+                } else {
+                    outputDirectory = isTest ? testResourcesOutputDirectory : resourcesOutputDirectory;
+                }
+
                 File outFile = getOutputFile(file, velocitySources, outputDirectory);
                 if (outFile.exists() && outFile.lastModified() > file.lastModified()) {
                     getLog().info("Up-to-date: '" + name + "'");
@@ -240,12 +247,13 @@ public class VelocityMojo
                 getLog().info("Executing template '" + name + "'...");
 
                 //context = new VelocityContext();
-				String cano = file.getCanonicalPath();
-				cano = cano.substring(canoPath.length());
-				if (cano.startsWith(File.separator))
-					cano = cano.substring(File.separator.length());
-				
-	    	VelocityEngine ve = createEngine(canoPath);
+                String cano = file.getCanonicalPath();
+                cano = cano.substring(canoPath.length());
+                if (cano.startsWith(File.separator)) {
+                    cano = cano.substring(File.separator.length());
+                }
+
+                VelocityEngine ve = createEngine(canoPath);
                 org.apache.velocity.Template template = ve.getTemplate(cano);//file.getName());
 
                 VelocityContext context = new VelocityContext();//execution.getParameters());
@@ -253,23 +261,23 @@ public class VelocityMojo
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
                 context.put("bridJPrimitives", Primitive.getBridJPrimitives());
                 context.put("pom", project);
-		
+
                 for (Map.Entry<Object, Object> e : project.getProperties().entrySet()) {
-					String propName = ((String)e.getKey()).replace('.', '_'), propValue = (String)e.getValue();
-					getLog().debug("Got property : " + propName + " = " + propValue);
-			
-					context.put(propName, propValue);
-				}
-                
+                    String propName = ((String) e.getKey()).replace('.', '_'), propValue = (String) e.getValue();
+                    getLog().debug("Got property : " + propName + " = " + propValue);
+
+                    context.put(propName, propValue);
+                }
+
                 if (properties != null) {
-                	for (Map.Entry<String, String> e : properties.entrySet()) {
-                		String propName = e.getKey(), propValue = e.getValue();
-                		getLog().debug("Got property : " + propName + " = " + propValue);
-                
-						context.put(propName, propValue);
-					}
-				}
-                
+                    for (Map.Entry<String, String> e : properties.entrySet()) {
+                        String propName = e.getKey(), propValue = e.getValue();
+                        getLog().debug("Got property : " + propName + " = " + propValue);
+
+                        context.put(propName, propValue);
+                    }
+                }
+
                 StringWriter out = new StringWriter();
                 template.merge(context, out);
                 out.close();
@@ -284,10 +292,10 @@ public class VelocityMojo
 
             } catch (Exception ex) {
                 //throw 
-				new MojoExecutionException("Failed to execute template '" + file + "'", ex).printStackTrace();
+                new MojoExecutionException("Failed to execute template '" + file + "'", ex).printStackTrace();
             }
         }
-		
+
         return true;
     }
 }
