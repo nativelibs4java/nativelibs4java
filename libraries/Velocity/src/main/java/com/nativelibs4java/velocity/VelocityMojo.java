@@ -15,22 +15,30 @@ package com.nativelibs4java.velocity;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static com.nativelibs4java.velocity.Utils.*;
+import com.google.common.base.Function;
+import java.io.BufferedReader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.model.Resource;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.velocity.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.app.Velocity;
+import org.codehaus.plexus.util.IOUtil;
 
 /**
  * Generates source code with velocity templates
@@ -254,8 +262,6 @@ public class VelocityMojo
                 }
 
                 VelocityEngine ve = createEngine(canoPath);
-                org.apache.velocity.Template template = ve.getTemplate(cano);//file.getName());
-
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 context.put("primitives", Primitive.getPrimitives());
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
@@ -279,15 +285,21 @@ public class VelocityMojo
                 }
 
                 StringWriter out = new StringWriter();
-                template.merge(context, out);
+                
+                boolean quoteComments = false;
+                if (quoteComments) {
+                    String source = readTextFile(file);
+                    String quoted = quoteSharpsInComments(source);
+                    ve.evaluate(context, out, "velocity", quoted);
+                } else {
+                    org.apache.velocity.Template template = ve.getTemplate(cano);//file.getName());
+                    template.merge(context, out);
+                }
                 out.close();
 
                 outFile.getParentFile().mkdirs();
-
-
-                FileWriter f = new FileWriter(outFile);
-                f.write(out.toString());
-                f.close();
+                String transformed = out.toString();
+                writeTextFile(outFile, transformed);
                 //getLog().info("\tGenerated '" + outFile.getName() + "'");
 
             } catch (Exception ex) {
