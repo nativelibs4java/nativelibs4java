@@ -2,17 +2,17 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP_TO_EDGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_NONE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_REPEAT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_LINEAR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_NEAREST;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_ADDRESSING_MODE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_FILTER_MODE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_NORMALIZED_COORDS;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_ADDRESS_CLAMP;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_ADDRESS_CLAMP_TO_EDGE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_ADDRESS_NONE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_ADDRESS_REPEAT;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_FILTER_LINEAR;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_FILTER_NEAREST;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_SAMPLER_ADDRESSING_MODE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_SAMPLER_FILTER_MODE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_SAMPLER_NORMALIZED_COORDS;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import org.bridj.*;
@@ -24,7 +24,7 @@ import static org.bridj.Pointer.*;
  * The built-in functions to read from an image in a kernel take a sampler as an argument. <br/>
  * The sampler arguments to the image read function can be sampler objects created using OpenCL functions and passed as argument values to the kernel or can be samplers declared inside a kernel.
  *  <br/>
- * see {@link CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) } 
+ * see {@link CLContext\#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) } 
  * @author Olivier Chafik
  */
 public class CLSampler extends CLAbstractEntity {

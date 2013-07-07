@@ -3,6 +3,7 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -15,9 +16,9 @@ import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_device_id;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_kernel;
 import com.nativelibs4java.util.NIOUtils;
 
 import org.bridj.*;
@@ -30,7 +31,7 @@ import static org.bridj.Pointer.*;
  * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.</br>
  * </br>
  * Kernels can be queued for execution in a CLQueue (see enqueueTask and enqueueNDRange)
- * See {@link CLProgram#createKernel(java.lang.String, java.lang.Object[])} and {@link CLProgram#createKernels()} 
+ * See {@link CLProgram\#createKernel(java.lang.String, java.lang.Object[])} and {@link CLProgram\#createKernels()} 
  * @author Olivier Chafik
  */
 public class CLKernel extends CLAbstractEntity {
@@ -377,7 +378,7 @@ public class CLKernel extends CLAbstractEntity {
 
     /**
 #documentCallsFunction("clEnqueueNDRangeKernel")
-     * Enqueues a command to execute a kernel on a device (see {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])})
+     * Enqueues a command to execute a kernel on a device (see {@link CLKernel\#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])})
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex]. This parameter can be left null, in which case the OpenCL implementation will choose good values.
      * @param queue This kernel will be queued for execution on the device associated with that queue.
@@ -390,7 +391,7 @@ public class CLKernel extends CLAbstractEntity {
     /**
 #documentCallsFunction("clEnqueueNDRangeKernel")
      * Enqueues a command to execute a kernel on a device, using local work sizes chosen by the OpenCL implementation.
-     * See {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])}
+     * See {@link CLKernel\#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])}
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param queue This kernel will be queued for execution on the device associated with that queue.
 #documentEventsToWaitForAndReturn()
@@ -428,7 +429,7 @@ public class CLKernel extends CLAbstractEntity {
     }
     
     /**
-     * @deprecated Use {@link CLKernel#enqueueNDRange(CLQueue, long[], long[], long[], CLEvent[])} instead.
+     * @deprecated Use {@link CLKernel\#enqueueNDRange(CLQueue, long[], long[], long[], CLEvent[])} instead.
      */
     @Deprecated
     public CLEvent enqueueNDRange(CLQueue queue, int[] globalOffsets, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {

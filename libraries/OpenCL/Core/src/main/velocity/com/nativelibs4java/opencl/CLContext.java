@@ -6,7 +6,8 @@ import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
@@ -33,10 +34,10 @@ import com.nativelibs4java.opencl.CLSampler.FilterMode;
 import com.nativelibs4java.opencl.ImageIOUtils.ImageInfo;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.opencl.library.cl_image_format;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_context;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_device_id;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
@@ -60,16 +61,16 @@ public class CLContext extends CLAbstractEntity {
 #documentCallsFunction("clCreateBuffer")
 	 * Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
 	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
-	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, CLMem.MapFlags, CLEvent...) CLBuffer#map(CLQueue, MapFlags, CLEvent...)} is then necessary to ensure the data is properly synchronized with the buffer. 
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
-	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()}).
+	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer\#map(CLQueue, CLMem.MapFlags, CLEvent...) CLBuffer\#map(CLQueue, MapFlags, CLEvent...)} is then necessary to ensure the data is properly synchronized with the buffer. 
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage\#Input} cannot be written to in a kernel.
+	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer\#getValidElements()}).
 	 */
 #end
 #macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
     /**
 #documentCallsFunction("clCreateBuffer")
      * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage\#Input} cannot be written to in a kernel.
 	 $insertParam 
 	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
 	 */
@@ -118,7 +119,7 @@ public class CLContext extends CLAbstractEntity {
 	/**
 	 * Change whether program binaries are automatically cached or not.<br>
 	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
-	 * Each program can be set to be cached or not using {@link CLProgram#setCached(boolean) }.<br>
+	 * Each program can be set to be cached or not using {@link CLProgram\#setCached(boolean) }.<br>
 	 * Caching of binaries might be disabled by default on some platforms (ATI Stream, for instance).
 	 */ 
 	public synchronized void setCacheBinaries(boolean cacheBinaries) {
@@ -126,8 +127,8 @@ public class CLContext extends CLAbstractEntity {
 	}
 	/**
 	 * Says whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the {@link CLContext#setCacheBinaries(boolean) } method.<br>
-	 * Each program can be set to be cached or not using {@link CLProgram#setCached(boolean) }.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the {@link CLContext\#setCacheBinaries(boolean) } method.<br>
+	 * Each program can be set to be cached or not using {@link CLProgram\#setCached(boolean) }.<br>
 	 * Caching of binaries might be disabled by default on some platforms (ATI Stream, for instance).
 	 */ 
 	public synchronized boolean getCacheBinaries() {
@@ -308,7 +309,7 @@ public class CLContext extends CLAbstractEntity {
     }
 
     /**
-     * Restore a program previously saved with {@link CLProgram#store(java.io.OutputStream) }
+     * Restore a program previously saved with {@link CLProgram\#store(java.io.OutputStream) }
      * @param in will be closed
      * @return a CLProgram object representing the previously saved program
      * @throws IOException
@@ -372,8 +373,8 @@ public class CLContext extends CLAbstractEntity {
 #documentCallsFunction("clCreateFromGLBuffer")
      * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
-     * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
-     * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) } 
+     * see {@link CLMem\#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
+     * see {@link CLMem\#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) } 
 	 * @param usage flags
      * @param openGLBufferObject Identifier of a VBO, as generated by glGenBuffers
      */
@@ -397,8 +398,8 @@ public class CLContext extends CLAbstractEntity {
 #documentCallsFunction("clCreateFromGLRenderbuffer")
      * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br/>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
-     * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
-     * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
+     * see {@link CLMem\#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
+     * see {@link CLMem\#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
      * @param openGLRenderBuffer Identifier of an OpenGL render buffer
      */
 	@SuppressWarnings("deprecation")
@@ -635,8 +636,8 @@ public class CLContext extends CLAbstractEntity {
 	/**
 #documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
-	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage\#Input} cannot be written to in a kernel.
+	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer\#getValidElements()})
 	 */
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data) {
 		return createBuffer(kind, data, true);
@@ -658,7 +659,7 @@ public class CLContext extends CLAbstractEntity {
 	/**
 #documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified type.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage\#Input} cannot be written to in a kernel.
 	 * @param io Delegate responsible for reading and writing values.
 	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
 	 * @deprecated Intended for advanced uses in conjunction with BridJ.
@@ -761,7 +762,7 @@ public class CLContext extends CLAbstractEntity {
     private volatile Boolean doubleSupported;
     
     /**
-     * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice#isDoubleSupported()}).
+     * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice\#isDoubleSupported()}).
      */
     public boolean isDoubleSupported() {
     	if (doubleSupported == null) {
@@ -780,7 +781,7 @@ public class CLContext extends CLAbstractEntity {
 	private volatile Boolean halfSupported;
     
     /**
-     * Whether all the devices in this context support half-precision numbers (see {@link CLDevice#isHalfSupported()}).
+     * Whether all the devices in this context support half-precision numbers (see {@link CLDevice\#isHalfSupported()}).
      */
     public boolean isHalfSupported() {
 		if (halfSupported == null) {

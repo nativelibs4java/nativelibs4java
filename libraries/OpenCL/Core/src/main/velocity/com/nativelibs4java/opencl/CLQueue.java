@@ -2,15 +2,15 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_QUEUE_PROPERTIES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_FALSE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_QUEUE_PROPERTIES;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_TRUE;
 
 import java.util.EnumSet;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_command_queue;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
@@ -24,12 +24,12 @@ import static org.bridj.Pointer.*;
  * Sharing of objects across multiple command-queues will require the application to perform appropriate synchronization.<br/>
  * <br/>
  * A queue is bound to a single device.
- * see {@link CLDevice#createQueue(com.nativelibs4java.opencl.CLContext, com.nativelibs4java.opencl.CLDevice.QueueProperties[]) } 
- * see {@link CLDevice#createOutOfOrderQueue(com.nativelibs4java.opencl.CLContext) }
- * see {@link CLDevice#createProfilingQueue(com.nativelibs4java.opencl.CLContext) }
- * see {@link CLContext#createDefaultQueue(com.nativelibs4java.opencl.CLDevice.QueueProperties[]) }
- * see {@link CLContext#createDefaultOutOfOrderQueue() }
- * see {@link CLContext#createDefaultProfilingQueue() }
+ * see {@link CLDevice\#createQueue(com.nativelibs4java.opencl.CLContext, com.nativelibs4java.opencl.CLDevice.QueueProperties[]) } 
+ * see {@link CLDevice\#createOutOfOrderQueue(com.nativelibs4java.opencl.CLContext) }
+ * see {@link CLDevice\#createProfilingQueue(com.nativelibs4java.opencl.CLContext) }
+ * see {@link CLContext\#createDefaultQueue(com.nativelibs4java.opencl.CLDevice.QueueProperties[]) }
+ * see {@link CLContext\#createDefaultOutOfOrderQueue() }
+ * see {@link CLContext\#createDefaultProfilingQueue() }
  * @author Olivier Chafik
  *
  */

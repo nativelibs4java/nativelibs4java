@@ -8,6 +8,7 @@ import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
 
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
@@ -24,10 +25,10 @@ import java.util.logging.Logger;
 /**
  * OpenCL device (CPU, GPU...).<br/>
  * Devices are retrieved from a CLPlatform through 
- * {@link CLPlatform#listDevices(java.util.EnumSet, boolean) },
- * {@link CLPlatform#listAllDevices(boolean) },
- * {@link CLPlatform#listCPUDevices(boolean) },
- * {@link CLPlatform#listGPUDevices(boolean) }
+ * {@link CLPlatform\#listDevices(java.util.EnumSet, boolean) },
+ * {@link CLPlatform\#listAllDevices(boolean) },
+ * {@link CLPlatform\#listCPUDevices(boolean) },
+ * {@link CLPlatform\#listGPUDevices(boolean) }
  */
 @SuppressWarnings("unused")
 public class CLDevice extends CLAbstractEntity {
@@ -84,7 +85,7 @@ public class CLDevice extends CLAbstractEntity {
 
     private volatile ByteOrder kernelsDefaultByteOrder;
     /**
-     * @deprecated Use {@link CLDevice#getByteOrder()}
+     * @deprecated Use {@link CLDevice\#getByteOrder()}
      */
     @Deprecated
     public synchronized ByteOrder getKernelsDefaultByteOrder() {

@@ -9,11 +9,11 @@ import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.JavaCL.log;
 import java.util.logging.Level;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARIES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY_SIZES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_PROGRAM_BINARIES;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_PROGRAM_BINARY_SIZES;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_PROGRAM_BUILD_LOG;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_PROGRAM_SOURCE;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_SUCCESS;
 import static org.bridj.util.DefaultParameterizedType.paramType;
 import java.io.IOException;
 import java.io.File;
@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_device_id;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_kernel;
+import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_program;
 import com.nativelibs4java.util.IOUtils;
 import com.ochafik.util.string.StringUtils;
 import java.io.BufferedInputStream;
@@ -78,8 +78,8 @@ import static org.bridj.Pointer.*;
  * A program can be compiled on the fly (costly) but its binaries can be stored and
  * loaded back in subsequent executions to avoid recompilation.<br>
  * By default, program binaries are automatically cached on stable platforms (which currently exclude ATI Stream), 
- * but the caching can be forced on/off with * see {@link CLContext#setCacheBinaries(boolean) }.<br>
- * To create a program from sources, please use see {@link CLContext#createProgram(java.lang.String[]) } 
+ * but the caching can be forced on/off with * see {@link CLContext\#setCacheBinaries(boolean) }.<br>
+ * To create a program from sources, please use see {@link CLContext\#createProgram(java.lang.String[]) } 
  * @author Olivier Chafik
  */
 public class CLProgram extends CLAbstractEntity {
@@ -146,7 +146,7 @@ public class CLProgram extends CLAbstractEntity {
     }
 
     /**
-     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext#loadProgram(java.io.InputStream) }
+     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext\#loadProgram(java.io.InputStream) }
      * @param out will be closed
      * @throws CLBuildException
      * @throws IOException
@@ -245,7 +245,7 @@ public class CLProgram extends CLAbstractEntity {
             if (macros != null && !macros.isEmpty()) {
                 StringBuilder b = new StringBuilder();
                 for (Map.Entry<String, Object> m : macros.entrySet())
-                    b.append("#define " + m.getKey() + " " + m.getValue() + "\n");
+                    b.append("#" + "define " + m.getKey() + " " + m.getValue() + "\n");
                 this.sources.add(0, b.toString());
             }
         }

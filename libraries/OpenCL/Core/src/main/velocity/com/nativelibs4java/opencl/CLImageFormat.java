@@ -1,6 +1,7 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
 
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
@@ -10,7 +11,7 @@ import static org.bridj.Pointer.*;
 
 /**
  * OpenCL Image Format
- * see {@link CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) } 
+ * see {@link CLContext\#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) } 
  * @author Olivier Chafik
  */
 public class CLImageFormat {
