@@ -286,7 +286,7 @@ public class VelocityMojo
 
                 StringWriter out = new StringWriter();
                 
-                boolean quoteComments = false;
+                boolean quoteComments = true;
                 if (quoteComments) {
                     String source = readTextFile(file);
                     String quoted = quoteSharpsInComments(source);
