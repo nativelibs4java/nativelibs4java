@@ -12,10 +12,10 @@ import com.nativelibs4java.util.Pair;
 import static org.bridj.Pointer.*;
 /**
  * OpenCL 3D Image Memory Object<br/>
- * see {@link CLContext\#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }
- * see {@link CLContext\#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long) }
- * see {@link CLContext\#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long, java.nio.Buffer, boolean) }
- * see {@link CLContext\#createImage3DFromGLTexture3D(com.nativelibs4java.opencl.CLMem.Usage, int, int) } 
+ * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }
+ * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long) }
+ * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long, java.nio.Buffer, boolean) }
+ * see {@link CLContext#createImage3DFromGLTexture3D(com.nativelibs4java.opencl.CLMem.Usage, int, int) } 
  * @author Olivier Chafik
  */
 public class CLImage3D extends CLImage2D {

@@ -250,7 +250,7 @@ public class JavaCL {
 
 	/**
 	 * Returns the "best" OpenCL device (currently, the one that has the largest amount of compute units).<br>
-	 * For more control on what is to be considered a better device, please use the {@link JavaCL\#getBestDevice(CLPlatform.DeviceFeature[]) } variant.<br>
+	 * For more control on what is to be considered a better device, please use the {@link JavaCL#getBestDevice(CLPlatform.DeviceFeature[]) } variant.<br>
 	 * This is currently equivalent to <code>getBestDevice(MaxComputeUnits)</code>
 	 */
     public static CLDevice getBestDevice() {
@@ -268,7 +268,7 @@ public class JavaCL {
         return CLPlatform.getBestDevice(Arrays.asList(preferredFeatures), devices);
     }
     /**
-     * Creates an OpenCL context with the "best" device (see {@link JavaCL\#getBestDevice() })
+     * Creates an OpenCL context with the "best" device (see {@link JavaCL#getBestDevice() })
      */
 	public static CLContext createBestContext() {
         return createBestContext(DeviceFeature.MaxComputeUnits);
@@ -276,7 +276,7 @@ public class JavaCL {
 
     /**
      * Creates an OpenCL context with the "best" device based on the comparison of the provided 
-	 * prioritized device feature (see {@link JavaCL\#getBestDevice(CLPlatform.DeviceFeature...) })
+	 * prioritized device feature (see {@link JavaCL#getBestDevice(CLPlatform.DeviceFeature...) })
      */
 	public static CLContext createBestContext(CLPlatform.DeviceFeature... preferredFeatures) {
 		CLDevice device = getBestDevice(preferredFeatures);

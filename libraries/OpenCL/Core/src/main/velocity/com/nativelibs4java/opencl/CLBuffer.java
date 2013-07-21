@@ -216,7 +216,7 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueReadBuffer")
-     * @deprecated use {@link CLBuffer\#read(CLQueue, Pointer, boolean, CLEvent[])} instead
+     * @deprecated use {@link CLBuffer#read(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -232,7 +232,7 @@ public class CLBuffer<T> extends CLMem {
 
 	/**
 #documentCallsFunction("clEnqueueReadBuffer")
-	 * @deprecated use {@link CLBuffer\#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+	 * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -290,7 +290,7 @@ public class CLBuffer<T> extends CLMem {
     
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
-     * @deprecated use {@link CLBuffer\#write(CLQueue, Pointer, boolean, CLEvent[])} instead
+     * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent write(CLQueue queue, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -306,7 +306,7 @@ public class CLBuffer<T> extends CLMem {
 
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
-     * @deprecated use {@link CLBuffer\#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+     * @deprecated use {@link CLBuffer#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
      */
     @Deprecated
 	public CLEvent write(CLQueue queue, long offset, long length, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
