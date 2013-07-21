@@ -12,9 +12,6 @@ import org.bridj.ann.Library;
  */
 @Library("pthread") 
 public class sched_param extends StructObject {
-	public sched_param() {
-		super();
-	}
 	@Field(0) 
 	public int sched_priority() {
 		return this.io.getIntField(this, 0);
@@ -24,11 +21,14 @@ public class sched_param extends StructObject {
 		this.io.setIntField(this, 0, sched_priority);
 		return this;
 	}
-	/// C type : char[4]
+	/** C type : char[4] */
 	@Array({4}) 
 	@Field(1) 
 	public Pointer<Byte > __opaque() {
 		return this.io.getPointerField(this, 1);
+	}
+	public sched_param() {
+		super();
 	}
 	public sched_param(Pointer pointer) {
 		super(pointer);

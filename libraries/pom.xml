@@ -437,8 +437,8 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>Scalaxy</module-->
 				<module>OpenCL</module>
 				<module>OpenCL-JNA</module>
-				<module>Mono</module>
-				<module>DirectX</module>
+				<!--module>Mono</module>
+				<module>DirectX</module-->
 				<module>PThread</module>
 				<module>Utils</module>
 				<module>IdleTime</module>

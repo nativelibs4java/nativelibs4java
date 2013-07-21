@@ -22,28 +22,28 @@ public class PthreadLibrary {
 	static {
 		BridJ.register();
 	}
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_PROCESS_SHARED = (int)1;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_4_0 = (int)40000;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_MUTEX_RECURSIVE = (int)2;
-	/// <i>native declaration : /usr/include/_types.h</i>
-	public static final int __DARWIN_WCHAR_MAX = (int)2147483647;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/_types.h</i> */
+	public static final int __DARWIN_WCHAR_MAX = (int)0x7fffffff;
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_4_3 = (int)40300;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
 	public static final int SCHED_RR = (int)2;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_4_1 = (int)40100;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_4_2 = (int)40200;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_SCOPE_SYSTEM = (int)1;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_MUTEX_ERRORCHECK = (int)1;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_ONCE_SIG_init = (int)816954554;
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_ONCE_SIG_init = (int)0x30B1BCBA;
 	/**
 	 * define<br>
 	 * Conversion Error : { 0x30B1BCBA, { 0 } }<br>
@@ -51,43 +51,45 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:0</i><br>
 	 * { 0x30B1BCBA, { 0 } }
 	 */
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_NA = (int)9999;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_PRIO_INHERIT = (int)1;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_PROCESS_PRIVATE = (int)2;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_FIRSTFIT_MUTEX_SIG_init = (int)850045859;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_FIRSTFIT_MUTEX_SIG_init = (int)0x32AAABA3;
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
 	public static final int __SCHED_PARAM_SIZE__ = (int)4;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_3 = (int)1030;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_RECURSIVE_MUTEX_SIG_init = (int)850045858;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_RECURSIVE_MUTEX_SIG_init = (int)0x32AAABA2;
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_2 = (int)1020;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_1 = (int)1010;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_0 = (int)1000;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_7 = (int)1070;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_INHERIT_SCHED = (int)1;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_6 = (int)1060;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_5 = (int)1050;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __MAC_10_4 = (int)1040;
-	/// <i>native declaration : /usr/include/_types.h</i>
+	/** <i>native declaration : /usr/include/_types.h</i> */
 	public static final int _FORTIFY_SOURCE = (int)2;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
+	public static final int __MAC_10_8 = (int)1080;
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_MUTEX_NORMAL = (int)0;
-	/// <i>native declaration : /usr/include/time.h</i>
+	/** <i>native declaration : /usr/include/time.h</i> */
 	public static final int CLOCKS_PER_SEC = (int)1000000;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final Pointer<? > PTHREAD_CANCELED = (Pointer<? >)(Pointer.pointerToAddress(1));
 	/**
 	 * define<br>
@@ -96,44 +98,48 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:0</i><br>
 	 * { 0x3CB0B1BB, { 0 } }
 	 */
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_MUTEX_DEFAULT = (int)0;
-	/// <i>native declaration : /usr/include/pthread.h</i>
-	public static final int PTHREAD_CANCEL_DISABLE = (int)0;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
+	public static final int PTHREAD_CANCEL_DISABLE = (int)0x00;
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_PRIO_PROTECT = (int)2;
-	/// <i>native declaration : /usr/include/pthread.h</i>
-	public static final int PTHREAD_CANCEL_ENABLE = (int)1;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
+	public static final int PTHREAD_CANCEL_ENABLE = (int)0x01;
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_NA = (int)99999;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_EXPLICIT_SCHED = (int)2;
-	/// <i>native declaration : /usr/include/pthread.h</i>
-	public static final int PTHREAD_CANCEL_ASYNCHRONOUS = (int)0;
-	/// <i>native declaration : /usr/include/time.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
+	public static final int PTHREAD_CANCEL_ASYNCHRONOUS = (int)0x00;
+	/** <i>native declaration : /usr/include/time.h</i> */
 	public static final int NULL = (int)0;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_SCOPE_PROCESS = (int)2;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_CREATE_JOINABLE = (int)1;
-	/// <i>native declaration : /usr/include/_types.h</i>
-	public static final int __DARWIN_WCHAR_MIN = (int)(-2147483647 - 1);
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/_types.h</i> */
+	public static final int __DARWIN_WCHAR_MIN = (int)(0x7fffffff - 1);
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_2_0 = (int)20000;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_2_1 = (int)20100;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_2_2 = (int)20200;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_COND_SIG_init = (int)1018212795;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_COND_SIG_init = (int)0x3CB0B1BB;
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_PRIO_NONE = (int)0;
-	/// <i>native declaration : /usr/include/pthread.h</i>
+	/** <i>native declaration : /usr/include/pthread.h</i> */
 	public static final int PTHREAD_CREATE_DETACHED = (int)2;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_RWLOCK_SIG_init = (int)766030772;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_ERRORCHECK_MUTEX_SIG_init = (int)850045857;
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_RWLOCK_SIG_init = (int)0x2DA8B3B4;
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_ERRORCHECK_MUTEX_SIG_init = (int)0x32AAABA1;
+	/** <i>native declaration : /usr/include/Availability.h</i> */
+	public static final int __IPHONE_5_1 = (int)50100;
+	/** <i>native declaration : /usr/include/Availability.h</i> */
+	public static final int __IPHONE_5_0 = (int)50000;
 	/**
 	 * define<br>
 	 * Conversion Error : { 0x2DA8B3B4, { 0 } }<br>
@@ -141,8 +147,8 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:0</i><br>
 	 * { 0x2DA8B3B4, { 0 } }
 	 */
-	/// <i>native declaration : /usr/include/pthread.h</i>
-	public static final int PTHREAD_CANCEL_DEFERRED = (int)2;
+	/** <i>native declaration : /usr/include/pthread.h</i> */
+	public static final int PTHREAD_CANCEL_DEFERRED = (int)0x02;
 	/**
 	 * define<br>
 	 * Conversion Error : { 0x32AAABA7, { 0 } }<br>
@@ -150,11 +156,11 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:0</i><br>
 	 * { 0x32AAABA7, { 0 } }
 	 */
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
 	public static final int SCHED_OTHER = (int)1;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
-	public static final int _PTHREAD_MUTEX_SIG_init = (int)850045863;
-	/// <i>native declaration : /usr/include/pthread_impl.h</i>
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
+	public static final int _PTHREAD_MUTEX_SIG_init = (int)0x32AAABA7;
+	/** <i>native declaration : /usr/include/pthread_impl.h</i> */
 	public static final int SCHED_FIFO = (int)4;
 	/**
 	 * define<br>
@@ -170,44 +176,37 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:0</i><br>
 	 * { 0x32AAABA1, { 0 } }
 	 */
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_3_2 = (int)30200;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_3_1 = (int)30100;
-	/// <i>native declaration : /usr/include/Availability.h</i>
+	/** <i>native declaration : /usr/include/Availability.h</i> */
 	public static final int __IPHONE_3_0 = (int)30000;
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_atfork_arg1_callback extends Callback<pthread_atfork_arg1_callback > {
 		abstract public void apply();
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_atfork_arg2_callback extends Callback<pthread_atfork_arg2_callback > {
 		abstract public void apply();
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_atfork_arg3_callback extends Callback<pthread_atfork_arg3_callback > {
 		abstract public void apply();
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_create_arg1_callback extends Callback<pthread_create_arg1_callback > {
 		abstract public Pointer<? > apply(Pointer<? > voidPtr1);
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_key_create_arg1_callback extends Callback<pthread_key_create_arg1_callback > {
 		abstract public void apply(Pointer<? > voidPtr1);
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_once_arg1_callback extends Callback<pthread_once_arg1_callback > {
 		abstract public void apply();
 	};
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
-	/// <i>native declaration : /usr/include/pthread.h:0</i>
+	/** <i>native declaration : /usr/include/pthread.h:0</i> */
 	public static abstract class pthread_create_suspended_np_arg1_callback extends Callback<pthread_create_suspended_np_arg1_callback > {
 		abstract public Pointer<? > apply(Pointer<? > voidPtr1);
 	};
@@ -413,10 +412,7 @@ public class PthreadLibrary {
 	 * Original signature : <code>int pthread_atfork(pthread_atfork_arg1_callback, pthread_atfork_arg2_callback, pthread_atfork_arg3_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:211</i>
 	 */
-	public static int pthread_atfork(Pointer<PthreadLibrary.pthread_atfork_arg1_callback > arg1, Pointer<PthreadLibrary.pthread_atfork_arg2_callback > arg2, Pointer<PthreadLibrary.pthread_atfork_arg3_callback > arg3) {
-		return pthread_atfork(Pointer.getPeer(arg1), Pointer.getPeer(arg2), Pointer.getPeer(arg3));
-	}
-	protected native static int pthread_atfork(@Ptr long arg1, @Ptr long arg2, @Ptr long arg3);
+	native public static int pthread_atfork(PthreadLibrary.pthread_atfork_arg1_callback arg1, PthreadLibrary.pthread_atfork_arg2_callback arg2, PthreadLibrary.pthread_atfork_arg3_callback arg3);
 	/**
 	 * Original signature : <code>int pthread_attr_destroy(pthread_attr_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:213</i>
@@ -669,10 +665,10 @@ public class PthreadLibrary {
 	 * Original signature : <code>int pthread_create(pthread_t*, const pthread_attr_t*, pthread_create_arg1_callback, void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:265</i>
 	 */
-	public static int pthread_create(Pointer<Pointer > pthread_tPtr1, Pointer pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_arg1_callback > arg1, Pointer<? > voidPtr1) {
-		return pthread_create(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
+	public static int pthread_create(Pointer<PthreadLibrary.pthread_t > pthread_tPtr1, Pointer pthread_attr_tPtr1, PthreadLibrary.pthread_create_arg1_callback arg1, Pointer<? > voidPtr1) {
+		return pthread_create(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), arg1, Pointer.getPeer(voidPtr1));
 	}
-	protected native static int pthread_create(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, @Ptr long arg1, @Ptr long voidPtr1);
+	protected native static int pthread_create(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, PthreadLibrary.pthread_create_arg1_callback arg1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_detach(pthread_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:269</i>
@@ -732,10 +728,10 @@ public class PthreadLibrary {
 	 * Original signature : <code>int pthread_key_create(pthread_key_t*, pthread_key_create_arg1_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:277</i>
 	 */
-	public static int pthread_key_create(Pointer<SizeT > pthread_key_tPtr1, Pointer<PthreadLibrary.pthread_key_create_arg1_callback > arg1) {
-		return pthread_key_create(Pointer.getPeer(pthread_key_tPtr1), Pointer.getPeer(arg1));
+	public static int pthread_key_create(Pointer<SizeT > pthread_key_tPtr1, PthreadLibrary.pthread_key_create_arg1_callback arg1) {
+		return pthread_key_create(Pointer.getPeer(pthread_key_tPtr1), arg1);
 	}
-	protected native static int pthread_key_create(@Ptr long pthread_key_tPtr1, @Ptr long arg1);
+	protected native static int pthread_key_create(@Ptr long pthread_key_tPtr1, PthreadLibrary.pthread_key_create_arg1_callback arg1);
 	/**
 	 * Original signature : <code>int pthread_key_delete(pthread_key_t)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:278</i>
@@ -881,10 +877,10 @@ public class PthreadLibrary {
 	 * Original signature : <code>int pthread_once(pthread_once_t*, pthread_once_arg1_callback)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:296</i>
 	 */
-	public static int pthread_once(Pointer pthread_once_tPtr1, Pointer<PthreadLibrary.pthread_once_arg1_callback > arg1) {
-		return pthread_once(Pointer.getPeer(pthread_once_tPtr1), Pointer.getPeer(arg1));
+	public static int pthread_once(Pointer pthread_once_tPtr1, PthreadLibrary.pthread_once_arg1_callback arg1) {
+		return pthread_once(Pointer.getPeer(pthread_once_tPtr1), arg1);
 	}
-	protected native static int pthread_once(@Ptr long pthread_once_tPtr1, @Ptr long arg1);
+	protected native static int pthread_once(@Ptr long pthread_once_tPtr1, PthreadLibrary.pthread_once_arg1_callback arg1);
 	/**
 	 * Original signature : <code>int pthread_rwlock_destroy(pthread_rwlock_t*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:297</i>
@@ -1177,10 +1173,10 @@ public class PthreadLibrary {
 	 * Original signature : <code>int pthread_create_suspended_np(pthread_t*, const pthread_attr_t*, pthread_create_suspended_np_arg1_callback, void*)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:357</i>
 	 */
-	public static int pthread_create_suspended_np(Pointer<Pointer > pthread_tPtr1, Pointer pthread_attr_tPtr1, Pointer<PthreadLibrary.pthread_create_suspended_np_arg1_callback > arg1, Pointer<? > voidPtr1) {
-		return pthread_create_suspended_np(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
+	public static int pthread_create_suspended_np(Pointer<PthreadLibrary.pthread_t > pthread_tPtr1, Pointer pthread_attr_tPtr1, PthreadLibrary.pthread_create_suspended_np_arg1_callback arg1, Pointer<? > voidPtr1) {
+		return pthread_create_suspended_np(Pointer.getPeer(pthread_tPtr1), Pointer.getPeer(pthread_attr_tPtr1), arg1, Pointer.getPeer(voidPtr1));
 	}
-	protected native static int pthread_create_suspended_np(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, @Ptr long arg1, @Ptr long voidPtr1);
+	protected native static int pthread_create_suspended_np(@Ptr long pthread_tPtr1, @Ptr long pthread_attr_tPtr1, PthreadLibrary.pthread_create_suspended_np_arg1_callback arg1, @Ptr long voidPtr1);
 	/**
 	 * Original signature : <code>int pthread_kill(pthread_t, int)</code><br>
 	 * <i>native declaration : /usr/include/pthread.h:361</i>
@@ -1212,7 +1208,7 @@ public class PthreadLibrary {
 	 * <i>native declaration : /usr/include/pthread.h:366</i>
 	 */
 	native public static void pthread_yield_np();
-	/// C type : extern char*[]
+	/** C type : extern char*[] */
 	public Pointer<Pointer<Byte > > tzname() {
 		try {
 			return (Pointer<Pointer<Byte > >)BridJ.getNativeLibrary("pthread").getSymbolPointer("tzname").as(DefaultParameterizedType.paramType(Pointer.class, DefaultParameterizedType.paramType(Pointer.class, Byte.class))).get();
@@ -1220,7 +1216,7 @@ public class PthreadLibrary {
 			throw new RuntimeException($ex$);
 		}
 	}
-	/// C type : extern char*[]
+	/** C type : extern char*[] */
 	public PthreadLibrary tzname(Pointer<Pointer<Byte > > tzname) {
 		try {
 			{
@@ -1265,11 +1261,75 @@ public class PthreadLibrary {
 			throw new RuntimeException($ex$);
 		}
 	}
+	public static class pthread_rwlock_t extends TypedPointer {
+		public pthread_rwlock_t(long address) {
+			super(address);
+		}
+		public pthread_rwlock_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_mutex_t extends TypedPointer {
+		public pthread_mutex_t(long address) {
+			super(address);
+		}
+		public pthread_mutex_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_condattr_t extends TypedPointer {
+		public pthread_condattr_t(long address) {
+			super(address);
+		}
+		public pthread_condattr_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_mutexattr_t extends TypedPointer {
+		public pthread_mutexattr_t(long address) {
+			super(address);
+		}
+		public pthread_mutexattr_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_attr_t extends TypedPointer {
+		public pthread_attr_t(long address) {
+			super(address);
+		}
+		public pthread_attr_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_rwlockattr_t extends TypedPointer {
+		public pthread_rwlockattr_t(long address) {
+			super(address);
+		}
+		public pthread_rwlockattr_t(Pointer address) {
+			super(address);
+		}
+	};
 	public static class pthread_t extends TypedPointer {
 		public pthread_t(long address) {
 			super(address);
 		}
 		public pthread_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_once_t extends TypedPointer {
+		public pthread_once_t(long address) {
+			super(address);
+		}
+		public pthread_once_t(Pointer address) {
+			super(address);
+		}
+	};
+	public static class pthread_cond_t extends TypedPointer {
+		public pthread_cond_t(long address) {
+			super(address);
+		}
+		public pthread_cond_t(Pointer address) {
 			super(address);
 		}
 	};
