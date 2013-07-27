@@ -17,6 +17,10 @@ public class cl_buffer_region extends Structure<cl_buffer_region, cl_buffer_regi
 		this.origin = origin;
 		this.size = size;
 	}
+	
+	public java.util.List<String> getFieldOrder() {
+		return java.util.Arrays.asList("origin", "size");
+	}
 	protected ByReference newByReference() { return new ByReference(); }
 	protected ByValue newByValue() { return new ByValue(); }
 	protected cl_buffer_region newInstance() { return new cl_buffer_region(); }

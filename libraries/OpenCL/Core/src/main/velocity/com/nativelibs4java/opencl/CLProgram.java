@@ -78,8 +78,8 @@ import static org.bridj.Pointer.*;
  * A program can be compiled on the fly (costly) but its binaries can be stored and
  * loaded back in subsequent executions to avoid recompilation.<br>
  * By default, program binaries are automatically cached on stable platforms (which currently exclude ATI Stream), 
- * but the caching can be forced on/off with * see {@link CLContext\#setCacheBinaries(boolean) }.<br>
- * To create a program from sources, please use see {@link CLContext\#createProgram(java.lang.String[]) } 
+ * but the caching can be forced on/off with * see {@link CLContext#setCacheBinaries(boolean) }.<br>
+ * To create a program from sources, please use see {@link CLContext#createProgram(java.lang.String[]) } 
  * @author Olivier Chafik
  */
 public class CLProgram extends CLAbstractEntity {
@@ -146,7 +146,7 @@ public class CLProgram extends CLAbstractEntity {
     }
 
     /**
-     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext\#loadProgram(java.io.InputStream) }
+     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext#loadProgram(java.io.InputStream) }
      * @param out will be closed
      * @throws CLBuildException
      * @throws IOException
@@ -309,7 +309,7 @@ public class CLProgram extends CLAbstractEntity {
     
     /**
      * Add a path (file or URL) to the list of paths searched for included files.<br>
-     * OpenCL kernels may contain <code>\#include "subpath/file.cl"</code> statements.<br>
+     * OpenCL kernels may contain <code>#include "subpath/file.cl"</code> statements.<br>
      * This automatically adds a "-Ipath" argument to the compilator's command line options.<br>
      * Note that it's not necessary to add include paths for files that are in the classpath.
      * @param path A file or URL that points to the root path from which includes can be resolved. 

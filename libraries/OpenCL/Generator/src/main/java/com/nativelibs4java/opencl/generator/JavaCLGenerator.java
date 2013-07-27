@@ -101,7 +101,11 @@ public class JavaCLGenerator extends JNAerator {
 
                     }
 
-                    
+                    @Override
+                    protected Identifier packageMember(Identifier libraryPackage, Identifier name) {
+                        return name;
+                    }
+
                     @Override
                     public boolean isObjCppPrimitive(String s) {
                         int len;
@@ -149,7 +153,7 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
+                                tr = result.typeConverter.resolveTypeDef(tr, null/*libraryClassName*/, false, false);
                                 List<Modifier> mods = arg.harvestModifiers();
 
                                 TypeRef convTr;
@@ -339,15 +343,25 @@ public class JavaCLGenerator extends JNAerator {
             TypeRef target = ((TypeRef.Pointer)valueType).getTarget();
             if (target instanceof TypeRef.SimpleTypeRef) {
                 TypeRef.SimpleTypeRef starget = (TypeRef.SimpleTypeRef)target;
-
-                Pair<Integer, Class<?>> pair = buffersAndArityByType.get((starget + "").equals("long") ? "long" : starget.getName() + "");
+                Identifier name = starget.getName();
+                
+                Pair<Integer, Class<?>> pair = buffersAndArityByType.get((starget + "").equals("long") ? "long" : name + "");
                 if (pair != null) {
                     ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(pair.getSecond()))));
                     return ret;
                 }
-                Identifier ref = result.typeConverter.findRef(starget.getName(), target, libraryClassName, true);
+                Identifier ref = 
+                    result.structsFullNames.contains(name) ||
+                    result.enumsFullNames.contains(name) ?
+                    name : result.typeConverter.findRef(name, target, libraryClassName, true);
                 if (ref != null) {
                     ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(ref))));
+                    return ret;
+                }
+            } else if (target instanceof Struct) {
+                TypeRef ref = result.typeConverter.findStructRef((Struct)target, libraryClassName);
+                if (ref != null) {
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(ref)));
                     return ret;
                 }
             }
