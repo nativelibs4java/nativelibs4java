@@ -3,6 +3,7 @@ import org.bridj.Callback;
 import org.bridj.Pointer;
 import org.bridj.SizeT;
 import org.bridj.TypedPointer;
+import org.bridj.ann.Optional;
 import org.bridj.ann.Ptr;
 /**
  * Interface for library <b>OpenCL</b><br>
@@ -670,6 +671,7 @@ public interface IOpenCLLibrary {
 	int clEnqueueNativeKernel(@Ptr long cl_command_queue1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long size_t1, int cl_uint1, @Ptr long cl_memPtr1, @Ptr long voidPtrPtr1, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueMarkerWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueBarrierWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clSetPrintfCallback(@Ptr long cl_context1, @Ptr long arg1, @Ptr long voidPtr1);
 	@Ptr 
 	long clGetExtensionFunctionAddressForPlatform(@Ptr long cl_platform_id1, @Ptr long charPtr1);
@@ -699,17 +701,28 @@ public interface IOpenCLLibrary {
 	long clCreateFromGLTexture2D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	@Ptr 
 	long clCreateFromGLTexture3D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
+	@Optional 
 	int clGetGLContextInfoKHR(@Ptr long cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	@Ptr 
+	@Optional 
 	long clCreateEventFromGLsyncKHR(@Ptr long cl_context1, @Ptr long cl_GLsync1, @Ptr long cl_intPtr1);
+	@Optional 
 	int clSetMemObjectDestructorAPPLE(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
+	@Optional 
 	void clLogMessagesToSystemLogAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
+	@Optional 
 	void clLogMessagesToStdoutAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
+	@Optional 
 	void clLogMessagesToStderrAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
+	@Optional 
 	int clIcdGetPlatformIDsKHR(int cl_uint1, @Ptr long cl_platform_idPtr1, @Ptr long cl_uintPtr1);
+	@Optional 
 	int clReleaseDeviceEXT(@Ptr long cl_device_id1);
+	@Optional 
 	int clRetainDeviceEXT(@Ptr long cl_device_id1);
+	@Optional 
 	int clCreateSubDevicesEXT(@Ptr long cl_device_id1, @Ptr long cl_device_partition_property_extPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
+	@Optional 
 	int clGetGLContextInfoAPPLE(@Ptr long cl_context1, @Ptr long voidPtr1, int cl_gl_platform_info1, @Ptr long size_t1, @Ptr long voidPtr2, @Ptr long size_tPtr1);
 	public static class cl_device_id extends TypedPointer {
 		public cl_device_id(long address) {

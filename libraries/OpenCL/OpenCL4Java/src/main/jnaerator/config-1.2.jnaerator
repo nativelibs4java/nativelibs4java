@@ -29,6 +29,7 @@
 -library OpenCL
 
 -skipStructs "cl_u?(double|float|int|char|short|long)\d*"
+-optionalFunctions "cl.+(KHR|EXT|APPLE)|clSetPrintfCallback"
 -noStaticInit
 -extractDeclarations IOpenCLLibrary
 	"-I$(DIR)/../headers/1.2"

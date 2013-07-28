@@ -13,6 +13,7 @@ import org.bridj.CRuntime;
 import org.bridj.Pointer;
 import org.bridj.SizeT;
 import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 /**
@@ -479,6 +480,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clSetPrintfCallback(IOpenCLLibrary.cl_context cl_context1, Pointer<OpenCLLibrary.clSetPrintfCallback_arg1_callback > arg1, Pointer<? > voidPtr1) {
 		return clSetPrintfCallback(Pointer.getPeer(cl_context1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
 	}
+	@Optional 
 	public native int clSetPrintfCallback(@Ptr long cl_context1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Extension function access<br>
@@ -596,12 +598,14 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clGetGLContextInfoKHR(Pointer<SizeT > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
 		return clGetGLContextInfoKHR(Pointer.getPeer(cl_context_propertiesPtr1), cl_gl_context_info1, size_t1, Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1));
 	}
+	@Optional 
 	public native int clGetGLContextInfoKHR(@Ptr long cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/** Original signature : <code>cl_event clCreateEventFromGLsyncKHR(cl_context, cl_GLsync, cl_int*)</code> */
 	public IOpenCLLibrary.cl_event clCreateEventFromGLsyncKHR(IOpenCLLibrary.cl_context cl_context1, IOpenCLLibrary.cl_GLsync cl_GLsync1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_event(clCreateEventFromGLsyncKHR(Pointer.getPeer(cl_context1), Pointer.getPeer(cl_GLsync1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateEventFromGLsyncKHR(@Ptr long cl_context1, @Ptr long cl_GLsync1, @Ptr long cl_intPtr1);
 	/**
 	 * memobj<br>
@@ -610,6 +614,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clSetMemObjectDestructorAPPLE(IOpenCLLibrary.cl_mem cl_mem1, Pointer<OpenCLLibrary.clSetMemObjectDestructorAPPLE_arg1_callback > arg1, Pointer<? > voidPtr1) {
 		return clSetMemObjectDestructorAPPLE(Pointer.getPeer(cl_mem1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
 	}
+	@Optional 
 	public native int clSetMemObjectDestructorAPPLE(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * errstr<br>
@@ -618,6 +623,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public void clLogMessagesToSystemLogAPPLE(Pointer<Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2) {
 		clLogMessagesToSystemLogAPPLE(Pointer.getPeer(charPtr1), Pointer.getPeer(voidPtr1), size_t1, Pointer.getPeer(voidPtr2));
 	}
+	@Optional 
 	public native void clLogMessagesToSystemLogAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
 	/**
 	 * clLogMessagesToStdout sends all log messages to the file descriptor stdout<br>
@@ -627,6 +633,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public void clLogMessagesToStdoutAPPLE(Pointer<Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2) {
 		clLogMessagesToStdoutAPPLE(Pointer.getPeer(charPtr1), Pointer.getPeer(voidPtr1), size_t1, Pointer.getPeer(voidPtr2));
 	}
+	@Optional 
 	public native void clLogMessagesToStdoutAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
 	/**
 	 * clLogMessagesToStderr sends all log messages to the file descriptor stderr<br>
@@ -636,26 +643,31 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public void clLogMessagesToStderrAPPLE(Pointer<Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2) {
 		clLogMessagesToStderrAPPLE(Pointer.getPeer(charPtr1), Pointer.getPeer(voidPtr1), size_t1, Pointer.getPeer(voidPtr2));
 	}
+	@Optional 
 	public native void clLogMessagesToStderrAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
 	/** Original signature : <code>cl_int clIcdGetPlatformIDsKHR(cl_uint, cl_platform_id*, cl_uint*)</code> */
 	public int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<IOpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clIcdGetPlatformIDsKHR(cl_uint1, Pointer.getPeer(cl_platform_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
+	@Optional 
 	public native int clIcdGetPlatformIDsKHR(int cl_uint1, @Ptr long cl_platform_idPtr1, @Ptr long cl_uintPtr1);
 	/** Original signature : <code>cl_int clReleaseDeviceEXT(cl_device_id)</code> */
 	public int clReleaseDeviceEXT(IOpenCLLibrary.cl_device_id cl_device_id1) {
 		return clReleaseDeviceEXT(Pointer.getPeer(cl_device_id1));
 	}
+	@Optional 
 	public native int clReleaseDeviceEXT(@Ptr long cl_device_id1);
 	/** Original signature : <code>cl_int clRetainDeviceEXT(cl_device_id)</code> */
 	public int clRetainDeviceEXT(IOpenCLLibrary.cl_device_id cl_device_id1) {
 		return clRetainDeviceEXT(Pointer.getPeer(cl_device_id1));
 	}
+	@Optional 
 	public native int clRetainDeviceEXT(@Ptr long cl_device_id1);
 	/** Original signature : <code>cl_int clCreateSubDevicesEXT(cl_device_id, const cl_device_partition_property_ext*, cl_uint, cl_device_id*, cl_uint*)</code> */
 	public int clCreateSubDevicesEXT(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<Long > cl_device_partition_property_extPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clCreateSubDevicesEXT(Pointer.getPeer(cl_device_id1), Pointer.getPeer(cl_device_partition_property_extPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
+	@Optional 
 	public native int clCreateSubDevicesEXT(@Ptr long cl_device_id1, @Ptr long cl_device_partition_property_extPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
 	/**
 	 * Apple extension for retrieving OpenGL context information for a CL context <br>
@@ -674,5 +686,6 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clGetGLContextInfoAPPLE(IOpenCLLibrary.cl_context cl_context1, Pointer<? > voidPtr1, int cl_gl_platform_info1, @Ptr long size_t1, Pointer<? > voidPtr2, Pointer<SizeT > size_tPtr1) {
 		return clGetGLContextInfoAPPLE(Pointer.getPeer(cl_context1), Pointer.getPeer(voidPtr1), cl_gl_platform_info1, size_t1, Pointer.getPeer(voidPtr2), Pointer.getPeer(size_tPtr1));
 	}
+	@Optional 
 	public native int clGetGLContextInfoAPPLE(@Ptr long cl_context1, @Ptr long voidPtr1, int cl_gl_platform_info1, @Ptr long size_t1, @Ptr long voidPtr2, @Ptr long size_tPtr1);
 }
