@@ -5,7 +5,7 @@ import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 
 import org.bridj.*;
 import org.bridj.ann.*;

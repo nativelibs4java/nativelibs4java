@@ -1,11 +1,11 @@
 package com.nativelibs4java.opencl.proxy;
 
-import com.nativelibs4java.opencl.library.IOpenCLImplementation;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import org.bridj.Pointer;
 import org.bridj.SizeT;
 
-public abstract class AbstractOpenCLImplementation implements IOpenCLImplementation {
+public abstract class AbstractOpenCLImplementation implements IOpenCLLibrary {
 
     public int clBuildProgram(long cl_program1, int cl_uint1, long cl_device_idPtr1, long charPtr1, long arg1, long voidPtr1) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

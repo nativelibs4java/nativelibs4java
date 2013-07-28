@@ -8,7 +8,7 @@ import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
 
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 

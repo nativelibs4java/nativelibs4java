@@ -2,10 +2,10 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_FALSE;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_ELEMENT_SIZE;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_FORMAT;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_TRUE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_ELEMENT_SIZE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_FORMAT;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_TRUE;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 
 import java.nio.Buffer;
@@ -14,8 +14,8 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 import com.nativelibs4java.opencl.library.cl_image_format;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 
 import com.nativelibs4java.util.Pair;

@@ -3,14 +3,15 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 
 import java.util.EnumSet;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
+import org.bridj.ann.Ptr;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
@@ -64,8 +65,8 @@ public abstract class CLMem extends CLAbstractEntity {
      */
     public void setDestructorCallback(final DestructorCallback callback) {
     	clSetMemObjectDestructorCallback_arg1_callback cb = new clSetMemObjectDestructorCallback_arg1_callback() {
-    		/// @param cl_mem1 user_data
-    		public void apply(OpenCLLibrary.cl_mem mem, Pointer userData) {
+    		@Override
+    		public void apply(@Ptr long mem, @Ptr long userData) {
     			callback.callback(CLMem.this);
     		}
     	};

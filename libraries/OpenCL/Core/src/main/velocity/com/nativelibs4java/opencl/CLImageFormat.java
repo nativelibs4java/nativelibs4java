@@ -1,7 +1,7 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;

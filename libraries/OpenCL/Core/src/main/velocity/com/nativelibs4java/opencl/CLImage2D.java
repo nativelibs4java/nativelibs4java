@@ -1,9 +1,9 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.ImageIOUtils.ImageInfo;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_HEIGHT;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_ROW_PITCH;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_WIDTH;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_HEIGHT;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_ROW_PITCH;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_WIDTH;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -14,7 +14,7 @@ import java.nio.IntBuffer;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;
 
 /**

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_platform_id;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_platform_id;
 import org.bridj.*;
 import org.bridj.ann.Ptr;
 

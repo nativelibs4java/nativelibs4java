@@ -1,6 +1,6 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 /**

@@ -1,12 +1,12 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_DEPTH;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.CL_IMAGE_SLICE_PITCH;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_DEPTH;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_SLICE_PITCH;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;
 
 import static org.bridj.Pointer.*;

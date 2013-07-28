@@ -4,15 +4,15 @@ import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 
 import java.nio.ByteBuffer;
 
 import com.nativelibs4java.opencl.library.cl_buffer_region;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_event;
-import com.nativelibs4java.opencl.library.IOpenCLImplementation.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import org.bridj.*;
 import java.nio.ByteOrder;
 import java.nio.Buffer;

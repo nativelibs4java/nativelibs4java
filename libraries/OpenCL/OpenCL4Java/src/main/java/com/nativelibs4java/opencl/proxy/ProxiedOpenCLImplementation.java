@@ -4,8 +4,8 @@
  */
 package com.nativelibs4java.opencl.proxy;
 
-import com.nativelibs4java.opencl.library.IOpenCLImplementation;
-import static com.nativelibs4java.opencl.library.IOpenCLImplementation.*;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,7 +24,7 @@ import org.bridj.ann.Ptr;
  *
  * @author ochafik
  */
-public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
+public class ProxiedOpenCLImplementation implements IOpenCLLibrary {
     
     private static Pointer<?> icdDispatchTable;
     public static void setIcdDispatchTable(long icdDispatchTablePeer) {
@@ -32,16 +32,120 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     private static ProxiedOpenCLImplementation instance;
-    public static synchronized IOpenCLImplementation getInstance() {
+    public static synchronized IOpenCLLibrary getInstance() {
         if (instance == null) {
-            List<IOpenCLImplementation> platforms = new ArrayList<IOpenCLImplementation>();
-            for (Iterator<IOpenCLImplementation> it = ServiceLoader.load(IOpenCLImplementation.class).iterator(); it.hasNext();) {
-                IOpenCLImplementation platform = it.next();
+            List<IOpenCLLibrary> platforms = new ArrayList<IOpenCLLibrary>();
+            for (Iterator<IOpenCLLibrary> it = ServiceLoader.load(IOpenCLLibrary.class).iterator(); it.hasNext();) {
+                IOpenCLLibrary platform = it.next();
                 platforms.add(platform);
             }
             instance = new ProxiedOpenCLImplementation(platforms);
         }
         return instance;
+    }
+
+    public int clCreateSubDevices(long cl_device_id1, long cl_device_partition_propertyPtr1, int cl_uint1, long cl_device_idPtr1, long cl_uintPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clCreateContextFromType(long cl_context_propertiesPtr1, long cl_device_type1, long arg1, long voidPtr1, long cl_intPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clCreateProgramWithBuiltInKernels(long cl_context1, int cl_uint1, long cl_device_idPtr1, long charPtr1, long cl_intPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clCompileProgram(long cl_program1, int cl_uint1, long cl_device_idPtr1, long charPtr1, int cl_uint2, long cl_programPtr1, long charPtrPtr1, long arg1, long voidPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clLinkProgram(long cl_context1, int cl_uint1, long cl_device_idPtr1, long charPtr1, int cl_uint2, long cl_programPtr1, long arg1, long voidPtr1, long cl_intPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueReadBufferRect(long cl_command_queue1, long cl_mem1, int cl_bool1, long size_tPtr1, long size_tPtr2, long size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, long voidPtr1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueWriteBufferRect(long cl_command_queue1, long cl_mem1, int cl_bool1, long size_tPtr1, long size_tPtr2, long size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, long voidPtr1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueFillBuffer(long cl_command_queue1, long cl_mem1, long voidPtr1, long size_t1, long size_t2, long size_t3, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueCopyBufferRect(long cl_command_queue1, long cl_mem1, long cl_mem2, long size_tPtr1, long size_tPtr2, long size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueFillImage(long cl_command_queue1, long cl_mem1, long voidPtr1, long size_tPtr1, long size_tPtr2, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueCopyImage(long cl_command_queue1, long cl_mem1, long cl_mem2, long size_tPtr1, long size_tPtr2, long size_tPtr3, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueCopyImageToBuffer(long cl_command_queue1, long cl_mem1, long cl_mem2, long size_tPtr1, long size_tPtr2, long size_t1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueCopyBufferToImage(long cl_command_queue1, long cl_mem1, long cl_mem2, long size_t1, long size_tPtr1, long size_tPtr2, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueMigrateMemObjects(long cl_command_queue1, int cl_uint1, long cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueNativeKernel(long cl_command_queue1, long arg1, long voidPtr1, long size_t1, int cl_uint1, long cl_memPtr1, long voidPtrPtr1, int cl_uint2, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueMarkerWithWaitList(long cl_command_queue1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clEnqueueBarrierWithWaitList(long cl_command_queue1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clSetPrintfCallback(long cl_context1, long arg1, long voidPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clGetExtensionFunctionAddressForPlatform(long cl_platform_id1, long charPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clGetExtensionFunctionAddress(long charPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public long clCreateEventFromGLsyncKHR(long cl_context1, long cl_GLsync1, long cl_intPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clSetMemObjectDestructorAPPLE(long cl_mem1, long arg1, long voidPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void clLogMessagesToSystemLogAPPLE(long charPtr1, long voidPtr1, long size_t1, long voidPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void clLogMessagesToStdoutAPPLE(long charPtr1, long voidPtr1, long size_t1, long voidPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void clLogMessagesToStderrAPPLE(long charPtr1, long voidPtr1, long size_t1, long voidPtr2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public int clCreateSubDevicesEXT(long cl_device_id1, long cl_device_partition_property_extPtr1, int cl_uint1, long cl_device_idPtr1, long cl_uintPtr1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     protected static class IcdEntity extends StructObject {
@@ -69,14 +173,14 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
         return entity;
     }
     
-    private final List<IOpenCLImplementation> implementations;
+    private final List<IOpenCLLibrary> implementations;
     private final List<IcdEntity> platformIds;
 
-    public ProxiedOpenCLImplementation(List<IOpenCLImplementation> implementations) {
-        this.implementations = new ArrayList<IOpenCLImplementation>(implementations);
+    public ProxiedOpenCLImplementation(List<IOpenCLLibrary> implementations) {
+        this.implementations = new ArrayList<IOpenCLLibrary>(implementations);
         
         List<IcdEntity> platformIds = new ArrayList<IcdEntity>();
-        for (IOpenCLImplementation implementation : this.implementations) {
+        for (IOpenCLLibrary implementation : this.implementations) {
             int implementationIndex = implementations.size();
             implementations.add(implementation);
             platformIds.add(createEntity(implementationIndex, implementationIndex));
@@ -85,12 +189,12 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     
-    protected IOpenCLImplementation getImplementation(long icdEntityPeer) {
+    protected IOpenCLLibrary getImplementation(long icdEntityPeer) {
         Pointer<IcdEntity> icdEntityPtr = getPointer(icdEntityPeer, IcdEntity.class);
         IcdEntity icdEntity = icdEntityPtr.get();
         if (!icdDispatchTable.equals(icdEntity.icdDispatchTable))
             throw new IllegalArgumentException("Not an ICD entity, or different ICD dispatch table: " + icdEntityPeer);
-        IOpenCLImplementation implementation = implementations.get(icdEntity.implementationIndex);
+        IOpenCLLibrary implementation = implementations.get(icdEntity.implementationIndex);
         return implementation;
     }
     
@@ -143,11 +247,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public int clCompileProgram(cl_program cl_program1, int cl_uint1, Pointer<cl_device_id> cl_device_idPtr1, Pointer<Byte> charPtr1, int cl_uint2, Pointer<cl_program> cl_programPtr1, Pointer<Pointer<Byte>> charPtrPtr1, Pointer<OpenCLLibrary.clCompileProgram_arg1_callback> arg1, Pointer<?> voidPtr1) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public long clCreateBuffer(long cl_context1, long cl_mem_flags1, long size_t1, long voidPtr1, long cl_intPtr1) {
         return getImplementation(cl_context1).clCreateBuffer(cl_context1, cl_mem_flags1, size_t1, voidPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
     }
@@ -162,19 +261,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
         // TODO! 
         throw new UnsupportedOperationException();
 //        return getImplementation(cl_context_propertiesPtr1).clCreateContext(cl_context_propertiesPtr1, cl_uint1, cl_device_idPtr1, arg1, voidPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public cl_context clCreateContextFromType(Pointer<Pointer<Integer>> cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback> arg1, Pointer<?> voidPtr1, Pointer<Integer> cl_intPtr1) {
-        // TODO! 
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clCreateContextFromType(cl_context_propertiesPtr1, cl_device_type1, arg1, voidPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public cl_event clCreateEventFromGLsyncKHR(cl_context cl_context1, cl_GLsync cl_GLsync1, Pointer<Integer> cl_intPtr1) {
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clCreateEventFromGLsyncKHR(cl_context1, cl_GLsync1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -233,13 +319,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public cl_program clCreateProgramWithBuiltInKernels(cl_context cl_context1, int cl_uint1, Pointer<cl_device_id> cl_device_idPtr1, Pointer<Byte> charPtr1, Pointer<Integer> cl_intPtr1) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clCreateProgramWithBuiltInKernels(cl_context1, cl_uint1, cl_device_idPtr1, charPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public long clCreateProgramWithSource(long cl_context1, int cl_uint1, long charPtrPtr1, long size_tPtr1, long cl_intPtr1) {
         return getImplementation(cl_context1).clCreateProgramWithSource(cl_context1, cl_uint1, charPtrPtr1, size_tPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
     }
@@ -252,20 +331,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     @Override
     public long clCreateSubBuffer(long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, long voidPtr1, long cl_intPtr1) {
         return getImplementation(cl_mem1).clCreateSubBuffer(cl_mem1, cl_mem_flags1, cl_buffer_create_type1, voidPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clCreateSubDevices(cl_device_id cl_device_id1, Pointer<Pointer<Integer>> cl_device_partition_propertyPtr1, int cl_uint1, Pointer<cl_device_id> cl_device_idPtr1, Pointer<Integer> cl_uintPtr1) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clCreateSubDevices(cl_device_id1, cl_device_partition_propertyPtr1, cl_uint1, cl_device_idPtr1, cl_uintPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clCreateSubDevicesEXT(cl_device_id cl_device_id1, Pointer<Long> cl_device_partition_property_extPtr1, int cl_uint1, Pointer<cl_device_id> cl_device_idPtr1, Pointer<Integer> cl_uintPtr1) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clCreateSubDevicesEXT(cl_device_id1, cl_device_partition_property_extPtr1, cl_uint1, cl_device_idPtr1, cl_uintPtr1); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -284,57 +349,8 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public int clEnqueueBarrierWithWaitList(cl_command_queue cl_command_queue1, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueBarrierWithWaitList(cl_command_queue1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public int clEnqueueCopyBuffer(long cl_command_queue1, long cl_mem1, long cl_mem2, long size_t1, long size_t2, long size_t3, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
         return getImplementation(cl_command_queue1).clEnqueueCopyBuffer(cl_command_queue1, cl_mem1, cl_mem2, size_t1, size_t2, size_t3, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueCopyBufferRect(cl_command_queue cl_command_queue1, cl_mem cl_mem1, cl_mem cl_mem2, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, Pointer<SizeT> size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueCopyBufferRect(cl_command_queue1, cl_mem1, cl_mem2, size_tPtr1, size_tPtr2, size_tPtr3, size_t1, size_t2, size_t3, size_t4, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueCopyBufferToImage(cl_command_queue cl_command_queue1, cl_mem cl_mem1, cl_mem cl_mem2, long size_t1, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueCopyBufferToImage(cl_command_queue1, cl_mem1, cl_mem2, size_t1, size_tPtr1, size_tPtr2, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueCopyImage(cl_command_queue cl_command_queue1, cl_mem cl_mem1, cl_mem cl_mem2, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, Pointer<SizeT> size_tPtr3, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueCopyImage(cl_command_queue1, cl_mem1, cl_mem2, size_tPtr1, size_tPtr2, size_tPtr3, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueCopyImageToBuffer(cl_command_queue cl_command_queue1, cl_mem cl_mem1, cl_mem cl_mem2, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, long size_t1, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueCopyImageToBuffer(cl_command_queue1, cl_mem1, cl_mem2, size_tPtr1, size_tPtr2, size_t1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueFillBuffer(cl_command_queue cl_command_queue1, cl_mem cl_mem1, Pointer<?> voidPtr1, long size_t1, long size_t2, long size_t3, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueFillBuffer(cl_command_queue1, cl_mem1, voidPtr1, size_t1, size_t2, size_t3, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueFillImage(cl_command_queue cl_command_queue1, cl_mem cl_mem1, Pointer<?> voidPtr1, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueFillImage(cl_command_queue1, cl_mem1, voidPtr1, size_tPtr1, size_tPtr2, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -353,20 +369,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public int clEnqueueMarkerWithWaitList(cl_command_queue cl_command_queue1, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueMarkerWithWaitList(cl_command_queue1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueMigrateMemObjects(cl_command_queue cl_command_queue1, int cl_uint1, Pointer<cl_mem> cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueMigrateMemObjects(cl_command_queue1, cl_uint1, cl_memPtr1, cl_mem_migration_flags1, cl_uint2, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public int clEnqueueNDRangeKernel(long cl_command_queue1, long cl_kernel1, int cl_uint1, long size_tPtr1, long size_tPtr2, long size_tPtr3, int cl_uint2, long cl_eventPtr1, long cl_eventPtr2) {
         
         throw new UnsupportedOperationException();
@@ -374,22 +376,8 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public int clEnqueueNativeKernel(cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.clEnqueueNativeKernel_arg1_callback> arg1, Pointer<?> voidPtr1, long size_t1, int cl_uint1, Pointer<cl_mem> cl_memPtr1, Pointer<Pointer<?>> voidPtrPtr1, int cl_uint2, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueNativeKernel(cl_command_queue1, arg1, voidPtr1, size_t1, cl_uint1, cl_memPtr1, voidPtrPtr1, cl_uint2, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public int clEnqueueReadBuffer(long cl_command_queue1, long cl_mem1, int cl_bool1, long size_t1, long size_t2, long voidPtr1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
         return getImplementation(cl_command_queue1).clEnqueueReadBuffer(cl_command_queue1, cl_mem1, cl_bool1, size_t1, size_t2, voidPtr1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueReadBufferRect(cl_command_queue cl_command_queue1, cl_mem cl_mem1, int cl_bool1, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, Pointer<SizeT> size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, Pointer<?> voidPtr1, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        
-        throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clEnqueueReadBufferRect(cl_command_queue1, cl_mem1, cl_bool1, size_tPtr1, size_tPtr2, size_tPtr3, size_t1, size_t2, size_t3, size_t4, voidPtr1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -420,11 +408,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     @Override
     public int clEnqueueWriteBuffer(long cl_command_queue1, long cl_mem1, int cl_bool1, long size_t1, long size_t2, long voidPtr1, int cl_uint1, long cl_eventPtr1, long cl_eventPtr2) {
         return getImplementation(cl_command_queue1).clEnqueueWriteBuffer(cl_command_queue1, cl_mem1, cl_bool1, size_t1, size_t2, voidPtr1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clEnqueueWriteBufferRect(cl_command_queue cl_command_queue1, cl_mem cl_mem1, int cl_bool1, Pointer<SizeT> size_tPtr1, Pointer<SizeT> size_tPtr2, Pointer<SizeT> size_tPtr3, long size_t1, long size_t2, long size_t3, long size_t4, Pointer<?> voidPtr1, int cl_uint1, Pointer<cl_event> cl_eventPtr1, Pointer<cl_event> cl_eventPtr2) {
-        return getImplementation(getPeer(cl_command_queue1)).clEnqueueWriteBufferRect(cl_command_queue1, cl_mem1, cl_bool1, size_tPtr1, size_tPtr2, size_tPtr3, size_t1, size_t2, size_t3, size_t4, voidPtr1, cl_uint1, cl_eventPtr1, cl_eventPtr2); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -460,17 +443,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     @Override
     public int clGetEventProfilingInfo(long cl_event1, int cl_profiling_info1, long size_t1, long voidPtr1, long size_tPtr1) {
         return getImplementation(cl_event1).clGetEventProfilingInfo(cl_event1, cl_profiling_info1, size_t1, voidPtr1, size_tPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Pointer<?> clGetExtensionFunctionAddress(Pointer<Byte> charPtr1) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public Pointer<?> clGetExtensionFunctionAddressForPlatform(cl_platform_id cl_platform_id1, Pointer<Byte> charPtr1) {
-        return getImplementation(getPeer(cl_platform_id1)).clGetExtensionFunctionAddressForPlatform(cl_platform_id1, charPtr1); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -538,29 +510,6 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     @Override
     public int clGetSupportedImageFormats(long cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, long cl_image_formatPtr1, long cl_uintPtr1) {
         return getImplementation(cl_context1).clGetSupportedImageFormats(cl_context1, cl_mem_flags1, cl_mem_object_type1, cl_uint1, cl_image_formatPtr1, cl_uintPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public cl_program clLinkProgram(cl_context cl_context1, int cl_uint1, Pointer<cl_device_id> cl_device_idPtr1, Pointer<Byte> charPtr1, int cl_uint2, Pointer<cl_program> cl_programPtr1, Pointer<OpenCLLibrary.clLinkProgram_arg1_callback> arg1, Pointer<?> voidPtr1, Pointer<Integer> cl_intPtr1) {
-        return getImplementation(getPeer(cl_context1)).clLinkProgram(cl_context1, cl_uint1, cl_device_idPtr1, charPtr1, cl_uint2, cl_programPtr1, arg1, voidPtr1, cl_intPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void clLogMessagesToStderrAPPLE(Pointer<Byte> charPtr1, Pointer<?> voidPtr1, long size_t1, Pointer<?> voidPtr2) {
-        throw new UnsupportedOperationException();
-//        getImplementation(cl_program1).clLogMessagesToStderrAPPLE(charPtr1, voidPtr1, size_t1, voidPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void clLogMessagesToStdoutAPPLE(Pointer<Byte> charPtr1, Pointer<?> voidPtr1, long size_t1, Pointer<?> voidPtr2) {
-        throw new UnsupportedOperationException();
-//        getImplementation(cl_program1).clLogMessagesToStdoutAPPLE(charPtr1, voidPtr1, size_t1, voidPtr2); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void clLogMessagesToSystemLogAPPLE(Pointer<Byte> charPtr1, Pointer<?> voidPtr1, long size_t1, Pointer<?> voidPtr2) {
-        throw new UnsupportedOperationException();
-//        getImplementation(cl_program1).clLogMessagesToSystemLogAPPLE(charPtr1, voidPtr1, size_t1, voidPtr2); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -669,18 +618,8 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
     }
 
     @Override
-    public int clSetMemObjectDestructorAPPLE(cl_mem cl_mem1, Pointer<OpenCLLibrary.clSetMemObjectDestructorAPPLE_arg1_callback> arg1, Pointer<?> voidPtr1) {
-        return getImplementation(getPeer(cl_mem1)).clSetMemObjectDestructorAPPLE(cl_mem1, arg1, voidPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public int clSetMemObjectDestructorCallback(long cl_mem1, long arg1, long voidPtr1) {
         return getImplementation(cl_mem1).clSetMemObjectDestructorCallback(cl_mem1, arg1, voidPtr1); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int clSetPrintfCallback(cl_context cl_context1, Pointer<OpenCLLibrary.clSetPrintfCallback_arg1_callback> arg1, Pointer<?> voidPtr1) {
-        return getImplementation(getPeer(cl_context1)).clSetPrintfCallback(cl_context1, arg1, voidPtr1); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -690,7 +629,7 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
 
     @Override
     public int clUnloadCompiler() {
-        for (IOpenCLImplementation implementation : implementations) {
+        for (IOpenCLLibrary implementation : implementations) {
             int res = implementation.clUnloadCompiler();
             if (res != CL_SUCCESS)
                 return res;
@@ -705,9 +644,7 @@ public class ProxiedOpenCLImplementation implements IOpenCLImplementation {
 
     @Override
     public int clWaitForEvents(int cl_uint1, long cl_eventPtr1) {
-        // TODO
         throw new UnsupportedOperationException();
-//        return getImplementation(cl_program1).clWaitForEvents(cl_uint1, cl_eventPtr1); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
