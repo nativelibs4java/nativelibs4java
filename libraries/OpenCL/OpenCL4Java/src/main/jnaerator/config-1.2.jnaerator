@@ -27,6 +27,8 @@
 -package com.nativelibs4java.opencl.library
 -libraryNamingPrefixes cl
 -library OpenCL
+
+-skipStructs "cl_u?(double|float|int|char|short|long)\d*"
 -noStaticInit
 -extractDeclarations IOpenCLLibrary
 	"-I$(DIR)/../headers/1.2"
