@@ -27,6 +27,7 @@
 -package com.nativelibs4java.opencl.library
 -libraryNamingPrefixes cl
 -library OpenCL
+-extractDeclarations IOpenCLImplementation
 	"-I$(DIR)/../headers/1.2"
 	//"$(DIR)/../headers/1.2/CL/cl_platform.h"
 	"$(DIR)/../headers/1.2/CL/opencl.h"
