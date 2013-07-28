@@ -20,7 +20,7 @@
 			<name>Sonatype OSS Snapshots Repository</name>
 			<url>http://oss.sonatype.org/content/groups/public</url>
 		</repository>
-		<repository>
+		<!--repository>
 			<id>typesafe</id>
 			<name>typesafe-releases</name>
 			<url>http://repo.typesafe.com/typesafe/maven-releases</url>
@@ -29,7 +29,7 @@
 		  <id>typesafe2</id>
 		  <name>Typesafe Repository</name>
 		  <url>http://repo.typesafe.com/typesafe/releases/</url>
-		</repository>
+		</repository-->
 		<!--repository>
 			<id>nativelibs4java</id>
 			<name>nativelibs4java Maven2 Repository</name>
