@@ -28,8 +28,7 @@ abstract class CLInfoGetter {
         Pointer<?> buffer = allocateBytes(len + 1);
         error(getInfo(entity, infoName, len, buffer, null));
         String s = buffer.getCString();
-        Pointer.release(buffer);
-        Pointer.release(pLen);
+        buffer.release();
         return s;
     }
 
