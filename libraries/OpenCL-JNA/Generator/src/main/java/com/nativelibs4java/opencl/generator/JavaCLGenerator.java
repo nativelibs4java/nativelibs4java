@@ -120,7 +120,7 @@ public class JavaCLGenerator extends JNAerator {
                 declarationsConverter = new JNADeclarationsConverter(this) {
 
                     @Override
-                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName, int unused) {
+                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder declarations, DeclarationsHolder implementations, Identifier libraryClassName, int unused) {
                         if (isCallback)
                             return;
 
@@ -141,7 +141,7 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
+                                tr = ((JNATypeConversion) result.typeConverter).resolveTypeDef(tr, libraryClassName, true, false);
                                 List<Modifier> mods = tr.getModifiers();
 
                                 TypeRef convTr;
@@ -171,7 +171,7 @@ public class JavaCLGenerator extends JNAerator {
                                 convArgExpr.add(argExpr);//varRef(argName));
 
                             } catch (UnsupportedConversionException ex) {
-                                out.addDeclaration(skipDeclaration(function, ex.toString()));
+                                implementations.addDeclaration(skipDeclaration(function, ex.toString()));
                             }
                             iArg++;
                         }
@@ -184,7 +184,7 @@ public class JavaCLGenerator extends JNAerator {
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
                         if (signatures.addVariable(kernelVarName))
-                        		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
+                            implementations.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(ModifierType.Public, ModifierType.Synchronized);
                         method.addThrown(typeRef(CLBuildException.class));
@@ -228,7 +228,7 @@ public class JavaCLGenerator extends JNAerator {
                         );
                         method.setBody(block(statements.toArray(new Statement[statements.size()])));
                         if (signatures.addMethod(method))
-                        		out.addDeclaration(method);
+                            implementations.addDeclaration(method);
                     }
                 };
                 globalsGenerator = new JNAGlobalsGenerator(this);
@@ -422,13 +422,13 @@ public class JavaCLGenerator extends JNAerator {
 			result.typeConverter.allowFakePointers = true;
             String library = name;
             Identifier fullLibraryClassName = ident(className);
-			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName, library);
+			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, library);
 			//result.declarationsConverter.convertCallbacks(result.callbacksByLibrary.get(library), signatures, interf, fullLibraryClassName);
 
             int declCount = interf.getDeclarations().size();
-			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-            result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf, fullLibraryClassName);
+			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, interf);
+            result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf);
+			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf);
 
             boolean hasKernels = interf.getDeclarations().size() > declCount;
             if (!hasKernels)
