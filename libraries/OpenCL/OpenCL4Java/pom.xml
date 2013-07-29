@@ -37,6 +37,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
 	<build>
 		<plugins>
+			<!-- Uncomment to regenerate the bindings
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-jnaerator-plugin</artifactId>
@@ -45,6 +46,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 					<javaOutputDirectory>src/main/java</javaOutputDirectory>
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
 	</build>
 
