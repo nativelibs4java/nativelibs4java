@@ -1,4 +1,5 @@
 package com.nativelibs4java.pthread;
+import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Array;
@@ -12,6 +13,9 @@ import org.bridj.ann.Library;
  */
 @Library("pthread") 
 public class sched_param extends StructObject {
+	static {
+		BridJ.register();
+	}
 	@Field(0) 
 	public int sched_priority() {
 		return this.io.getIntField(this, 0);

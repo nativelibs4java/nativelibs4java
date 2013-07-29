@@ -1,4 +1,5 @@
 package com.nativelibs4java.pthread;
+import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
@@ -12,6 +13,9 @@ import org.bridj.ann.Ptr;
  */
 @Library("pthread") 
 public class tm extends StructObject {
+	static {
+		BridJ.register();
+	}
 	/** seconds after the minute [0-60] */
 	@Field(0) 
 	public int tm_sec() {
