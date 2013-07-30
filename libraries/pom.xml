@@ -436,7 +436,6 @@ Most of these wrappers are created automatically by JNAerator.
 				<!--module>ScalaCL</module>
 				<module>Scalaxy</module-->
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
 				<!--module>Mono</module>
 				<module>DirectX</module-->
 				<module>PThread</module>
@@ -457,7 +456,6 @@ Most of these wrappers are created automatically by JNAerator.
 				<!--module>ScalaCL</module>
 				<module>Scalaxy</module-->
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
 				<module>Utils</module>
 			</modules>
 		</profile>
@@ -479,7 +477,6 @@ Most of these wrappers are created automatically by JNAerator.
 			</activation>
 			<modules>
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
 				<module>Utils</module>
 			</modules>
 		</profile>
