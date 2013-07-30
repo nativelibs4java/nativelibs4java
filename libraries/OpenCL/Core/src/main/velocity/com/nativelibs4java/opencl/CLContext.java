@@ -541,7 +541,7 @@ public class CLContext extends CLAbstractEntity {
 		}
 
 		#declareReusablePtrsAndPErr()
-		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<cl_image_format> pImageFormat = getPointer(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
 		int previousAttempts = 0;
@@ -578,7 +578,7 @@ public class CLContext extends CLAbstractEntity {
 		}
 
 		#declareReusablePtrsAndPErr()
-		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<cl_image_format> pImageFormat = getPointer(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
 		int previousAttempts = 0;

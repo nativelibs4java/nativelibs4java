@@ -76,7 +76,7 @@ public class CLEvent extends CLAbstractEntity {
 			}
 		}
 	};
-	private static final long eventCallbackPeer = getPeer(pointerTo(eventCallback));
+	private static final long eventCallbackPeer = getPeer(getPointer(eventCallback));
 	
     /**
 #documentCallsFunction("clSetEventCallback")

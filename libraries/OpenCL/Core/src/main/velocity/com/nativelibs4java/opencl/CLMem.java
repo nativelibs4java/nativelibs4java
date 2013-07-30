@@ -71,7 +71,7 @@ public abstract class CLMem extends CLAbstractEntity {
     		}
     	};
     	BridJ.protectFromGC(cb);
-    	error(CL.clSetMemObjectDestructorCallback(getEntity(), getPeer(pointerTo(cb)), 0));
+    	error(CL.clSetMemObjectDestructorCallback(getEntity(), getPeer(getPointer(cb)), 0));
     }
     
     public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {

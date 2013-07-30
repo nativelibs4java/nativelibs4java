@@ -120,7 +120,7 @@ public class CLBuffer<T> extends CLMem {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			#declareReusablePtrsAndPErr()
-		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
+		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(getPointer(region)), getPeer(pErr));
 	        #checkPErr()
 	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {

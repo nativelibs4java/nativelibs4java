@@ -23,7 +23,7 @@ public class PointerUtils {
     }
     
     protected static void setPointerAtIndex(long peer, int index, NativeObject value) {
-        pointerToAddress(peer).setSizeTAtIndex(index, Pointer.getPeer(Pointer.pointerTo(value)));
+        pointerToAddress(peer).setSizeTAtIndex(index, Pointer.getPeer(Pointer.getPointer(value)));
     }
     
     protected static long getSizeT(long peer) {

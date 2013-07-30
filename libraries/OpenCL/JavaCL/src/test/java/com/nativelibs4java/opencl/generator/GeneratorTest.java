@@ -20,7 +20,7 @@ public class GeneratorTest {
         
         Structs structs = new Structs(context);
         Structs.S s = new Structs.S();
-        Pointer<Structs.S> pS = Pointer.pointerTo(s);
+        Pointer<Structs.S> pS = Pointer.getPointer(s);
         CLBuffer<Structs.S> b = context.createBuffer(CLMem.Usage.InputOutput, pS);
         
         CLEvent e = structs.f(queue, b, new int[] { 1 }, null);
