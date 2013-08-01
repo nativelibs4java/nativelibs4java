@@ -1,20 +1,20 @@
 /*
-Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
+ Copyright (c) 2009-2013 Olivier Chafik, All Rights Reserved
 
-This file is part of JNAerator (http://jnaerator.googlecode.com/).
+ This file is part of JNAerator (http://jnaerator.googlecode.com/).
 
-JNAerator is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ JNAerator is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-JNAerator is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
+ JNAerator is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License
-along with JNAerator.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Lesser General Public License
+ along with JNAerator.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.ochafik.lang.jnaerator;
 
@@ -92,6 +92,7 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
+import java.util.LinkedHashMap;
 
 public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 
@@ -121,7 +122,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     public Map<JavaPrim, Class<? extends Global>> primToGlobal = new HashMap<JavaPrim, Class<? extends Global>>();
     public Map<JavaPrim, Class<? extends Buffer>> primToBuffer = new HashMap<JavaPrim, Class<? extends Buffer>>();
     public final Set<String> byReferenceClassesNames = new HashSet<String>();
-    
+
     public boolean isObjCppPrimitive(String s) {
         return result.isObjCppPrimitive(s);
     }
@@ -155,14 +156,12 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             Eight(expr(8)),
             Sixteen(expr(16)),
             StaticSizeField(null) {
-
                 @Override
                 public Expression sizeof(JavaPrim p) {
                     return staticField(p.type, "SIZE");
                 }
             },
             CharSize(null) {
-
                 @Override
                 public Expression sizeof(JavaPrim p) {
                     return staticField(Native.class, "WCHAR_SIZE");
@@ -202,14 +201,23 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         }
     }
 
+    protected TypeRef functionPointerTypeRef(TypeRef.FunctionSignature fs) {
+        return fs;
+    }
+    
+    protected TypeRef pointerTypeRef(TypeRef targetTypeRef) {
+        return typeRef(result.config.runtime.pointerClass);
+    }
+    
     public Expression typeLiteral(TypeRef c) {
-        if (c != null && c.toString().equals("?"))
+        if (c != null && c.toString().equals("?")) {
             return Constant.newNull();
+        }
         return memberRef(expr(c), MemberRefStyle.Dot, "class");
     }
 
     protected abstract JavaPrim getCppBoolMappingType();
-    
+
     public void initTypes() {
 
         result.prim("void", JavaPrim.Void);
@@ -277,7 +285,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         JavaPrim sizePrim = result.config.sizeAsLong ? longPrim : JavaPrim.NativeSize;
         result.prim("size_t", sizePrim);
         result.prim("ptrdiff_t", sizePrim);
-        
+
         result.prim("complex double", JavaPrim.ComplexDouble);
 
         result.prim("int16_t", JavaPrim.Short);
@@ -329,16 +337,16 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 
 
         primToByReference.put(JavaPrim.Int, IntByReference.class);
-        primToByReference.put(JavaPrim.Char, CharByReference.class);
+        primToByReference.put(JavaPrim.Char, (Class) CharByReference.class);
         primToByReference.put(JavaPrim.Short, ShortByReference.class);
         primToByReference.put(JavaPrim.Byte, ByteByReference.class);
         primToByReference.put(JavaPrim.Long, LongByReference.class);
         primToByReference.put(JavaPrim.Float, FloatByReference.class);
         primToByReference.put(JavaPrim.Double, DoubleByReference.class);
         primToByReference.put(JavaPrim.NativeLong, NativeLongByReference.class);
-        primToByReference.put(JavaPrim.NativeSize, NativeSizeByReference.class);
-        primToByReference.put(JavaPrim.NSInteger, NativeSizeByReference.class);
-        primToByReference.put(JavaPrim.NSUInteger, NativeSizeByReference.class);
+        primToByReference.put(JavaPrim.NativeSize, (Class) NativeSizeByReference.class);
+        primToByReference.put(JavaPrim.NSInteger, (Class) NativeSizeByReference.class);
+        primToByReference.put(JavaPrim.NSUInteger, (Class) NativeSizeByReference.class);
         primToByReference.put(JavaPrim.CGFloat, CGFloatByReference.class);
 
         //primsByReference.put(JavaPrim.Void, PointerByReference.class);
@@ -368,223 +376,93 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         primToBuffer.put(JavaPrim.Float, FloatBuffer.class);
         primToBuffer.put(JavaPrim.Double, DoubleBuffer.class);
         //primToBuffer.put(JavaPrim.NativeLong, NativeLongByReference.class);
-        
+
         TypeRef pInt = new TypeRef.Pointer(new Primitive("int"), Declarator.PointerStyle.Pointer);
         result.addManualTypeDef("intptr_t", pInt);
         result.addManualTypeDef("uintptr_t", pInt);
     }
-    
+
     protected TypeRef findTypeRef(Identifier name, Identifier libraryClassName) {
         TypeRef tr;
         tr = findStructRef(name, libraryClassName);
-        if (tr != null)
+        if (tr != null) {
             return tr;
+        }
 
         tr = findEnum(name, libraryClassName);
-        if (tr != null)
+        if (tr != null) {
             return tr;
-        
+        }
+
         tr = findCallbackRef(name, libraryClassName);
-        if (tr != null)
+        if (tr != null) {
             return tr;
-        
+        }
+
         tr = findObjCClass(name);
-        if (tr != null)
+        if (tr != null) {
             return tr;
-        
+        }
+
         tr = result.manualTypeDefs.get(name);
-        if (tr != null)
+        if (tr != null) {
             return tr;
+        }
 
         return null;
     }
-    boolean isResoluble(TypeRef tr, Identifier libraryClassName) {
-        return isResoluble(tr, libraryClassName, new HashSet<Identifier>());
+
+    
+
+    public TypeRef normalizeTypeRef(TypeRef tr) {
+        return normalizeTypeRef(tr, new HashSet<Identifier>());
     }
-    boolean isResoluble(TypeRef tr, Identifier libraryClassName, Set<Identifier> typeDefsEncountered) {
-        if (tr instanceof Primitive ||
-            tr instanceof FunctionSignature ||
-            tr instanceof TaggedTypeRef) 
-        {
-            return true;
-        } else if (tr instanceof TargettedTypeRef) {
-            return isResoluble(((TargettedTypeRef)tr).getTarget(), libraryClassName, typeDefsEncountered);
-        } else if (tr instanceof SimpleTypeRef) {
-            Identifier name = ((SimpleTypeRef)tr).getName();
-            TypeRef tdt = typeDefsEncountered.add(name) ? result.getTypeDef(name) : null;
-            if (tdt != null) {
-                return isResoluble(tdt, libraryClassName, typeDefsEncountered);
-            } else {
-                TypeRef ft = findTypeRef(name, libraryClassName);
-                return ft != null;
-            }
-        }
-        return false;
-    }
-    public TypeRef resolveTypeDef(TypeRef valueType, final Identifier libraryClassName, final boolean convertToJavaRef, final boolean convertEnumToJavaRef) {
-        return resolveTypeDef(valueType, libraryClassName, convertToJavaRef, convertEnumToJavaRef, new HashSet<Identifier>());
-    }
-    public TypeRef resolveTypeDef(TypeRef valueType, final Identifier libraryClassName, final boolean convertToJavaRef, final boolean convertEnumToJavaRef, final Set<Identifier> typeDefsEncountered) {
-        if (valueType == null) {
-            return null;
-        }
-
-//		if (valueType.toString().equals("CGFunctionEvaluateCallback"))
-//			valueType = valueType;
-
-        if (valueType instanceof TaggedTypeRef && convertToJavaRef) {
-            TaggedTypeRef ttr = (TaggedTypeRef) valueType;
-            if (ttr.getTag() != null) {
-
-                TypeRef ref = ttr instanceof Struct ? findStructRef(ttr.getTag(), libraryClassName)
-                        : ttr instanceof Enum && convertEnumToJavaRef ? findEnum(ttr.getTag(), libraryClassName) : null;
-                if (ref == null && convertEnumToJavaRef) {
-                    return ref;
-                }
-            }
-        }
-        final TypeRef valueTypeCl = valueType.clone();
-        Arg holder = new Arg();
-        holder.setValueType(valueTypeCl);
-        holder.setParentElement(valueType.getParentElement());
-        holder.accept(new Scanner() {
-
-            java.util.Stack<String> names = new java.util.Stack<String>();
-            int depth = 0;
-
-            @Override
-            public void visitSimpleTypeRef(SimpleTypeRef simpleTypeRef) {
-                depth++;
-
-                try {
-                    Identifier name = ((SimpleTypeRef) simpleTypeRef).getName();
-                    if (name == null) {
-                        return;
-                    }
-
-                    String nameStr = name.toString();
-                    if (nameStr == null) {
-                        return;
-                    }
-
-                    if (JavaPrim.getJavaPrim(nameStr) != null) {
-                        return;
-                    }
-
-                    if (names.contains(nameStr)) {
-                        return;
-                    }
-                    names.push(nameStr);
-
-                    try {
-                        if (result.resolvePrimitive(nameStr) != null) {
-                            return;
-                        }
-
-                        super.visitSimpleTypeRef(simpleTypeRef);
-                        if (simpleTypeRef.isMarkedAsResolved()) {
-                            return;
-                        }
-
-                        //					Identifier oc = findObjCClassIdent(name);
-                        //					if (oc != null) {
-                        //						name.replaceBy(oc);
-                        //					}
-
-                        if (convertToJavaRef) {
-                            TypeRef t = findTypeRef(name, libraryClassName);
-                            if (t != null) {
-                                if (!convertToJavaRef || (t instanceof Enum) && !convertEnumToJavaRef) {
-                                    return;
-                                }
-                                simpleTypeRef.replaceBy(t);
-                            }
-                        }
-
-                        Define define = result.defines.get(name);
-                        Expression expression = define == null ? null : define.getValue();
-                        if (expression != null) {
-                            if (!convertToJavaRef) {
-                                return;
-                            }
-                            Identifier fieldName = null;
-                            if (expression instanceof Expression.VariableRef) {
-                                fieldName = ((Expression.VariableRef) expression).getName();
-                            } else if (expression instanceof MemberRef) {
-                                fieldName = ((MemberRef) expression).getName();
-                            }
-
-                            if (fieldName != null && !fieldName.equals(name)) {
-                                simpleTypeRef.replaceBy(resolveTypeDef(new TypeRef.SimpleTypeRef(fieldName), libraryClassName, true /*convertToJavaRef*/, convertEnumToJavaRef, typeDefsEncountered));
-                                return;
-                            }
-                        }
-                        
-                        TypeRef tr = typeDefsEncountered.add(name) ? result.getTypeDef(name) : null;
-                        if (tr != null) {
-                            if (!isResoluble(tr, libraryClassName)) {
-                                if (convertToJavaRef)
-                                    simpleTypeRef.replaceBy(typeRef(result.getFakePointer(libraryClassName, name)));
-                                else
-                                    simpleTypeRef.replaceBy(tr.clone());
-                                return;
-                            }
-                                
-                            if (tr instanceof Enum && !convertEnumToJavaRef) {
-                                simpleTypeRef.replaceBy(typeRef(int.class));
-                                return;
-                            }
-                            if (tr instanceof TaggedTypeRef) {
-                                Identifier name2 = result.declarationsConverter.getActualTaggedTypeName((TaggedTypeRef) tr);
-                                if (name2 != null) {
-                                    name = name2;
-                                }
-                            }
-                            if (convertToJavaRef) {
-                                if (tr instanceof TaggedTypeRef) {
-                                    TaggedTypeRef s = (TaggedTypeRef) tr;
-                                    if (s.isForwardDeclaration()) {
-                                        return;
-                                    }
-
-//									if (tr instanceof Enum) {
-//										tr = typeRef(s.getTag().clone());
-//									} else {
-                                    Identifier ident = getTaggedTypeIdentifierInJava(s);
-                                    if (ident != null) {
-                                        tr = typeRef(ident);//findRef(name, s, libraryClassName));
-                                    }//									}
-                                } else if (tr instanceof FunctionSignature) {
-                                    tr = findCallbackRef((FunctionSignature) tr, libraryClassName);
-                                }
-                            }
-                            String strs = simpleTypeRef.toString();
-                            String trs = tr == null ? null : tr.toString();
-                            if (trs != null && !strs.equals(trs)) {
-                                TypeRef clo = tr.clone();
-                                simpleTypeRef.replaceBy(clo);
-                                if (depth < 30) {
-                                    clo.accept(this);
-                                } else {
-                                    System.err.println("Infinite loop in type conversion ? " + tr);
-                                }
-                            }
-                            return;
-                        }
-                    } finally {
-                        names.pop();
-                    }
-                } finally {
-                    depth--;
-                }
-            }
-
+    public TypeRef normalizeTypeRef(TypeRef tr, HashSet<Identifier> resolvedNames) {
+        if (tr instanceof TypeRef.SimpleTypeRef) {
+            Identifier name = ((TypeRef.SimpleTypeRef)tr).getName();
+//            if (isObjCppPrimitive(name.toString())) {
+//                return tr;
+//            }
+            TypeRef td = resolvedNames.add(name) ? result.getTypeDef(name) : null;
+            if (td != null)
+                return normalizeTypeRef(td, resolvedNames);
             
-        });
-        TypeRef tr = holder.getValueType();
-//		tr.setParentElement(valueType.getParentElement());
-        return tr == null ? null : tr == valueTypeCl ? valueType : tr.clone();
+            Struct s = result.resolveStruct(name);
+            if (s != null)
+                return s;
+            Enum e = result.resolveEnum(name);
+            if (e != null)
+                return e;
+            TypeRef.FunctionSignature c = result.resolveCallback(name);
+            if (c != null)
+                return functionPointerTypeRef(c);
+        }
+        if (tr instanceof TypeRef.TargettedTypeRef) {
+            TypeRef.TargettedTypeRef ttr = (TypeRef.TargettedTypeRef) tr;
+            TypeRef target = ttr.getTarget();
+            TypeRef ntarget = normalizeTypeRef(target, resolvedNames);
+            if (ntarget != target) {
+                ttr = (TypeRef.TargettedTypeRef) ttr.clone();
+                ttr.setTarget(target);
+            }
+            return ttr;
+        }
+        if (tr instanceof TaggedTypeRef) {
+            TaggedTypeRef ttr = (TaggedTypeRef) tr;
+            if (ttr.isForwardDeclaration()) {
+                Identifier name = ttr.getTag();
+                if (ttr instanceof Struct) {
+                    ttr = result.resolveStruct(name);
+                } else if (ttr instanceof Enum) {
+                    ttr = result.resolveEnum(name);
+                }
+                if (ttr != null)
+                    return ttr;
+            }
+        }
+        return tr;
     }
+    
 
     public static class JavaPrimitive extends Primitive {
 
@@ -608,9 +486,9 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         }
     }
 
-    public JavaPrim getPrimitive(TypeRef valueType, Identifier libraryClassName) {
+    public JavaPrim getPrimitive(TypeRef valueType) {
         if (!(valueType instanceof Primitive) && !(valueType instanceof JavaPrimitive)) {
-            valueType = resolveTypeDef(valueType, libraryClassName, true, true);
+            valueType = normalizeTypeRef(valueType);
         }
         if (valueType == null) {
             return null;
@@ -654,7 +532,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 //        //if ((isLong = valueType.hasModifier(ModifierType.Long)) || valueType.hasModifier(ModifierType.Short)) {
 //            str = (isLong ? "long " : "short ") + name;
 //        } else {
-            str = name.toString();
+        str = name.toString();
 //        }
 
         JavaPrim type = result.resolvePrimitive(str);
@@ -681,32 +559,35 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             s = (Struct) td;
         }
         if (s == null && result.config.runtime == JNAeratorConfig.Runtime.BridJ) {
-        	String ns = name.toString();
-        	Class<?> cl = null;
-        	if (ns.equals("IUnknown"))
-        		cl = org.bridj.cpp.com.IUnknown.class;
-        	else if (ns.equals("GUID"))
-        		cl = org.bridj.cpp.com.GUID.class;
-        	else if (ns.equals("RECT"))
-        		cl = org.bridj.cpp.com.RECT.class;
-        	
-        	if (cl != null)
-        		return typeRef(ident(cl));
+            String ns = name.toString();
+            Class<?> cl = null;
+            if (ns.equals("IUnknown")) {
+                cl = org.bridj.cpp.com.IUnknown.class;
+            } else if (ns.equals("GUID")) {
+                cl = org.bridj.cpp.com.GUID.class;
+            } else if (ns.equals("RECT")) {
+                cl = org.bridj.cpp.com.RECT.class;
+            }
+
+            if (cl != null) {
+                return typeRef(ident(cl));
+            }
         }
         return typeRef(getTaggedTypeIdentifierInJava(s));
         /*
-            name = result.declarationsConverter.getActualTaggedTypeName((TaggedTypeRef) pair.getFirst().getValueType());
+         name = result.declarationsConverter.getActualTaggedTypeName((TaggedTypeRef) pair.getFirst().getValueType());
 
-            return findRef(name, s, libraryClassName, !result.config.putTopStructsInSeparateFiles);
-        } else {
-            return result.getTaggedTypeIdentifierInJava(s);
-            //name = result.declarationsConverter.getActualTaggedTypeName(s);
-        }*/
+         return findRef(name, s, libraryClassName, !result.config.putTopStructsInSeparateFiles);
+         } else {
+         return result.getTaggedTypeIdentifierInJava(s);
+         //name = result.declarationsConverter.getActualTaggedTypeName(s);
+         }*/
     }
 
     public SimpleTypeRef findStructRef(Struct s, Identifier libraryClassName) {
-        if (s == null)
+        if (s == null) {
             return null;
+        }
         switch (s.getType()) {
             case ObjCClass:
             case ObjCProtocol:
@@ -724,8 +605,11 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 //		SimpleIdentifier libClass = result.getLibraryClassFullName(library);
 //		return SyntaxUtils.equal(libClass, callerLibraryClass) ? name : libClass + "." + name;
 //	}
-
-    public Identifier libMember(Identifier libClass, Identifier libraryClassName, Identifier member) {
+  
+    protected Identifier packageMember(Identifier libraryPackage, Identifier name) {
+        return ident(libraryPackage, name);
+    }
+    protected Identifier libMember(Identifier libClass, Identifier libraryClassName, Identifier member) {
         //return ident(SyntaxUtils.equal(libClass, libraryClassName) ? null : libClass, member);
         return ident(libClass, member);
         //return member; //TODODODODODODODODOoOOOOO
@@ -751,17 +635,20 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         }
         return libMember(result.getLibraryClassFullName(library), libraryClassName, name);
     }
+
     public SimpleTypeRef findEnum(Identifier name, Identifier libraryClassName) {
         return findEnum(result.resolveEnum(name), libraryClassName);
     }
 
     public SimpleTypeRef findEnum(Enum s, Identifier libraryClassName) {
-        if (s == null)
+        if (s == null) {
             return null;
-        
-        if (result.config.runtime == JNAeratorConfig.Runtime.BridJ)
+        }
+
+        if (result.config.runtime == JNAeratorConfig.Runtime.BridJ) {
             return typeRef(getTaggedTypeIdentifierInJava(s));
-        
+        }
+
         Identifier name = result.declarationsConverter.getActualTaggedTypeName(s);
 
         String library = result.getLibrary(s);
@@ -799,6 +686,8 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         Identifier parentIdent = null;
 
         Element parent = functionSignature.getParentElement();
+        if (parent instanceof TypeRef.Pointer)
+            parent = parent.getParentElement();
 
         boolean firstParent = true;
         while (parent != null) {
@@ -808,7 +697,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                     parentIdent = parentRef.getName();
                     break;
                 }
-            } 
+            }
             if (firstParent) {
                 if (name == null && parent instanceof TypeDef) {
                     Declarator simpleSto = null;
@@ -905,8 +794,9 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 //				typeRef(ident(structName, inferCallBackName(s, true, true)));
 //		}
         Identifier identifier = s.getResolvedJavaIdentifier();
-        if (identifier == null)
+        if (identifier == null) {
             throw new UnsupportedConversionException(s, null);
+        }
         return typeRef(identifier);
 //		return typeRef(libMember(result.getLibraryClassFullName(library), callerLibraryClass, inferCallBackName(s, true, true)));
         //typeRef(ident(result.getLibraryClassFullName(library), inferCallBackName(s, true)));
@@ -934,10 +824,12 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     }
 
     public enum ConvType {
-        Enum, 
-        Pointer, 
-        Primitive, 
-        Struct, 
+
+        Enum,
+        Pointer,
+        FunctionSignature,
+        Primitive,
+        Struct,
         NativeLong,
         NativeSize,
         ComplexDouble,
@@ -945,15 +837,16 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         Callback,
         Default
     }
-    
     static Map<String, Pair<Integer, Class<?>>> buffersAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
     static Map<String, Pair<Integer, Class<?>>> arraysAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
     static Map<String, String> pointerFieldGetterNameRadixByType = new HashMap<String, String>();
     static Set<String> objectMethodNames = new HashSet<String>();
+
     static {
-    		for (Method method : Object.class.getDeclaredMethods())
-    			objectMethodNames.add(method.getName());
-    		
+        for (Method method : Object.class.getDeclaredMethods()) {
+            objectMethodNames.add(method.getName());
+        }
+
         Object[] data = new Object[]{
             "char", Byte.TYPE, byte[].class, ByteBuffer.class, "Char",
             "long", Long.TYPE, long[].class, LongBuffer.class, "Long",
@@ -984,8 +877,6 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             }
         }
     }
-
-
     Pattern wstringPat = Pattern.compile("(__)?const wchar_t\\*"),
             stringPat = Pattern.compile("(__)?const char\\*"),
             wstringPtrPtrPat = Pattern.compile("(__)?const wchar_t\\*\\*"),
@@ -1010,7 +901,6 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                     || result.config.charPtrAsString && typeRefAsString.equals("char**");
         }
     }
-
     static Map<String, Class<?>> predefObjCClasses = new HashMap<String, Class<?>>();
 
     static {
@@ -1029,8 +919,8 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             String n = sname.getName();
             if (n.equals("id")
                     && sname.getTemplateArguments().size() == 1/* &&
-                    conversionMode != TypeConversionMode.NativeParameter &&
-                    conversionMode != TypeConversionMode.NativeParameterWithStructsPtrPtrs*/) {
+                     conversionMode != TypeConversionMode.NativeParameter &&
+                     conversionMode != TypeConversionMode.NativeParameterWithStructsPtrPtrs*/) {
                 Expression x = sname.getTemplateArguments().get(0);
                 TypeRefExpression trx = x instanceof TypeRefExpression ? (TypeRefExpression) x : null;
                 SimpleTypeRef str = trx.getType() instanceof SimpleTypeRef ? (SimpleTypeRef) trx.getType() : null;
@@ -1077,17 +967,18 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     }
 
     public boolean isString(Expression val) {
-    		return val instanceof Constant && ((Constant)val).getType() == Constant.Type.String; // TODO use typer + type annotations !
-    }
-    
-    public Constant.Type getConstantType(Expression expr) {
-    		if (!(expr instanceof Constant))
-    			return null;
-    		return ((Constant)expr).getType();
+        return val instanceof Constant && ((Constant) val).getType() == Constant.Type.String; // TODO use typer + type annotations !
     }
 
-    public abstract Expression getEnumItemValue(EnumItem enumItem);
-    
+    public Constant.Type getConstantType(Expression expr) {
+        if (!(expr instanceof Constant)) {
+            return null;
+        }
+        return ((Constant) expr).getType();
+    }
+
+    public abstract Expression getEnumItemValue(EnumItem enumItem, boolean forceConstant);
+
     public TypeRef convertToJavaType(Constant.Type type) {
         switch (type) {
             case Bool:
@@ -1131,13 +1022,15 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         }
 
         Enum e = (Enum) parent;
-        Identifier ident = ident(result.getLibraryClassFullName(library), result.declarationsConverter.getActualTaggedTypeName(e), ident(enumItem.getName()));
+        Identifier enumItemName = ident(enumItem.getName());
+        enumItemName.resolveLastSimpleIdentifier().setJavaStaticImportable(true);
+        Identifier ident = ident(result.getLibraryClassFullName(library), result.declarationsConverter.getActualTaggedTypeName(e), enumItemName);
         return expr(typeRef(ident).setMarkedAsResolved(true));
     }
     /// @see http://java.sun.com/docs/books/tutorial/java/nutsandbolts/_keywords.html
     public static Set<String> JAVA_OBJECT_METHODS = new HashSet<String>(Arrays.asList(
-    		"notify", "notifyAll", "equals", "finalize", "getClass", "hashCode", "clone", "toString", "wait" // not allowed for function names
-	));
+            "notify", "notifyAll", "equals", "finalize", "getClass", "hashCode", "clone", "toString", "wait" // not allowed for function names
+            ));
     public static Set<String> JAVA_KEYWORDS = new HashSet<String>(Arrays.asList(
             "null",
             "true",
@@ -1191,8 +1084,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             "float",
             "native",
             "super",
-            "while"
-            ));
+            "while"));
     //static String keywords = " true false double float wait new null boolean return class public protected private ";
 
     public Identifier getValidJavaArgumentName(Identifier name) {
@@ -1223,14 +1115,14 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                 newName = "operator" + StringUtils.capitalize(suffix);
             }
         } else if (objectMethodNames.contains(nameStr)) {
-        		newName = name + "$";
-        	}/* else if (nameStr.startsWith("~")) {
-        newName = getValidJavaIdentifierString(ident(nameStr.substring(1))) + "Destructor";
-        }*/
-        
+            newName = name + "$";
+        }/* else if (nameStr.startsWith("~")) {
+         newName = getValidJavaIdentifierString(ident(nameStr.substring(1))) + "Destructor";
+         }*/
+
         if (newName == null) {
             newName = getValidJavaIdentifierString(name);
-        } 
+        }
 //        else if (result.config.beautifyNames) {
 //            newName = beautify(newName);
 //        }
@@ -1240,9 +1132,10 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 
     String beautify(String name, boolean isType) {
         String newName = StringUtils.underscoredToCamel(name);
-        if (!isType)
+        if (!isType) {
             newName = StringUtils.uncapitalize(newName);
-        
+        }
+
         if (name.endsWith("_")) {
             newName += "$";
         }
@@ -1250,8 +1143,8 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     }
 
     public boolean isJavaKeyword(String name) {
-        return JAVA_KEYWORDS.contains(name) || 
-        		JAVA_OBJECT_METHODS.contains(name); // not really keywords, but roughly same restrictions apply.
+        return JAVA_KEYWORDS.contains(name)
+                || JAVA_OBJECT_METHODS.contains(name); // not really keywords, but roughly same restrictions apply.
     }
 
     public Identifier getValidJavaIdentifier(Identifier name) {
@@ -1279,26 +1172,25 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
     }
 
     public Expression getJavaClassLitteralExpression(TypeRef tr) {
-        JavaPrim prim = result.typeConverter.getPrimitive(tr, null);
+        JavaPrim prim = result.typeConverter.getPrimitive(tr);
         return prim != null ? classLiteral(prim.type) : typeLiteral(tr.clone());
     }
 
     public Expression getJavaClassLitteralExpression() {
         throw new UnsupportedOperationException(getClass().getName() + "." + toString() + " not handled !");
     }
-    
-    
-    public Pair<Expression, TypeRef> convertExpressionToJava(Expression x, Identifier libraryClassName, boolean promoteNativeLongToLong) throws UnsupportedConversionException {
+
+    public Pair<Expression, TypeRef> convertExpressionToJava(Expression x, Identifier libraryClassName, boolean promoteNativeLongToLong, boolean forceConstants, Map<String, Pair<Expression, TypeRef>> mappings) throws UnsupportedConversionException {
         Pair<Expression, TypeRef> res = null;
         if (x instanceof Expression.AssignmentOp) {
-            Pair<Expression, TypeRef> convTarget = convertExpressionToJava(((Expression.AssignmentOp) x).getTarget(), libraryClassName, promoteNativeLongToLong),
-                    convValue = convertExpressionToJava(((Expression.AssignmentOp) x).getValue(), libraryClassName, promoteNativeLongToLong);
+            Pair<Expression, TypeRef> convTarget = convertExpressionToJava(((Expression.AssignmentOp) x).getTarget(), libraryClassName, promoteNativeLongToLong, forceConstants, mappings),
+                    convValue = convertExpressionToJava(((Expression.AssignmentOp) x).getValue(), libraryClassName, promoteNativeLongToLong, forceConstants, mappings);
 
             res = typed(expr(convTarget.getFirst(), Expression.AssignmentOperator.Equal, convValue.getFirst()), convTarget.getSecond());
         } else if (x instanceof Expression.BinaryOp) {
             Expression.BinaryOp bop = (Expression.BinaryOp) x;
-            Pair<Expression, TypeRef> conv1 = convertExpressionToJava(bop.getFirstOperand(), libraryClassName, promoteNativeLongToLong),
-                    conv2 = convertExpressionToJava(bop.getSecondOperand(), libraryClassName, promoteNativeLongToLong);
+            Pair<Expression, TypeRef> conv1 = convertExpressionToJava(bop.getFirstOperand(), libraryClassName, promoteNativeLongToLong, forceConstants, mappings),
+                    conv2 = convertExpressionToJava(bop.getSecondOperand(), libraryClassName, promoteNativeLongToLong, forceConstants, mappings);
 
             if (conv1 != null && conv2 != null) {
                 TypeRef t1 = conv1.getSecond(), t2 = conv2.getSecond();
@@ -1306,15 +1198,15 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 
                 String s1 = String.valueOf(t1), s2 = String.valueOf(t2);
                 TypeRef tr = null;
-                if (bop.getOperator().givesBool)
+                if (bop.getOperator().givesBool) {
                     tr = typeRef(boolean.class);
-                else {
+                } else {
                     if (s1.equals(s2)) {
                         tr = t1;
                     } else {
                         // t1 & t2 are already java primitives...
-                        JavaPrim p1 = "long".equals(t1.toString()) ? JavaPrim.Long : getPrimitive(t1, null), 
-                                p2 = "long".equals(t2.toString()) ? JavaPrim.Long : getPrimitive(t2, null);
+                        JavaPrim p1 = "long".equals(t1.toString()) ? JavaPrim.Long : getPrimitive(t1),
+                                p2 = "long".equals(t2.toString()) ? JavaPrim.Long : getPrimitive(t2);
                         if (p1 != null && p2 != null) {
                             switch (bop.getOperator()) {
                                 case LeftShift:
@@ -1324,10 +1216,10 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                                     break;
                                 default:
                                     for (JavaPrim p : new JavaPrim[]{
-                                                JavaPrim.Double, JavaPrim.Float,
-                                                JavaPrim.Long, JavaPrim.NativeSize, JavaPrim.NativeLong, JavaPrim.Int,
-                                                JavaPrim.Short, JavaPrim.Byte
-                                            }) {
+                                        JavaPrim.Double, JavaPrim.Float,
+                                        JavaPrim.Long, JavaPrim.NativeSize, JavaPrim.NativeLong, JavaPrim.Int,
+                                        JavaPrim.Short, JavaPrim.Byte
+                                    }) {
                                         if (p1 == p || p2 == p) {
                                             if (promoteNativeLongToLong && (p == JavaPrim.NativeLong || p == JavaPrim.NativeSize)) {
                                                 p = JavaPrim.Long;
@@ -1348,7 +1240,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
             if (op == Expression.UnaryOperator.Not) {
                 throw new UnsupportedConversionException(x, null); // TODO handle this properly ?
             }
-            Pair<Expression, TypeRef> conv = convertExpressionToJava(((Expression.UnaryOp) x).getOperand(), libraryClassName, promoteNativeLongToLong);
+            Pair<Expression, TypeRef> conv = convertExpressionToJava(((Expression.UnaryOp) x).getOperand(), libraryClassName, promoteNativeLongToLong, forceConstants, mappings);
 
             res = typed(expr(op, conv.getFirst()), conv.getSecond());
         } else if (x instanceof Expression.Constant) {
@@ -1412,7 +1304,13 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
 //                }
             }
         } else if (x instanceof Expression.VariableRef) {
-            res = convertVariableRefToJava(((Expression.VariableRef) x).getName(), libraryClassName, promoteNativeLongToLong);
+            Identifier name = ((Expression.VariableRef) x).getName();
+            Pair<Expression, TypeRef> mapping = mappings == null ? null : mappings.get(name.toString());
+            if (mapping != null) {
+                res = mapping;
+            } else {
+                res = convertVariableRefToJava(name, libraryClassName, promoteNativeLongToLong, forceConstants);
+            }
         }
         if (res == null) {
 //			return convertExpressionToJava(x);
@@ -1424,10 +1322,86 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         res.getFirst().setParenthesis(x.getParenthesis());
         return (Pair<Expression, TypeRef>) res;
     }
-    
 
-    private Pair<Expression, TypeRef> convertVariableRefToJava(Identifier name, Identifier libraryClassName, boolean promoteNativeLongToLong) {
-        
+    static class EnumItemResult {
+
+        public Enum.EnumItem originalItem;
+        public Expression convertedValue, unconvertedValue, constantValue;
+        public String comments;
+        public String exceptionMessage;
+        public Declaration errorElement;
+    }
+
+    protected Map<String, EnumItemResult> getEnumValuesAndCommentsByName(Enum e, Identifier libraryClassName) {
+        Map<String, EnumItemResult> ret = new LinkedHashMap<String, EnumItemResult>();
+        Integer lastAdditiveValue = null;
+        Expression lastRefValue = null;
+        boolean failedOnceForThisEnum = false;
+        Map<String, Pair<Expression, TypeRef>> mappings = new HashMap<String, Pair<Expression, TypeRef>>();
+        for (com.ochafik.lang.jnaerator.parser.Enum.EnumItem item : e.getItems()) {
+            EnumItemResult res = new EnumItemResult();
+            res.originalItem = item;
+            try {
+                if (item.getArguments().isEmpty()) {
+                    // no explicit value
+                    if (lastRefValue == null) {
+                        if (lastAdditiveValue != null) {
+                            lastAdditiveValue++;
+                            res.unconvertedValue = expr(lastAdditiveValue);
+                        } else {
+                            if (item == e.getItems().get(0)) {
+                                lastAdditiveValue = 0;
+                                res.unconvertedValue = expr(lastAdditiveValue);
+                            } else {
+                                res.unconvertedValue = null;
+                            }
+                        }
+                    } else {
+                        // has a last reference value
+                        if (lastAdditiveValue != null) {
+                            lastAdditiveValue++;
+                        } else {
+                            lastAdditiveValue = 1;
+                        }
+
+                        res.unconvertedValue = expr(
+                                lastRefValue.clone(),
+                                Expression.BinaryOperator.Plus,
+                                expr(lastAdditiveValue));
+                    }
+                } else {
+                    // has an explicit value
+                    failedOnceForThisEnum = false;// reset skipping
+                    lastAdditiveValue = null;
+                    lastRefValue = item.getArguments().get(0);
+                    res.unconvertedValue = lastRefValue;
+                    if (lastRefValue instanceof Expression.Constant) {
+                        try {
+                            lastAdditiveValue = ((Expression.Constant) lastRefValue).asInteger();
+                            lastRefValue = null;
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+                res.convertedValue = result.typeConverter.convertExpressionToJava(res.unconvertedValue, libraryClassName, true, false, mappings).getFirst();
+                res.constantValue = result.typeConverter.convertExpressionToJava(res.unconvertedValue, libraryClassName, true, true, mappings).getFirst();
+                mappings.put(item.getName(), typed(res.constantValue, typeRef(int.class)));
+            } catch (Exception ex) {
+                failedOnceForThisEnum = true;
+                res.exceptionMessage = ex.toString();
+            }
+            failedOnceForThisEnum = failedOnceForThisEnum || res.errorElement != null;
+            if (failedOnceForThisEnum) {
+                res.errorElement = result.declarationsConverter.skipDeclaration(item);
+            }
+
+            ret.put(item.getName(), res);
+        }
+        return ret;
+    }
+
+    private Pair<Expression, TypeRef> convertVariableRefToJava(Identifier name, Identifier libraryClassName, boolean promoteNativeLongToLong, boolean forceConstants) {
+
         if (name != null) {
             Define define = result.defines.get(name);
             if (define != null && define.getValue() != null) {
@@ -1440,7 +1414,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                         return typed(findDefine(name), convertToJavaType(constant.getType()));
                     }
 
-                    return convertExpressionToJava(defineValue, libraryClassName, promoteNativeLongToLong);
+                    return convertExpressionToJava(defineValue, libraryClassName, promoteNativeLongToLong, forceConstants, null);
                 }
             } else {
                 String sname = name.toString();
@@ -1451,7 +1425,7 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
                 } else {
                     Enum.EnumItem enumItem = result.enumItems.get(name);
                     if (enumItem != null) {
-                        return typed(getEnumItemValue(enumItem), typeRef(Integer.TYPE));
+                        return typed(getEnumItemValue(enumItem, forceConstants), typeRef(Integer.TYPE));
                     } else {
                         VariablesDeclaration constant = result.globalVariablesByName.get(name);
                         if (constant != null) {
@@ -1465,44 +1439,53 @@ public abstract class TypeConversion implements ObjCppParser.ObjCParserHelper {
         }
         return null;
     }
-    
+
     public Identifier getTaggedTypeIdentifierInJava(TaggedTypeRef s) {
         return result.resolveFullTaggedTypeRef(s).getResolvedJavaIdentifier();
     }
+
     public Identifier computeTaggedTypeIdentifierInJava(TaggedTypeRef s) {
         Identifier name = result.declarationsConverter.getActualTaggedTypeName(s);
-        if (name == null)
+        if (name == null) {
             return null;
-        
+        }
+
         String library = result.getLibrary(s);
-        if (library == null)
+        if (library == null) {
             return null;
-        
+        }
+
         name = name.clone();
         Struct parentStruct = s.findParentOfType(Struct.class);
         //Struct parentStruct = s.findParentOfType(Struct.class);
-        if (parentStruct != null && parentStruct != s)
+        if (parentStruct != null && parentStruct != s) {
             return ident(getTaggedTypeIdentifierInJava(parentStruct), name);
-        else if ((s instanceof Struct) && (result.config.putTopStructsInSeparateFiles || result.config.runtime == JNAeratorConfig.Runtime.BridJ))
-            return ident(result.getLibraryPackage(library), name);
-        else
+        } else if ((s instanceof Struct) && (result.config.putTopStructsInSeparateFiles)) {// || result.config.runtime == JNAeratorConfig.Runtime.BridJ)) {
+            return packageMember(result.getLibraryPackage(library), name);
+            //return ident(result.getLibraryPackage(library), name);
+        } else {
             return libMember(result.getLibraryClassFullName(library), null, name);
+        }
     }
+
     public Identifier computeCallbackIdentifierInJava(FunctionSignature fs) {
         Identifier name = inferCallBackName(fs, false, false, null);
-        if (name == null)
+        if (name == null) {
             return null;
-        
+        }
+
         String library = result.getLibrary(fs);
-        if (library == null)
+        if (library == null) {
             return null;
-        
+        }
+
         name = name.clone();
         Struct parentStruct = fs.findParentOfType(Struct.class);
         //Struct parentStruct = s.findParentOfType(Struct.class);
-        if (parentStruct != null)
+        if (parentStruct != null) {
             return ident(getTaggedTypeIdentifierInJava(parentStruct), name);
-        else
+        } else {
             return libMember(result.getLibraryClassFullName(library), null, name);
+        }
     }
 }

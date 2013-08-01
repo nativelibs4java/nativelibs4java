@@ -4,14 +4,15 @@ import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 
 import java.nio.ByteBuffer;
 
 import com.nativelibs4java.opencl.library.cl_buffer_region;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import org.bridj.*;
 import java.nio.ByteOrder;
 import java.nio.Buffer;
@@ -119,7 +120,7 @@ public class CLBuffer<T> extends CLMem {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			#declareReusablePtrsAndPErr()
-		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(pointerTo(region)), getPeer(pErr));
+		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(getPointer(region)), getPeer(pErr));
 	        #checkPErr()
 	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {
@@ -403,6 +404,7 @@ public class CLBuffer<T> extends CLMem {
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
 		long mem = getEntity();
+		assert mem != 0;
 		error(CL.clRetainMemObject(mem));
         PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));

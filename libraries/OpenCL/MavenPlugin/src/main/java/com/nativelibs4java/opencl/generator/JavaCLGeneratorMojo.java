@@ -54,14 +54,14 @@ public class JavaCLGeneratorMojo
 
     /**
      * Output directory for JNAerated Java sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/java"
+     * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
     private File javaOutputDirectory;
 
     /**
      * Output directory for JNAerated Java test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/java"
+     * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
     private File testJavaOutputDirectory;
@@ -130,7 +130,7 @@ public class JavaCLGeneratorMojo
             if (!javaOutDir.exists())
                 javaOutDir.mkdirs();
             config.outputDir = javaOutDir;
-            config.addSourceFile(file, null, false, true);
+            config.addSourceFile(file, null, false, true, true);
             config.addRootDir(root);
             
             final String fileName = file.getName();

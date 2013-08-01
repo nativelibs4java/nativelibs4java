@@ -22,6 +22,10 @@ public class cl_image_format extends Structure<cl_image_format, cl_image_format.
 		this.image_channel_order = image_channel_order;
 		this.image_channel_data_type = image_channel_data_type;
 	}
+	
+	public java.util.List<String> getFieldOrder() {
+		return java.util.Arrays.asList("image_channel_order", "image_channel_data_type");
+	}
 	protected ByReference newByReference() { return new ByReference(); }
 	protected ByValue newByValue() { return new ByValue(); }
 	protected cl_image_format newInstance() { return new cl_image_format(); }

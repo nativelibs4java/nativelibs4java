@@ -5,7 +5,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
 
 public class CLUserEvent extends CLEvent {
 	CLUserEvent(CLQueue queue, long evt) { 

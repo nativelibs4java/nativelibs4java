@@ -32,6 +32,19 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			<artifactId>nativelibs4java-utils</artifactId>
 			<version>1.6-SNAPSHOT</version>
 		</dependency>
+		
+       <dependency>
+         <groupId>org.jogamp.gluegen</groupId>
+         <artifactId>gluegen-rt-main</artifactId>
+         <version>2.0.2-rc12</version>
+        <scope>test</scope>
+       </dependency>
+       <dependency>
+         <groupId>org.jogamp.jogl</groupId>
+         <artifactId>jogl-all-main</artifactId>
+         <version>2.0.2-rc12</version>
+			<scope>test</scope>
+       </dependency>
 	</dependencies>
 
 	<reporting>

@@ -47,13 +47,11 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (child == getExpression()) {
 				setExpression((Expression)by);
 				return true;
 			}
-			return false;
+			return super.replaceChild(child, by);
 		}
 
 	}
@@ -124,13 +122,11 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (child == getValue()) {
 				setValue((Expression)by);
 				return true;
 			}
-			return false;
+			return super.replaceChild(child, by);
 		}
 
 	}
@@ -167,6 +163,9 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
     }
 	public static class If extends Statement {
 		public If() {}
+		public If(Expression condition, Statement thenBranch) {
+                    this(condition, thenBranch, null);
+                }
 		public If(Expression condition, Statement thenBranch, Statement elseBranch) {
 			setCondition(condition);
 			setThenBranch(thenBranch);
@@ -199,8 +198,6 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 		}
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (child == getCondition()) {
 				setCondition((Expression)by);
 				return true;
@@ -213,7 +210,7 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 				setElseBranch((Statement)by);
 				return true;
 			}
-			return false;
+			return super.replaceChild(child, by);
 		}
 	}
 	
@@ -280,8 +277,6 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 		}
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (child == getCondition()) {
 				setCondition((Expression)by);
 				return true;
@@ -292,7 +287,8 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 			}
 			return 
 				replaceChild(initStatements, Statement.class, this, child, by) ||
-				replaceChild(postStatements, Statement.class, this, child, by);
+				replaceChild(postStatements, Statement.class, this, child, by) ||
+                super.replaceChild(child, by);
 		}
 	}
     
@@ -323,8 +319,6 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 		}
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (child == getCondition()) {
 				setCondition((Expression)by);
 				return true;
@@ -333,7 +327,7 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 				setBody((Statement)by);
 				return true;
 			}
-			return false;
+			return super.replaceChild(child, by);
 		}
 	}
     public static class DoWhile extends While {
@@ -370,13 +364,11 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
 			if (getExpression() == child) {
 				setExpression((Expression)by);
 				return true;
 			}
-			return false;
+			return super.replaceChild(child, by);
 		}
 	}
 	
@@ -441,9 +433,8 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			if (super.replaceChild(child, by))
-				return true;
-			return replaceChild(statements, Statement.class, this, child, by);
+			return replaceChild(statements, Statement.class, this, child, by) ||
+                super.replaceChild(child, by);
 		}
 	}
 
@@ -475,9 +466,7 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
         @Override
         public boolean replaceChild(Element child, Element by) {
-            if (super.replaceChild(child, by))
-				return true;
-			if (child == getDeclaration()) {
+            if (child == getDeclaration()) {
                 setDeclaration((VariablesDeclaration)by);
                 return true;
             }
@@ -485,7 +474,7 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
                 setBody((Statement)by);
                 return true;
             }
-            return false;
+            return super.replaceChild(child, by);
         }
 
         @Override
@@ -532,9 +521,7 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 
         @Override
         public boolean replaceChild(Element child, Element by) {
-            if (super.replaceChild(child, by))
-				return true;
-			if (child == getTryStatement()) {
+            if (child == getTryStatement()) {
 				setTryStatement((Statement)by);
 				return true;
 			}
@@ -542,7 +529,8 @@ public abstract class Statement extends ModifiableElement { // HACK : statement 
 				setFinallyStatement((Statement)by);
 				return true;
 			}
-            return replaceChild(catches, Catch.class, this, child, by);
+            return replaceChild(catches, Catch.class, this, child, by) ||
+                super.replaceChild(child, by);
         }
 
         @Override

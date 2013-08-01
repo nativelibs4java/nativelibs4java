@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_platform_id;
 import org.bridj.*;
 import org.bridj.ann.Ptr;
 
@@ -51,11 +51,21 @@ public class JavaCL {
 	}
 
 	private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
-		try {
-			return CL.clIcdGetPlatformIDsKHR(count, getPeer(out), getPeer(pCount));
-		} catch (Throwable th) {
-			return CL.clGetPlatformIDs(count, getPeer(out), getPeer(pCount));
-		}
+        assert (count == 0) ^ (pCount == null);  
+        assert (count == 0) == (out == null);
+        if (hasIcd == null || hasIcd.booleanValue()) {
+    		try {
+    			int ret = CL.clIcdGetPlatformIDsKHR(count, getPeer(out), getPeer(pCount));
+                if (hasIcd == null)
+                    hasIcd = true;
+                return ret;
+    		} catch (Throwable th) {
+                hasIcd = false;
+    			return CL.clGetPlatformIDs(count, getPeer(out), getPeer(pCount));
+    		}
+        } else {
+            return CL.clGetPlatformIDs(count, getPeer(out), getPeer(pCount));
+        }
 	}
 	
 	@org.bridj.ann.Library("OpenCLProbe") 
@@ -114,6 +124,7 @@ public class JavaCL {
 	}	
 
     static final OpenCLLibrary CL;
+    static Boolean hasIcd;
 	static {
 		if (Platform.isLinux()) {
 			String amdAppBase = "/opt/AMDAPP/lib";

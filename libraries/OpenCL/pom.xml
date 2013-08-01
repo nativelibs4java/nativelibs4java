@@ -32,6 +32,14 @@
 		<module>Tutorials</module>
 	</modules>
 	
+    <profiles>
+      <profile>
+        <id>regenerate</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+        </activation>
+      </profile>
+    </profiles>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

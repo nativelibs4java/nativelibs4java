@@ -53,4 +53,10 @@ final class ReusablePointer {
             return (Pointer)pointer;
         }
     }
+    public <T> Pointer<T> allocatedSizeTs(int needed) {
+    	return allocatedBytes(needed * SizeT.SIZE);
+    }
+    public <T> Pointer<T> allocatedInts(int needed) {
+    	return allocatedBytes(needed * 4);
+    }
 }

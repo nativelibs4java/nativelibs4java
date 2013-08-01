@@ -20,7 +20,7 @@
 			<name>Sonatype OSS Snapshots Repository</name>
 			<url>http://oss.sonatype.org/content/groups/public</url>
 		</repository>
-		<repository>
+		<!--repository>
 			<id>typesafe</id>
 			<name>typesafe-releases</name>
 			<url>http://repo.typesafe.com/typesafe/maven-releases</url>
@@ -29,7 +29,7 @@
 		  <id>typesafe2</id>
 		  <name>Typesafe Repository</name>
 		  <url>http://repo.typesafe.com/typesafe/releases/</url>
-		</repository>
+		</repository-->
 		<!--repository>
 			<id>nativelibs4java</id>
 			<name>nativelibs4java Maven2 Repository</name>
@@ -242,7 +242,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>2.0</version>
+					<version>2.1</version>
                      <configuration>
                         <artifactSet>
 							<excludes>
@@ -433,12 +433,11 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>Velocity</module>
 				<module>BridJ</module>
 				<module>jnaerator</module>
-				<module>ScalaCL</module>
-				<module>Scalaxy</module>
+				<!--module>ScalaCL</module>
+				<module>Scalaxy</module-->
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
-				<module>Mono</module>
-				<module>DirectX</module>
+				<!--module>Mono</module>
+				<module>DirectX</module-->
 				<module>PThread</module>
 				<module>Utils</module>
 				<module>IdleTime</module>
@@ -454,10 +453,9 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>Velocity</module>
 				<module>BridJ</module>
 				<module>jnaerator</module>
-				<module>ScalaCL</module>
-				<module>Scalaxy</module>
+				<!--module>ScalaCL</module>
+				<module>Scalaxy</module-->
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
 				<module>Utils</module>
 			</modules>
 		</profile>
@@ -479,7 +477,6 @@ Most of these wrappers are created automatically by JNAerator.
 			</activation>
 			<modules>
 				<module>OpenCL</module>
-				<module>OpenCL-JNA</module>
 				<module>Utils</module>
 			</modules>
 		</profile>
@@ -517,6 +514,12 @@ Most of these wrappers are created automatically by JNAerator.
 				</plugins>
 			</build>
 		</profile>
+        <profile>
+          <id>regenerate</id>
+		  <activation>
+			<activeByDefault>false</activeByDefault>
+		  </activation>
+        </profile>
 		<profile>
 			<id>webstart</id>
 			<activation>

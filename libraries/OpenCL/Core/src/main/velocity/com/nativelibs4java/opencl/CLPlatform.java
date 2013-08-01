@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 
 import org.bridj.*;
 import org.bridj.ann.*;
@@ -352,15 +353,6 @@ public class CLPlatform extends CLAbstractEntity {
         #checkPErr();
         return new CLContext(this, ids, context);
     }
-    /*
-    public static final clCreateContext_arg1_callback errorCallback = new clCreateContext_arg1_callback() {
-		public void apply(Pointer<java.lang.Byte > errInfo, Pointer<? > private_info, @Ptr long cb, Pointer<? > user_data) {
-			//new RuntimeException().printStackTrace();
-			String log = errInfo.getCString();
-			System.out.println("[JavaCL] " + log);
-			throw new CLException(log, -1);
-		}
-	};*/
 
     /**
 #documentCallsFunction("clGetDeviceIDs")

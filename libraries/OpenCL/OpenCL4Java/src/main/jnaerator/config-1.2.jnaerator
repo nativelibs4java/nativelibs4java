@@ -27,6 +27,11 @@
 -package com.nativelibs4java.opencl.library
 -libraryNamingPrefixes cl
 -library OpenCL
+
+-skipStructs "cl_u?(double|float|int|char|short|long)\d*"
+-optionalFunctions "cl.+(KHR|EXT|APPLE)|clSetPrintfCallback"
+-noStaticInit
+-extractDeclarations IOpenCLLibrary
 	"-I$(DIR)/../headers/1.2"
 	//"$(DIR)/../headers/1.2/CL/cl_platform.h"
 	"$(DIR)/../headers/1.2/CL/opencl.h"

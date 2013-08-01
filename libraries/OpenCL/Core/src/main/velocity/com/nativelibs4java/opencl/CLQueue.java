@@ -2,15 +2,15 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_QUEUE_PROPERTIES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_QUEUE_PROPERTIES;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_TRUE;
 
 import java.util.EnumSet;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_command_queue;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 

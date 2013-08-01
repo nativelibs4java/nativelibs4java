@@ -1,6 +1,6 @@
 #parse("main/Header.vm")
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 /**
@@ -16,6 +16,18 @@ final class ReusablePointers {
     public final Pointer<Integer>
             int1 = allocateInt().withoutValidityInformation(),
             int2 = allocateInt().withoutValidityInformation();
+    
+    public final Pointer<SizeT>
+            sizeT1 = allocateSizeT().withoutValidityInformation();
+    
+    public final Pointer<Long>
+            long1 = allocateLong().withoutValidityInformation();
+    
+    public final Pointer<Pointer<?>>
+            ptr1 = allocatePointer().withoutValidityInformation();
+    
+    public final ReusablePointer
+            int3_1 = new ReusablePointer(4 * 3);
     
     public final ReusablePointer
             kernelArg = new ReusablePointer(8 * 16); // double16 arguments !

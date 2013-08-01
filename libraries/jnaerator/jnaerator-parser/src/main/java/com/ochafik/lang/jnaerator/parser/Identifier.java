@@ -47,6 +47,7 @@ public abstract class Identifier extends Element implements Comparable<Object> {
 	
 	public static class SimpleIdentifier extends Identifier {
 		private String name;
+                private boolean javaStaticImportable;
 		protected List<Expression> templateArguments = new ArrayList<Expression>();
 		
 		public SimpleIdentifier() {}
@@ -54,6 +55,16 @@ public abstract class Identifier extends Element implements Comparable<Object> {
 			setName(name);
 			setTemplateArguments(Arrays.asList(args));
 		}
+
+                public SimpleIdentifier setJavaStaticImportable(boolean javaStaticImportable) {
+                    this.javaStaticImportable = javaStaticImportable;
+                    return this;
+                }
+
+                public boolean isJavaStaticImportable() {
+                    return javaStaticImportable;
+                }
+
 		public void addTemplateArgument(Expression x) {
 			if (x == null)
 				return;
@@ -92,7 +103,10 @@ public abstract class Identifier extends Element implements Comparable<Object> {
 		}
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			return replaceChild(templateArguments, Expression.class, this, child, by);
+            if (replaceChild(templateArguments, Expression.class, this, child, by)) {
+                return true;
+            }
+            return super.replaceChild(child, by);
 		}
 		@Override
 		public boolean isPlain() {
@@ -165,7 +179,10 @@ public abstract class Identifier extends Element implements Comparable<Object> {
 		}
 		@Override
 		public boolean replaceChild(Element child, Element by) {
-			return replaceChild(identifiers, SimpleIdentifier.class, this, child, by);
+            if (replaceChild(identifiers, SimpleIdentifier.class, this, child, by)) {
+                return true;
+            }
+            return super.replaceChild(child, by);
 		}
 		public void addIdentifiers(List<SimpleIdentifier> is) {
 			for (SimpleIdentifier i : is)

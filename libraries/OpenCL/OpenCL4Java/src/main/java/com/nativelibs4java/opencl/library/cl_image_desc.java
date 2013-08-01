@@ -1,4 +1,5 @@
 package com.nativelibs4java.opencl.library;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
@@ -11,15 +12,12 @@ import org.bridj.ann.Ptr;
  */
 @Library("OpenCL") 
 public class cl_image_desc extends StructObject {
-	public cl_image_desc() {
-		super();
-	}
-	/// C type : cl_mem_object_type
+	/** C type : cl_mem_object_type */
 	@Field(0) 
 	public int image_type() {
 		return this.io.getIntField(this, 0);
 	}
-	/// C type : cl_mem_object_type
+	/** C type : cl_mem_object_type */
 	@Field(0) 
 	public cl_image_desc image_type(int image_type) {
 		this.io.setIntField(this, 0, image_type);
@@ -91,27 +89,41 @@ public class cl_image_desc extends StructObject {
 		this.io.setSizeTField(this, 6, image_slice_pitch);
 		return this;
 	}
-	/// C type : cl_uint
+	/** C type : cl_uint */
 	@Field(7) 
 	public int num_mip_levels() {
 		return this.io.getIntField(this, 7);
 	}
-	/// C type : cl_uint
+	/** C type : cl_uint */
 	@Field(7) 
 	public cl_image_desc num_mip_levels(int num_mip_levels) {
 		this.io.setIntField(this, 7, num_mip_levels);
 		return this;
 	}
-	/// C type : cl_uint
+	/** C type : cl_uint */
 	@Field(8) 
 	public int num_samples() {
 		return this.io.getIntField(this, 8);
 	}
-	/// C type : cl_uint
+	/** C type : cl_uint */
 	@Field(8) 
 	public cl_image_desc num_samples(int num_samples) {
 		this.io.setIntField(this, 8, num_samples);
 		return this;
+	}
+	/** C type : cl_mem */
+	@Field(9) 
+	public cl_mem buffer() {
+		return this.io.getTypedPointerField(this, 9);
+	}
+	/** C type : cl_mem */
+	@Field(9) 
+	public cl_image_desc buffer(cl_mem buffer) {
+		this.io.setPointerField(this, 9, buffer);
+		return this;
+	}
+	public cl_image_desc() {
+		super();
 	}
 	public cl_image_desc(Pointer pointer) {
 		super(pointer);

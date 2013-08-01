@@ -1,9 +1,7 @@
 package com.nativelibs4java.opencl.generator;
 
 import com.nativelibs4java.opencl.*;
-import com.ochafik.io.IOUtils;
 import com.ochafik.lang.jnaerator.*;
-import com.ochafik.lang.jnaerator.PreprocessorUtils.MacroUseCallback;
 import com.ochafik.lang.jnaerator.TypeConversion.JavaPrimitive;
 import com.ochafik.lang.jnaerator.TypeConversion.TypeConversionMode;
 import com.ochafik.lang.jnaerator.UniversalReconciliator;
@@ -22,7 +20,6 @@ import static com.ochafik.lang.jnaerator.parser.ElementsHelper.*;
 import java.io.PrintStream;
 
 import java.util.regex.Pattern;
-import org.anarres.cpp.LexerException;
 
 public class JavaCLGenerator extends JNAerator {
 
@@ -37,7 +34,7 @@ public class JavaCLGenerator extends JNAerator {
         config.genCPlusPlus = false;
         config.gccLong = true;
         config.putTopStructsInSeparateFiles = false;
-        config.runtime = JNAeratorConfig.Runtime.JNAerator;//NL4JStructs;
+        config.runtime = JNAeratorConfig.Runtime.BridJ;//NL4JStructs;
         config.fileToLibrary = new Adapter<File, String>() {
             @Override
             public String adapt(File value) {
@@ -90,6 +87,11 @@ public class JavaCLGenerator extends JNAerator {
         return new Result(config, outputter, feedback) {
 
             @Override
+            public Identifier getLibraryClassFullName(String library) {
+                return null;
+            }
+            
+            @Override
             public void init() {
                 typeConverter = new BridJTypeConversion(this) {
 
@@ -99,7 +101,11 @@ public class JavaCLGenerator extends JNAerator {
 
                     }
 
-                    
+                    @Override
+                    protected Identifier packageMember(Identifier libraryPackage, Identifier name) {
+                        return name;
+                    }
+
                     @Override
                     public boolean isObjCppPrimitive(String s) {
                         int len;
@@ -126,7 +132,7 @@ public class JavaCLGenerator extends JNAerator {
                 declarationsConverter = new BridJDeclarationsConverter(this) {
 
                     @Override
-                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName, int iConstructor) {
+                    public void convertFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder declarations, DeclarationsHolder implementations, Identifier libraryClassName, int iConstructor) {
                         if (isCallback)
                             return;
 
@@ -147,7 +153,7 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
+                                tr = result.typeConverter.normalizeTypeRef(tr);//, null/*libraryClassName*/, false, false);
                                 List<Modifier> mods = arg.harvestModifiers();
 
                                 TypeRef convTr;
@@ -177,7 +183,7 @@ public class JavaCLGenerator extends JNAerator {
                                 convArgExpr.add(argExpr);//varRef(argName));
 
                             } catch (UnsupportedConversionException ex) {
-                                out.addDeclaration(skipDeclaration(function, ex.toString()));
+                                implementations.addDeclaration(skipDeclaration(function, ex.toString()));
                             }
                             iArg++;
                         }
@@ -190,7 +196,7 @@ public class JavaCLGenerator extends JNAerator {
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
                         if (signatures.addVariable(kernelVarName))
-                        		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
+                        		implementations.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(ModifierType.Public, ModifierType.Synchronized);
                         method.addThrown(typeRef(CLBuildException.class));
@@ -234,7 +240,7 @@ public class JavaCLGenerator extends JNAerator {
                         );
                         method.setBody(block(statements.toArray(new Statement[statements.size()])));
                         if (signatures.addMethod(method))
-                        		out.addDeclaration(method);
+                        		implementations.addDeclaration(method);
                     }
                 };
                 globalsGenerator = new BridJGlobalsGenerator(this);
@@ -337,13 +343,29 @@ public class JavaCLGenerator extends JNAerator {
             TypeRef target = ((TypeRef.Pointer)valueType).getTarget();
             if (target instanceof TypeRef.SimpleTypeRef) {
                 TypeRef.SimpleTypeRef starget = (TypeRef.SimpleTypeRef)target;
-
-                Pair<Integer, Class<?>> pair = buffersAndArityByType.get((starget + "").equals("long") ? "long" : starget.getName() + "");
+                Identifier name = starget.getName();
+                
+                Pair<Integer, Class<?>> pair = buffersAndArityByType.get((starget + "").equals("long") ? "long" : name + "");
                 if (pair != null) {
                     ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(pair.getSecond()))));
                     return ret;
                 }
+                Identifier ref = 
+                    result.structsFullNames.contains(name) ||
+                    result.enumsFullNames.contains(name) ?
+                    name : result.typeConverter.findRef(name, target, libraryClassName, true);
+                if (ref != null) {
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(ref))));
+                    return ret;
+                }
+            } else if (target instanceof Struct) {
+                TypeRef ref = result.typeConverter.findStructRef((Struct)target, libraryClassName);
+                if (ref != null) {
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(ref)));
+                    return ret;
+                }
             }
+            throw new UnsupportedConversionException(valueType, "Unknown pointed target type");
         } else if (valueType instanceof TypeRef.SimpleTypeRef) {
             TypeRef.SimpleTypeRef sr = (TypeRef.SimpleTypeRef)valueType;
             String name = sr.getName() == null ? sr.toString() : sr.getName().toString();
@@ -438,13 +460,14 @@ public class JavaCLGenerator extends JNAerator {
 			result.typeConverter.allowFakePointers = true;
             String library = name;
             Identifier fullLibraryClassName = ident(className);
-			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName, library);
+            interf.setResolvedJavaIdentifier(fullLibraryClassName);
+			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, library);
 			//result.declarationsConverter.convertCallbacks(result.callbacksByLibrary.get(library), signatures, interf, fullLibraryClassName);
 
             int declCount = interf.getDeclarations().size();
-			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-            result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf, fullLibraryClassName);
+			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, interf);
+            result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf);
+			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf);
 
             boolean hasKernels = interf.getDeclarations().size() > declCount;
             if (!hasKernels)
@@ -463,7 +486,8 @@ public class JavaCLGenerator extends JNAerator {
                     if (macroName.equals("__LINE__") ||
                             macroName.equals("__FILE__") ||
                             macroName.equals("__COUNTER__") ||
-                            config.preprocessorConfig.macros.containsKey(macroName))
+                            config.preprocessorConfig.explicitMacros.containsKey(macroName) ||
+                            config.preprocessorConfig.implicitMacros.containsKey(macroName))
                         continue;
                     
                     String[] parts = macroName.split("_+");
@@ -491,31 +515,31 @@ public class JavaCLGenerator extends JNAerator {
         }
     }
 
-    
-    @Override
-    protected void autoConfigure() {
-        super.autoConfigure();
-
-            /*
-        __OPENCL_VERSION__
-        __ENDIAN_LITTLE__
-
-        __IMAGE_SUPPORT__
-        __FAST_RELAXED_MATH__
-        */
-
-    }
+//    
+//    @Override
+//    protected void autoConfigure() {
+//        super.autoConfigure();
+//
+//            /*
+//        __OPENCL_VERSION__
+//        __ENDIAN_LITTLE__
+//
+//        __IMAGE_SUPPORT__
+//        __FAST_RELAXED_MATH__
+//        */
+//
+//    }
 
     public static void main(String[] args) {
         JNAerator.main(new JavaCLGenerator(new JNAeratorConfig()),
             new String[] {
-                "-o", "target/generated-sources/main/java",
+                "-o", "target/generated-sources/test",
                 //"-o", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/generated-sources/main/java",
                 "-noJar",
                 "-noComp",
                 "-v",
-                "-addRootDir", "src/main/opencl",
-                "src/main/opencl",
+                "-addRootDir", "src/test/opencl",
+                "src/test/opencl/com/nativelibs4java/opencl/generator/Structs.c",
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
                 //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",

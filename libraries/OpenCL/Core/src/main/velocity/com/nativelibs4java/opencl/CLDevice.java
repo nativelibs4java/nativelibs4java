@@ -8,6 +8,7 @@ import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
 
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
@@ -17,7 +18,7 @@ import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
-import org.bridj.ValuedEnum;
+import com.nativelibs4java.util.ValuedEnum;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -275,7 +276,6 @@ public class CLDevice extends CLAbstractEntity {
             flags |= prop.value();
         long queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, getPeer(pErr));
         #checkPErr()
-
         return new CLQueue(context, queue, this);
     }
 

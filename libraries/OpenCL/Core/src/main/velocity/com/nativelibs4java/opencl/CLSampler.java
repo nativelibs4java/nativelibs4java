@@ -2,17 +2,17 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP_TO_EDGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_NONE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_REPEAT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_LINEAR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_NEAREST;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_ADDRESSING_MODE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_FILTER_MODE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_NORMALIZED_COORDS;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_ADDRESS_CLAMP;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_ADDRESS_CLAMP_TO_EDGE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_ADDRESS_NONE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_ADDRESS_REPEAT;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_FILTER_LINEAR;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_FILTER_NEAREST;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_SAMPLER_ADDRESSING_MODE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_SAMPLER_FILTER_MODE;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_SAMPLER_NORMALIZED_COORDS;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import org.bridj.*;

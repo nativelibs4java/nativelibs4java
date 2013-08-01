@@ -10,30 +10,30 @@ import org.bridj.ann.Library;
  */
 @Library("OpenCL") 
 public class cl_image_format extends StructObject {
-	public cl_image_format() {
-		super();
-	}
-	/// C type : cl_channel_order
+	/** C type : cl_channel_order */
 	@Field(0) 
 	public int image_channel_order() {
 		return this.io.getIntField(this, 0);
 	}
-	/// C type : cl_channel_order
+	/** C type : cl_channel_order */
 	@Field(0) 
 	public cl_image_format image_channel_order(int image_channel_order) {
 		this.io.setIntField(this, 0, image_channel_order);
 		return this;
 	}
-	/// C type : cl_channel_type
+	/** C type : cl_channel_type */
 	@Field(1) 
 	public int image_channel_data_type() {
 		return this.io.getIntField(this, 1);
 	}
-	/// C type : cl_channel_type
+	/** C type : cl_channel_type */
 	@Field(1) 
 	public cl_image_format image_channel_data_type(int image_channel_data_type) {
 		this.io.setIntField(this, 1, image_channel_data_type);
 		return this;
+	}
+	public cl_image_format() {
+		super();
 	}
 	public cl_image_format(Pointer pointer) {
 		super(pointer);

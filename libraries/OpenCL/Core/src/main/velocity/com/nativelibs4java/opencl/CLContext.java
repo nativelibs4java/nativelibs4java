@@ -6,7 +6,8 @@ import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_event;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
@@ -33,10 +34,10 @@ import com.nativelibs4java.opencl.CLSampler.FilterMode;
 import com.nativelibs4java.opencl.ImageIOUtils.ImageInfo;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.opencl.library.cl_image_format;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_context;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_device_id;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
+import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
@@ -540,7 +541,7 @@ public class CLContext extends CLAbstractEntity {
 		}
 
 		#declareReusablePtrsAndPErr()
-		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<cl_image_format> pImageFormat = getPointer(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
 		int previousAttempts = 0;
@@ -577,7 +578,7 @@ public class CLContext extends CLAbstractEntity {
 		}
 
 		#declareReusablePtrsAndPErr()
-		Pointer<cl_image_format> pImageFormat = pointerTo(format.to_cl_image_format());
+		Pointer<cl_image_format> pImageFormat = getPointer(format.to_cl_image_format());
 		Pointer<?> pBuffer = buffer == null ? null : pointerToBuffer(buffer);
 		long mem;
 		int previousAttempts = 0;
@@ -594,7 +595,6 @@ public class CLContext extends CLAbstractEntity {
 				getPeer(pBuffer),
 				getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
-		
 		return new CLImage3D(this, mem, format);
 	}
 
@@ -698,7 +698,6 @@ public class CLContext extends CLAbstractEntity {
 				getPeer(data),
 				getPeer(pErr));
 		} while (failedForLackOfMemory(pErr.getInt(), previousAttempts++));
-
 		return new CLBuffer<T>(this, byteCount, mem, retainBufferReference ? data : null, io);
 	}
 
