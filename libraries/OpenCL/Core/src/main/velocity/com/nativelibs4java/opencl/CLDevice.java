@@ -891,7 +891,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
-    public enum QueueProperties implements com.nativelibs4java.util.ValuedEnum {
+    public static enum QueueProperties implements com.nativelibs4java.util.ValuedEnum {
 
         OutOfOrderExecModeEnable(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE),
         ProfilingEnable(CL_QUEUE_PROFILING_ENABLE);
