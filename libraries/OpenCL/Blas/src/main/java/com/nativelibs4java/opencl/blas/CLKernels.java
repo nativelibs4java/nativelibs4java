@@ -5,39 +5,42 @@
 
 package com.nativelibs4java.opencl.blas;
 
-import com.nativelibs4java.opencl.CLProgram;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
+import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
+import com.nativelibs4java.opencl.LocalSize;
 import com.nativelibs4java.opencl.util.Fun1;
 import com.nativelibs4java.opencl.util.Fun2;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.ParallelMath;
 import com.nativelibs4java.opencl.util.Primitive;
-import static org.bridj.Pointer.*;
-import java.util.HashMap;
-import java.util.Map;
+
+import static com.nativelibs4java.opencl.blas.CLMatrix2D.BLOCK_SIZE;
+import static org.bridj.Pointer.pointerToInt;
 
 /**
  *
  * @author ochafik
  */
 public class CLKernels {
-	protected final LinearAlgebraUtils kernels;
+    protected final LinearAlgebraUtils kernels;
     protected final ParallelMath math;
     protected final CLContext context;
     protected final CLQueue queue;
 
     private static volatile CLKernels instance;
-    
+
     public static synchronized void setInstance(CLKernels kernels) {
         instance = kernels;
     }
@@ -100,7 +103,7 @@ public class CLKernels {
     public <T> CLEvent op2(Primitive prim, Fun2 fun, CLBuffer<T> a, T b, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         long length = rows * columns;
         if (out == null || out.getElementCount() != length)
-            throw new IllegalArgumentException("Expected buffer of length " + length + ", got " + out);
+            throw new IllegalArgumentException("Expected buffer of length " + length + ", got " + out.getElementCount());
         //if (out != null)
         //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
 
@@ -187,22 +190,74 @@ public class CLKernels {
             kernel = matrixMultiplyKernels.get(prim);
             if (kernel == null) {
                 String src =
-                	prim.getRequiredPragmas() +
+                    prim.getRequiredPragmas() +
+                    "#define BLOCK_SIZE " + BLOCK_SIZE + "\n" +
+                    "#define AS(i, j) As[j + i * BLOCK_SIZE]\n" +
+                    "#define BS(i, j) Bs[j + i * BLOCK_SIZE]\n" +
+                    "\n" +
                     "__kernel void mulMat(                                  " +
-                    "   __global const double* a, int aRows, int aColumns,   " +
-                    "   __global const double* b, int bColumns,                 " +
-                    "   __global double* c                                         " +
+                    "   __global const double* A, int aColumns,   " +
+                    "   __global const double* B, int bColumns,                 " +
+                    "   __global double* C,                                         " +
+                    "   __local double* As,                                         " +
+                    "   __local double* Bs                                         " +
                     ") {                                                           " +
-                    "    int i = get_global_id(0);                              " +
-                    "    int j = get_global_id(1);                              " +
-                    "                                                              " +
-                    "    if (i >= aRows || j >= bColumns) return;                  " +
-                    "    double total = 0;                                         " +
-                    "    size_t iOff = i * (size_t)aColumns;                                 " +
-                    "    for (long k = 0; k < aColumns; k++) {                     " +
-                    "        total += a[iOff + k] * b[k * (size_t)bColumns + j];           " +
-                    "    }                                                         " +
-                    "    c[i * (size_t)bColumns + j] = total;                              " +
+                    "    // Block index\n" +
+                    "    int bx = get_group_id(0);\n" +
+                    "    int by = get_group_id(1);\n" +
+                    "\n" +
+                    "    // Thread index\n" +
+                    "    int tx = get_local_id(0);\n" +
+                    "    int ty = get_local_id(1);\n" +
+                    "\n" +
+                    "    // Index of the first sub-matrix of A processed by the block\n" +
+                    "    int aBegin = aColumns * BLOCK_SIZE * by + aColumns * ty + tx;\n" +
+                    "\n" +
+                    "    // Index of the last sub-matrix of A processed by the block\n" +
+                    "    int aEnd   = aBegin + aColumns;\n" +
+                    "\n" +
+                    "    // Step size used to iterate through the sub-matrices of A\n" +
+                    "    int aStep  = BLOCK_SIZE;\n" +
+                    "\n" +
+                    "    // Index of the first sub-matrix of B processed by the block\n" +
+                    "    int bBegin = BLOCK_SIZE * bx + bColumns * ty + tx;\n" +
+                    "\n" +
+                    "    // Step size used to iterate through the sub-matrices of B\n" +
+                    "    int bStep  = BLOCK_SIZE * bColumns;\n" +
+                    "\n" +
+                    "    // total is used to store the element of the block sub-matrix\n" +
+                    "    // that is computed by the thread\n" +
+                    "    float total = 0.0f;\n" +
+                    "\n" +
+                    "    // Loop over all the sub-matrices of A and B\n" +
+                    "    // required to compute the block sub-matrix\n" +
+                    "    for (int a = aBegin, b = bBegin;\n" +
+                    "             a < aEnd;\n" +
+                    "             a += aStep, b += bStep) {\n" +
+                    "\n" +
+                    "        // Load the matrices from device memory\n" +
+                    "        // to shared memory; each thread loads\n" +
+                    "        // one element of each matrix\n" +
+                    "        AS(ty, tx) = A[a];\n" +
+                    "        BS(ty, tx) = B[b];\n" +
+                    "\t\n" +
+                    "        // Synchronize to make sure the matrices are loaded\n" +
+                    "        barrier(CLK_LOCAL_MEM_FENCE);\n" +
+                    "\n" +
+                    "        // Multiply the two matrices together;\n" +
+                    "        // each thread computes one element\n" +
+                    "        // of the block sub-matrix        \n" +
+                    "        #pragma unroll\n" +
+                    "        for (int k = 0; k < BLOCK_SIZE; ++k)\n" +
+                    "            total += AS(ty, k) * BS(k, tx);\n" +
+                    "\n" +
+                    "        // Synchronize to make sure that the preceding\n" +
+                    "        // computation is done before loading two new\n" +
+                    "        // sub-matrices of A and B in the next iteration\n" +
+                    "        barrier(CLK_LOCAL_MEM_FENCE);\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    C[get_global_id(1) * get_global_size(0) + get_global_id(0)] = total;\n" +
                     "}                                                             "
                 ;
                 String clTypeName = prim.clTypeName();
@@ -212,8 +267,13 @@ public class CLKernels {
             }
         }
         synchronized (kernel) {
-            kernel.setArgs(a, (int)aRows, (int)aColumns, b, (int)bColumns, out);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, eventsToWaitFor);
+            kernel.setArgs(a, (int) aColumns, b, (int) bColumns, out,
+                    LocalSize.ofFloatArray(BLOCK_SIZE * BLOCK_SIZE),
+                    LocalSize.ofFloatArray(BLOCK_SIZE * BLOCK_SIZE));
+            CLEvent evt = kernel.enqueueNDRange(queue,
+                    new int[]{(int) aRows, (int) bColumns},
+                    new int[]{BLOCK_SIZE, BLOCK_SIZE},
+                    eventsToWaitFor);
             return evt;
         }
     }
