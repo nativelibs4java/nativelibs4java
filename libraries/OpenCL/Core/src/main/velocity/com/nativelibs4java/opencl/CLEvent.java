@@ -14,6 +14,7 @@ import com.nativelibs4java.util.EnumValues;
 import org.bridj.*;
 import org.bridj.ann.Ptr;
 import static org.bridj.Pointer.*;
+import static com.nativelibs4java.opencl.proxy.PointerUtils.*;
 
 /**
  * OpenCL event object.<br/>

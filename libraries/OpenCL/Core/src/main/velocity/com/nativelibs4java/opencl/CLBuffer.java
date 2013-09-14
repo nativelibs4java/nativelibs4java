@@ -19,6 +19,7 @@ import java.nio.Buffer;
 import com.nativelibs4java.util.NIOUtils;
 import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
+import static com.nativelibs4java.opencl.proxy.PointerUtils.*;
 
 
 /**

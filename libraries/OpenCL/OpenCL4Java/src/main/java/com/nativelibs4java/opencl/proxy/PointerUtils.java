@@ -23,7 +23,8 @@ public class PointerUtils {
     }
     
     protected static void setPointerAtIndex(long peer, int index, NativeObject value) {
-        pointerToAddress(peer).setSizeTAtIndex(index, Pointer.getPeer(Pointer.getPointer(value)));
+        //pointerToAddress(peer).setSizeTAtIndex(index, Pointer.getPeer(Pointer.getPointer(value)));
+        pointerToAddress(peer).setSizeTAtIndex(index, Pointer.getPeer(Pointer.pointerTo(value)));
     }
     
     protected static long getSizeT(long peer) {
@@ -32,6 +33,10 @@ public class PointerUtils {
     
     protected static <T> Pointer<T> getPointer(long peer, Class<T> targetClass) {
         return pointerToAddress(peer).getPointer(targetClass);
+    }
+    
+    public static <N extends NativeObject> Pointer<N> getPointer(N instance) {
+        return pointerTo(instance);
     }
     
     protected static void setInt(long peer, int value) {

@@ -43,6 +43,7 @@ import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
+import static com.nativelibs4java.opencl.proxy.PointerUtils.*;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
