@@ -25,9 +25,7 @@
 		<module>Demos</module>
 		<module>JavaCL</module>
 		<module>Core</module>
-		<!-- Blas requires ujmp, which is not in Maven Central:
 		<module>Blas</module>
-		-->
 		<module>OpenGLDemos</module>
 		<module>Tutorials</module>
 	</modules>

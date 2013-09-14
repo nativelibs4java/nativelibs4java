@@ -4,9 +4,13 @@
  */
 package com.nativelibs4java.opencl.blas;
 
-import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.util.Primitive;
+
 import org.bridj.Pointer;
 
 /**
@@ -27,8 +31,15 @@ public class CLDefaultMatrix2D<T> implements CLMatrix2D<T> {
     public CLDefaultMatrix2D(Primitive primitive, CLBuffer<T> buffer, long rows, long columns, CLKernels kernels) {
         this.primitive = primitive;
         this.primitiveClass = (Class<T>)primitive.primitiveType;
-        this.length = rows * columns;
-        this.buffer = buffer == null ? (CLBuffer)kernels.getContext().createBuffer(Usage.InputOutput, primitive.primitiveType, length) : buffer;
+        this.length = CLMatrixUtils.roundUp(rows) * CLMatrixUtils.roundUp(columns);
+        if (buffer != null) {
+            if (buffer.getElementCount() < this.length) {
+                throw new IllegalArgumentException("Buffer size too small; buffer of size " + this.length + " expected, size " + buffer.getByteCount() + " was given");
+            }
+            this.buffer = buffer;
+        } else {
+            this.buffer = (CLBuffer)kernels.getContext().createBuffer(Usage.InputOutput, primitive.primitiveType, length);
+        }
         this.kernels = kernels;
         this.rows = rows;
         this.columns = columns;

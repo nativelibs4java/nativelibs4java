@@ -5,26 +5,24 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.blas.CLMatrix2D;
+import com.nativelibs4java.opencl.CLBuildException;
+import com.nativelibs4java.opencl.CLEvent;
+import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.blas.CLEvents;
-import com.nativelibs4java.opencl.blas.CLMatrixUtils;
 import com.nativelibs4java.opencl.blas.CLKernels;
-import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
-
-import org.ujmp.core.Matrix;
-
-import org.ujmp.core.calculation.Calculation.Ret;
-import org.ujmp.core.exceptions.MatrixException;
-import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.blas.CLMatrix2D;
+import com.nativelibs4java.opencl.blas.CLMatrixUtils;
 import com.nativelibs4java.opencl.util.Fun1;
 import com.nativelibs4java.opencl.util.Fun2;
-import com.nativelibs4java.opencl.util.OpenCLType;
-import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
-import org.ujmp.core.doublematrix.DoubleMatrix2D;
+
+import org.bridj.Pointer;
+import org.ujmp.core.calculation.Calculation.Ret;
+import org.ujmp.core.exceptions.MatrixException;
 import org.ujmp.core.matrix.Matrix2D;
+
+import static org.bridj.Pointer.allocate;
 
 /**
  *
@@ -36,7 +34,7 @@ public class CLDenseMatrix2DImpl<V> {
     protected Pointer<V> cache;
     protected int uncachedGetCount;
     protected static final int GET_COUNT_BEFORE_CACHING = 3;
-    
+
     public CLDenseMatrix2DImpl(CLMatrix2D<V> _matrix) {
         this._matrix = _matrix;
         this.rows = _matrix.getRowCount();
@@ -59,7 +57,7 @@ public class CLDenseMatrix2DImpl<V> {
     }
     
     protected long getStorageIndex(long row, long column) {
-        return row * columns + column;
+        return CLMatrixUtils.roundUp(columns) * row + column;
     }
 
     protected synchronized void cache() {

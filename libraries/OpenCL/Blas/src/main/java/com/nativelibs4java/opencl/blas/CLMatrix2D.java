@@ -15,6 +15,9 @@ import org.bridj.Pointer;
  * @author ochafik
  */
 public interface CLMatrix2D<T> {
+
+    int BLOCK_SIZE = 16;
+
     Primitive getPrimitive();
     Class<T> getPrimitiveClass();
     CLEvents getEvents();
