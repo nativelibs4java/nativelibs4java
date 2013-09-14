@@ -11,8 +11,6 @@ import com.nativelibs4java.opencl.util.Fun2;
 import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 
-import static com.nativelibs4java.opencl.blas.CLMatrix2D.BLOCK_SIZE;
-
 /**
  *
  * @author ochafik
@@ -31,14 +29,14 @@ public class CLMatrixUtils {
         return out;
     }
 
-    public static long roundUp(long size) {
-        return ((size + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
+    public static long roundUp(long size, int blockSize) {
+        return ((size + blockSize - 1) / blockSize) * blockSize;
     }
     
     public static <T> void matrixMultiply(
-            final CLMatrix2D<T> a, 
-            final CLMatrix2D<T> b, 
-            final CLMatrix2D<T> out) 
+            final CLMatrix2D<T> a,
+            final CLMatrix2D<T> b,
+            final CLMatrix2D<T> out)
             throws CLBuildException
     {
         final CLKernels kernels = a.getKernels();
@@ -51,8 +49,8 @@ public class CLMatrixUtils {
                             public CLEvent perform(final CLEvent[] cevents) {
                                 CLEvent evt = kernels.matrixMultiply(
                                     primitive,
-                                    a.getBuffer(), (int)roundUp(a.getRowCount()), (int)roundUp(a.getColumnCount()),
-                                    b.getBuffer(), (int)roundUp(b.getRowCount()), (int)roundUp(b.getColumnCount()),
+                                    a.getBuffer(), a.getRowCount(), a.getColumnCount(), a.getBlockSize(),
+                                    b.getBuffer(), b.getRowCount(), b.getColumnCount(), b.getBlockSize(),
                                     out.getBuffer(),
                                     join(aevents, bevents, cevents)
                                 );
@@ -96,8 +94,8 @@ public class CLMatrixUtils {
                         CLEvent evt = kernels.matrixTranspose(
                             primitive,
                             a.getBuffer(),
-                                (int)roundUp(a.getRowCount()), (int)roundUp(a.getColumnCount()),
-                            out.getBuffer(), 
+                            a.getRowCount(), a.getColumnCount(), a.getStride(),
+                            out.getBuffer(),
                             join(aevents, cevents)
                         );
                         return evt;
@@ -138,7 +136,7 @@ public class CLMatrixUtils {
 
                     public CLEvent perform(CLEvent[] oevents) {
                         return in.getKernels().op1(in.getPrimitive(), fun, in.getBuffer(),
-                                roundUp(in.getRowCount()), roundUp(in.getColumnCount()),
+                                in.getRowCount(), in.getColumnCount(), in.getStride(),
                                 out.getBuffer(), join(ievents, oevents));
                     }
                 });
@@ -160,7 +158,7 @@ public class CLMatrixUtils {
                             public CLEvent perform(CLEvent[] oevents) {
                                 return in1.getKernels().op2(in1.getPrimitive(), fun,
                                         in1.getBuffer(), in2.getBuffer(),
-                                        roundUp(in1.getRowCount()), roundUp(in1.getColumnCount()),
+                                        in1.getRowCount(), in1.getColumnCount(), in1.getStride(),
                                         out.getBuffer(), join(i1events, i2events, oevents));
                             }
                         });
@@ -177,9 +175,11 @@ public class CLMatrixUtils {
                 return out.getEvents().performWrite(new CLEvents.Action() {
 
                     public CLEvent perform(CLEvent[] oevents) {
-                        return in.getKernels().op2(in.getPrimitive(), fun, in.getBuffer(), s2,
-                                roundUp(in.getRowCount()), roundUp(in.getColumnCount()),
-                                out.getBuffer(), join(ievents, oevents));
+                        return in.getKernels().op2(
+                            in.getPrimitive(), fun, in.getBuffer(), s2,
+                            in.getRowCount(), in.getColumnCount(), in.getStride(),
+                            out.getBuffer(),
+                            join(ievents, oevents));
                     }
                 });
             }

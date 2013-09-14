@@ -8,6 +8,7 @@ package com.nativelibs4java.opencl.blas.ujmp;
 import com.nativelibs4java.opencl.CLPlatform;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.JavaCL;
+import com.nativelibs4java.opencl.blas.CLKernels;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.Primitive;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
@@ -20,8 +21,12 @@ import org.ujmp.core.exceptions.MatrixException;
  */
 public class CLDenseDoubleMatrix2DFactory extends AbstractDoubleMatrix2DFactory {
 	
-	public DenseDoubleMatrix2D dense(long rows, long columns)
+	public CLDenseDoubleMatrix2D dense(long rows, long columns)
 			throws MatrixException {
 		return new CLDenseDoubleMatrix2D(rows, columns);
+	}
+	public CLDenseDoubleMatrix2D densePacked(long rows, long columns)
+			throws MatrixException {
+		return new CLDenseDoubleMatrix2D(rows, columns, CLKernels.getInstance(), 1);
 	}
 }

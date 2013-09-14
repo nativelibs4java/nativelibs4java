@@ -33,7 +33,9 @@ import org.ujmp.core.mapper.MatrixMapper;
  */
 
 public class UJMPOpenCLTest {
-
+    CLDenseDoubleMatrix2DFactory doubleFactory = new CLDenseDoubleMatrix2DFactory();
+    CLDenseFloatMatrix2DFactory floatFactory = new CLDenseFloatMatrix2DFactory();
+    
     @Before
     public void installUJMPCL() {
         try {
@@ -53,44 +55,44 @@ public class UJMPOpenCLTest {
     @Test
 	public void testOp2() {
         
-        DenseFloatMatrix2D a = new CLDenseFloatMatrix2D(2, 2);
-        DenseFloatMatrix2D b = new CLDenseFloatMatrix2D(2, 2);
+        DenseFloatMatrix2D a = floatFactory.densePacked(2, 2);
+        DenseFloatMatrix2D b = floatFactory.densePacked(2, 2);
         
         float[] fa = new float[] { 10, 20, 30, 40 }, fb = new float[] { 1, 2, 3, 4 };
-        write(fa, a);
-        write(fb, b);
+        write(fa, a.getColumnCount(), a);
+        write(fb, b.getColumnCount(), b);
         
-        assertArrayEquals("failed plus", new float[] { 11, 22, 33, 44 }, read((FloatMatrix2D)a.plus(b)).getFloats(), 0);
-        assertArrayEquals("failed minus", new float[] { 9, 18, 27, 36 }, read((FloatMatrix2D)a.minus(b)).getFloats(), 0);
-        assertArrayEquals("failed times", new float[] { 10, 40, 90, 160 }, read((FloatMatrix2D)a.times(b)).getFloats(), 0);
-        assertArrayEquals("failed divide", new float[] { 10, 10, 10, 10 }, read((FloatMatrix2D)a.divide(b)).getFloats(), 0);
+        assertArrayEquals("failed plus", new float[] { 11, 22, 33, 44 }, read((FloatMatrix2D)a.plus(b), a.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed minus", new float[] { 9, 18, 27, 36 }, read((FloatMatrix2D)a.minus(b), a.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed times", new float[] { 10, 40, 90, 160 }, read((FloatMatrix2D)a.times(b), b.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed divide", new float[] { 10, 10, 10, 10 }, read((FloatMatrix2D)a.divide(b), a.getColumnCount()).getFloats(), 0);
         
-        assertArrayEquals("failed scalar plus", new float[] { 11, 21, 31, 41 }, read((FloatMatrix2D)a.plus(1)).getFloats(), 0);
-        assertArrayEquals("failed scalar minus", new float[] { 9, 19, 29, 39 }, read((FloatMatrix2D)a.minus(1)).getFloats(), 0);
-        assertArrayEquals("failed scalar times", new float[] { 20, 40, 60, 80 }, read((FloatMatrix2D)a.times(2)).getFloats(), 0);
-        assertArrayEquals("failed scalar divide", new float[] { 1, 2, 3, 4 }, read((FloatMatrix2D)a.divide(10)).getFloats(), 0);
+        assertArrayEquals("failed scalar plus", new float[] { 11, 21, 31, 41 }, read((FloatMatrix2D)a.plus(1), a.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed scalar minus", new float[] { 9, 19, 29, 39 }, read((FloatMatrix2D)a.minus(1), a.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed scalar times", new float[] { 20, 40, 60, 80 }, read((FloatMatrix2D)a.times(2), b.getColumnCount()).getFloats(), 0);
+        assertArrayEquals("failed scalar divide", new float[] { 1, 2, 3, 4 }, read((FloatMatrix2D)a.divide(10), a.getColumnCount()).getFloats(), 0);
         
         assertArrayEquals("failed sin", new float[] { (float)sin(fa[0]), (float)sin(fa[1]), (float)sin(fa[2]), (float)sin(fa[3]) }, 
-                read((FloatMatrix2D)a.sin(Ret.NEW)).getFloats(), 0.0001f);
+                read((FloatMatrix2D)a.sin(Ret.NEW), a.getColumnCount()).getFloats(), 0.0001f);
         assertArrayEquals("failed cos", new float[] { (float)cos(fa[0]), (float)cos(fa[1]), (float)cos(fa[2]), (float)cos(fa[3]) }, 
-                read((FloatMatrix2D)a.cos(Ret.NEW)).getFloats(), 0.0001f);
+                read((FloatMatrix2D)a.cos(Ret.NEW), a.getColumnCount()).getFloats(), 0.0001f);
         assertArrayEquals("failed tan", new float[] { (float)tan(fa[0]), (float)tan(fa[1]), (float)tan(fa[2]), (float)tan(fa[3]) }, 
-                read((FloatMatrix2D)a.tan(Ret.NEW)).getFloats(), 0.0001f);
+                read((FloatMatrix2D)a.tan(Ret.NEW), a.getColumnCount()).getFloats(), 0.0001f);
         
     }
     
     @Test
 	public void testMultFloat() {
         
-        DenseFloatMatrix2D m = new CLDenseFloatMatrix2D(3, 3);
-        DenseFloatMatrix2D v = new CLDenseFloatMatrix2D(3, 1);
+        DenseFloatMatrix2D m = floatFactory.densePacked(3, 3);
+        DenseFloatMatrix2D v = floatFactory.densePacked(3, 1);
         //CLBuffer<Float> buffer = ((CLDenseFloatMatrix2D)m).getBuffer();
         CLQueue queue = ((CLDenseFloatMatrix2D)m).getImpl().getQueue();
         //System.out.println("Context = " + buffer.getContext());
         
         float[] min = new float[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
-        write(min, m);
-        Pointer<Float> back = read(m);
+        write(min, m.getColumnCount(), m);
+        Pointer<Float> back = read(m, m.getColumnCount());
         for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++) {
             assertEquals(min[i], back.get(i), 0);
             //System.out.println(back.get(i));
@@ -107,7 +109,7 @@ public class UJMPOpenCLTest {
 		//	((CLLinearAlgebra)la).queue.finish();
 		//dmout.write((FloatBuffer)mout.read());
 
-        back = read(mout);
+        back = read(mout, mout.getColumnCount());
         //for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++)
         //    System.out.println(back.get(i));
 
@@ -118,7 +120,7 @@ public class UJMPOpenCLTest {
 		assertEquals(1, mout.getFloat(1, 1), 0);
         assertEquals(1, mout.getFloat(2, 2), 0);
 
-		write(new float[] { 1, 0, 0}, v);
+		write(new float[] { 1, 0, 0}, v.getColumnCount(), v);
 		DenseFloatMatrix2D vout = (DenseFloatMatrix2D)m.mtimes(v);
 		//System.out.println(v);
 		//System.out.println(vout);
@@ -144,7 +146,7 @@ public class UJMPOpenCLTest {
 
     @Test
     public void testContainsFloat() {
-        CLDenseFloatMatrix2D m = new CLDenseFloatMatrix2D(2, 2);
+        CLDenseFloatMatrix2D m = floatFactory.densePacked(2, 2);
         int row = 1, column = 1;
         m.setFloat(1.1f, row, column);
         assertEquals(1.1f, m.getFloat(row, column), 0.0);
@@ -154,7 +156,7 @@ public class UJMPOpenCLTest {
     
     @Test
     public void testClearFloat() {
-        CLDenseFloatMatrix2D m = new CLDenseFloatMatrix2D(2, 2);
+        CLDenseFloatMatrix2D m = floatFactory.densePacked(2, 2);
         int row = 0, column = 1;
         m.setFloat(1.1f, row, column);
         assertEquals(1.1f, m.getFloat(row, column), 0.0);

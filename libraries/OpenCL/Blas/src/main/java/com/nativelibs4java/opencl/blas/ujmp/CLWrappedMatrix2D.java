@@ -9,6 +9,7 @@ import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.blas.CLDefaultMatrix2D;
 import com.nativelibs4java.opencl.blas.CLEvents;
 import com.nativelibs4java.opencl.blas.CLKernels;
 import com.nativelibs4java.opencl.blas.CLMatrix2D;
@@ -31,17 +32,21 @@ public class CLWrappedMatrix2D<T> implements CLMatrix2D<T> {
         if (matrix instanceof CLMatrix2D)
             return (CLMatrix2D<T>)matrix;
         
-        return new CLWrappedMatrix2D<T>(matrix, clUJMP);
+        return new CLWrappedMatrix2D<T>(matrix, clUJMP, CLDefaultMatrix2D.DEFAULT_BLOCK_SIZE);
     }
     
     final Matrix2D matrix;
     final CLKernels kernels;
     final Primitive primitive;
     final Class<T> elementType;
+    final int blockSize;
+    final long stride;
     
-    CLWrappedMatrix2D(Matrix2D matrix, CLKernels kernels) {
+    CLWrappedMatrix2D(Matrix2D matrix, CLKernels kernels, int blockSize) {
         this.matrix = matrix;
         this.kernels = kernels;
+        this.blockSize = blockSize;
+        this.stride = CLMatrixUtils.roundUp(matrix.getColumnCount(), blockSize);
         
         if (matrix instanceof DoubleMatrix2D)
             this.primitive = Primitive.Double;
@@ -70,13 +75,13 @@ public class CLWrappedMatrix2D<T> implements CLMatrix2D<T> {
     volatile CLBuffer<T> buffer;
     volatile Pointer data;
     public synchronized CLBuffer<T> getBuffer() {
-        long length = CLMatrixUtils.roundUp(matrix.getRowCount()) * CLMatrixUtils.roundUp(matrix.getColumnCount());
+        long length = stride * CLMatrixUtils.roundUp(matrix.getColumnCount(), blockSize);
 
         // Read data
         if (data == null) {
             data = allocateArray(elementType, length).order(getContext().getByteOrder());
         }
-        MatrixUtils.read(matrix, data);
+        MatrixUtils.read(matrix, data, stride);
 
         // Write data to CLBuffer
         if (buffer == null) {
@@ -100,6 +105,15 @@ public class CLWrappedMatrix2D<T> implements CLMatrix2D<T> {
         return matrix.getColumnCount();
     }
 
+    public int getBlockSize() {
+        return blockSize;
+    }
+
+    public long getStride() {
+        return stride;
+    }
+
+    
     public CLContext getContext() {
         return kernels.getContext();
     }

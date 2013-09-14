@@ -55,6 +55,9 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     public CLDenseDoubleMatrix2D(long rows, long columns, CLKernels kernels) {
         this(new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, kernels));
     }
+    public CLDenseDoubleMatrix2D(long rows, long columns, CLKernels clUJMP, int blockSize) {
+        this(new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, blockSize, clUJMP));
+    }
     public CLDenseDoubleMatrix2D(long rows, long columns) {
         this(rows, columns, CLKernels.getInstance());
     }

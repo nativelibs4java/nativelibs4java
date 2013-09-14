@@ -30,7 +30,7 @@ import static org.bridj.Pointer.allocate;
  */
 public class CLDenseMatrix2DImpl<V> {
     protected final CLMatrix2D<V> _matrix;
-    protected final long rows, columns, size[];
+    protected final long rows, columns, stride, size[];
     protected Pointer<V> cache;
     protected int uncachedGetCount;
     protected static final int GET_COUNT_BEFORE_CACHING = 3;
@@ -39,6 +39,7 @@ public class CLDenseMatrix2DImpl<V> {
         this._matrix = _matrix;
         this.rows = _matrix.getRowCount();
         this.columns = _matrix.getColumnCount();
+        this.stride = _matrix.getStride();
         this.size = new long[] { rows, columns };
         _matrix.getEvents().addListener(new CLEvents.Listener() {
             public void writing(CLEvents evts) {
@@ -55,15 +56,15 @@ public class CLDenseMatrix2DImpl<V> {
     protected CLMatrix2D<V> getMatrix() {
         return _matrix;
     }
-    
+
     protected long getStorageIndex(long row, long column) {
-        return CLMatrixUtils.roundUp(columns) * row + column;
+        return stride * row + column;
     }
 
     protected synchronized void cache() {
         if (cache != null)
             return;
-        
+
         cache = read();
         uncachedGetCount = 0;
     }
@@ -109,7 +110,7 @@ public class CLDenseMatrix2DImpl<V> {
             if (cache != null)
                 return cache.clone();
         }
-        Pointer<V> b = (Pointer)Pointer.allocateArray(getMatrix().getPrimitiveClass(), rows * columns);
+        Pointer<V> b = (Pointer)Pointer.allocateArray(getMatrix().getPrimitiveClass(), rows * stride);
         getMatrix().read(b);
         return b;
     }

@@ -57,6 +57,9 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
     public CLDenseFloatMatrix2D(long rows, long columns, CLKernels clUJMP) {
         this(new CLDefaultMatrix2D(Primitive.Float, null, rows, columns, clUJMP));
     }
+    public CLDenseFloatMatrix2D(long rows, long columns, CLKernels clUJMP, int blockSize) {
+        this(new CLDefaultMatrix2D(Primitive.Float, null, rows, columns, blockSize, clUJMP));
+    }
     public CLDenseFloatMatrix2D(long rows, long columns) {
         this(rows, columns, CLKernels.getInstance());
     }

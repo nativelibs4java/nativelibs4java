@@ -16,8 +16,6 @@ import org.bridj.Pointer;
  */
 public interface CLMatrix2D<T> {
 
-    int BLOCK_SIZE = 16;
-
     Primitive getPrimitive();
     Class<T> getPrimitiveClass();
     CLEvents getEvents();
@@ -26,6 +24,8 @@ public interface CLMatrix2D<T> {
     CLQueue getQueue();
     long getRowCount();
     long getColumnCount();
+    long getStride();
+    int getBlockSize();
     CLMatrix2D<T> blankClone();
     CLMatrix2D<T> blankMatrix(long rows, long columns);
     CLKernels getKernels();
