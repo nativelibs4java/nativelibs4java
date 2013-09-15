@@ -180,8 +180,8 @@ public class CLKernels {
 
     Map<String, CLKernel> matrixMultiplyKernels = new HashMap<String, CLKernel>();
     public <T> CLEvent matrixMultiply(Primitive prim,
-        CLBuffer<T> a, long aRows, long aColumns, int aBlockSize,
-        CLBuffer<T> b, long bRows, long bColumns, int bBlockSize,
+        CLBuffer<T> a, long aRows, long aColumns, long aStride, int aBlockSize,
+        CLBuffer<T> b, long bRows, long bColumns, long bStride, int bBlockSize,
         CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
       boolean useBlocks = false;
       int blockSize = aBlockSize;
@@ -198,7 +198,7 @@ public class CLKernels {
             b, roundUp(bRows, blockSize), roundUp(bColumns, blockSize),
             out, eventsToWaitFor);
       } else {
-        return naiveMatrixMultiply(prim, a, aRows, aColumns, b, bRows, bColumns, out, eventsToWaitFor);
+        return naiveMatrixMultiply(prim, a, aRows, aColumns, aStride, b, bRows, bColumns, bStride, out, eventsToWaitFor);
       }
     }
     public <T> CLEvent blockMatrixMultiply(int blockSize, Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> b, long bRows, long bColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
@@ -300,7 +300,10 @@ public class CLKernels {
         }
     }
 
-    public <T> CLEvent naiveMatrixMultiply(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> b, long bRows, long bColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public <T> CLEvent naiveMatrixMultiply(Primitive prim,
+            CLBuffer<T> a, long aRows, long aColumns, long aStride,
+            CLBuffer<T> b, long bRows, long bColumns, long bStride,
+            CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         if (out == null)
             throw new IllegalArgumentException("Null output matrix !");
         //if (out != null)
@@ -313,8 +316,8 @@ public class CLKernels {
             if (kernel == null) {
                 String src = prim.getRequiredPragmas() +
                     "__kernel void mulMat(                                  " +
-                    "   __global const double* a, int aRows, int aColumns,   " +
-                    "   __global const double* b, int bColumns,                 " +
+                    "   __global const double* a, int aRows, int aColumns, int aStride,   " +
+                    "   __global const double* b, int bColumns, int bStride,        " +
                     "   __global double* c                                         " +
                     ") {                                                           " +
                     "    int i = get_global_id(0);                              " +
@@ -322,11 +325,11 @@ public class CLKernels {
                     "                                                              " +
                     "    if (i >= aRows || j >= bColumns) return;                  " +
                     "    double total = 0;                                         " +
-                    "    size_t iOff = i * (size_t)aColumns;                                 " +
+                    "    size_t iOff = i * (size_t)aStride;                                 " +
                     "    for (long k = 0; k < aColumns; k++) {                     " +
-                    "        total += a[iOff + k] * b[k * (size_t)bColumns + j];           " +
+                    "        total += a[iOff + k] * b[k * (size_t)bStride + j];           " +
                     "    }                                                         " +
-                    "    c[i * (size_t)bColumns + j] = total;                              " +
+                    "    c[i * (size_t)bStride + j] = total;                              " +
                     "}                                                             "
                 ;
                 String clTypeName = prim.clTypeName();
@@ -336,7 +339,9 @@ public class CLKernels {
             }
         }
         synchronized (kernel) {
-            kernel.setArgs(a, (int)aRows, (int)aColumns, b, (int)bColumns, out);
+            // assert aStride == aColumns: ("Weird a stride: aStride = " + aStride + ", aColumns = " + aColumns);
+            // assert bStride == bColumns: ("Weird b stride: bStride = " + bStride + ", bColumns = " + bColumns);
+            kernel.setArgs(a, (int)aRows, (int)aColumns, (int)aStride, b, (int)bColumns, (int)bStride, out);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, eventsToWaitFor);
             return evt;
         }

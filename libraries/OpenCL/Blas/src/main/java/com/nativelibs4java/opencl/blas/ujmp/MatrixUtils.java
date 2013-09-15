@@ -29,7 +29,7 @@ public class MatrixUtils {
         long rows = out.getRowCount(), columns = out.getColumnCount();
         if (b.getValidElements() < rows * columns)
             throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getValidElements() + ")");
-        if (out instanceof CLDenseDoubleMatrix2D && stride == ((CLDenseDoubleMatrix2D)out).getImpl().getMatrix().getStride()) {
+        if (out instanceof CLDenseDoubleMatrix2D && stride == ((CLDenseDoubleMatrix2D)out).getStride()) {
             CLDenseDoubleMatrix2D mout = (CLDenseDoubleMatrix2D)out;
             mout.write(b);
         } else {
@@ -44,7 +44,7 @@ public class MatrixUtils {
         long rows = out.getRowCount(), columns = out.getColumnCount();
         if (b.getValidElements() < rows * columns)
             throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getValidElements() + ")");
-        if (out instanceof CLDenseFloatMatrix2D && stride == ((CLDenseFloatMatrix2D)out).getImpl().getMatrix().getStride()) {
+        if (out instanceof CLDenseFloatMatrix2D && stride == ((CLDenseFloatMatrix2D)out).getStride()) {
             CLDenseFloatMatrix2D mout = (CLDenseFloatMatrix2D)out;
             mout.write(b);
         } else {
@@ -56,8 +56,11 @@ public class MatrixUtils {
         }
     }
 
+    public static Pointer<Double> read(DoubleMatrix2D m) {
+        return read(m, m.getColumnCount());
+    }
     public static Pointer<Double> read(DoubleMatrix2D m, long stride) {
-        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
+        Pointer<Double> buffer = allocateDoubles(stride * m.getRowCount()).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
         read(m, buffer, stride);
         return buffer;
     }
@@ -74,7 +77,7 @@ public class MatrixUtils {
         if (out.getValidElements() < rows * columns)
             throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getValidElements() + ")");
         
-        if (m instanceof CLDenseDoubleMatrix2D) {
+        if (m instanceof CLDenseDoubleMatrix2D && stride == ((CLDenseDoubleMatrix2D)m).getStride()) {
             CLDenseDoubleMatrix2D mm = (CLDenseDoubleMatrix2D)m;
             mm.read(out);
         } else {
@@ -97,7 +100,7 @@ public class MatrixUtils {
         if (out.getValidElements() < rows * columns)
             throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getValidElements() + ")");
 
-        if (m instanceof CLDenseFloatMatrix2D) {
+        if (m instanceof CLDenseFloatMatrix2D && stride == ((CLDenseFloatMatrix2D)m).getStride()) {
             CLDenseFloatMatrix2D mm = (CLDenseFloatMatrix2D)m;
             mm.read(out);
         } else {

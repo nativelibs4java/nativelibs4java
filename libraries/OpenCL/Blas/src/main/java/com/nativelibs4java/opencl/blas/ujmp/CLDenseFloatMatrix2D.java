@@ -77,6 +77,10 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
     public void read(Pointer<Float> p) {
         getImpl().read(p);
     }
+    
+    public long getStride() {
+        return getImpl().getStride();
+    }
 
     public Pointer<Float> read() {
         return getImpl().read();

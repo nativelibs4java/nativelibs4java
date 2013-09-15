@@ -57,6 +57,10 @@ public class CLDenseMatrix2DImpl<V> {
         return _matrix;
     }
 
+    public long getStride() {
+        return stride;
+    }
+    
     protected long getStorageIndex(long row, long column) {
         return stride * row + column;
     }

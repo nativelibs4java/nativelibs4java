@@ -49,8 +49,8 @@ public class CLMatrixUtils {
                             public CLEvent perform(final CLEvent[] cevents) {
                                 CLEvent evt = kernels.matrixMultiply(
                                     primitive,
-                                    a.getBuffer(), a.getRowCount(), a.getColumnCount(), a.getBlockSize(),
-                                    b.getBuffer(), b.getRowCount(), b.getColumnCount(), b.getBlockSize(),
+                                    a.getBuffer(), a.getRowCount(), a.getColumnCount(), a.getStride(), a.getBlockSize(),
+                                    b.getBuffer(), b.getRowCount(), b.getColumnCount(), b.getStride(), b.getBlockSize(),
                                     out.getBuffer(),
                                     join(aevents, bevents, cevents)
                                 );

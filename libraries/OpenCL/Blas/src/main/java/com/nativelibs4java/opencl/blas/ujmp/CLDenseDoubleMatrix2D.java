@@ -68,6 +68,10 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
         this(size[0], size[1], CLKernels.getInstance());
     }
     
+    public long getStride() {
+        return getImpl().getStride();
+    }
+    
     public void write(Pointer<Double> p) {
         getImpl().write(p);
     }

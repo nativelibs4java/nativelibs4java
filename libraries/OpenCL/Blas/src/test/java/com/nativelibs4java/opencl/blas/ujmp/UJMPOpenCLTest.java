@@ -39,6 +39,7 @@ public class UJMPOpenCLTest {
     @Before
     public void installUJMPCL() {
         try {
+            MatrixMapper.getInstance().setDenseFloatMatrix2DClassName(CLDenseFloatMatrix2D.class.getName());
             MatrixMapper.getInstance().setDenseDoubleMatrix2DClass(CLDenseDoubleMatrix2D.class);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -55,8 +56,8 @@ public class UJMPOpenCLTest {
     @Test
 	public void testOp2() {
         
-        DenseFloatMatrix2D a = floatFactory.densePacked(2, 2);
-        DenseFloatMatrix2D b = floatFactory.densePacked(2, 2);
+        DenseFloatMatrix2D a = floatFactory.dense(2, 2);
+        DenseFloatMatrix2D b = floatFactory.dense(2, 2);
         
         float[] fa = new float[] { 10, 20, 30, 40 }, fb = new float[] { 1, 2, 3, 4 };
         write(fa, a.getColumnCount(), a);
@@ -84,8 +85,8 @@ public class UJMPOpenCLTest {
     @Test
 	public void testMultFloat() {
         
-        DenseFloatMatrix2D m = floatFactory.densePacked(3, 3);
-        DenseFloatMatrix2D v = floatFactory.densePacked(3, 1);
+        DenseFloatMatrix2D m = floatFactory.dense(3, 3);
+        DenseFloatMatrix2D v = floatFactory.dense(3, 1);
         //CLBuffer<Float> buffer = ((CLDenseFloatMatrix2D)m).getBuffer();
         CLQueue queue = ((CLDenseFloatMatrix2D)m).getImpl().getQueue();
         //System.out.println("Context = " + buffer.getContext());
@@ -146,7 +147,7 @@ public class UJMPOpenCLTest {
 
     @Test
     public void testContainsFloat() {
-        CLDenseFloatMatrix2D m = floatFactory.densePacked(2, 2);
+        CLDenseFloatMatrix2D m = floatFactory.dense(2, 2);
         int row = 1, column = 1;
         m.setFloat(1.1f, row, column);
         assertEquals(1.1f, m.getFloat(row, column), 0.0);
@@ -156,7 +157,7 @@ public class UJMPOpenCLTest {
     
     @Test
     public void testClearFloat() {
-        CLDenseFloatMatrix2D m = floatFactory.densePacked(2, 2);
+        CLDenseFloatMatrix2D m = floatFactory.dense(2, 2);
         int row = 0, column = 1;
         m.setFloat(1.1f, row, column);
         assertEquals(1.1f, m.getFloat(row, column), 0.0);

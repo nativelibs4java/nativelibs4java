@@ -30,7 +30,7 @@ public interface CLMatrix2D<T> {
     CLMatrix2D<T> blankMatrix(long rows, long columns);
     CLKernels getKernels();
     
-    void write(final Pointer<T> b);
-    void read(final Pointer<T> b);
+    void write(Pointer<T> b);
+    void read(Pointer<T> b);
     Pointer<T> read();
 }

@@ -5,7 +5,9 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.CLDefaultMatrix2D;
 import com.nativelibs4java.opencl.blas.CLKernels;
+import com.nativelibs4java.opencl.blas.CLMatrixUtils;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 
@@ -32,14 +34,15 @@ public class CLMatrixBenchmark extends AbstractMatrix2DBenchmark {
         else {
             DoubleMatrix2D dsource = (DoubleMatrix2D)source;
             long rows = dsource.getRowCount(), columns = dsource.getColumnCount();
-            Pointer<Double> b = allocateDoubles(rows * columns).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
+            CLDenseDoubleMatrix2D copy = new CLDenseDoubleMatrix2D(rows, columns);
+            long stride = copy.getStride();
+            Pointer<Double> b = allocateDoubles(rows * stride).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
             for (long i = 0; i < rows; i++) {
-            		long offset = i * columns;
+            		long offset = i * stride;
                 for (long j = 0; j < columns; j++) {
                     b.set(offset + i, dsource.getDouble(i, j));
                 }
             }
-            CLDenseDoubleMatrix2D copy = new CLDenseDoubleMatrix2D(rows, columns);
             copy.write(b);
             return copy;
         }
