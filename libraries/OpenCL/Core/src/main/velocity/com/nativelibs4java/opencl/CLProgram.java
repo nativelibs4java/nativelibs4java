@@ -732,7 +732,7 @@ public class CLProgram extends CLAbstractEntity {
         String contentSignature = null;
         File cacheFile = null;
         boolean readBinaries = false;
-        if (isCached()) {
+        if (!loadedFromBinary && isCached()) {
         		try {
         			contentSignature = computeCacheSignature();
         			byte[] sha = java.security.MessageDigest.getInstance("MD5").digest(contentSignature.getBytes(textEncoding));
