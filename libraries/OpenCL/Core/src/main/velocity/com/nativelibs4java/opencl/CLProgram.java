@@ -187,7 +187,7 @@ public class CLProgram extends CLAbstractEntity {
     }
     public static Pair<Map<CLDevice, byte[]>, String> readBinaries(List<CLDevice> allowedDevices, String expectedContentSignatureString, InputStream in) throws IOException {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
-        Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
+        Map<String, List<CLDevice>> allowedDevicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
         ZipInputStream zin = new ZipInputStream(new GZIPInputStream(new BufferedInputStream(in)));
         ZipEntry ze;
@@ -218,9 +218,10 @@ public class CLProgram extends CLAbstractEntity {
             } else if (signature.equals(SourceZipEntryName)) {
                 source = new String(data, textEncoding);
             } else {
-                List<CLDevice> devices = devicesBySignature.get(signature);
-                for (CLDevice device : devices)
-                    ret.put(device, data);
+                List<CLDevice> devices = allowedDevicesBySignature.get(signature);
+                if (devices != null)
+                    for (CLDevice device : devices)
+                        ret.put(device, data);
             }
         }
         zin.close();
