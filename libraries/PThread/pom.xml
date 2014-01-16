@@ -28,20 +28,23 @@
 	
   </dependencies>
 
-  <build>
-  	<plugins>
-
-		<plugin>
-			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>${jnaerator.version}</version>
-			<configuration>
-				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-			</configuration>
-		</plugin>
-		
-	</plugins>
-  </build>
+  <profiles>
+    <profile>
+      <id>regenerate</id>
+      <build>
+        <plugins>
+            <plugin>
+                <groupId>com.nativelibs4java</groupId>
+                <artifactId>maven-jnaerator-plugin</artifactId>
+                <version>${jnaerator.version}</version>
+                <configuration>
+                    <javaOutputDirectory>src/main/java</javaOutputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
 
 

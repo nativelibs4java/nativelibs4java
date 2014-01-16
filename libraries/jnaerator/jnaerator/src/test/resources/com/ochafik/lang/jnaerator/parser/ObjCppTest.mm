@@ -68,6 +68,12 @@ char* initstate(unsigned, char*, size_t); /* no  __DARWIN_ALIAS needed */
 --
 register unsigned int g;
 --
+typedef struct myStruct
+{
+  char Struct[2];
+  char typeName[2];
+} Mine;
+--
 void srand(unsigned);
 --
 void f(int* pA, int* pB) {
@@ -511,6 +517,14 @@ namespace std  {
   using ::mbstate_t;
 }
 --
+@interface Foo {
+  __strong __weak __autoreleasing __unsafe_unretained __block __bridge int _bar;
+}
+
+@property(readonly, readwrite, strong, retain, unsafe_unretained, copy, assign, nonatomic, atomic, getter=barre, weak) int bar;
+
+@end
+--
 extern TestMe();
 --
 #pragma fail
@@ -523,3 +537,5 @@ class fpos
 {
 	fpos() {}
 };
+--
+typedef enum : Foo { Quux } Baz;

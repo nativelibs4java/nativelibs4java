@@ -674,6 +674,7 @@ enumCore returns [Enum e]
     (
       ( m1=modifiers { modifiers.addAll($m1.modifiers); } )?
       (
+      	( ':' IDENTIFIER )?
         ab=enumBody {
           $e = $ab.e;
           $e.setForwardDeclaration(false);
@@ -681,6 +682,7 @@ enumCore returns [Enum e]
         tag=qualifiedIdentifier
         (
           ( m2=modifiers { modifiers.addAll($m2.modifiers); } )?
+          ( ':' IDENTIFIER )?
           nb=enumBody {
             $e = $nb.e;
             $e.setForwardDeclaration(false);
@@ -785,15 +787,39 @@ functionPointerOrSimpleVarDecl returns [Declaration decl]
     }
   ;
 
-// TODO parse modifiers : assign, nonatomic, readonly, copy...
-objCPropertyAttribute
+objCPropertyAttribute returns [Modifier modifier]
     :
-        IDENTIFIER ( '=' IDENTIFIER )?
+        { next(ModifierKind.ObjCPropertyModifier) }? m=IDENTIFIER {
+          $modifier = ModifierType.parseModifier($m.text);
+        }
+        (
+          '=' v=IDENTIFIER {
+            $modifier = new ValuedModifier($modifier, Constant.string($v.text));
+          }
+        )?
     ;
+
 objCPropertyDecl returns [Property property]
+@init {
+  List<Modifier> modifiers = new ArrayList<Modifier>();
+}
+@after { 
+  $property.addModifiers(modifiers);
+}
   :
     '@property' 
-    ( '(' objCPropertyAttribute ( ',' objCPropertyAttribute ) * ) ? 
+    (
+      '('
+          a1=objCPropertyAttribute {
+            modifiers.add($a1.modifier);
+          }
+          (
+            ',' ax=objCPropertyAttribute {
+              modifiers.add($ax.modifier);
+            }
+          )*
+      ')'
+    )?
     functionPointerOrSimpleVarDecl ';' {
       $property = new Property($functionPointerOrSimpleVarDecl.decl);
     }

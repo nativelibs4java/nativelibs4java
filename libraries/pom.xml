@@ -438,7 +438,7 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>OpenCL</module>
 				<!--module>Mono</module>
 				<module>DirectX</module-->
-				<module>PThread</module>
+				<!--module>PThread</module-->
 				<module>Utils</module>
 				<module>IdleTime</module>
 				<module>JarShrinker</module>
