@@ -581,7 +581,9 @@ public interface IOpenCLLibrary {
 	int clGetDeviceIDs(@Ptr long cl_platform_id1, long cl_device_type1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
 	int clGetDeviceInfo(@Ptr long cl_device_id1, int cl_device_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clCreateSubDevices(@Ptr long cl_device_id1, @Ptr long cl_device_partition_propertyPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
+	@Optional
 	int clRetainDevice(@Ptr long cl_device_id1);
+	@Optional
 	int clReleaseDevice(@Ptr long cl_device_id1);
 	@Ptr 
 	long clCreateContext(@Ptr long cl_context_propertiesPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
@@ -599,6 +601,7 @@ public interface IOpenCLLibrary {
 	long clCreateBuffer(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	@Ptr 
 	long clCreateSubBuffer(@Ptr long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
+	@Optional
 	@Ptr 
 	long clCreateImage(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long cl_image_formatPtr1, @Ptr long cl_image_descPtr1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	int clRetainMemObject(@Ptr long cl_mem1);
@@ -670,9 +673,11 @@ public interface IOpenCLLibrary {
 	int clEnqueueTask(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueNativeKernel(@Ptr long cl_command_queue1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long size_t1, int cl_uint1, @Ptr long cl_memPtr1, @Ptr long voidPtrPtr1, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueMarkerWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional
 	int clEnqueueBarrierWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	@Optional 
 	int clSetPrintfCallback(@Ptr long cl_context1, @Ptr long arg1, @Ptr long voidPtr1);
+	@Optional
 	@Ptr 
 	long clGetExtensionFunctionAddressForPlatform(@Ptr long cl_platform_id1, @Ptr long charPtr1);
 	int clSetCommandQueueProperty(@Ptr long cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, @Ptr long cl_command_queue_propertiesPtr1);
