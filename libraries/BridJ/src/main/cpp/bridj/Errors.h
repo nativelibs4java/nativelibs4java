@@ -28,48 +28,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "HandlersCommon.h"
-#include "Errors.h"
-#include "string.h"
+#pragma once
+#ifndef _BRIDJ_ERRORS_H
+#define _BRIDJ_ERRORS_H
 
-void __cdecl JavaToFunctionCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info, DCArgs* args, DCValue* result, jboolean setsLastError)
-{
-	dcMode(call->vm, info->fInfo.fDCMode);
-	//dcReset(call->vm);
-	
-	callFunction(call, &info->fInfo, args, result, info->fForwardedSymbol, setsLastError ? SETS_LASTERROR : 0);
-}
-char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
-{
-	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
-	CallTempStruct* call;
-	JNIEnv* env;
-	LastError lastError = { 0, 0 };
-	jboolean setsLastError = info->fInfo.fSetsLastError;
-	initCallHandler(args, &call, NULL, &info->fInfo);
-	env = call->env;
-	
-	call->pCallIOs = info->fInfo.fCallIOs;
-	
-	BEGIN_TRY(env, call);
-	
-	if (setsLastError) {
-		clearLastError(info->fInfo.fEnv);
-	}
+#include <jni.h>
 
-	JavaToFunctionCallHandler_Sub(call, info, args, result, setsLastError);
+LastError getLastError();
 
-	if (setsLastError) {
-	  lastError = call->lastError;
-	  //memcpy(&lastError, &call->lastError, sizeof(LastError));
-	}
-	
-	END_TRY(info->fInfo.fEnv, call);
+void clearLastError(JNIEnv* env);
+void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError);
 
-	cleanupCallHandler(call);
-
-  if (setsLastError) {
-    setLastError(info->fInfo.fEnv, lastError, info->fInfo.fThrowsLastError);
-  }
-	return info->fInfo.fDCReturnType;
-}
+#endif // _BRIDJ_ERRORS_H
