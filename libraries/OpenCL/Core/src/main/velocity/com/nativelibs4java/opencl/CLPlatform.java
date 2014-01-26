@@ -493,12 +493,15 @@ public class CLPlatform extends CLAbstractEntity {
 
     /**
      * Allows the implementation to release the resources allocated by the OpenCL compiler for this platform.
-     * @deprecated This OpenCL 1.1 feature was deprecated in OpenCL 1.2: use with caution.
      */
-    @Deprecated
     public void unloadPlatformCompiler() {
-		requireMinVersionValue("clUnloadPlatformCompiler", 1.1, 1.2);
-		error(CL.clUnloadPlatformCompiler(getEntity()));
+    	if (getVersionValue() < 1.2) {
+			requireMinVersionValue("clUnloadCompiler", 1.1, 1.2);
+			error(CL.clUnloadCompiler());
+		} else {
+			requireMinVersionValue("clUnloadPlatformCompiler", 1.2);
+			error(CL.clUnloadPlatformCompiler(getEntity()));
+		}
     }
 
 }
