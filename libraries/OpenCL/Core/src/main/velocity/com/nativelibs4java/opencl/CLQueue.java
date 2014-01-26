@@ -67,6 +67,7 @@ public class CLQueue extends CLAbstractEntity {
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
+		context.getPlatform().requireMinVersionValue("clSetCommandQueueProperty", 1.0, 1.1);
 		error(CL.clSetCommandQueueProperty(getEntity(), property.value(), enabled ? CL_TRUE : CL_FALSE, 0));
 	}
 	
@@ -101,6 +102,7 @@ public class CLQueue extends CLAbstractEntity {
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
 	public void enqueueWaitForEvents(CLEvent... eventsToWaitFor) {
+		context.getPlatform().requireMinVersionValue("clEnqueueWaitForEvents", 1.1, 1.2);
 		#declareReusablePtrs()
 		#declareEventsIn()
         if (eventsIn == null)

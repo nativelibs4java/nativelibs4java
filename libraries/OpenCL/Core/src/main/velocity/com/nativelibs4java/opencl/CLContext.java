@@ -430,6 +430,7 @@ public class CLContext extends CLAbstractEntity {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
+		platform.requireMinVersionValue("clCreateFromGLTexture2D", 1.1, 1.2);
 		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
@@ -495,6 +496,7 @@ public class CLContext extends CLAbstractEntity {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
+		platform.requireMinVersionValue("clCreateFromGLTexture3D", 1.1, 1.2);
 		#declareReusablePtrsAndPErr()
 		long mem;
 		int previousAttempts = 0;
@@ -532,6 +534,8 @@ public class CLContext extends CLAbstractEntity {
 	*/
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+		platform.requireMinVersionValue("clCreateImage2D", 1.1, 1.2);
+		
 		long memFlags = usage.getIntFlags();
 		if (buffer != null) {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
@@ -569,6 +573,7 @@ public class CLContext extends CLAbstractEntity {
 	*/
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+		platform.requireMinVersionValue("clCreateImage3D", 1.1, 1.2);
 		long memFlags = usage.getIntFlags();
 		if (buffer != null) {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
