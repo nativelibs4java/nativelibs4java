@@ -6,7 +6,6 @@
 -runtime BridJ
 
 -gccLong
--genRawBindings
 -limitComments
 
 "-Dextern="
@@ -45,3 +44,6 @@
 	
 
 -onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/{0}.html"
+
+-optionalFunctions
+	clCompileProgram|clCreateEventFromGLsyncKHR|clCreateFromGLTexture|clCreateImage|clCreateProgramWithBuiltInKernels|clCreateSubBuffer|clCreateSubDevices|clCreateSubDevicesEXT|clCreateUserEvent|clEnqueueBarrierWithWaitList|clEnqueueCopyBufferRect|clEnqueueFillBuffer|clEnqueueFillImage|clEnqueueMarkerWithWaitList|clEnqueueMigrateMemObjects|clEnqueueReadBufferRect|clEnqueueWriteBufferRect|clGetExtensionFunctionAddressForPlatform|clGetGLContextInfoAPPLE|clGetGLContextInfoAPPLE|clGetGLContextInfoKHR|clGetKernelArgInfo|clIcdGetPlatformIDsKHR|clLinkProgram|clLogMessagesToStderr|clLogMessagesToStderrAPPLE|clLogMessagesToStdout|clLogMessagesToStdoutAPPLE|clLogMessagesToSystemLog|clLogMessagesToSystemLogAPPLE|clReleaseDevice|clReleaseDeviceEXT|clRetainDevice|clRetainDeviceEXT|clSetEventCallback|clSetMemObjectCallbackFn|clSetMemObjectDestructorAPPLE|clSetMemObjectDestructorCallback|clSetPrintfCallback|clSetUserEventStatus|clUnloadPlatformCompiler

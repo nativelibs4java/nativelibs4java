@@ -20,14 +20,14 @@ public interface IOpenCLLibrary {
 	public static final int CL_DEVICE_GLOBAL_MEM_SIZE = 0x101F;
 	public static final int CL_KERNEL_LOCAL_MEM_SIZE = 0x11B2;
 	public static final int CL_MEM_READ_ONLY = (1 << 2);
-	public static final int CL_IMAGE_NUM_MIP_LEVELS = 0x1119;
 	public static final int CL_MEM_OBJECT_IMAGE1D_BUFFER = 0x10F6;
+	public static final int CL_IMAGE_NUM_MIP_LEVELS = 0x1119;
 	public static final int CL_PROGRAM_REFERENCE_COUNT = 0x1160;
 	public static final int CL_GL_OBJECT_TEXTURE2D_ARRAY = 0x200E;
 	public static final double CL_M_PI_2 = 1.570796326794896557999;
 	public static final float CL_M_LOG2E_F = 1.44269502162933f;
-	public static final double CL_M_PI_4 = 0.785398163397448278999;
 	public static final int CL_FLT_MIN_EXP = -125;
+	public static final double CL_M_PI_4 = 0.785398163397448278999;
 	public static final int CL_DEVICE_VENDOR_ID = 0x1001;
 	public static final int CL_FLOAT = 0x10DE;
 	public static final int CL_NONE = 0x0;
@@ -46,10 +46,10 @@ public interface IOpenCLLibrary {
 	public static final int CL_PROGRAM_NUM_KERNELS = 0x1167;
 	public static final float CL_M_PI_F = 3.14159274101257f;
 	public static final int CL_LINKER_NOT_AVAILABLE = -16;
-	public static final int CL_READ_ONLY_CACHE = 0x1;
 	public static final int CL_IMAGE_FORMAT_MISMATCH = -9;
-	public static final int CL_OUT_OF_RESOURCES = -5;
+	public static final int CL_READ_ONLY_CACHE = 0x1;
 	public static final int CL_INVALID_IMAGE_SIZE = -40;
+	public static final int CL_OUT_OF_RESOURCES = -5;
 	public static final int CL_INVALID_EVENT_WAIT_LIST = -57;
 	public static final int CL_DEVICE_PARTITION_FAILED = -18;
 	public static final int CL_IMAGE_BUFFER = 0x1118;
@@ -61,14 +61,14 @@ public interface IOpenCLLibrary {
 	public static final int CL_COMMAND_FILL_IMAGE = 0x1208;
 	public static final int CL_DEVICE_MAX_CONSTANT_ARGS = 0x1021;
 	public static final int CL_PROGRAM_BINARY_TYPE_NONE = 0x0;
-	public static final int CL_CHAR_BIT = 8;
 	public static final long CL_DEVICE_TYPE_ALL = 0xFFFFFFFFL;
+	public static final int CL_CHAR_BIT = 8;
 	public static final int CL_QUEUED = 0x3;
 	public static final double CL_M_LN10 = 2.302585092994045901094;
 	public static final int CL_INVALID_MIP_LEVEL = -62;
 	public static final int CL_ADDRESS_NONE = 0x1130;
-	public static final int CL_RGBA = 0x10B5;
 	public static final int CL_CONTEXT_DEVICES = 0x1081;
+	public static final int CL_RGBA = 0x10B5;
 	public static final int CL_DEVICE_PARTITION_MAX_SUB_DEVICES = 0x1043;
 	public static final int CL_INVALID_PARTITION_NAME_EXT = -1059;
 	public static final int CL_KERNEL_ARG_ACCESS_READ_ONLY = 0x11A0;
@@ -94,17 +94,17 @@ public interface IOpenCLLibrary {
 	public static final double CL_M_SQRT2 = 1.414213562373095145475;
 	public static final int CL_COMMAND_ACQUIRE_GL_OBJECTS = 0x11FF;
 	public static final long CL_UINT_MAX = 0xffffffffL;
+	public static final int CL_KERNEL_ARG_INFO_NOT_AVAILABLE = -19;
 	public static final float CL_M_SQRT1_2_F = 0.70710676908493f;
 	public static final double CL_M_2_SQRTPI = 1.128379167095512558561;
-	public static final int CL_KERNEL_ARG_INFO_NOT_AVAILABLE = -19;
 	public static final int CL_COMMAND_NATIVE_KERNEL = 0x11F2;
-	public static final int CL_IMAGE_WIDTH = 0x1114;
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG = 0x1009;
+	public static final int CL_IMAGE_WIDTH = 0x1114;
 	public static final int CL_INVALID_DEVICE_TYPE = -31;
 	public static final int CL_COMMAND_COPY_IMAGE_TO_BUFFER = 0x11F9;
 	public static final int CL_GL_TEXTURE_TARGET = 0x2004;
-	public static final int CL_QUEUE_PROPERTIES = 0x1093;
 	public static final float CL_M_2_PI_F = 0.63661974668503f;
+	public static final int CL_QUEUE_PROPERTIES = 0x1093;
 	public static final int CL_COMMAND_WRITE_BUFFER_RECT = 0x1202;
 	public static final int CL_MEM_ASSOCIATED_MEMOBJECT = 0x1107;
 	public static final int CL_INVALID_ARG_VALUE = -50;
@@ -118,10 +118,10 @@ public interface IOpenCLLibrary {
 	public static final int CL_KERNEL_ARG_NAME = 0x119A;
 	public static final int CL_EVENT_COMMAND_QUEUE = 0x11D0;
 	public static final int CL_SUCCESS = 0;
-	public static final int CL_PROFILING_INFO_NOT_AVAILABLE = -7;
 	public static final int CL_INVALID_BUFFER_SIZE = -61;
-	public static final int CL_FLT_MAX_EXP = +128;
+	public static final int CL_PROFILING_INFO_NOT_AVAILABLE = -7;
 	public static final int CL_INVALID_ARG_SIZE = -51;
+	public static final int CL_FLT_MAX_EXP = +128;
 	public static final int CL_QUEUE_PROFILING_ENABLE = (1 << 1);
 	public static final int CL_KERNEL_REFERENCE_COUNT = 0x1192;
 	public static final int CL_KERNEL_ARG_TYPE_CONST = (1 << 0);
@@ -132,17 +132,17 @@ public interface IOpenCLLibrary {
 	public static final int CL_KERNEL_NUM_ARGS = 0x1191;
 	public static final int CL_BUFFER_CREATE_TYPE_REGION = 0x1220;
 	public static final int CL_COMMAND_BARRIER = 0x1205;
-	public static final int CL_UNORM_SHORT_555 = 0x10D5;
 	public static final int CL_INVALID_PROPERTY = -64;
+	public static final int CL_UNORM_SHORT_555 = 0x10D5;
 	public static final int CL_IMAGE_NUM_SAMPLES = 0x111A;
 	public static final int CL_PROGRAM_SOURCE = 0x1164;
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR = 0x1006;
 	public static final int CL_PROGRAM_BINARY_TYPE = 0x1184;
 	public static final int CL_DEVICE_COMPILER_AVAILABLE = 0x1028;
-	public static final int CL_FP_ROUND_TO_INF = (1 << 4);
 	public static final int CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 0x101D;
-	public static final int CL_IMAGE_ROW_PITCH = 0x1112;
+	public static final int CL_FP_ROUND_TO_INF = (1 << 4);
 	public static final int CL_INVALID_ARG_INDEX = -49;
+	public static final int CL_IMAGE_ROW_PITCH = 0x1112;
 	public static final int CL_LINK_PROGRAM_FAILURE = -17;
 	public static final int CL_DEVICE_ENDIAN_LITTLE = 0x1026;
 	public static final int CL_COMMAND_READ_BUFFER = 0x11F3;
@@ -170,13 +170,13 @@ public interface IOpenCLLibrary {
 	public static final int CL_INVALID_KERNEL_DEFINITION = -47;
 	public static final int CL_ADDRESS_CLAMP = 0x1132;
 	public static final int CL_COMMAND_USER = 0x1204;
-	public static final int CL_UNORM_SHORT_565 = 0x10D4;
 	public static final int CL_UNORM_INT16 = 0x10D3;
+	public static final int CL_UNORM_SHORT_565 = 0x10D4;
 	public static final double CL_M_2_PI = 0.636619772367581382433;
 	public static final int CL_ADDRESS_REPEAT = 0x1133;
 	public static final int CL_FALSE = 0;
-	public static final int CL_Rx = 0x10BA;
 	public static final int CL_INVALID_GLOBAL_OFFSET = -56;
+	public static final int CL_Rx = 0x10BA;
 	public static final int CL_DEVICE_PREFERRED_INTEROP_USER_SYNC = 0x1048;
 	public static final int CL_INVALID_PROGRAM = -44;
 	public static final int CL_INVALID_KERNEL = -48;
@@ -185,10 +185,10 @@ public interface IOpenCLLibrary {
 	public static final int CL_PROGRAM_BINARIES = 0x1166;
 	public static final int CL_DEVICE_TYPE_DEFAULT = (1 << 0);
 	public static final int CL_DEVICE_IMAGE2D_MAX_HEIGHT = 0x1012;
-	public static final int CL_MEM_HOST_WRITE_ONLY = (1 << 7);
 	public static final int CL_INVALID_BUILD_OPTIONS = -43;
-	public static final int CL_DEVICE_NOT_AVAILABLE = -2;
+	public static final int CL_MEM_HOST_WRITE_ONLY = (1 << 7);
 	public static final int CL_INVALID_VALUE = -30;
+	public static final int CL_DEVICE_NOT_AVAILABLE = -2;
 	public static final int CL_AFFINITY_DOMAIN_L3_CACHE_EXT = 0x3;
 	public static final int CL_DEVICE_MEM_BASE_ADDR_ALIGN = 0x1019;
 	public static final int CL_DEVICE_MAX_WORK_GROUP_SIZE = 0x1004;
@@ -198,13 +198,13 @@ public interface IOpenCLLibrary {
 	public static final int CL_MEM_HOST_PTR = 0x1103;
 	public static final float CL_M_1_PI_F = 0.31830987334251f;
 	public static final int CL_INVALID_LINKER_OPTIONS = -67;
-	public static final int CL_MEM_OBJECT_ALLOCATION_FAILURE = -4;
 	public static final int CL_INVALID_MEM_OBJECT = -38;
+	public static final int CL_MEM_OBJECT_ALLOCATION_FAILURE = -4;
 	public static final double CL_M_LN2 = 0.693147180559945286227;
 	public static final int CL_COMPLETE = 0x0;
 	public static final int CL_IMAGE_ARRAY_SIZE = 0x1117;
-	public static final int CL_INTENSITY = 0x10B8;
 	public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF = 0x103C;
+	public static final int CL_INTENSITY = 0x10B8;
 	public static final int CL_INVALID_PROGRAM_EXECUTABLE = -45;
 	public static final int CL_KERNEL_ARG_TYPE_QUALIFIER = 0x1199;
 	public static final int CL_MEM_WRITE_ONLY = (1 << 1);
@@ -215,22 +215,22 @@ public interface IOpenCLLibrary {
 	public static final int CL_KERNEL_ARG_ACCESS_WRITE_ONLY = 0x11A1;
 	public static final int CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST = -14;
 	public static final int CL_SAMPLER_ADDRESSING_MODE = 0x1153;
-	public static final int CL_MEM_CONTEXT = 0x1106;
 	public static final int CL_DEVICE_IMAGE3D_MAX_HEIGHT = 0x1014;
+	public static final int CL_MEM_CONTEXT = 0x1106;
 	public static final int CL_KERNEL_ARG_ADDRESS_PRIVATE = 0x119E;
 	public static final int CL_DEVICE_MAX_READ_IMAGE_ARGS = 0x100E;
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF = 0x1034;
 	public static final int CL_DEVICE_NOT_FOUND = -1;
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF = 0x1034;
 	public static final int CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE = 0x10000003;
-	public static final int CL_RGx = 0x10BB;
 	public static final int CL_DEVICE_MAX_PARAMETER_SIZE = 0x1017;
+	public static final int CL_RGx = 0x10BB;
 	public static final int CL_DEVICE_IMAGE3D_MAX_DEPTH = 0x1015;
 	public static final int CL_GL_OBJECT_TEXTURE2D = 0x2001;
-	public static final int CL_MEM_HOST_NO_ACCESS = (1 << 9);
 	public static final int CL_INVALID_COMPILER_OPTIONS = -66;
+	public static final int CL_MEM_HOST_NO_ACCESS = (1 << 9);
 	public static final int CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN_EXT = 0x4053;
-	public static final int CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE = (1 << 5);
 	public static final int CL_DEVICE_TYPE_CUSTOM = (1 << 4);
+	public static final int CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE = (1 << 5);
 	public static final int CL_MEM_USE_HOST_PTR = (1 << 3);
 	public static final int CL_SIGNED_INT8 = 0x10D7;
 	public static final int CL_DEVICE_WARP_SIZE_NV = 0x4003;
@@ -241,8 +241,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_SAMPLER_CONTEXT = 0x1151;
 	public static final int CL_GL_OBJECT_TEXTURE3D = 0x2002;
 	public static final int CL_PLATFORM_VERSION = 0x0901;
-	public static final int CL_DRIVER_VERSION = 0x102D;
 	public static final int CL_DEVICE_LOCAL_MEM_TYPE = 0x1022;
+	public static final int CL_DRIVER_VERSION = 0x102D;
 	public static final int CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 0x101A;
 	public static final int CL_KERNEL_ARG_ACCESS_NONE = 0x11A3;
 	public static final int CL_DEVICE_VERSION = 0x102F;
@@ -263,15 +263,15 @@ public interface IOpenCLLibrary {
 	public static final int CL_INVALID_OPERATION = -59;
 	public static final int CL_DEVICE_REFERENCE_COUNT_EXT = 0x4057;
 	public static final int CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE = (1 << 2);
-	public static final int CL_MEM_TYPE = 0x1100;
 	public static final int CL_INVALID_DEVICE_PARTITION_COUNT = -68;
+	public static final int CL_MEM_TYPE = 0x1100;
 	public static final int CL_KERNEL_CONTEXT = 0x1193;
 	public static final int CL_DEVICE_MAX_CLOCK_FREQUENCY = 0x100C;
 	public static final int CL_DEVICE_PARTITION_TYPE = 0x1046;
 	public static final int CL_BLOCKING = 1;
 	public static final int CL_EVENT_CONTEXT = 0x11D4;
-	public static final int CL_CONTEXT_NUM_DEVICES = 0x1083;
 	public static final int CL_HAS_NAMED_VECTOR_FIELDS = 1;
+	public static final int CL_CONTEXT_NUM_DEVICES = 0x1083;
 	public static final int CL_GL_CONTEXT_KHR = 0x2008;
 	public static final int CL_DEVICE_PROFILING_TIMER_RESOLUTION = 0x1025;
 	public static final int CL_MIGRATE_MEM_OBJECT_HOST = (1 << 0);
@@ -290,8 +290,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_PROFILING_COMMAND_START = 0x1282;
 	public static final int CL_COMMAND_COPY_IMAGE = 0x11F8;
 	public static final int CL_DEVICE_MAX_WORK_ITEM_SIZES = 0x1005;
-	public static final int CL_IMAGE_ELEMENT_SIZE = 0x1111;
 	public static final int CL_DEVICE_PARENT_DEVICE = 0x1042;
+	public static final int CL_IMAGE_ELEMENT_SIZE = 0x1111;
 	public static final int CL_DEVICE_PARTITION_EQUALLY_EXT = 0x4050;
 	public static final int CL_INVALID_CONTEXT = -34;
 	public static final int CL_IMAGE_HEIGHT = 0x1115;
@@ -311,8 +311,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_DEVICE_PARTITION_BY_COUNTS_LIST_END = 0x0;
 	public static final int CL_COMMAND_MAP_IMAGE = 0x11FC;
 	public static final int CL_GL_OBJECT_TEXTURE_BUFFER = 0x2011;
-	public static final int CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED = (1 << 1);
 	public static final int CL_EXEC_KERNEL = (1 << 0);
+	public static final int CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED = (1 << 1);
 	public static final int CL_INVALID_GL_OBJECT = -60;
 	public static final int CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV = 0x4000;
 	public static final int CL_COMMAND_READ_BUFFER_RECT = 0x1201;
@@ -349,8 +349,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT = 0x1007;
 	public static final int CL_DEVICE_PARTITION_STYLE_EXT = 0x4058;
 	public static final int CL_COMMAND_MAP_BUFFER = 0x11FB;
-	public static final int CL_MAP_WRITE = (1 << 1);
 	public static final double CL_M_SQRT1_2 = 0.707106781186547572737;
+	public static final int CL_MAP_WRITE = (1 << 1);
 	public static final float CL_M_LN10_F = 2.30258512496948f;
 	public static final int CL_FILTER_NEAREST = 0x1140;
 	public static final int CL_CGL_DEVICE_FOR_CURRENT_VIRTUAL_SCREEN_APPLE = 0x10000002;
@@ -358,8 +358,8 @@ public interface IOpenCLLibrary {
 	public static final int cl_khr_gl_sharing = 1;
 	public static final int CL_BUILD_ERROR = -2;
 	public static final int CL_OUT_OF_HOST_MEMORY = -6;
-	public static final int CL_MEM_OBJECT_IMAGE1D_ARRAY = 0x10F5;
 	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_SIZE = 0x101E;
+	public static final int CL_MEM_OBJECT_IMAGE1D_ARRAY = 0x10F5;
 	public static final int CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = 0x1003;
 	public static final int CL_KERNEL_ARG_ACCESS_QUALIFIER = 0x1197;
 	public static final int CL_EVENT_COMMAND_TYPE = 0x11D1;
@@ -378,8 +378,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_EGL_DISPLAY_KHR = 0x2009;
 	public static final int CL_TRUE = 1;
 	public static final int CL_BUILD_IN_PROGRESS = -3;
-	public static final int CL_MEM_OBJECT_BUFFER = 0x10F0;
 	public static final float CL_M_PI_2_F = 1.57079637050629f;
+	public static final int CL_MEM_OBJECT_BUFFER = 0x10F0;
 	public static final int CL_DEVICE_AFFINITY_DOMAINS_EXT = 0x4056;
 	public static final int CL_DEVICE_LINKER_AVAILABLE = 0x103E;
 	public static final int CL_CONTEXT_PROPERTIES = 0x1082;
@@ -399,33 +399,33 @@ public interface IOpenCLLibrary {
 	public static final int CL_DEVICE_PARTITION_TYPES_EXT = 0x4055;
 	public static final int CL_FILTER_LINEAR = 0x1141;
 	public static final int CL_COMMAND_FILL_BUFFER = 0x1207;
-	public static final int CL_DEVICE_IMAGE_SUPPORT = 0x1016;
 	public static final int CL_DEVICE_TYPE_ACCELERATOR = (1 << 3);
+	public static final int CL_DEVICE_IMAGE_SUPPORT = 0x1016;
 	public static final int CL_PROGRAM_BUILD_LOG = 0x1183;
 	public static final int CL_IMAGE_DEPTH = 0x1116;
 	public static final int CL_KERNEL_PROGRAM = 0x1194;
 	public static final int CL_KERNEL_ARG_ADDRESS_QUALIFIER = 0x1196;
 	public static final int CL_MEM_OBJECT_IMAGE3D = 0x10F2;
 	public static final double CL_M_1_PI = 0.318309886183790691216;
-	public static final float CL_M_E_F = 2.71828174591064f;
 	public static final int CL_FLT_MANT_DIG = 24;
+	public static final float CL_M_E_F = 2.71828174591064f;
 	public static final int CL_GL_OBJECT_TEXTURE1D_ARRAY = 0x2010;
 	public static final int CL_PROGRAM_BINARY_TYPE_EXECUTABLE = 0x4;
 	public static final int CL_LOCAL = 0x1;
 	public static final int CL_DEVICE_PROFILING_TIMER_OFFSET_AMD = 0x4036;
 	public static final int CL_QUEUE_REFERENCE_COUNT = 0x1092;
 	public static final int CL_DEVICE_PARTITION_FAILED_EXT = -1057;
-	public static final int CL_DEVICE_AVAILABLE = 0x1027;
-	public static final double CL_M_LOG10E = 0.434294481903251816668;
 	public static final int CL_IMAGE_FORMAT_NOT_SUPPORTED = -10;
+	public static final double CL_M_LOG10E = 0.434294481903251816668;
+	public static final int CL_DEVICE_AVAILABLE = 0x1027;
 	public static final int CL_DBL_MAX_EXP = +1024;
 	public static final int CL_UCHAR_MAX = 255;
 	public static final int CL_DBL_MIN_10_EXP = -307;
 	public static final int CL_DEVICE_MAX_SAMPLERS = 0x1018;
 	public static final int CL_MEM_COPY_OVERLAP = -8;
 	public static final int CL_MAP_READ = (1 << 0);
-	public static final int CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE = (1 << 3);
 	public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE = 0x103B;
+	public static final int CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE = (1 << 3);
 	public static final int CL_COMMAND_READ_IMAGE = 0x11F6;
 	public static final int CL_CHAR_MAX = 127;
 	public static final int CL_PROGRAM_NUM_DEVICES = 0x1162;
@@ -437,8 +437,8 @@ public interface IOpenCLLibrary {
 	public static final int CL_COMMAND_COPY_BUFFER_TO_IMAGE = 0x11FA;
 	public static final int CL_CGL_SHAREGROUP_KHR = 0x200C;
 	public static final int CL_PROGRAM_DEVICES = 0x1163;
-	public static final int CL_SAMPLER_REFERENCE_COUNT = 0x1150;
 	public static final int CL_MEM_READ_WRITE = (1 << 0);
+	public static final int CL_SAMPLER_REFERENCE_COUNT = 0x1150;
 	public static final int CL_INVALID_KERNEL_NAME = -46;
 	public static final int CL_DEVICE_EXECUTION_CAPABILITIES = 0x1029;
 	public static final int CL_DEVICE_NAME = 0x102B;
@@ -447,17 +447,17 @@ public interface IOpenCLLibrary {
 	public static final int CL_INVALID_IMAGE_FORMAT_DESCRIPTOR = -39;
 	public static final int cl_ext_device_fission = 1;
 	public static final int CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE = 0x1020;
-	public static final int CL_MEM_OBJECT_IMAGE2D_ARRAY = 0x10F3;
 	public static final int CL_MAP_FAILURE = -12;
+	public static final int CL_MEM_OBJECT_IMAGE2D_ARRAY = 0x10F3;
 	public static final int CL_DEVICE_PARTITION_EQUALLY = 0x1086;
 	public static final int CL_IMAGE_SLICE_PITCH = 0x1113;
 	public static final int CL_LUMINANCE = 0x10B9;
-	public static final int CL_ADDRESS_CLAMP_TO_EDGE = 0x1131;
 	public static final int CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE = (1 << 4);
+	public static final int CL_ADDRESS_CLAMP_TO_EDGE = 0x1131;
 	public static final int CL_GL_OBJECT_RENDERBUFFER = 0x2003;
 	public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_INT = 0x1038;
-	public static final int CL_SAMPLER_FILTER_MODE = 0x1154;
 	public static final int CL_INVALID_QUEUE_PROPERTIES = -35;
+	public static final int CL_SAMPLER_FILTER_MODE = 0x1154;
 	public static final int CL_INVALID_GLOBAL_WORK_SIZE = -63;
 	public static final int CL_INT_MAX = 2147483647;
 	public static final int CL_AFFINITY_DOMAIN_NUMA_EXT = 0x10;
@@ -466,23 +466,23 @@ public interface IOpenCLLibrary {
 	public static final int CL_MEM_COPY_HOST_PTR = (1 << 5);
 	public static final int CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN = 0x1088;
 	public static final int CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE = 0x11B3;
-	public static final int CL_MEM_FLAGS = 0x1101;
 	public static final int CL_DEVICE_PARTITION_PROPERTIES = 0x1044;
+	public static final int CL_MEM_FLAGS = 0x1101;
 	public static final int CL_COMMAND_TASK = 0x11F1;
-	public static final int CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT = (1 << 7);
 	public static final int CL_DEVICE_DOUBLE_FP_CONFIG = 0x1032;
+	public static final int CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT = (1 << 7);
 	public static final int CL_DEVICE_HALF_FP_CONFIG = 0x1033;
 	public static final int CL_FP_ROUND_TO_ZERO = (1 << 3);
 	public static final int CL_RUNNING = 0x1;
 	public static final int CL_DEVICE_IMAGE3D_MAX_WIDTH = 0x1013;
-	public static final int CL_DEVICE_PLATFORM = 0x1031;
 	public static final int CL_INVALID_WORK_DIMENSION = -53;
+	public static final int CL_DEVICE_PLATFORM = 0x1031;
 	public static final int CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG = 0x1039;
 	public static final int CL_PROGRAM_BINARY_TYPE_LIBRARY = 0x2;
 	public static final double CL_M_E = 2.718281828459045090796;
 	public static final int CL_INVALID_SAMPLER = -41;
 	public static abstract class clGetGLContextInfoKHR_fn extends Callback<clGetGLContextInfoKHR_fn > {
-		public final int apply(Pointer<SizeT > properties, int param_name, @Ptr long param_value_size, Pointer<? > param_value, Pointer<SizeT > param_value_size_ret) {
+		public final int apply(Pointer<Pointer<Integer > > properties, int param_name, @Ptr long param_value_size, Pointer<? > param_value, Pointer<SizeT > param_value_size_ret) {
 			return apply(Pointer.getPeer(properties), param_name, param_value_size, Pointer.getPeer(param_value), Pointer.getPeer(param_value_size_ret));
 		}
 		public abstract int apply(@Ptr long properties, int param_name, @Ptr long param_value_size, @Ptr long param_value, @Ptr long param_value_size_ret);
@@ -580,10 +580,11 @@ public interface IOpenCLLibrary {
 	int clGetPlatformInfo(@Ptr long cl_platform_id1, int cl_platform_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clGetDeviceIDs(@Ptr long cl_platform_id1, long cl_device_type1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
 	int clGetDeviceInfo(@Ptr long cl_device_id1, int cl_device_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
+	@Optional 
 	int clCreateSubDevices(@Ptr long cl_device_id1, @Ptr long cl_device_partition_propertyPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
-	@Optional
+	@Optional 
 	int clRetainDevice(@Ptr long cl_device_id1);
-	@Optional
+	@Optional 
 	int clReleaseDevice(@Ptr long cl_device_id1);
 	@Ptr 
 	long clCreateContext(@Ptr long cl_context_propertiesPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
@@ -600,15 +601,17 @@ public interface IOpenCLLibrary {
 	@Ptr 
 	long clCreateBuffer(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	@Ptr 
+	@Optional 
 	long clCreateSubBuffer(@Ptr long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
-	@Optional
 	@Ptr 
+	@Optional 
 	long clCreateImage(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long cl_image_formatPtr1, @Ptr long cl_image_descPtr1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	int clRetainMemObject(@Ptr long cl_mem1);
 	int clReleaseMemObject(@Ptr long cl_mem1);
 	int clGetSupportedImageFormats(@Ptr long cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, @Ptr long cl_image_formatPtr1, @Ptr long cl_uintPtr1);
 	int clGetMemObjectInfo(@Ptr long cl_mem1, int cl_mem_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clGetImageInfo(@Ptr long cl_mem1, int cl_image_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
+	@Optional 
 	int clSetMemObjectDestructorCallback(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
 	@Ptr 
 	long clCreateSampler(@Ptr long cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, @Ptr long cl_intPtr1);
@@ -620,13 +623,17 @@ public interface IOpenCLLibrary {
 	@Ptr 
 	long clCreateProgramWithBinary(@Ptr long cl_context1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long size_tPtr1, @Ptr long charPtrPtr1, @Ptr long cl_intPtr1, @Ptr long cl_intPtr2);
 	@Ptr 
+	@Optional 
 	long clCreateProgramWithBuiltInKernels(@Ptr long cl_context1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, @Ptr long cl_intPtr1);
 	int clRetainProgram(@Ptr long cl_program1);
 	int clReleaseProgram(@Ptr long cl_program1);
 	int clBuildProgram(@Ptr long cl_program1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, @Ptr long arg1, @Ptr long voidPtr1);
+	@Optional 
 	int clCompileProgram(@Ptr long cl_program1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, int cl_uint2, @Ptr long cl_programPtr1, @Ptr long charPtrPtr1, @Ptr long arg1, @Ptr long voidPtr1);
 	@Ptr 
+	@Optional 
 	long clLinkProgram(@Ptr long cl_context1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, int cl_uint2, @Ptr long cl_programPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
+	@Optional 
 	int clUnloadPlatformCompiler(@Ptr long cl_platform_id1);
 	int clGetProgramInfo(@Ptr long cl_program1, int cl_program_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clGetProgramBuildInfo(@Ptr long cl_program1, @Ptr long cl_device_id1, int cl_program_build_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
@@ -637,28 +644,37 @@ public interface IOpenCLLibrary {
 	int clReleaseKernel(@Ptr long cl_kernel1);
 	int clSetKernelArg(@Ptr long cl_kernel1, int cl_uint1, @Ptr long size_t1, @Ptr long voidPtr1);
 	int clGetKernelInfo(@Ptr long cl_kernel1, int cl_kernel_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
+	@Optional 
 	int clGetKernelArgInfo(@Ptr long cl_kernel1, int cl_uint1, int cl_kernel_arg_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clGetKernelWorkGroupInfo(@Ptr long cl_kernel1, @Ptr long cl_device_id1, int cl_kernel_work_group_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clWaitForEvents(int cl_uint1, @Ptr long cl_eventPtr1);
 	int clGetEventInfo(@Ptr long cl_event1, int cl_event_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	@Ptr 
+	@Optional 
 	long clCreateUserEvent(@Ptr long cl_context1, @Ptr long cl_intPtr1);
 	int clRetainEvent(@Ptr long cl_event1);
 	int clReleaseEvent(@Ptr long cl_event1);
+	@Optional 
 	int clSetUserEventStatus(@Ptr long cl_event1, int cl_int1);
+	@Optional 
 	int clSetEventCallback(@Ptr long cl_event1, int cl_int1, @Ptr long arg1, @Ptr long voidPtr1);
 	int clGetEventProfilingInfo(@Ptr long cl_event1, int cl_profiling_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	int clFlush(@Ptr long cl_command_queue1);
 	int clFinish(@Ptr long cl_command_queue1);
 	int clEnqueueReadBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueReadBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueWriteBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueWriteBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueFillBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueCopyBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueCopyBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueReadImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueWriteImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueFillImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueCopyImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueCopyImageToBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_t1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
@@ -668,17 +684,19 @@ public interface IOpenCLLibrary {
 	@Ptr 
 	long clEnqueueMapImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, long cl_map_flags1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_tPtr4, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2, @Ptr long cl_intPtr1);
 	int clEnqueueUnmapMemObject(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueMigrateMemObjects(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueNDRangeKernel(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueTask(@Ptr long cl_command_queue1, @Ptr long cl_kernel1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	int clEnqueueNativeKernel(@Ptr long cl_command_queue1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long size_t1, int cl_uint1, @Ptr long cl_memPtr1, @Ptr long voidPtrPtr1, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
+	@Optional 
 	int clEnqueueMarkerWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
-	@Optional
+	@Optional 
 	int clEnqueueBarrierWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	@Optional 
 	int clSetPrintfCallback(@Ptr long cl_context1, @Ptr long arg1, @Ptr long voidPtr1);
-	@Optional
 	@Ptr 
+	@Optional 
 	long clGetExtensionFunctionAddressForPlatform(@Ptr long cl_platform_id1, @Ptr long charPtr1);
 	int clSetCommandQueueProperty(@Ptr long cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, @Ptr long cl_command_queue_propertiesPtr1);
 	@Ptr 
@@ -695,6 +713,7 @@ public interface IOpenCLLibrary {
 	@Ptr 
 	long clCreateFromGLBuffer(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLuint1, @Ptr long intPtr1);
 	@Ptr 
+	@Optional 
 	long clCreateFromGLTexture(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	@Ptr 
 	long clCreateFromGLRenderbuffer(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLuint1, @Ptr long cl_intPtr1);

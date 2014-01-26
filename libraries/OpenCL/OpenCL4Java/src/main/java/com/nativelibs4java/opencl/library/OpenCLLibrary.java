@@ -52,32 +52,34 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	}
 	public native int clGetDeviceInfo(@Ptr long cl_device_id1, int cl_device_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/** Original signature : <code>cl_int clCreateSubDevices(cl_device_id, const cl_device_partition_property*, cl_uint, cl_device_id*, cl_uint*)</code> */
-	public int clCreateSubDevices(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<SizeT > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
+	public int clCreateSubDevices(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<Pointer<Integer > > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clCreateSubDevices(Pointer.getPeer(cl_device_id1), Pointer.getPeer(cl_device_partition_propertyPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
-	@Optional
+	@Optional 
 	public native int clCreateSubDevices(@Ptr long cl_device_id1, @Ptr long cl_device_partition_propertyPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
 	/** Original signature : <code>cl_int clRetainDevice(cl_device_id)</code> */
 	public int clRetainDevice(IOpenCLLibrary.cl_device_id cl_device_id1) {
 		return clRetainDevice(Pointer.getPeer(cl_device_id1));
 	}
+	@Optional 
 	public native int clRetainDevice(@Ptr long cl_device_id1);
 	/** Original signature : <code>cl_int clReleaseDevice(cl_device_id)</code> */
 	public int clReleaseDevice(IOpenCLLibrary.cl_device_id cl_device_id1) {
 		return clReleaseDevice(Pointer.getPeer(cl_device_id1));
 	}
+	@Optional 
 	public native int clReleaseDevice(@Ptr long cl_device_id1);
 	/**
 	 * Context APIs<br>
 	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, clCreateContext_arg1_callback*, void*, cl_int*)</code>
 	 */
-	public IOpenCLLibrary.cl_context clCreateContext(Pointer<SizeT > cl_context_propertiesPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
+	public IOpenCLLibrary.cl_context clCreateContext(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_context(clCreateContext(Pointer.getPeer(cl_context_propertiesPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
 	public native long clCreateContext(@Ptr long cl_context_propertiesPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, clCreateContextFromType_arg1_callback*, void*, cl_int*)</code> */
-	public IOpenCLLibrary.cl_context clCreateContextFromType(Pointer<SizeT > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
+	public IOpenCLLibrary.cl_context clCreateContextFromType(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_context(clCreateContextFromType(Pointer.getPeer(cl_context_propertiesPtr1), cl_device_type1, Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
@@ -135,12 +137,14 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 		return new IOpenCLLibrary.cl_mem(clCreateSubBuffer(Pointer.getPeer(cl_mem1), cl_mem_flags1, cl_buffer_create_type1, Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateSubBuffer(@Ptr long cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_mem clCreateImage(cl_context, cl_mem_flags, const cl_image_format*, const cl_image_desc*, void*, cl_int*)</code> */
 	public IOpenCLLibrary.cl_mem clCreateImage(IOpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<cl_image_format > cl_image_formatPtr1, Pointer<cl_image_desc > cl_image_descPtr1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_mem(clCreateImage(Pointer.getPeer(cl_context1), cl_mem_flags1, Pointer.getPeer(cl_image_formatPtr1), Pointer.getPeer(cl_image_descPtr1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateImage(@Ptr long cl_context1, long cl_mem_flags1, @Ptr long cl_image_formatPtr1, @Ptr long cl_image_descPtr1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_int clRetainMemObject(cl_mem)</code> */
 	public int clRetainMemObject(IOpenCLLibrary.cl_mem cl_mem1) {
@@ -171,6 +175,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clSetMemObjectDestructorCallback(IOpenCLLibrary.cl_mem cl_mem1, Pointer<OpenCLLibrary.clSetMemObjectDestructorCallback_arg1_callback > arg1, Pointer<? > voidPtr1) {
 		return clSetMemObjectDestructorCallback(Pointer.getPeer(cl_mem1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
 	}
+	@Optional 
 	public native int clSetMemObjectDestructorCallback(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Sampler APIs<br>
@@ -216,6 +221,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 		return new IOpenCLLibrary.cl_program(clCreateProgramWithBuiltInKernels(Pointer.getPeer(cl_context1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(charPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateProgramWithBuiltInKernels(@Ptr long cl_context1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_int clRetainProgram(cl_program)</code> */
 	public int clRetainProgram(IOpenCLLibrary.cl_program cl_program1) {
@@ -236,17 +242,20 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clCompileProgram(IOpenCLLibrary.cl_program cl_program1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Byte > charPtr1, int cl_uint2, Pointer<IOpenCLLibrary.cl_program > cl_programPtr1, Pointer<Pointer<Byte > > charPtrPtr1, Pointer<OpenCLLibrary.clCompileProgram_arg1_callback > arg1, Pointer<? > voidPtr1) {
 		return clCompileProgram(Pointer.getPeer(cl_program1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(charPtr1), cl_uint2, Pointer.getPeer(cl_programPtr1), Pointer.getPeer(charPtrPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
 	}
+	@Optional 
 	public native int clCompileProgram(@Ptr long cl_program1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, int cl_uint2, @Ptr long cl_programPtr1, @Ptr long charPtrPtr1, @Ptr long arg1, @Ptr long voidPtr1);
 	/** Original signature : <code>cl_program clLinkProgram(cl_context, cl_uint, const cl_device_id*, const char*, cl_uint, const cl_program*, clLinkProgram_arg1_callback*, void*, cl_int*)</code> */
 	public IOpenCLLibrary.cl_program clLinkProgram(IOpenCLLibrary.cl_context cl_context1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Byte > charPtr1, int cl_uint2, Pointer<IOpenCLLibrary.cl_program > cl_programPtr1, Pointer<OpenCLLibrary.clLinkProgram_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_program(clLinkProgram(Pointer.getPeer(cl_context1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(charPtr1), cl_uint2, Pointer.getPeer(cl_programPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clLinkProgram(@Ptr long cl_context1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long charPtr1, int cl_uint2, @Ptr long cl_programPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_int clUnloadPlatformCompiler(cl_platform_id)</code> */
 	public int clUnloadPlatformCompiler(IOpenCLLibrary.cl_platform_id cl_platform_id1) {
 		return clUnloadPlatformCompiler(Pointer.getPeer(cl_platform_id1));
 	}
+	@Optional 
 	public native int clUnloadPlatformCompiler(@Ptr long cl_platform_id1);
 	/** Original signature : <code>cl_int clGetProgramInfo(cl_program, cl_program_info, size_t, void*, size_t*)</code> */
 	public int clGetProgramInfo(IOpenCLLibrary.cl_program cl_program1, int cl_program_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
@@ -296,6 +305,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clGetKernelArgInfo(IOpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, int cl_kernel_arg_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
 		return clGetKernelArgInfo(Pointer.getPeer(cl_kernel1), cl_uint1, cl_kernel_arg_info1, size_t1, Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1));
 	}
+	@Optional 
 	public native int clGetKernelArgInfo(@Ptr long cl_kernel1, int cl_uint1, int cl_kernel_arg_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/** Original signature : <code>cl_int clGetKernelWorkGroupInfo(cl_kernel, cl_device_id, cl_kernel_work_group_info, size_t, void*, size_t*)</code> */
 	public int clGetKernelWorkGroupInfo(IOpenCLLibrary.cl_kernel cl_kernel1, IOpenCLLibrary.cl_device_id cl_device_id1, int cl_kernel_work_group_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
@@ -320,6 +330,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 		return new IOpenCLLibrary.cl_event(clCreateUserEvent(Pointer.getPeer(cl_context1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateUserEvent(@Ptr long cl_context1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_int clRetainEvent(cl_event)</code> */
 	public int clRetainEvent(IOpenCLLibrary.cl_event cl_event1) {
@@ -335,11 +346,13 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clSetUserEventStatus(IOpenCLLibrary.cl_event cl_event1, int cl_int1) {
 		return clSetUserEventStatus(Pointer.getPeer(cl_event1), cl_int1);
 	}
+	@Optional 
 	public native int clSetUserEventStatus(@Ptr long cl_event1, int cl_int1);
 	/** Original signature : <code>cl_int clSetEventCallback(cl_event, cl_int, clSetEventCallback_arg1_callback*, void*)</code> */
 	public int clSetEventCallback(IOpenCLLibrary.cl_event cl_event1, int cl_int1, Pointer<OpenCLLibrary.clSetEventCallback_arg1_callback > arg1, Pointer<? > voidPtr1) {
 		return clSetEventCallback(Pointer.getPeer(cl_event1), cl_int1, Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1));
 	}
+	@Optional 
 	public native int clSetEventCallback(@Ptr long cl_event1, int cl_int1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Profiling APIs<br>
@@ -374,6 +387,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueReadBufferRect(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueReadBufferRect(Pointer.getPeer(cl_command_queue1), Pointer.getPeer(cl_mem1), cl_bool1, Pointer.getPeer(size_tPtr1), Pointer.getPeer(size_tPtr2), Pointer.getPeer(size_tPtr3), size_t1, size_t2, size_t3, size_t4, Pointer.getPeer(voidPtr1), cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueReadBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueWriteBuffer(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
@@ -384,11 +398,13 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueWriteBufferRect(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueWriteBufferRect(Pointer.getPeer(cl_command_queue1), Pointer.getPeer(cl_mem1), cl_bool1, Pointer.getPeer(size_tPtr1), Pointer.getPeer(size_tPtr2), Pointer.getPeer(size_tPtr3), size_t1, size_t2, size_t3, size_t4, Pointer.getPeer(voidPtr1), cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueWriteBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, int cl_bool1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long voidPtr1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueFillBuffer(cl_command_queue, cl_mem, const void*, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueFillBuffer(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, Pointer<? > voidPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueFillBuffer(Pointer.getPeer(cl_command_queue1), Pointer.getPeer(cl_mem1), Pointer.getPeer(voidPtr1), size_t1, size_t2, size_t3, cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueFillBuffer(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueCopyBuffer(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, IOpenCLLibrary.cl_mem cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
@@ -399,6 +415,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueCopyBufferRect(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, IOpenCLLibrary.cl_mem cl_mem2, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueCopyBufferRect(Pointer.getPeer(cl_command_queue1), Pointer.getPeer(cl_mem1), Pointer.getPeer(cl_mem2), Pointer.getPeer(size_tPtr1), Pointer.getPeer(size_tPtr2), Pointer.getPeer(size_tPtr3), size_t1, size_t2, size_t3, size_t4, cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueCopyBufferRect(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long cl_mem2, @Ptr long size_tPtr1, @Ptr long size_tPtr2, @Ptr long size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueReadImage(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
@@ -414,6 +431,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueFillImage(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueFillImage(Pointer.getPeer(cl_command_queue1), Pointer.getPeer(cl_mem1), Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1), Pointer.getPeer(size_tPtr2), cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueFillImage(@Ptr long cl_command_queue1, @Ptr long cl_mem1, @Ptr long voidPtr1, @Ptr long size_tPtr1, @Ptr long size_tPtr2, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueCopyImage(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_mem cl_mem1, IOpenCLLibrary.cl_mem cl_mem2, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
@@ -451,6 +469,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueMigrateMemObjects(IOpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<IOpenCLLibrary.cl_mem > cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueMigrateMemObjects(Pointer.getPeer(cl_command_queue1), cl_uint1, Pointer.getPeer(cl_memPtr1), cl_mem_migration_flags1, cl_uint2, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueMigrateMemObjects(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_memPtr1, long cl_mem_migration_flags1, int cl_uint2, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueNDRangeKernel(IOpenCLLibrary.cl_command_queue cl_command_queue1, IOpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, int cl_uint2, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
@@ -471,11 +490,13 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clEnqueueMarkerWithWaitList(IOpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueMarkerWithWaitList(Pointer.getPeer(cl_command_queue1), cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueMarkerWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clEnqueueBarrierWithWaitList(cl_command_queue, cl_uint, const cl_event*, cl_event*)</code> */
 	public int clEnqueueBarrierWithWaitList(IOpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr1, Pointer<IOpenCLLibrary.cl_event > cl_eventPtr2) {
 		return clEnqueueBarrierWithWaitList(Pointer.getPeer(cl_command_queue1), cl_uint1, Pointer.getPeer(cl_eventPtr1), Pointer.getPeer(cl_eventPtr2));
 	}
+	@Optional 
 	public native int clEnqueueBarrierWithWaitList(@Ptr long cl_command_queue1, int cl_uint1, @Ptr long cl_eventPtr1, @Ptr long cl_eventPtr2);
 	/** Original signature : <code>cl_int clSetPrintfCallback(cl_context, clSetPrintfCallback_arg1_callback*, void*)</code> */
 	public int clSetPrintfCallback(IOpenCLLibrary.cl_context cl_context1, Pointer<OpenCLLibrary.clSetPrintfCallback_arg1_callback > arg1, Pointer<? > voidPtr1) {
@@ -495,6 +516,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 		return Pointer.pointerToAddress(clGetExtensionFunctionAddressForPlatform(Pointer.getPeer(cl_platform_id1), Pointer.getPeer(charPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clGetExtensionFunctionAddressForPlatform(@Ptr long cl_platform_id1, @Ptr long charPtr1);
 	/**
 	 * WARNING:<br>
@@ -556,6 +578,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 		return new IOpenCLLibrary.cl_mem(clCreateFromGLTexture(Pointer.getPeer(cl_context1), cl_mem_flags1, cl_GLenum1, cl_GLint1, cl_GLuint1, Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
+	@Optional 
 	public native long clCreateFromGLTexture(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_mem clCreateFromGLRenderbuffer(cl_context, cl_mem_flags, cl_GLuint, cl_int*)</code> */
 	public IOpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(IOpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLuint1, Pointer<Integer > cl_intPtr1) {
@@ -596,7 +619,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	@Ptr 
 	public native long clCreateFromGLTexture3D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code> */
-	public int clGetGLContextInfoKHR(Pointer<SizeT > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
+	public int clGetGLContextInfoKHR(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
 		return clGetGLContextInfoKHR(Pointer.getPeer(cl_context_propertiesPtr1), cl_gl_context_info1, size_t1, Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1));
 	}
 	@Optional 
