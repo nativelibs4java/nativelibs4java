@@ -653,12 +653,8 @@ public class CLDevice extends CLAbstractEntity {
      */
     @InfoName("CL_DEVICE_HOST_UNIFIED_MEMORY")
     public boolean isHostUnifiedMemory() {
-    	try {
-    		return infos.getBool(getEntity(), CL_DEVICE_HOST_UNIFIED_MEMORY);
-    	} catch (Throwable th) {
-    		// TODO throw if supposed to handle OpenCL 1.1
-    		return false;
-    	}
+		platform.requireMinVersionValue("CL_DEVICE_HOST_UNIFIED_MEMORY", 1.1);
+		return infos.getBool(getEntity(), CL_DEVICE_HOST_UNIFIED_MEMORY);
     }
     
     /**

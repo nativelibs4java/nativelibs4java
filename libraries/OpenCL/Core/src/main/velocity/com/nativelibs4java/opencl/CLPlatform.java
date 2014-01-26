@@ -13,6 +13,10 @@ import static org.bridj.Pointer.*;
 
 import java.nio.ByteOrder;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.logging.*;
+
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 
@@ -397,6 +401,36 @@ public class CLPlatform extends CLAbstractEntity {
         return infos.getString(getEntity(), CL_PLATFORM_VERSION);
     }
 
+    private double versionValue = Double.NaN;
+    private static final Pattern VERSION_PATTERN = Pattern.compile("OpenCL (\\d+\\.\\d+)\\b.*");
+    double getVersionValue() {
+    	if (Double.isNaN(versionValue)) {
+    		String versionString = getVersion();
+    		Matcher matcher = VERSION_PATTERN.matcher(versionString);
+    		if (matcher.matches()) {
+    			String str = matcher.group(1);
+    			versionValue = Double.parseDouble(str);
+    		} else {
+    			log(Level.SEVERE, "Failed to parse OpenCL version: '" + versionString + "'");
+    		}
+    	}
+    	return versionValue;
+    }
+    void requireMinVersionValue(String feature, double minValue) {
+    	requireMinVersionValue(feature, minValue, Double.NaN);
+    }
+    void requireMinVersionValue(String feature, double minValue, double deprecationValue) {
+    	double value = getVersionValue();
+    	if (value < minValue) {
+    		throw new CLVersionException(feature + " requires OpenCL version " + minValue +
+    			" (detected version is " + value + ")");
+    	} else if (!(value < deprecationValue)) {
+    		// The above test will work fine (i.e. will fail) with NaN.
+    		log(Level.WARNING, feature + " is deprecated from OpenCL version " + deprecationValue +
+    			" (detected version is " + value + ")");
+    	}
+    }
+
     /**
      * Platform name string.
      */
@@ -463,7 +497,8 @@ public class CLPlatform extends CLAbstractEntity {
      */
     @Deprecated
     public void unloadPlatformCompiler() {
-		return clUnloadPlatformCompiler(getEntity());
+		requireMinVersionValue("clUnloadPlatformCompiler", 1.1, 1.2);
+		error(CL.clUnloadPlatformCompiler(getEntity()));
     }
 
 }

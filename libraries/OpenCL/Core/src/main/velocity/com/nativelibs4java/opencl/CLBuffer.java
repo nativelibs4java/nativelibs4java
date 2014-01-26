@@ -117,17 +117,13 @@ public class CLBuffer<T> extends CLMem {
 	 * @return sub-buffer that is a "window" of this buffer starting at the provided offset, with the provided length
 	 */
 	public CLBuffer<T> createSubBuffer(Usage usage, long offset, long length) {
-		try {
-			int s = getElementSize();
-			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
-			#declareReusablePtrsAndPErr()
-		    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(getPointer(region)), getPeer(pErr));
-	        #checkPErr()
-	        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
-		} catch (Throwable th) {
-    		// TODO check if supposed to handle OpenCL 1.1
-    		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);
-    	}
+		context.getPlatform().requireMinVersionValue("clCreateSubBuffer", 1.1);
+		int s = getElementSize();
+		cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
+		#declareReusablePtrsAndPErr()
+	    long mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPeer(getPointer(region)), getPeer(pErr));
+        #checkPErr()
+        return mem == 0 ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 	}
 	
 	/**

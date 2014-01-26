@@ -82,16 +82,12 @@ public class CLKernel extends CLAbstractEntity {
      * @since OpenCL 1.1
      */
     public Map<CLDevice, Long> getPreferredWorkGroupSizeMultiple() {
-    	try {
-	    	CLDevice[] devices = program.getDevices();
-	        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
-	        for (CLDevice device : devices)
-	            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE));
-	        return ret;
-    	} catch (Throwable th) {
-    		// TODO check if supposed to handle OpenCL 1.1
-    		throw new UnsupportedOperationException("Cannot get CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE (OpenCL 1.1 feature).", th);
-    	}
+		program.getContext().getPlatform().requireMinVersionValue("CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE", 1.1);
+    	CLDevice[] devices = program.getDevices();
+        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
+        for (CLDevice device : devices)
+            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE));
+        return ret;
     }
     
     /**

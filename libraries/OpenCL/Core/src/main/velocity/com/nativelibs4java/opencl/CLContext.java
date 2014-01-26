@@ -168,15 +168,11 @@ public class CLContext extends CLAbstractEntity {
 	 * @since OpenCL 1.1
 	 */
 	public CLUserEvent createUserEvent() {
-		try {
-			#declareReusablePtrsAndPErr()
-			long evt = CL.clCreateUserEvent(getEntity(), getPeer(pErr));
-			#checkPErr()
-			return (CLUserEvent)CLEvent.createEvent(null, evt, true);
-		} catch (Throwable th) {
-			// TODO throw if supposed to handle OpenCL 1.1
-    		return null;
-		}
+		platform.requireMinVersionValue("clCreateUserEvent", 1.1);
+		#declareReusablePtrsAndPErr()
+		long evt = CL.clCreateUserEvent(getEntity(), getPeer(pErr));
+		#checkPErr()
+		return (CLUserEvent)CLEvent.createEvent(null, evt, true);
 	}
 
 	/**

@@ -32,6 +32,12 @@ public class CLException extends RuntimeException {
 		int value();
 	}
 
+	public static class CLVersionException extends CLException {
+		public CLVersionException(String message) {
+			super(message, 0);
+		}
+	}
+
 	public static class CLTypedException extends CLException {
 		protected String message;
 		public CLTypedException() {

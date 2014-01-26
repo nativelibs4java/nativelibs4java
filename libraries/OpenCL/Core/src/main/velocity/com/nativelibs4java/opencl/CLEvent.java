@@ -89,11 +89,8 @@ public class CLEvent extends CLAbstractEntity {
      * @since OpenCL 1.1
      */
     public void setCallback(int commandExecStatus, final EventCallback callback) {
-    	try {
-	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, eventCallbackPeer, JNI.newGlobalRef(callback)));
-    	} catch (UnsatisfiedLinkError th) {
-    		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature): " + th, th);
-    	}
+		queue.getContext().getPlatform().requireMinVersionValue("clSetEventCallback", 1.1);
+    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, eventCallbackPeer, JNI.newGlobalRef(callback)));
     }
     
     static CLEvent createEvent(final CLQueue queue, long evt) {

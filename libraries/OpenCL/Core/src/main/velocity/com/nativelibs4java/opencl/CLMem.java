@@ -64,6 +64,7 @@ public abstract class CLMem extends CLAbstractEntity {
      * @param callback
      */
     public void setDestructorCallback(final DestructorCallback callback) {
+		context.getPlatform().requireMinVersionValue("clSetMemObjectDestructorCallback", 1.1);
     	clSetMemObjectDestructorCallback_arg1_callback cb = new clSetMemObjectDestructorCallback_arg1_callback() {
     		@Override
     		public void apply(@Ptr long mem, @Ptr long userData) {
