@@ -424,7 +424,7 @@ public class CLPlatform extends CLAbstractEntity {
     	if (value < minValue) {
     		throw new CLVersionException(feature + " requires OpenCL version " + minValue +
     			" (detected version is " + value + ")");
-    	} else if (!(value < deprecationValue)) {
+    	} else if (!Double.isNaN(deprecationValue) && (value < deprecationValue)) {
     		// The above test will work fine (i.e. will fail) with NaN.
     		log(Level.WARNING, feature + " is deprecated from OpenCL version " + deprecationValue +
     			" (detected version is " + value + ")");

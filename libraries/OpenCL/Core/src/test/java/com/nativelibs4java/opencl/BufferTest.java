@@ -8,7 +8,7 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.util.NIOUtils.directBuffer;
 import static com.nativelibs4java.util.NIOUtils.get;
 import static com.nativelibs4java.util.NIOUtils.put;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.nio.*;
 
@@ -143,6 +143,28 @@ public class BufferTest extends AbstractCommon {
         Pointer<T> mapped = buf.map(queue, CLMem.MapFlags.Read);
 
         assertEquals(data, mapped);
+    }
+    
+    @Test
+    public void testFill() {
+    	Pointer<Integer> pattern = pointerToInts(1, 2, 3, 4);
+    	int n = 12;
+        CLBuffer<Integer> buf = context.createIntBuffer(CLMem.Usage.InputOutput, n);
+        CLEvent e = buf.fillBuffer(queue, pattern);
+        assertNotNull(e);
+        Pointer<Integer> data = buf.read(queue, e);
+        for (int i = 0; i < n; i++) {
+        	int expectedValue = (i % 4) + 1;
+        	assertEquals(expectedValue, data.getIntAtIndex(i));
+        }
+        try {
+        	buf.fillBuffer(queue, pattern, pattern.getValidElements(), 0, n - 1);
+        	fail("Expected fill length failure");
+        } catch (Throwable th) {}
+        try {
+        	buf.fillBuffer(queue, pattern, pattern.getValidElements() + 1, 0, n);
+        	fail("Expected pattern length failure");
+        } catch (Throwable th) {}
     }
 
 }

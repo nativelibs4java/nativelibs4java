@@ -49,6 +49,10 @@ public class JavaCL {
 		log(level, message, null);
 		return true;
 	}
+	
+	static void check(boolean test, String message, Object... formatArgs) {
+		if (!test) throw new RuntimeException(String.format(message, formatArgs));
+	}
 
 	private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
         assert (count == 0) ^ (pCount == null);  

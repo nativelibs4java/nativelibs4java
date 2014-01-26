@@ -2,7 +2,7 @@
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
-import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import static com.nativelibs4java.opencl.library.IOpenCLLibrary.*;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
@@ -73,7 +73,50 @@ public class CLBuffer<T> extends CLMem {
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
-    
+
+    /**
+#documentCallsFunction("clEnqueueFillBuffer")
+     * @param queue Queue on which to enqueue this fill buffer command.
+     * @param pattern Data pattern to fill the buffer with.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent fillBuffer(CLQueue queue, Pointer<T> pattern, CLEvent... eventsToWaitFor) {
+    	return fillBuffer(queue, pattern, pattern.getValidElements(), 0, getElementCount(), eventsToWaitFor);
+    }
+
+    /**
+#documentCallsFunction("clEnqueueFillBuffer")
+     * @param queue
+     * @param queue Queue on which to enqueue this fill buffer command.
+     * @param pattern Data pattern to fill the buffer with.
+     * @param patternLength Length in elements (not in bytes) of the pattern to use.
+     * @param offset Offset in elements where to start filling the pattern.
+     * @param length Length in elements of the fill (must be a multiple of patternLength).
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent fillBuffer(CLQueue queue, Pointer<T> pattern, long patternLength, long offset, long length, CLEvent... eventsToWaitFor) {
+		context.getPlatform().requireMinVersionValue("clEnqueueFillBuffer", 1.2);
+		checkBounds(offset, length);
+		check(pattern != null, "Null pattern!");
+		long validPatternElements = pattern.getValidElements();
+		check(validPatternElements < 0 || patternLength <= validPatternElements,
+			"Pattern length exceeds the valid pattern elements count (%d > %d)",
+			patternLength, validPatternElements);
+		check(length % patternLength == 0, "Fill length must be a multiple of pattern length");
+
+		#declareReusablePtrsAndEventsInOut()
+		error(CL.clEnqueueFillBuffer(
+			queue.getEntity(),
+			getEntity(),
+			getPeer(pattern),
+			patternLength * getElementSize(),
+			offset * getElementSize(),
+			length * getElementSize(),
+			#eventsInOutArgsRaw()
+		));
+        #returnEventOut("queue")
+    }
+
     /**
      * Returns a pointer to native memory large enough for this buffer's data, and with a compatible byte ordering. 
      */
