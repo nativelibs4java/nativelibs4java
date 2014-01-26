@@ -601,7 +601,7 @@ public class CLDevice extends CLAbstractEntity {
      *  @since OpenCL 1.1
      */
     @InfoName("CL_DEVICE_OPENCL_C_VERSION")
-    public String getOpenCLVersion() {
+    public String getOpenCLCVersion() {
     	try {
     		return infos.getString(getEntity(), CL_DEVICE_OPENCL_C_VERSION);
     	} catch (Throwable th) {
@@ -609,7 +609,14 @@ public class CLDevice extends CLAbstractEntity {
     		return "OpenCL C 1.0";
     	}
     }
-    
+    /**
+     * @deprecated Legacy typo, use getOpenCLCVersion() instead.
+     */
+    @Deprecated
+    public String getOpenCLVersion() {
+    	return getOpenCLCVersion();
+    }
+
     /**
     Vendor name string.
      */
