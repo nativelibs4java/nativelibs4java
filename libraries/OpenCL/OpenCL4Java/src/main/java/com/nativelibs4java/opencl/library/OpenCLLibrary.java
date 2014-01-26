@@ -55,6 +55,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public int clCreateSubDevices(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<SizeT > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clCreateSubDevices(Pointer.getPeer(cl_device_id1), Pointer.getPeer(cl_device_partition_propertyPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
+	@Optional
 	public native int clCreateSubDevices(@Ptr long cl_device_id1, @Ptr long cl_device_partition_propertyPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long cl_uintPtr1);
 	/** Original signature : <code>cl_int clRetainDevice(cl_device_id)</code> */
 	public int clRetainDevice(IOpenCLLibrary.cl_device_id cl_device_id1) {
