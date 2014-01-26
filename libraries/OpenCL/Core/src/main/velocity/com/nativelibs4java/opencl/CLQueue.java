@@ -109,26 +109,55 @@ public class CLQueue extends CLAbstractEntity {
 	}
 
 	/**
-#documentCallsFunction("clEnqueueBarrier")
+#documentCallsFunction("clEnqueueBarrierWithWaitList")
 	 * Enqueue a barrier operation.<br/>
 	 * The enqueueBarrier() command ensures that all queued commands in command_queue have finished execution before the next batch of commands can begin execution. <br/>
 	 * enqueueBarrier() is a synchronization point.
+#documentEventsToWaitForAndReturn()
 	 */
-	public void enqueueBarrier() {
-		error(CL.clEnqueueBarrier(getEntity()));
+	public CLEvent enqueueBarrier(CLEvent... eventsToWaitFor) {
+		if (context.getPlatform().getVersionValue() >= 1.2 ||
+			eventsToWaitFor != null && eventsToWaitFor.length > 0)
+		{
+			context.getPlatform().requireMinVersionValue("clEnqueueBarrierWithWaitList", 1.2);
+			#declareReusablePtrsAndEventsInOut()
+			error(CL.clEnqueueBarrierWithWaitList(
+				getEntity(),
+				#eventsInOutArgsRaw()
+			));
+			#returnEventOut("this")	
+		} else {
+			context.getPlatform().requireMinVersionValue("clEnqueueBarrier", 1.1, 1.2);
+			error(CL.clEnqueueBarrier(getEntity()));
+			return null;
+		}
 	}
 
 	/**
-#documentCallsFunction("clEnqueueMarker")
+#documentCallsFunction("clEnqueueMarkerWithWaitList")
 	 * Enqueue a marker command to command_queue. <br/>
 	 * The marker command returns an event which can be used by to queue a wait on this marker event i.e. wait for all commands queued before the marker command to complete.
-	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+#documentEventsToWaitForAndReturn()
 	 */
-	public CLEvent enqueueMarker() {
-		#declareReusablePtrs()
-		Pointer<cl_event> eventOut = ptrs.event_out;
-		error(CL.clEnqueueMarker(getEntity(), getPeer(eventOut)));
-		#returnEventOut("this")
+	@Deprecated
+	public CLEvent enqueueMarker(CLEvent... eventsToWaitFor) {
+		if (context.getPlatform().getVersionValue() >= 1.2 ||
+			eventsToWaitFor != null && eventsToWaitFor.length > 0)
+		{
+			context.getPlatform().requireMinVersionValue("clEnqueueMarkerWithWaitList", 1.2);
+			#declareReusablePtrsAndEventsInOut()
+	    	error(CL.clEnqueueMarkerWithWaitList(
+				getEntity(),
+				#eventsInOutArgsRaw()
+			));
+			#returnEventOut("this")
+		} else {
+			context.getPlatform().requireMinVersionValue("clEnqueueMarker", 1.1, 1.2);
+			#declareReusablePtrs()
+			Pointer<cl_event> eventOut = ptrs.event_out;
+			error(CL.clEnqueueMarker(getEntity(), getPeer(eventOut)));
+			#returnEventOut("this")
+		}
 	}
 
 	/**
