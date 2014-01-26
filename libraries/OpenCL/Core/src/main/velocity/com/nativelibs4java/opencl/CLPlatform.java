@@ -457,4 +457,13 @@ public class CLPlatform extends CLAbstractEntity {
         return hasExtension("cl_khr_gl_sharing") || hasExtension("cl_APPLE_gl_sharing");
     }
 
+    /**
+     * Allows the implementation to release the resources allocated by the OpenCL compiler for this platform.
+     * @deprecated This OpenCL 1.1 feature was deprecated in OpenCL 1.2: use with caution.
+     */
+    @Deprecated
+    public void unloadPlatformCompiler() {
+		return clUnloadPlatformCompiler(getEntity());
+    }
+
 }
