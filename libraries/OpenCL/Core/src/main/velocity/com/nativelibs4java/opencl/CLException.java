@@ -63,13 +63,31 @@ public class CLException extends RuntimeException {
 	
 	}
 
+	@ErrorCode(CL_DEVICE_PARTITION_FAILED)
+	public static class DevicePartitionFailed extends CLTypedException {}
+	@ErrorCode(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST)
+	public static class ExecStatusErrorForEventsInWaitList extends CLTypedException {}
 	@ErrorCode(CL_MISALIGNED_SUB_BUFFER_OFFSET)
 	public static class MisalignedSubBufferOffset extends CLTypedException {}
+	@ErrorCode(CL_COMPILE_PROGRAM_FAILURE)
+	public static class CompileProgramFailure extends CLTypedException {}
+	@ErrorCode(CL_LINKER_NOT_AVAILABLE)
+	public static class LinkerNotAvailable extends CLTypedException {}
+	@ErrorCode(CL_LINK_PROGRAM_FAILURE)
+	public static class LinkProgramFailure extends CLTypedException {}
+	@ErrorCode(CL_KERNEL_ARG_INFO_NOT_AVAILABLE)
+	public static class KernelArgInfoNotAvailable extends CLTypedException {}
+	@ErrorCode(CL_IMAGE_FORMAT_MISMATCH)
+	public static class ImageFormatMismatch extends CLTypedException {}
+	@ErrorCode(CL_PROFILING_INFO_NOT_AVAILABLE)
+	public static class ProfilingInfoNotAvailable extends CLTypedException {}
+	@ErrorCode(CL_DEVICE_NOT_AVAILABLE)
+	public static class DeviceNotAvailable extends CLTypedException {}
 	@ErrorCode(CL_OUT_OF_RESOURCES)
 	public static class OutOfResources extends CLTypedException {}
     @ErrorCode(CL_COMPILER_NOT_AVAILABLE)
 	public static class CompilerNotAvailable extends CLTypedException {}
-    @ErrorCode(CL_INVALID_GLOBAL_WORK_SIZE)
+	@ErrorCode(CL_INVALID_GLOBAL_WORK_SIZE)
     public static class InvalidGlobalWorkSize extends CLTypedException {}
 	@ErrorCode(CL_MAP_FAILURE)
 	public static class MapFailure extends CLTypedException {}
@@ -105,6 +123,22 @@ public class CLException extends RuntimeException {
 	public static class InvalidGlobalOffset extends CLTypedException {}
 	@ErrorCode(CL_OUT_OF_HOST_MEMORY)
 	public static class OutOfHostMemory extends CLTypedException {}
+	@ErrorCode(CL_INVALID_COMPILER_OPTIONS)
+	public static class InvalidCompilerOptions extends CLTypedException {}
+	@ErrorCode(CL_INVALID_DEVICE)
+	public static class InvalidDevice extends CLTypedException {}
+	@ErrorCode(CL_INVALID_DEVICE_PARTITION_COUNT)
+	public static class InvalidDevicePartitionCount extends CLTypedException {}
+	@ErrorCode(CL_INVALID_HOST_PTR)
+	public static class InvalidHostPtr extends CLTypedException {}
+	@ErrorCode(CL_INVALID_IMAGE_DESCRIPTOR)
+	public static class InvalidImageDescriptor extends CLTypedException {}
+	@ErrorCode(CL_INVALID_LINKER_OPTIONS)
+	public static class InvalidLinkerOptions extends CLTypedException {}
+	@ErrorCode(CL_INVALID_PLATFORM)
+	public static class InvalidPlatform extends CLTypedException {}
+	@ErrorCode(CL_INVALID_PROPERTY)
+	public static class InvalidProperty extends CLTypedException {}
 	@ErrorCode(CL_INVALID_COMMAND_QUEUE)
 	public static class InvalidCommandQueue extends CLTypedException {}
     @ErrorCode(CL_MEM_COPY_OVERLAP)
