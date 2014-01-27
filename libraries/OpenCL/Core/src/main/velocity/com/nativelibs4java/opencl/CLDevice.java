@@ -634,6 +634,18 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
+     * Affinity domain specified in {@link #createSubDevicesByAffinity()}, or null if the device is not a sub-device or wasn't split by affinity.
+     * This returns part of CL_DEVICE_PARTITION_TYPE.
+     */
+    public AffinityDomain getPartitionAffinityDomain() {
+        Pointer<?> memory = infos.getMemory(getEntity(), CL_DEVICE_PARTITION_TYPE);
+        AffinityDomain affinityDomain = AffinityDomain.getEnum(memory.getLongAtOffset(0));
+        return affinityDomain;
+    }
+
+
+
+    /**
      * OpenCL profile string. <br/>
      * Returns the profile name supported by the device. <br/>
      * The profile name returned can be one of the following strings:
@@ -922,4 +934,115 @@ public class CLDevice extends CLAbstractEntity {
     public EnumSet<QueueProperties> getQueueProperties() {
         return QueueProperties.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_QUEUE_PROPERTIES));
     }
+
+    /** Enums values for cl_device_affinity_domain */
+    public enum AffinityDomain implements com.nativelibs4java.util.ValuedEnum {
+    	/** Split the device into sub-devices comprised of compute units that share a NUMA node. */
+    	NUMA(CL_DEVICE_AFFINITY_DOMAIN_NUMA),
+    	/** Split the device into sub-devices comprised of compute units that share a level 4 data cache. */
+		L4Cache(CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE),
+		/** Split the device into sub-devices comprised of compute units that share a level 3 data cache. */
+		L3Cache(CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE),
+		/** Split the device into sub-devices comprised of compute units that share a level 2 data cache. */
+		L2Cache(CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE),
+		/** Split the device into sub-devices comprised of compute units that share a level 1 data cache. */
+		L1Cache(CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE),
+		/**
+		 * Split the device along the next partitionable affinity domain. The implementation shall finde 
+		 * first level along which the device or sub-device may be further subdivided in the order NUMA, 
+		 * L4, L3, L2, L1, and partition the device into sub-devices comprised of compute units that share 
+		 * memory subsystems at this level.
+		 */
+		NextPartitionable(CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE);
+
+        AffinityDomain(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
+        
+        public static AffinityDomain getEnum(long v) {
+            return EnumValues.getEnum(v, AffinityDomain.class);
+        }
+    }
+
+    /**
+     * Creates an array of sub-devices that each reference a non-intersecting set of compute units within this device.
+     * Split the aggregate device into as many smaller aggregate devices as can be created, each containing n compute units. The value n is passed as the value accompanying this property. If n does not divide evenly into CL_DEVICE_PARTITION_MAX_COMPUTE_UNITS, then the remaining compute units are not used.
+#documentCallsFunction("clCreateSubDevices")
+	 * @param computeUnitsForEachSubDevice Count of compute units for every subdevice.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLDevice[] createSubDevicesEqually(long computeUnitsForEverySubDevices) {
+		return createSubDevices(pointerToLongs(
+			CL_DEVICE_PARTITION_EQUALLY, computeUnitsForEverySubDevices, 0
+		));
+	}
+
+    /**
+     * Creates an array of sub-devices that each reference a non-intersecting set of compute units within this device.
+     * For each nonzero count m in the list, a sub-device is created with m compute units in it.
+	 * The number of non-zero count entries in the list may not exceed CL_DEVICE_PARTITION_MAX_SUB_DEVICES.
+	 * The total number of compute units specified may not exceed CL_DEVICE_PARTITION_MAX_COMPUTE_UNITS.
+#documentCallsFunction("clCreateSubDevices")
+	 * @param computeUnitsForEachSubDevice List of counts of compute units for each subdevice.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLDevice[] createSubDevicesByCounts(long... computeUnitsForEachSubDevice) {
+    	Pointer<Long> pProperties = allocateLongs(1 + computeUnitsForEachSubDevice.length + 1 + 1);
+    	pProperties.setLongAtIndex(0, CL_DEVICE_PARTITION_BY_COUNTS);
+    	pProperties.setLongsAtOffset(8, computeUnitsForEachSubDevice);
+    	// This leaves two last longs as CL_DEVICE_PARTITION_BY_COUNTS_LIST_END=0 and 0 (end of properties).
+		return createSubDevices(pProperties);
+	}
+
+    /**
+     * Creates an array of sub-devices that each reference a non-intersecting set of compute units within this device.
+     * Split the device into smaller aggregate devices containing one or more compute units that all share part of a cache hierarchy.
+     * The user may determine what happened by calling clGetDeviceInfo (CL_DEVICE_PARTITION_TYPE) on the sub-devices.
+#documentCallsFunction("clCreateSubDevices")
+     * @param affinityDomain Affinity domain along which devices should be split.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLDevice[] createSubDevicesByAffinity(AffinityDomain affinityDomain) {
+		return createSubDevices(pointerToLongs(
+			affinityDomain.value(), 0
+		));
+	}
+
+    /**
+     * Creates an array of sub-devices that each reference a non-intersecting set of compute units within this device.
+#documentCallsFunction("clCreateSubDevices")
+#documentEventsToWaitForAndReturn()
+     */
+    CLDevice[] createSubDevices(Pointer<Long> pProperties) {
+		platform.requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
+
+        #declareReusablePtrs()
+        Pointer<Integer> pNum = ptrs.int1;
+        error(CL.clCreateSubDevices(getEntity(), getPeer(pProperties), 0, 0, getPeer(pNum)));
+        int num = pNum.getInt();
+
+        Pointer<SizeT> pDevices = allocateSizeTs(num);
+        error(CL.clCreateSubDevices(getEntity(), getPeer(pProperties), num, getPeer(pDevices), 0));
+        CLDevice[] devices = new CLDevice[(int) num];
+        for (int i = 0; i < num; i++) {
+        	devices[i] = new CLDevice(platform, pDevices.getSizeTAtIndex(i), true);
+        }
+        pDevices.release();
+        return devices;
+    }
+
+    /**
+#documentCallsFunction("clEnqueueMigrateMemObjects")
+     * @param queue
+#documentEventsToWaitForAndReturn()
+     */
+	/*
+    public CLEvent enqueueMigrateMemObjects(CLQueue queue, CLEvent... eventsToWaitFor) {
+		context.getPlatform().requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
+        #declareReusablePtrsAndEventsInOut()
+        error(CL.clEnqueueMigrateMemObjects(queue.getEntity(), getEntity(), #eventsInOutArgsRaw()));
+        #returnEventOut("queue")
+    }
+    */
 }
