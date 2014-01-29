@@ -45,6 +45,10 @@ public class DeviceTest extends AbstractCommon {
         CLDevice[] subDevices = device.createSubDevicesEqually(subComputeUnits);
         for (CLDevice subDevice : subDevices) {
             assertEquals(subComputeUnits, subDevice.getMaxComputeUnits());
+
+            assertSame(device, subDevice.getParent());
+            // Force a get info CL_DEVICE_PARENT_DEVICE.
+            assertSame(device, new CLDevice(platform, null, subDevice.getEntity(), false).getParent());
         }
     }
 

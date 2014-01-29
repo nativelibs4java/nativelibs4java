@@ -36,15 +36,19 @@ public class CLDevice extends CLAbstractEntity {
     #declareInfosGetter("infos", "CL.clGetDeviceInfo")
     
     private volatile CLPlatform platform;
+    private volatile CLDevice parent;
+    private volatile boolean fetchedParent;
     private final boolean needsRelease;
 
     CLDevice(CLPlatform platform, long device) {
-    		this(platform, device, false);
+    		this(platform, null, device, false);
     }
-    CLDevice(CLPlatform platform, long device, boolean needsRelease) {
+    CLDevice(CLPlatform platform, CLDevice parent, long device, boolean needsRelease) {
         super(device);
         this.platform = platform;
         this.needsRelease = needsRelease;
+        this.parent = parent;
+        this.fetchedParent = parent != null;
     }
     
     public synchronized CLPlatform getPlatform() {
@@ -644,6 +648,20 @@ public class CLDevice extends CLAbstractEntity {
     }
 
 
+    /**
+     * Returns the cl_device_id of the parent device to which this sub-device belongs. If device is a root-level device, a NULL value is returned.
+	 */
+    public synchronized CLDevice getParent() {
+        if (!fetchedParent) {
+            Pointer ptr = infos.getPointer(getEntity(), CL_DEVICE_PARENT_DEVICE);
+            if (ptr != null) {
+            	parent = new CLDevice(platform, null, getPeer(ptr), false);
+            }
+            fetchedParent = true;
+        }
+        return parent;
+    }
+
 
     /**
      * OpenCL profile string. <br/>
@@ -1026,7 +1044,7 @@ public class CLDevice extends CLAbstractEntity {
         error(CL.clCreateSubDevices(getEntity(), getPeer(pProperties), num, getPeer(pDevices), 0));
         CLDevice[] devices = new CLDevice[(int) num];
         for (int i = 0; i < num; i++) {
-        	devices[i] = new CLDevice(platform, pDevices.getSizeTAtIndex(i), true);
+        	devices[i] = new CLDevice(platform, this, pDevices.getSizeTAtIndex(i), true);
         }
         pDevices.release();
         return devices;
