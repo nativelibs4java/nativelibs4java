@@ -17,7 +17,7 @@
 
   <properties>
 	<shadedArtifactAttached>true</shadedArtifactAttached>
-    <mainClass>com.nativelibs4java.opencl.hardware.HardwareReport</mainClass>
+    <mainClass>com.nativelibs4java.opencl.demos.hardware.HardwareReport</mainClass>
   </properties>
   
   <dependencies>
