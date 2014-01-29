@@ -551,23 +551,6 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return infos.getBool(getEntity(), CL_DEVICE_ERROR_CORRECTION_SUPPORT);
     }
 
-    /**
-     * Maximum size of the internal buffer that holds the output of printf calls from a kernel.
-     * The minimum value for the FULL profile is 1 MB. 
-     */
-    @InfoName("CL_DEVICE_PRINTF_BUFFER_SIZE")
-    public long getPrintfBufferSize() {
-        return infos.getIntOrLong(getEntity(), CL_DEVICE_PRINTF_BUFFER_SIZE);
-    }
-
-    /**
-     * Is CL_TRUE if the device’s preference is for the user to be responsible for synchronization, when sharing memory objects between OpenCL and other APIs such as DirectX, CL_FALSE if the device / implementation has a performant path for performing synchronization of memory object shared between OpenCL and other APIs such as DirectX. 
-     */
-    @InfoName("CL_DEVICE_PREFERRED_INTEROP_USER_SYNC")
-    public boolean isPreferredInteropUserSync() {
-        return infos.getBool(getEntity(), CL_DEVICE_PREFERRED_INTEROP_USER_SYNC);
-    }
-
     @InfoName("Out of order queues support")
     public boolean hasOutOfOrderQueueSupport() {
     		CLContext context = getPlatform().createContext(null, this);

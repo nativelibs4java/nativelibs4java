@@ -383,44 +383,13 @@ public class CLDevice extends CLAbstractEntity {
         return infos.getInt(getEntity(), CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE);
     }
 
-    /** Bit values for CL_DEVICE_SINGLE_FP_CONFIG */
-    public enum SingleFPConfig implements com.nativelibs4java.util.ValuedEnum {
-
-        /** denorms are supported                                  */
-        Denorm(CL_FP_DENORM),
-        /** INF and quiet NaNs are supported.                      */
-        InfNaN(CL_FP_INF_NAN),
-        /** round to nearest even rounding mode supported          */
-        RoundToNearest(CL_FP_ROUND_TO_NEAREST),
-        /** round to zero rounding mode supported                  */
-        RoundToZero(CL_FP_ROUND_TO_ZERO),
-        /** round to +ve and -ve infinity rounding modes supported */
-        RoundToInf(CL_FP_ROUND_TO_INF),
-        /** IEEE754-2008 fused multiply-add is supported.          */
-        FMA(CL_FP_FMA);
-
-        SingleFPConfig(long value) { this.value = value; }
-        long value;
-        @Override
-		public long value() { return value; }
-        
-
-        public static long getValue(EnumSet<SingleFPConfig> set) {
-            return EnumValues.getValue(set);
-        }
-
-        public static EnumSet<SingleFPConfig> getEnumSet(long v) {
-            return EnumValues.getEnumSet(v, SingleFPConfig.class);
-        }
-    }
-
     /**
      * Describes single precision floating- point capability of the device.<br/>
      * The mandated minimum floating-point capability is: RoundToNearest and InfNaN.
      */
     @InfoName("CL_DEVICE_SINGLE_FP_CONFIG")
-    public EnumSet<SingleFPConfig> getSingleFPConfig() {
-        return SingleFPConfig.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_SINGLE_FP_CONFIG));
+    public EnumSet<FpConfig> getSingleFPConfig() {
+        return FpConfig.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_SINGLE_FP_CONFIG));
     }
 
     /** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
@@ -533,6 +502,23 @@ public class CLDevice extends CLAbstractEntity {
     public boolean hasErrorCorrectionSupport() {
         return infos.getBool(getEntity(), CL_DEVICE_ERROR_CORRECTION_SUPPORT);
     }
+
+    /**
+     * Maximum size of the internal buffer that holds the output of printf calls from a kernel.
+     * The minimum value for the FULL profile is 1 MB. 
+     */
+    @InfoName("CL_DEVICE_PRINTF_BUFFER_SIZE")
+    public long getPrintfBufferSize() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_PRINTF_BUFFER_SIZE);
+    }
+
+    /**
+     * Is CL_TRUE if the device’s preference is for the user to be responsible for synchronization, when sharing memory objects between OpenCL and other APIs such as DirectX, CL_FALSE if the device / implementation has a performant path for performing synchronization of memory object shared between OpenCL and other APIs such as DirectX. 
+     */
+    @InfoName("CL_DEVICE_PREFERRED_INTEROP_USER_SYNC")
+    public boolean isPreferredInteropUserSync() {
+        return infos.getBool(getEntity(), CL_DEVICE_PREFERRED_INTEROP_USER_SYNC);
+    }
     
     @InfoName("Out of order queues support")
     public boolean hasOutOfOrderQueueSupport() {
@@ -629,6 +615,60 @@ public class CLDevice extends CLAbstractEntity {
         return infos.getString(getEntity(), CL_DEVICE_VENDOR);
     }
 
+	/**
+	 * Floating-point config of a device.
+	 * The mandated minimum floating-point capability for devices that are not of type CL_DEVICE_TYPE_CUSTOM is:
+	 * CL_FP_ROUND_TO_NEAREST | CL_FP_INF_NAN.
+	 */
+	public enum FpConfig implements com.nativelibs4java.util.ValuedEnum {
+		/**
+		 * Denorms are supported.
+		 */
+		Denorm(CL_FP_DENORM),
+		/**
+		 * INF and quiet NaNs are supported.
+		 */
+		InfNan(CL_FP_INF_NAN),
+		/**
+		 * Round to nearest even rounding mode supported.
+		 */
+		RoundToNearest(CL_FP_ROUND_TO_NEAREST),
+		/**
+		 * Round to zero rounding mode supported.
+		 */
+		RoundToZero(CL_FP_ROUND_TO_ZERO),
+		/**
+		 * Round to positive and negative infinity rounding modes supported.
+		 */
+		RoundToInf(CL_FP_ROUND_TO_INF),
+		/**
+		 * IEEE754-2008 fused multiply- add is supported.
+		 */
+		FMA(CL_FP_FMA),
+		/**
+		 * Divide and sqrt are correctly rounded as defined by the IEEE754 specification.
+		 */
+		CorrectlyRoundedDivideSqrt(CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT),
+		/**
+		 * Basic floating-point operations (such as addition, subtraction, multiplication).
+		 * are implemented in software.
+		 */
+		SoftFloat(CL_FP_SOFT_FLOAT);
+
+        FpConfig(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
+        public static long getValue(EnumSet<FpConfig> set) {
+            return EnumValues.getValue(set);
+        }
+
+        public static EnumSet<FpConfig> getEnumSet(long v) {
+            return EnumValues.getEnumSet(v, FpConfig.class);
+        }
+    }
+
+
     /**
     OpenCL software driver version string in the form major_number.minor_number.
      */
@@ -637,13 +677,90 @@ public class CLDevice extends CLAbstractEntity {
         return infos.getString(getEntity(), CL_DRIVER_VERSION);
     }
 
+	/** TODO */
+    @InfoName("CL_DEVICE_IMAGE_MAX_ARRAY_SIZE")
+    public long getImageMaxArraySize() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_IMAGE_MAX_ARRAY_SIZE);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_IMAGE_MAX_BUFFER_SIZE")
+    public long getImageMaxBufferSize() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_IMAGE_MAX_BUFFER_SIZE);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_DOUBLE_FP_CONFIG")
+    public EnumSet<FpConfig> getDoubleFpConfig() {
+        return isDoubleSupported() ? FpConfig.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_DOUBLE_FP_CONFIG)) : EnumSet.noneOf(FpConfig.class);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_HALF_FP_CONFIG")
+    public EnumSet<FpConfig> getHalfFpConfig() {
+    	return isHalfSupported() ? FpConfig.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_HALF_FP_CONFIG)) : EnumSet.noneOf(FpConfig.class);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_LINKER_AVAILABLE")
+    public boolean isLinkerAvailable() {
+        return infos.getBool(getEntity(), CL_DEVICE_LINKER_AVAILABLE);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF")
+    public long getNativeVectorWidthHalf() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF);
+    }
+
+    /** Device partition types. */
+    public enum PartitionType implements com.nativelibs4java.util.ValuedEnum {
+    	Equally(CL_DEVICE_PARTITION_EQUALLY),
+    	ByCounts(CL_DEVICE_PARTITION_BY_COUNTS),
+    	ByAffinityDomain(CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN);
+
+        PartitionType(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
+        public static long getValue(EnumSet<PartitionType> set) {
+            return EnumValues.getValue(set);
+        }
+
+        public static EnumSet<PartitionType> getEnumSet(long v) {
+            return EnumValues.getEnumSet(v, PartitionType.class);
+        }
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_PARTITION_PROPERTIES")
+    public EnumSet<PartitionType> getPartitionProperties() {
+        return PartitionType.getEnumSet(infos.getIntOrLong(getEntity(), CL_DEVICE_PARTITION_PROPERTIES));
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF")
+    public long getPreferredVectorWidthHalf() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF);
+    }
+
+	/** TODO */
+    @InfoName("CL_DEVICE_REFERENCE_COUNT")
+    public long getReferenceCount() {
+        return infos.getIntOrLong(getEntity(), CL_DEVICE_REFERENCE_COUNT);
+    }
+
     /**
      * Affinity domain specified in {@link #createSubDevicesByAffinity()}, or null if the device is not a sub-device or wasn't split by affinity.
      * This returns part of CL_DEVICE_PARTITION_TYPE.
      */
     public AffinityDomain getPartitionAffinityDomain() {
         Pointer<?> memory = infos.getMemory(getEntity(), CL_DEVICE_PARTITION_TYPE);
-        AffinityDomain affinityDomain = AffinityDomain.getEnum(memory.getLongAtOffset(0));
+        long type = memory.getSizeT();
+        if (type != CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN) {
+        	return null;
+        }
+        AffinityDomain affinityDomain = AffinityDomain.getEnum(memory.getSizeTAtIndex(1));
         return affinityDomain;
     }
 
@@ -822,16 +939,34 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-    Returns a space separated list of extension names (the extension names themselves do not contain any spaces). The list of extension names returned currently can include one or more of
+     * List of extension names supported by the device.
+     * The list of extension names returned can be vendor supported extension names and one or more of the following Khronos approved extension names:
+     * - cl_khr_int64_base_atomics
+     * - cl_khr_int64_extended_atomics
+     * - cl_khr_fp16
+     * - cl_khr_gl_sharing
+     * - cl_khr_gl_event
+     * - cl_khr_d3d10_sharing
+     * - cl_khr_dx9_media_sharing
+     * - cl_khr_d3d11_sharing
+     *
+     * The following approved Khronos extension names must be returned by all device that support OpenCL C 1.2:
+     * - cl_khr_global_int32_base_atomics
+     * - cl_khr_global_int32_extended_atomics
+     * - cl_khr_local_int32_base_atomics
+     * - cl_khr_local_int32_extended_atomics
+     * - cl_khr_byte_addressable_store
+     * - cl_khr_fp64 (for backward compatibility if double precision is supported)
+	 * Please refer to the OpenCL 1.2 Extension Specification for a detailed description of these extensions.
      */
     @InfoName("CL_DEVICE_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = infos.getString(getEntity(), CL_DEVICE_EXTENSIONS).split("\\s+");
+            extensions = new LinkedHashSet<String>(Arrays.asList(infos.getString(getEntity(), CL_DEVICE_EXTENSIONS).split("\\s+")));
         }
-        return extensions;
+        return extensions.toArray(new String[extensions.size()]);
     }
-    private String[] extensions;
+    private Set<String> extensions;
 
     public boolean hasExtension(String name) {
         name = name.trim();
@@ -842,6 +977,18 @@ public class CLDevice extends CLAbstractEntity {
         }
         return false;
     }
+
+    /**
+     * List of built-in kernels supported by the device.
+     */
+    @InfoName("CL_DEVICE_BUILT_IN_KERNELS")
+    public String[] getBuiltInKernels() {
+        if (buildInKernels == null) {
+            buildInKernels = new LinkedHashSet<String>(Arrays.asList(infos.getString(getEntity(), CL_DEVICE_BUILT_IN_KERNELS).split(";")));
+        }
+        return buildInKernels.toArray(new String[buildInKernels.size()]);
+    }
+    private Set<String> buildInKernels;
 
     /**
      * Whether this device support any double-precision number extension (<a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_fp64.html">cl_khr_fp64</a> or <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_amd_fp64.html">cl_amd_fp64</a>)
@@ -1007,9 +1154,12 @@ public class CLDevice extends CLAbstractEntity {
      */
     public CLDevice[] createSubDevicesByCounts(long... computeUnitsForEachSubDevice) {
     	Pointer<SizeT> pProperties = allocateSizeTs(1 + computeUnitsForEachSubDevice.length + 1 + 1);
-    	pProperties.setSizeTAtIndex(0, CL_DEVICE_PARTITION_BY_COUNTS);
-    	pProperties.setSizeTsAtOffset(SizeT.SIZE, computeUnitsForEachSubDevice);
-    	// This leaves two last longs as CL_DEVICE_PARTITION_BY_COUNTS_LIST_END=0 and 0 (end of properties).
+    	int i = 0;
+    	pProperties.setSizeTAtIndex(i++, CL_DEVICE_PARTITION_BY_COUNTS);
+    	for (long count : computeUnitsForEachSubDevice) {
+    		pProperties.setSizeTAtIndex(i++, count);
+    	}
+		pProperties.setSizeTAtIndex(i++, CL_DEVICE_PARTITION_BY_COUNTS_LIST_END);
 		return createSubDevices(pProperties);
 	}
 
@@ -1023,7 +1173,7 @@ public class CLDevice extends CLAbstractEntity {
      */
     public CLDevice[] createSubDevicesByAffinity(AffinityDomain affinityDomain) {
 		return createSubDevices(pointerToSizeTs(
-			affinityDomain.value(), 0, 0
+			CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN, affinityDomain.value(), 0, 0
 		));
 	}
 
