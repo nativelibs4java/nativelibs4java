@@ -56,6 +56,11 @@ public class CLImage2D extends CLImage {
 		return infos.getIntOrLong(getEntity(), CL_IMAGE_HEIGHT);
 	}
 
+	@Override
+	protected long[] getDimensions() {
+		return new long[] { getWidth(), getHeight(), 1 };
+	}
+
 	/**
 #documentEventsToWaitForAndReturn()
 	 */

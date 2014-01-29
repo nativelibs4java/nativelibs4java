@@ -300,7 +300,7 @@ public class ImageTest extends AbstractCommon {
 	public void testShortGrayImageSource() {
             if (!supportsImages())
                 return;
-            try {
+            // try {
 			CLContext context = JavaCL.createBestContext();
             CLQueue queue = context.createDefaultQueue();
 			String src = "\n" +
@@ -391,8 +391,28 @@ public class ImageTest extends AbstractCommon {
 			}
              *
              */
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        // } catch (Exception ex) {
+        //     ex.printStackTrace();
+        // }
 	}
+
+    @Test
+    public void testFillImage() {
+        if (!supportsImages())
+            return;
+        int width = 256, height = 256;
+        CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, CLImageFormat.INT_ARGB_FORMAT, width, height);
+
+        int red = 100, green = 110, blue = 120, alpha = 127;
+        int argb = alpha << 24 | red << 16 | green << 8 | blue;
+        CLEvent e = clim.fillImage(queue, new int[] { red, green, blue, alpha });
+        BufferedImage im = clim.read(queue, e);
+        //int[] rgb = im.getRGB(0, 0, width, height, null, 0, width);
+        for (int x = 0; x < width; x++) {
+        	for (int y = 0; y < height; y++) {
+                int pix = im.getRGB(x, y);
+        		assertEquals(argb, pix);
+        	}
+        }
+    }
 }

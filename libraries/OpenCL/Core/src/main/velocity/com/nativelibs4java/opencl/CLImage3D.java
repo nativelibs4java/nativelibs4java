@@ -39,6 +39,11 @@ public class CLImage3D extends CLImage2D {
 		return infos.getIntOrLong(getEntity(), CL_IMAGE_DEPTH);
 	}
 
+	@Override
+	protected long[] getDimensions() {
+		return new long[] { getWidth(), getHeight(), getDepth() };
+	}
+
 	/**
 #documentEventsToWaitForAndReturn()
 	 */

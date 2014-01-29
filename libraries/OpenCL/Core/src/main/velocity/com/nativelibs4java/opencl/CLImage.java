@@ -2,6 +2,7 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.JavaCL.check;
 import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_FALSE;
 import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_ELEMENT_SIZE;
 import static com.nativelibs4java.opencl.library.IOpenCLLibrary.CL_IMAGE_FORMAT;
@@ -37,7 +38,7 @@ public abstract class CLImage extends CLMem {
 		this.format = format;
 	}
 
-
+	protected abstract long[] getDimensions();
 
 	/**
 	 * Return image format descriptor specified when image is created with CLContext.create{Input|Output|InputOutput}{2D|3D}.
@@ -123,6 +124,65 @@ public abstract class CLImage extends CLMem {
 
 		return evt;
 	}
+
+    /**
+#documentCallsFunction("clEnqueueFillImage")
+     * @param queue
+     * @param queue Queue on which to enqueue this fill buffer command.
+     * @param color Color components to fill the buffer with.
+     * @param origin Origin point.
+     * @param region Size of the region to fill.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent fillImage(CLQueue queue, Object color, CLEvent... eventsToWaitFor) {
+    	long[] region = getDimensions();
+    	long[] origin = new long[region.length];
+    	return fillImage(queue, color, origin, region, eventsToWaitFor);
+    }
+
+    /**
+#documentCallsFunction("clEnqueueFillImage")
+     * @param queue
+     * @param queue Queue on which to enqueue this fill buffer command.
+     * @param color Color components to fill the buffer with.
+     * @param origin Origin point.
+     * @param region Size of the region to fill.
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent fillImage(CLQueue queue, Object color, long[] origin, long[] region, CLEvent... eventsToWaitFor) {
+    	context.getPlatform().requireMinVersionValue("clEnqueueFillImage", 1.2);
+		Pointer<?> pColor;
+		if (color instanceof int[]) {
+			pColor = pointerToInts((int[]) color);
+		} else if (color instanceof float[]) {
+			pColor = pointerToFloats((float[]) color);
+		} else {
+			throw new IllegalArgumentException("Color should be an int[] or a float[] with 4 elements.");
+		}
+		check(pColor.getValidElements() == 4, "Color should have 4 elements.");
+
+		#declareReusablePtrsAndEventsInOut()
+		Pointer<SizeT> pOrigin = ptrs.sizeT3_1.pointerToSizeTs(origin);
+		Pointer<SizeT> pRegion = ptrs.sizeT3_2.pointerToSizeTs(region);
+		error(CL.clEnqueueFillImage(
+			queue.getEntity(),
+			getEntity(),
+			getPeer(pColor),
+			getPeer(pOrigin),
+			getPeer(pRegion),
+			#eventsInOutArgsRaw()
+		));
+        #returnEventOut("queue")
+    }
+
+	// clEnqueueFillImage (	cl_command_queue command_queue,
+ // 	cl_mem image,
+ // 	const void *fill_color,
+ // 	const size_t *origin,
+ // 	const size_t *region,
+ // 	cl_uint num_events_in_wait_list,
+ // 	const cl_event *event_wait_list,
+ // 	cl_event *event)
 
     protected Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags,
             Pointer<SizeT> offset3, Pointer<SizeT> length3,
