@@ -751,7 +751,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Affinity domain specified in {@link #createSubDevicesByAffinity()}, or null if the device is not a sub-device or wasn't split by affinity.
+     * Affinity domain specified in {@link #createSubDevicesByAffinity(AffinityDomain)}, or null if the device is not a sub-device or wasn't split by affinity.
      * This returns part of CL_DEVICE_PARTITION_TYPE.
      */
     public AffinityDomain getPartitionAffinityDomain() {
@@ -1134,7 +1134,7 @@ public class CLDevice extends CLAbstractEntity {
      * Creates an array of sub-devices that each reference a non-intersecting set of compute units within this device.
      * Split the aggregate device into as many smaller aggregate devices as can be created, each containing n compute units. The value n is passed as the value accompanying this property. If n does not divide evenly into CL_DEVICE_PARTITION_MAX_COMPUTE_UNITS, then the remaining compute units are not used.
 #documentCallsFunction("clCreateSubDevices")
-	 * @param computeUnitsForEachSubDevice Count of compute units for every subdevice.
+	 * @param computeUnitsForEverySubDevice Count of compute units for every subdevice.
 #documentEventsToWaitForAndReturn()
      */
     public CLDevice[] createSubDevicesEqually(int computeUnitsForEverySubDevices) {

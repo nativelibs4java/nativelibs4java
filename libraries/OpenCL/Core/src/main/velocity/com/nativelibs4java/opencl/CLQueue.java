@@ -109,6 +109,31 @@ public class CLQueue extends CLAbstractEntity {
             return;
         error(CL.clEnqueueWaitForEvents(getEntity(), #eventsInArgsRaw()));
 	}
+	
+
+	/**
+#documentCallsFunction("clEnqueueMigrateMemObjects")
+	 * Enqueues a command to indicate which device a set of memory objects should be associated with.
+	 */
+	public CLEvent enqueueMigrateMemObjects(CLMem[] memObjects, EnumSet<CLMem.Migration> flags, CLEvent... eventsToWaitFor) {
+		context.getPlatform().requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
+		#declareReusablePtrsAndEventsInOut()
+		int n = 0;
+		Pointer<SizeT> pMems = allocateSizeTs(memObjects.length);
+		for (CLMem mem : memObjects) {
+			if (mem != null) {
+				pMems.setSizeTAtIndex(n++, mem.getEntity());
+			}
+		}
+		error(CL.clEnqueueMigrateMemObjects(
+			getEntity(),
+			n,
+			getPeer(pMems),
+			CLMem.Migration.getValue(flags),
+			#eventsInOutArgsRaw()
+		));
+		#returnEventOut("this")
+	}
 
 	/**
 #documentCallsFunction("clEnqueueBarrierWithWaitList")

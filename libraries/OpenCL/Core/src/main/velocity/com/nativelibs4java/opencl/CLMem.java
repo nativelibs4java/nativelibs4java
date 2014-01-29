@@ -123,6 +123,35 @@ public abstract class CLMem extends CLAbstractEntity {
 		}
 	}
 
+	/**
+	 * Memory object migration options (see {@link CLQueue#enqueueMigrateMemObjects(CLMem[], CLEvent[])}).
+	 */
+	public enum Migration implements com.nativelibs4java.util.ValuedEnum {
+		/**
+		 * This flag indicates that the specified set of memory objects are to be migrated 
+		 * to the host, regardless of the target command-queue.
+		 */
+		Host(CL_MIGRATE_MEM_OBJECT_HOST),
+		/**
+		 * This flag indicates that the contents of the set of memory objects are undefined after 
+		 * migration. The specified set of memory objects are migrated to the device associated with 
+		 * command_queue without incurring the overhead of migrating their contents.
+		 */
+		ContentUndefined(CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED);
+
+        Migration(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
+        public static long getValue(EnumSet<Migration> set) {
+            return EnumValues.getValue(set);
+        }
+
+        public static EnumSet<Migration> getEnumSet(long v) {
+            return EnumValues.getEnumSet(v, Migration.class);
+        }
+    }
+
 	public enum Flags implements com.nativelibs4java.util.ValuedEnum {
 		/**
 		 * This flag specifies that the memory object will be read and written by a kernel. This is the default.
