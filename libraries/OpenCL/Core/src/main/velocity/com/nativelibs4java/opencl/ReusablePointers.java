@@ -8,6 +8,8 @@ import static org.bridj.Pointer.*;
  * @author ochafik
  */
 final class ReusablePointers {
+	public final int[] int1Array = new int[1];
+
     public final ReusablePointer
             sizeT3_1 = new ReusablePointer(3 * SizeT.SIZE),
             sizeT3_2 = new ReusablePointer(3 * SizeT.SIZE),

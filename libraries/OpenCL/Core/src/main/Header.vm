@@ -33,7 +33,7 @@
 #end
 	
 #macro (declareEventsIn)
-	int[] eventsInCount = new int[1];
+	int[] eventsInCount = ptrs.int1Array;
 	Pointer<cl_event> eventsIn = 
 		CLAbstractEntity.copyNonNullEntities(eventsToWaitFor, eventsInCount, ptrs.events_in);
 #end

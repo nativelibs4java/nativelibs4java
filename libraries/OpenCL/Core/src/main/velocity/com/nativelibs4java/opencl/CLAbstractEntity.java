@@ -29,11 +29,11 @@ abstract class CLAbstractEntity {
     }
 
     static <T> Pointer<T> copyNonNullEntities(CLAbstractEntity[] entities, int[] countOut, ReusablePointer tmp) {
-		int n;
-		if (entities == null || (n = entities.length) == 0) {
+		if (entities == null) {
 		    countOut[0] = 0;
 			return null;
 		}
+		int n = entities.length;
 		Pointer<T> out = null;
 		
 		int count = 0;
