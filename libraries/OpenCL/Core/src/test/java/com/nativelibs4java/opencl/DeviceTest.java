@@ -40,16 +40,41 @@ public class DeviceTest extends AbstractCommon {
     @Test
     public void testSplitEqually() {
         int computeUnits = device.getMaxComputeUnits();
+        System.out.println("computeUnits = " + computeUnits);
         int subComputeUnits = 1;//computeUnits / 2;
         
         CLDevice[] subDevices = device.createSubDevicesEqually(subComputeUnits);
         for (CLDevice subDevice : subDevices) {
             assertEquals(subComputeUnits, subDevice.getMaxComputeUnits());
-
-            assertSame(device, subDevice.getParent());
-            // Force a get info CL_DEVICE_PARENT_DEVICE.
-            assertSame(device, new CLDevice(platform, null, subDevice.getEntity(), false).getParent());
+            checkParent(device, subDevice);
         }
+    }
+    @Test
+    public void testSplitByCounts() {
+        long[] counts = new long[] { 2, 4, 8 };
+        CLDevice[] subDevices = device.createSubDevicesByCounts(counts);
+        assertEquals(counts.length, subDevices.length);
+        int i = 0;
+        for (CLDevice subDevice : subDevices) {
+        	long count = counts[i];
+            assertEquals(count, subDevice.getMaxComputeUnits());
+            checkParent(device, subDevice);
+            i++;
+        }
+    }
+    @Test
+    public void testSplitByAffinity() {
+        CLDevice[] subDevices = device.createSubDevicesByAffinity(CLDevice.AffinityDomain.NextPartitionable);
+        assertTrue(subDevices.length > 1);
+        for (CLDevice subDevice : subDevices) {
+            checkParent(device, subDevice);
+        }
+    }
+
+    private void checkParent(CLDevice parent, CLDevice child) {
+        assertSame(device, child.getParent());
+        // Force a get info CL_DEVICE_PARENT_DEVICE.
+        assertSame(device, new CLDevice(platform, null, child.getEntity(), false).getParent());
     }
 
 }

@@ -990,9 +990,9 @@ public class CLDevice extends CLAbstractEntity {
 	 * @param computeUnitsForEachSubDevice Count of compute units for every subdevice.
 #documentEventsToWaitForAndReturn()
      */
-    public CLDevice[] createSubDevicesEqually(long computeUnitsForEverySubDevices) {
-		return createSubDevices(pointerToLongs(
-			CL_DEVICE_PARTITION_EQUALLY, computeUnitsForEverySubDevices, 0
+    public CLDevice[] createSubDevicesEqually(int computeUnitsForEverySubDevices) {
+		return createSubDevices(pointerToSizeTs(
+			CL_DEVICE_PARTITION_EQUALLY, computeUnitsForEverySubDevices, 0, 0
 		));
 	}
 
@@ -1006,9 +1006,9 @@ public class CLDevice extends CLAbstractEntity {
 #documentEventsToWaitForAndReturn()
      */
     public CLDevice[] createSubDevicesByCounts(long... computeUnitsForEachSubDevice) {
-    	Pointer<Long> pProperties = allocateLongs(1 + computeUnitsForEachSubDevice.length + 1 + 1);
-    	pProperties.setLongAtIndex(0, CL_DEVICE_PARTITION_BY_COUNTS);
-    	pProperties.setLongsAtOffset(8, computeUnitsForEachSubDevice);
+    	Pointer<SizeT> pProperties = allocateSizeTs(1 + computeUnitsForEachSubDevice.length + 1 + 1);
+    	pProperties.setSizeTAtIndex(0, CL_DEVICE_PARTITION_BY_COUNTS);
+    	pProperties.setSizeTsAtOffset(SizeT.SIZE, computeUnitsForEachSubDevice);
     	// This leaves two last longs as CL_DEVICE_PARTITION_BY_COUNTS_LIST_END=0 and 0 (end of properties).
 		return createSubDevices(pProperties);
 	}
@@ -1022,8 +1022,8 @@ public class CLDevice extends CLAbstractEntity {
 #documentEventsToWaitForAndReturn()
      */
     public CLDevice[] createSubDevicesByAffinity(AffinityDomain affinityDomain) {
-		return createSubDevices(pointerToLongs(
-			affinityDomain.value(), 0
+		return createSubDevices(pointerToSizeTs(
+			affinityDomain.value(), 0, 0
 		));
 	}
 
@@ -1032,7 +1032,7 @@ public class CLDevice extends CLAbstractEntity {
 #documentCallsFunction("clCreateSubDevices")
 #documentEventsToWaitForAndReturn()
      */
-    CLDevice[] createSubDevices(Pointer<Long> pProperties) {
+    CLDevice[] createSubDevices(Pointer<SizeT> pProperties) {
 		platform.requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
 
         #declareReusablePtrs()
