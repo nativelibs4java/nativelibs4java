@@ -969,13 +969,8 @@ public class CLDevice extends CLAbstractEntity {
     private Set<String> extensions;
 
     public boolean hasExtension(String name) {
-        name = name.trim();
-        for (String x : getExtensions()) {
-            if (name.equals(x.trim())) {
-                return true;
-            }
-        }
-        return false;
+        getExtensions();
+        return extensions.contains(name.trim());
     }
 
     /**

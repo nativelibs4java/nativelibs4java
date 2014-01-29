@@ -454,21 +454,15 @@ public class CLPlatform extends CLAbstractEntity {
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = infos.getString(getEntity(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+            extensions = new LinkedHashSet<String>(Arrays.asList(infos.getString(getEntity(), CL_DEVICE_EXTENSIONS).split("\\s+")));
         }
-        return extensions;
+        return extensions.toArray(new String[extensions.size()]);
     }
+    private Set<String> extensions;
 
-    private String[] extensions;
-
-    boolean hasExtension(String name) {
-        name = name.trim();
-        for (String x : getExtensions()) {
-            if (name.equals(x.trim())) {
-                return true;
-            }
-        }
-        return false;
+    public boolean hasExtension(String name) {
+        getExtensions();
+        return extensions.contains(name.trim());
     }
 
     @InfoName("cl_nv_device_attribute_query")
