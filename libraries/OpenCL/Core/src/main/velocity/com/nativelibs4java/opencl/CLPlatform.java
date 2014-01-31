@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.logging.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -419,14 +420,20 @@ public class CLPlatform extends CLAbstractEntity {
     void requireMinVersionValue(String feature, double minValue) {
     	requireMinVersionValue(feature, minValue, Double.NaN);
     }
+    private Set<String> featuresCheckedForVersion = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
     void requireMinVersionValue(String feature, double minValue, double deprecationValue) {
     	double value = getVersionValue();
     	if (value < minValue) {
     		throw new CLVersionException(feature + " requires OpenCL version " + minValue +
     			" (detected version is " + value + ")");
-    	} else if (!Double.isNaN(deprecationValue) && (value < deprecationValue)) {
-    		// The above test will work fine (i.e. will fail) with NaN.
-    		log(Level.WARNING, feature + " is deprecated from OpenCL version " + deprecationValue +
+    	} else if (!Double.isNaN(deprecationValue) && featuresCheckedForVersion.add(feature)) {
+    		Level level = null;
+    		if (value < deprecationValue && JavaCL.verbose)
+    			level = Level.INFO;
+    		else if (value >= deprecationValue)
+    			level = Level.WARNING;
+    		if (level != null && shouldLog(level))
+    			log(level, feature + " is deprecated from OpenCL version " + deprecationValue +
     			" (detected version is " + value + ")");
     	}
     }

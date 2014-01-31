@@ -118,7 +118,7 @@ public class CLQueue extends CLAbstractEntity {
 	public CLEvent enqueueMigrateMemObjects(CLMem[] memObjects, EnumSet<CLMem.Migration> flags, CLEvent... eventsToWaitFor) {
 		context.getPlatform().requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
 		#declareReusablePtrsAndEventsInOut()
-		int[] n = pts.int1Array;
+		int[] n = ptrs.int1Array;
 		Pointer<SizeT> pMems = pointerToEntities(memObjects, n);
 		error(CL.clEnqueueMigrateMemObjects(
 			getEntity(),
@@ -155,7 +155,7 @@ public class CLQueue extends CLAbstractEntity {
 		// TODO check 1.1 or 1.2?
 		context.getPlatform().requireMinVersionValue("clEnqueueNativeKernel", 1.2);
 		#declareReusablePtrsAndEventsInOut()
-		int[] n = pts.int1Array;
+		int[] n = ptrs.int1Array;
 		Pointer<SizeT> pMems = pointerToEntities(buffers, n);
 		error(CL.clEnqueueNativeKernel(
 			getEntity(),
