@@ -118,22 +118,55 @@ public class CLQueue extends CLAbstractEntity {
 	public CLEvent enqueueMigrateMemObjects(CLMem[] memObjects, EnumSet<CLMem.Migration> flags, CLEvent... eventsToWaitFor) {
 		context.getPlatform().requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
 		#declareReusablePtrsAndEventsInOut()
-		int n = 0;
-		Pointer<SizeT> pMems = allocateSizeTs(memObjects.length);
-		for (CLMem mem : memObjects) {
-			if (mem != null) {
-				pMems.setSizeTAtIndex(n++, mem.getEntity());
-			}
-		}
+		int[] n = pts.int1Array;
+		Pointer<SizeT> pMems = pointerToEntities(memObjects, n);
 		error(CL.clEnqueueMigrateMemObjects(
 			getEntity(),
-			n,
+			n[0],
 			getPeer(pMems),
 			CLMem.Migration.getValue(flags),
 			#eventsInOutArgsRaw()
 		));
 		#returnEventOut("this")
 	}
+
+	// 
+	public interface NativeKernel {
+		void execute(Pointer[] bufferPointers);
+	}
+
+	private static Pointer<SizeT> pointerToEntities(CLAbstractEntity[] entities, int[] n) {
+		int nn = 0;
+		Pointer<SizeT> pEntities = allocateSizeTs(entities.length);
+		for (CLAbstractEntity entity : entities) {
+			if (entity != null) {
+				pEntities.setSizeTAtIndex(nn++, entity.getEntity());
+			}
+		}
+		n[0] = nn;
+		return pEntities;
+	}
+	/**
+#documentCallsFunction("clEnqueueNativeKernel")
+	 * Enqueues a command to execute a Java callback with direct access to buffer memory.
+	 */
+	/*
+	public CLEvent enqueueNativeKernel(NativeKernel kernel, CLMem[] buffers, CLEvent... eventsToWaitFor) {
+		// TODO check 1.1 or 1.2?
+		context.getPlatform().requireMinVersionValue("clEnqueueNativeKernel", 1.2);
+		#declareReusablePtrsAndEventsInOut()
+		int[] n = pts.int1Array;
+		Pointer<SizeT> pMems = pointerToEntities(buffers, n);
+		error(CL.clEnqueueNativeKernel(
+			getEntity(),
+			n[0],
+			getPeer(pMems),
+			CLMem.Migration.getValue(flags),
+			#eventsInOutArgsRaw()
+		));
+		#returnEventOut("this")
+	}
+	*/
 
 	/**
 #documentCallsFunction("clEnqueueBarrierWithWaitList")
