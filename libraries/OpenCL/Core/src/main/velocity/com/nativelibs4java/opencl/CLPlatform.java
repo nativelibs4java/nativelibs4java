@@ -461,7 +461,7 @@ public class CLPlatform extends CLAbstractEntity {
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = new LinkedHashSet<String>(Arrays.asList(infos.getString(getEntity(), CL_DEVICE_EXTENSIONS).split("\\s+")));
+            extensions = new LinkedHashSet<String>(Arrays.asList(infos.getString(getEntity(), CL_PLATFORM_EXTENSIONS).split("\\s+")));
         }
         return extensions.toArray(new String[extensions.size()]);
     }
