@@ -36,7 +36,7 @@ import components._
 
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
-import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
+import scala.reflect.api.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
 import scala.tools.nsc.symtab.Flags._
 import scala.tools.nsc.plugins.PluginComponent

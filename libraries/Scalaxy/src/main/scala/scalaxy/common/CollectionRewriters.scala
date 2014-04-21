@@ -415,9 +415,9 @@ trait RewritingPluginComponent {
             val manifestList = if (needsManifest) {
               var t = componentType
               
-              var manifest = localTyper.findManifest(t, false).tree
+              var manifest = findManifest(t)
               if (manifest == EmptyTree)
-                manifest = localTyper.findManifest(normalize(t), false).tree // TODO remove me ?
+                manifest = findManifest(normalize(t)) // TODO remove me ?
               assert(manifest != EmptyTree, "Empty manifest for type : " + t + " = " + normalize(t))
           
               // TODO: REMOVE THIS UGLY WORKAROUND !!!

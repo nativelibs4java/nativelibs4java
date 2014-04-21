@@ -34,7 +34,7 @@ import pluginBase._
 import scala.collection.immutable.Stack
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
-import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
+import scala.reflect.api.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
 import tools.nsc.plugins.PluginComponent
 

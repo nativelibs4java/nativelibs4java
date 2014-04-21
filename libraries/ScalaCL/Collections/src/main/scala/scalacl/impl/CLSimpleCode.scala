@@ -32,7 +32,7 @@ class CLSimpleCode(
       if (kernels.size != 1)
         throw new RuntimeException("Expected a unique kernel in the program, found " + kernels.size + " : " + kernels.keys.mkString(", "))
         
-      kernels.first._2
+      kernels.head._2
     }
     
     val flatArgs = args.flatMap(flattenArgs _)
@@ -43,7 +43,7 @@ class CLSimpleCode(
         if (verbose)
           println("[ScalaCL] Enqueuing kernel " + kernel.getFunctionName + " with dims " + dims.mkString(", "))
         kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
-      } catch { case ex =>
+      } catch { case ex: Throwable =>
         ex.printStackTrace(System.out)
         throw ex
       }

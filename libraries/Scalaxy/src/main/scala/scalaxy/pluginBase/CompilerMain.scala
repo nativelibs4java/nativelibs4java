@@ -32,8 +32,8 @@ package com.nativelibs4java.scalaxy ; package pluginBase
 
 import java.io.File
 import scala.collection.immutable.Stack
-import scala.reflect.generic.Names
-import scala.reflect.generic.Trees
+import scala.reflect.api.Names
+import scala.reflect.api.Trees
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.Settings
@@ -70,6 +70,7 @@ object CompilerMain {
   }
   lazy val extraArgs = Array(
     "-optimise",
+    "-Yinline", "-Yclosure-elim",
     //"-usejavacp",
     "-bootclasspath", bootClassPath
   )
@@ -81,7 +82,7 @@ trait CompilerMain {
   def main(args: Array[String]) {
     try {
       compilerMain(args, true)
-    } catch { case ex =>
+    } catch { case ex: Throwable =>
       ex.printStackTrace
       throw ex
     }

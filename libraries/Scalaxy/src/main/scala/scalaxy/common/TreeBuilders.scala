@@ -71,7 +71,7 @@ extends MiscMatchers
     } catch {
       case ex: UnsupportedOperationException =>
         throw ex
-      case ex =>
+      case ex: Throwable =>
         var str = 
           """An unexpected error occurred while attempting an optimization
   Attempted optimization : '"""+ text + """'
@@ -138,7 +138,7 @@ extends MiscMatchers
         ).setSymbol(Any_isInstanceOf),
         List(tt)
       ).setSymbol(Any_isInstanceOf)
-    } catch { case ex =>
+    } catch { case ex: Throwable =>
       ex.printStackTrace
       throw new RuntimeException(ex)
     }
@@ -242,7 +242,7 @@ extends MiscMatchers
   
   def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
       typed {
-        val sym = (ArrayModule.tpe member "ofDim" alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head
+        val sym = (ArrayModule.tpe member newTermName("ofDim") alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head
         Apply(
           Apply(
             TypeApply(
@@ -326,7 +326,7 @@ extends MiscMatchers
     else
       binOp(a, BooleanClass.tpe.member(nme.ZOR), b)
   }
-  def ident(sym: Symbol, n: Name, pos: Position = NoPosition) = {
+  def ident(sym: Symbol, n: TermName, pos: Position = NoPosition) = {
     assert(sym != NoSymbol)
     val v = Ident(n)
     v.symbol = sym
@@ -482,7 +482,7 @@ extends MiscMatchers
   }
   
   def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = typed {
-    val manifest = localTyper.findManifest(componentType, false).tree
+    val manifest = findManifest(componentType)
     assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
     
     val method = tree.tpe member toArrayName
@@ -525,10 +525,10 @@ extends MiscMatchers
     var tpe = initialValue.tpe
     if (tpe.isInstanceOf[ConstantType])
       tpe = tpe.widen
-    val name = unit.fresh.newName(pos, prefix)
+    val name: TermName = unit.fresh.newName(pos, prefix)
     val sym = (
       if (mutable)
-        symbolOwner.newVariable(pos, name)
+        symbolOwner.newVariable(name, pos)
       else
         symbolOwner.newValue(pos, name)
     ).setFlag(SYNTHETIC | LOCAL)
@@ -545,6 +545,11 @@ extends MiscMatchers
         initialValue
       ).setType(tpe).setSymbol(sym)
     )
+  }
+
+  def findManifest(t: Type): Tree = {
+    val mt = typeOf[Manifest[_]]
+    typer.inferImplicitValue(typeRef(mt, mt.typeConstructor, List(t)))
   }
 }
 

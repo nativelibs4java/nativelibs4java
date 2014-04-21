@@ -112,7 +112,7 @@ object CompilerUtils {
       try {
         new URI(path);
       } catch {
-        case ex =>
+        case ex: Throwable =>
           ex.printStackTrace();
           null;
       }

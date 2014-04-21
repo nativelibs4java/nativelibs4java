@@ -67,10 +67,10 @@ trait MiscMatchers extends PluginNames with WithOptions {
     case _                  => (tree, Nil)
   }
   /** Creates an Ident or Select from a list of names. */
-  def mkSelect(names: Name*): Tree = names.toList match {
+  def mkSelect(names: String*): Tree = names.toList match {
     case Nil        => EmptyTree
     case x :: Nil   => Ident(x)
-    case x :: xs    => xs.foldLeft(Ident(x): Tree)(Select(_, _))
+    case x :: xs    => xs.foldLeft(Ident(x: TermName): Tree)(Select(_, _))
   }
 
   class Ids(start: Long = 1) {
@@ -383,11 +383,11 @@ trait MiscMatchers extends PluginNames with WithOptions {
     lazy val println  = this("println")
 
     def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
-    def apply(name: String): Symbol  = PredefModule.tpe member name
+    def apply(name: TermName): Symbol  = PredefModule.tpe member name
     def unapply(tree: Tree): Boolean = tree.symbol == PredefModule
   }
   object ArrayOps {
-    lazy val ArrayOpsClass    = definitions.getClass("scala.collection.mutable.ArrayOps")
+    lazy val ArrayOpsClass    = definitions.getClass("scala.collection.mutable.ArrayOps": TypeName)
 
     def unapply(tree: Tree): Option[Type] = tree match {
       case TypeApply(sel, List(arg))
@@ -442,7 +442,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
 
   object ArrayTabulate {
     /** This is the one all the other ones go through. */
-    lazy val tabulateSyms = (ArrayModule.tpe member "tabulate" alternatives).toSet//filter (_.paramss.flatten.size == 3)
+    lazy val tabulateSyms = (ArrayModule.tpe member newTermName("tabulate") alternatives).toSet//filter (_.paramss.flatten.size == 3)
 
     def apply(componentType: Tree, lengths: List[Tree], function: Tree, manifest: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, List[Tree], Tree, Tree)] = {

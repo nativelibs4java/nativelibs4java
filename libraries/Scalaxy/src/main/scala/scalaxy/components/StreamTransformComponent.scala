@@ -290,7 +290,7 @@ extends PluginComponent
             if (options.veryVerbose)
               unit.warning(tree.pos, ex.toString)
             super.transform(tree)
-          case ex =>
+          case ex: Throwable =>
             if (options.veryVerbose)
               ex.printStackTrace
             super.transform(tree)

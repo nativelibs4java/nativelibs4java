@@ -32,8 +32,8 @@ package com.nativelibs4java.scalaxy ; package pluginBase
 
 import java.io.File
 import scala.collection.immutable.Stack
-import scala.reflect.generic.Names
-import scala.reflect.generic.Trees
+import scala.reflect.api.Names
+import scala.reflect.api.Trees
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.Settings

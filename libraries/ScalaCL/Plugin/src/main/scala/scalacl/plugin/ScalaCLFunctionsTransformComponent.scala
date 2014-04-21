@@ -174,7 +174,7 @@ extends PluginComponent
         try {
           Some(new Context(JavaCL.createContext(null, device)))
         } catch {
-          case ex =>
+          case ex: Throwable =>
             ex.printStackTrace
             None
         }
@@ -331,7 +331,7 @@ extends PluginComponent
           }
           io
         }
-        val arg = ident(s, N(refs.first.toString))
+        val arg = ident(s, N(refs.head.toString))
         Capture(symbol = s, io = io, isArray = isArray, arg = arg)
       }
       
@@ -477,7 +477,7 @@ extends PluginComponent
               f.compile(context)
               // TODO illegal access : f.release(context)
               None
-            } catch { case ex => Some((context.context.getDevices()(0), ex)) }
+            } catch { case ex: Throwable => Some((context.context.getDevices()(0), ex)) }
           })
           
                                   
@@ -591,7 +591,7 @@ extends PluginComponent
               super.transform(tree)
           }
         } catch {
-          case ex =>
+          case ex: Throwable =>
             ex.printStackTrace
             super.transform(tree)
         }

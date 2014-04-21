@@ -34,7 +34,7 @@ import pluginBase._
 import scala.collection.immutable.Stack
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
-import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
+import scala.reflect.api.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
 import tools.nsc.plugins.PluginComponent
 
@@ -135,7 +135,7 @@ extends MiscMatchers
     
     val outerSymbols = usedIdentSymbols.keys.toSet.diff(definedSymbols.keys.toSet)
     val nameCollisions = (definedSymbols ++ usedIdentSymbols).groupBy(_._2).filter(_._2.size > 1)
-    val renamings = nameCollisions.flatMap(_._2) map { case (sym, name) =>
+    val renamings = nameCollisions.flatMap(_._2) map { case (sym, name: TermName) =>
       val newName: Name = N(unit.fresh.newName(tree.pos, name.toString))
       (sym, newName)
     } toMap
@@ -323,7 +323,7 @@ extends MiscMatchers
           //println("Tree " + tree + " has no associated slice")
           Seq(tree)
       }
-    } catch { case ex =>
+    } catch { case ex: Throwable =>
       ex.printStackTrace
       Seq(tree)
     }
