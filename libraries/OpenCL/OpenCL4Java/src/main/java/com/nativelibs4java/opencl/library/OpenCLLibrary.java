@@ -506,7 +506,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	public native int clSetPrintfCallback(@Ptr long cl_context1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
 	 * Extension function access<br>
-	 * * Returns the extension function address for the given function name,<br>
+	 * Returns the extension function address for the given function name,<br>
 	 * or NULL if a valid function can not be found.  The client must<br>
 	 * check to make sure the address is not NULL, before using or <br>
 	 * calling the returned function address.<br>
@@ -518,16 +518,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	@Ptr 
 	@Optional 
 	public native long clGetExtensionFunctionAddressForPlatform(@Ptr long cl_platform_id1, @Ptr long charPtr1);
-	/**
-	 * WARNING:<br>
-	 *     This API introduces mutable state into the OpenCL implementation. It has been REMOVED<br>
-	 *  to better facilitate thread safety.  The 1.0 API is not thread safe. It is not tested by the<br>
-	 *  OpenCL 1.1 conformance test, and consequently may not work or may not work dependably.<br>
-	 *  It is likely to be non-performant. Use of this API is not advised. Use at your own risk.<br>
-	 * *  Software developers previously relying on this API are instructed to set the command queue <br>
-	 *  properties when creating the queue, instead.<br>
-	 * Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code>
-	 */
+	/** Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code> */
 	public int clSetCommandQueueProperty(IOpenCLLibrary.cl_command_queue cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, Pointer<Long > cl_command_queue_propertiesPtr1) {
 		return clSetCommandQueueProperty(Pointer.getPeer(cl_command_queue1), cl_command_queue_properties1, cl_bool1, Pointer.getPeer(cl_command_queue_propertiesPtr1));
 	}
@@ -567,7 +558,10 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	}
 	@Ptr 
 	public native long clGetExtensionFunctionAddress(@Ptr long charPtr1);
-	/** Original signature : <code>cl_mem clCreateFromGLBuffer(cl_context, cl_mem_flags, cl_GLuint, int*)</code> */
+	/**
+	 * cl_gl_texture_info<br>
+	 * Original signature : <code>cl_mem clCreateFromGLBuffer(cl_context, cl_mem_flags, cl_GLuint, int*)</code>
+	 */
 	public IOpenCLLibrary.cl_mem clCreateFromGLBuffer(IOpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_GLuint1, Pointer<Integer > intPtr1) {
 		return new IOpenCLLibrary.cl_mem(clCreateFromGLBuffer(Pointer.getPeer(cl_context1), cl_mem_flags1, cl_GLuint1, Pointer.getPeer(intPtr1)));
 	}
@@ -618,13 +612,20 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	}
 	@Ptr 
 	public native long clCreateFromGLTexture3D(@Ptr long cl_context1, long cl_mem_flags1, int cl_GLenum1, int cl_GLint1, int cl_GLuint1, @Ptr long cl_intPtr1);
-	/** Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code> */
+	/**
+	 * Additional cl_context_properties<br>
+	 * Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
+	 */
 	public int clGetGLContextInfoKHR(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
 		return clGetGLContextInfoKHR(Pointer.getPeer(cl_context_propertiesPtr1), cl_gl_context_info1, size_t1, Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1));
 	}
 	@Optional 
 	public native int clGetGLContextInfoKHR(@Ptr long cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
-	/** Original signature : <code>cl_event clCreateEventFromGLsyncKHR(cl_context, cl_GLsync, cl_int*)</code> */
+	/**
+	 * cl_khr_gl_event  extension<br>
+	 *  See section 9.9 in the OpenCL 1.1 spec for more information<br>
+	 * Original signature : <code>cl_event clCreateEventFromGLsyncKHR(cl_context, cl_GLsync, cl_int*)</code>
+	 */
 	public IOpenCLLibrary.cl_event clCreateEventFromGLsyncKHR(IOpenCLLibrary.cl_context cl_context1, IOpenCLLibrary.cl_GLsync cl_GLsync1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_event(clCreateEventFromGLsyncKHR(Pointer.getPeer(cl_context1), Pointer.getPeer(cl_GLsync1), Pointer.getPeer(cl_intPtr1)));
 	}
@@ -632,6 +633,18 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	@Optional 
 	public native long clCreateEventFromGLsyncKHR(@Ptr long cl_context1, @Ptr long cl_GLsync1, @Ptr long cl_intPtr1);
 	/**
+	 * Memory object destruction<br>
+	 * Apple extension for use to manage externally allocated buffers used with cl_mem objects with CL_MEM_USE_HOST_PTR<br>
+	 * Registers a user callback function that will be called when the memory object is deleted and its resources <br>
+	 * freed. Each call to clSetMemObjectCallbackFn registers the specified user callback function on a callback <br>
+	 * stack associated with memobj. The registered user callback functions are called in the reverse order in <br>
+	 * which they were registered. The user callback functions are called and then the memory object is deleted <br>
+	 * and its resources freed. This provides a mechanism for the application (and libraries) using memobj to be <br>
+	 * notified when the memory referenced by host_ptr, specified when the memory object is created and used as <br>
+	 * the storage bits for the memory object, can be reused or freed.<br>
+	 * The application may not call CL api's with the cl_mem object passed to the pfn_notify.<br>
+	 * Please check for the "cl_APPLE_SetMemObjectDestructor" extension using clGetDeviceInfo(CL_DEVICE_EXTENSIONS)<br>
+	 * before using.<br>
 	 * memobj<br>
 	 * Original signature : <code>cl_int clSetMemObjectDestructorAPPLE(cl_mem, clSetMemObjectDestructorAPPLE_arg1_callback*, void*)</code>
 	 */
@@ -641,6 +654,11 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	@Optional 
 	public native int clSetMemObjectDestructorAPPLE(@Ptr long cl_mem1, @Ptr long arg1, @Ptr long voidPtr1);
 	/**
+	 * Context Logging Functions<br>
+	 * The next three convenience functions are intended to be used as the pfn_notify parameter to clCreateContext().<br>
+	 * Please check for the "cl_APPLE_ContextLoggingFunctions" extension using clGetDeviceInfo(CL_DEVICE_EXTENSIONS)<br>
+	 * before using.<br>
+	 * clLogMessagesToSystemLog fowards on all log messages to the Apple System Logger<br>
 	 * errstr<br>
 	 * Original signature : <code>void clLogMessagesToSystemLogAPPLE(const char*, const void*, size_t, void*)</code>
 	 */
@@ -669,7 +687,10 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	}
 	@Optional 
 	public native void clLogMessagesToStderrAPPLE(@Ptr long charPtr1, @Ptr long voidPtr1, @Ptr long size_t1, @Ptr long voidPtr2);
-	/** Original signature : <code>cl_int clIcdGetPlatformIDsKHR(cl_uint, cl_platform_id*, cl_uint*)</code> */
+	/**
+	 * Additional Error Codes<br>
+	 * Original signature : <code>cl_int clIcdGetPlatformIDsKHR(cl_uint, cl_platform_id*, cl_uint*)</code>
+	 */
 	public int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<IOpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clIcdGetPlatformIDsKHR(cl_uint1, Pointer.getPeer(cl_platform_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
@@ -696,7 +717,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	/**
 	 * Apple extension for retrieving OpenGL context information for a CL context <br>
 	 * created via the above method.<br>
-	 * * Provides a query mechanism to retrieve OpenGL context specific information <br>
+	 * Provides a query mechanism to retrieve OpenGL context specific information <br>
 	 * from an OpenCL context to help identify device specific mappings and usage.<br>
 	 * <br>
 	 * For example, one possible usage would be to allow the client to map a CGL <br>
