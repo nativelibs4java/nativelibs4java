@@ -1,13 +1,13 @@
 /*
- * ScalaCL - putting Scala on the GPU with JavaCL / OpenCL
- * http://scalacl.googlecode.com/
+ * BridJ - Dynamic and blazing-fast native interop for Java.
+ * http://bridj.googlecode.com/
  *
- * Copyright (c) 2009-2013, Olivier Chafik (http://ochafik.com/)
+ * Copyright (c) 2010-2013, Olivier Chafik (http://ochafik.com/)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -16,7 +16,7 @@
  *     * Neither the name of Olivier Chafik nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,37 +28,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.nativelibs4java.scalaxy ; package pluginBase
+package org.bridj.util;
 
-import java.io.File
-import scala.collection.immutable.Stack
-import scala.reflect.api.Names
-import scala.reflect.api.Trees
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
-import scala.tools.nsc.plugins.PluginComponent
-import scala.tools.nsc.Settings
-import scala.tools.nsc.Global
-import scala.tools.nsc.plugins.Plugin
-import scala.util.parsing.input.Position
+public class ReflectionUtils {
 
-import scala.collection.JavaConversions._
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import scala.concurrent.ops
-import scala.io.Source
-import scala.tools.nsc.CompilerCommand
-import scala.tools.nsc.Global
-import scala.tools.nsc.Settings
-import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.reporters.Reporter
-
-class PluginRunner(pluginDefOpt: Option[PluginDef], options: PluginOptions, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
-  override protected def computeInternalPhases() {
-    super.computeInternalPhases
-    for (pluginDef <- pluginDefOpt; phase <- pluginDef.createComponents(this, options); if phase != null)
-      phasesSet += phase
-  }
+    public static Field makeFieldWritable(Class c, String fieldName) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field field = c.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        
+        return field;
+    }
 }

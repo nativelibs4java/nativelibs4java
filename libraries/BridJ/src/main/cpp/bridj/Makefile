@@ -50,12 +50,19 @@ CPPFLAGS  += -U_FORTIFY_SOURCE
 #CPPFLAGS += -Werror
 CPPFLAGS  += -std=c99
 
+ifeq ($(ARCH), x64)
+UNITS += GLIBCCompatibilityWraps
+CPPFLAGS  += -Wl,--wrap=memcpy
+endif
+
+CPPFLAGS  += -fno-stack-protector
+
 LDFLAGS		+= -lpthread
 CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), sunos)
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
-CPPFLAGS  += -fno-stack-protector -funsafe-loop-optimizations
+CPPFLAGS  += -funsafe-loop-optimizations
 CPPFLAGS	+=	-D__EXTENSIONS__
 LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
@@ -65,6 +72,7 @@ LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
+
 # GNU_SOURCE needs to be defined for dlopen, and undefined for strerror_r.
 # CPPFLAGS  +=  -D_GNU_SOURCE
 CPPFLAGS += -z noexecstack

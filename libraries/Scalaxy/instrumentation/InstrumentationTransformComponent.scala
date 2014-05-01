@@ -67,9 +67,9 @@ extends PluginComponent
   val logClassName = "scalacl.instrumentation.Log"
   val LogClass = definitions.getClass(logClassName)
   val LogModule = definitions.getModule(logClassName)
-  val logApplyMethod = LogModule.tpe member "apply"
-  val logEnterMethod = LogClass.tpe member "enter"
-  val logExitMethod = LogClass.tpe member "exit"
+  val logApplyMethod = LogModule.tpe member newTermName("apply")
+  val logEnterMethod = LogClass.tpe member newTermName("enter")
+  val logExitMethod = LogClass.tpe member newTermName("exit")
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null

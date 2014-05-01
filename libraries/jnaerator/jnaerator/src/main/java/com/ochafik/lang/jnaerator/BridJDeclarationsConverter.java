@@ -187,7 +187,7 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
             DeclarationsHolder declarations, DeclarationsHolder implementations, Identifier libraryClassName, 
             String sig, Identifier functionName, String library, int iConstructor) throws UnsupportedConversionException {
         assert implementations != null;
-        boolean extractingDeclarations = declarations != null && implementations != declarations;
+        boolean extractingDeclarations = declarations != null && declarations.resolveHolder() != implementations.resolveHolder();
         Element parent = function.getParentElement();
         MemberVisibility visibility = function.getVisibility();
         boolean isPublic = visibility == MemberVisibility.Public || function.hasModifier(ModifierType.Public);
@@ -208,10 +208,12 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
 
         addCallingConventionAnnotation(function, nativeMethod);
 
+        boolean annotatedActualName = false;
         if (function.getName() != null && !isCallback &&
             (!functionName.toString().equals(function.getName().toString()) || result.config.forceNames))
         {
             annotateActualName(nativeMethod, function.getName());
+            annotatedActualName = true;
         }
 
         Function rawMethod = nativeMethod.clone();
@@ -391,6 +393,11 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
                         if (isCallback) {
                             rawMethod.removeModifiers(ModifierType.Abstract);
                             rawMethod.setBody(block(new Statement.Return(rawToObjectFollowedCall)));
+                        } else if (function.getName() != null &&
+                                    !function.getName().equals(rawMethod.getName()) &&
+                                    !annotatedActualName) {
+                        	annotateActualName(rawMethod, function.getName());
+                            annotatedActualName = true;
                         }
                     }
                     forwardedToRaw = true;
@@ -447,7 +454,8 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
             if (targetTypeExpr == null || (pointerType.targetTypeConversion != null && pointerType.targetTypeConversion.type == ConvType.Void)) {
                 return methodCall(ptrExpr, "pointerToAddress", value);
             } else {
-                return methodCall(ptrExpr, "pointerToAddress", value, targetTypeExpr);
+                // Cast to unparameterized Pointer to avoid weird cast cases
+                return cast(typeRef(org.bridj.Pointer.class), methodCall(ptrExpr, "pointerToAddress", value, targetTypeExpr));
             }
         }
     }
@@ -763,6 +771,7 @@ public class BridJDeclarationsConverter extends DeclarationsConverter {
 //			convDecl.importDetails(valueType, false);
 //			valueType.stripDetails();
         convDecl.moveAllCommentsBefore();
+        convDecl.deDioxygenizeCommentBefore();
 
         convDecl.setName(ident(name));
 

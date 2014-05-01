@@ -10,15 +10,22 @@ import java.io.IOException;
 import org.bridj.Pointer;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 public class GeneratorTest {
-    
+    CLContext context;
+    CLQueue queue;
+    Structs structs;
+        
+    @Before
+    public void setup() throws IOException {
+        context = JavaCL.createBestContext();
+        queue = context.createDefaultQueue();
+        structs = new Structs(context);
+    }
+
     @Test
     public void testStructs() throws IOException {
-        CLContext context = JavaCL.createBestContext();
-        CLQueue queue = context.createDefaultQueue();
-        
-        Structs structs = new Structs(context);
         Structs.S s = new Structs.S();
         Pointer<Structs.S> pS = Pointer.getPointer(s);
         CLBuffer<Structs.S> b = context.createBuffer(CLMem.Usage.InputOutput, pS);
@@ -35,5 +42,14 @@ public class GeneratorTest {
         assertEquals(12, s.a());
         assertEquals(120, s.b());
         
+    }
+    
+    @Test
+    public void testFloat3() {
+        float[] input = new float[] { 1, 2, 3 };
+        CLBuffer<Float> outputBuffer = context.createFloatBuffer(CLMem.Usage.Output, 3);
+        CLEvent e = structs.g(queue, input, outputBuffer, new int[] { 1 }, null);
+        float[] output = outputBuffer.read(queue, e).getFloats();
+        assertArrayEquals(input, output, 0.0f);
     }
 }

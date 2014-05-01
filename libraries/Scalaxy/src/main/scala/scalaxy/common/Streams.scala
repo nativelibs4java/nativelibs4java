@@ -159,7 +159,7 @@ with CodeAnalysis
       if (elements.size != 1)
         throw new UnsupportedOperationException("TODO tpe " + tpe + ", elements = " + elements.mkString(", "))
       else
-        elements.first.apply()
+        elements.head.apply()
     }
     val tupleInfo = getTupleInfo(tpe)
     def fibersCount = tupleInfo.componentSize

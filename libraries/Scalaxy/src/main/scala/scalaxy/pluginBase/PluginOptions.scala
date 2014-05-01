@@ -32,8 +32,8 @@ package com.nativelibs4java.scalaxy ; package pluginBase
 
 import java.io.File
 import scala.collection.immutable.Stack
-import scala.reflect.generic.Names
-import scala.reflect.generic.Trees
+import scala.reflect.api.Names
+import scala.reflect.api.Trees
 
 import scala.tools.nsc.Settings
 import scala.tools.nsc.Global
@@ -177,7 +177,7 @@ trait WithOptions
     try {
       !pos.isDefined || options.fileAndLineOptimizationFilter(pos.source.path, pos.line)
     } catch {
-      case ex =>
+      case ex: Throwable =>
         //ex.printStackTrace
         true
     }

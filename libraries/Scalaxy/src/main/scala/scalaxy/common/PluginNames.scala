@@ -79,8 +79,8 @@ trait PluginNames {
   val thisName = N("this")
   val superName = N("super")
 
-  def C(name: String) = definitions.getClass(name)
-  def M(name: String) = definitions.getModule(name)
+  def C(name: String) = definitions.getClass(name: TypeName)
+  def M(name: String) = definitions.getModule(name: TermName)
   
   lazy val ScalaReflectPackage = M("scala.reflect")
   lazy val ScalaCollectionPackage = M("scala.collection")

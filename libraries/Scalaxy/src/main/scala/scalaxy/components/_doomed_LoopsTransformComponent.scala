@@ -666,7 +666,7 @@ extends PluginComponent
               super.transform(tree)
           }
         } catch {
-          case ex =>
+          case ex: Throwable =>
             //if (options.trace)
             //  ex.printStackTrace
             super.transform(tree)

@@ -305,7 +305,7 @@ public class JavaCLGenerator extends JNAerator {
             "float", Float.TYPE, float[].class, Float.class,
             "bool", Boolean.TYPE, boolean[].class, Boolean.class
         };
-        for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
+        for (int arity : new int[] { 1, 2, 3, 4, 8, 16 }) {
             String suffix = arity == 1 ? "" : arity +"";
             for (int i = 0; i < data.length; i += 4) {
                 String rawType = (String)data[i];

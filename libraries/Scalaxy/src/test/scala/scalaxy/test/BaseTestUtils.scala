@@ -151,7 +151,7 @@ trait BaseTestUtils {
     val enableFuture = true
 
     def futEx[V](b: => V): () => V = if (!enableFuture) () => b else {
-      val f = future { try { Right(b) } catch { case ex => Left(ex) } }
+      val f = future { try { Right(b) } catch { case ex: Throwable => Left(ex) } }
       () => f() match {
         case Left(ex) =>
           ex.printStackTrace
@@ -319,7 +319,7 @@ trait BaseTestUtils {
         override def apply(args: Any*): Any = {
           try { 
             testMethod.invoke(inst, args.map(_.asInstanceOf[AnyRef]):_*)
-          } catch { case ex =>
+          } catch { case ex: Throwable =>
             ex.printStackTrace
             throw ex
           }

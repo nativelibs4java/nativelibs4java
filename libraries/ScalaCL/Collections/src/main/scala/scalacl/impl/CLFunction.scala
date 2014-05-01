@@ -198,7 +198,7 @@ extends (A => B)
             if (verbose)
               println("[ScalaCL] Enqueuing kernel " + kernelName + " with dims " + dims.mkString(", "))
             kernel.enqueueNDRange(context.queue, dims, evts ++ eventsToWaitFor:_*)
-          } catch { case ex =>
+          } catch { case ex: Throwable =>
             ex.printStackTrace(System.out)
             throw ex
           }
