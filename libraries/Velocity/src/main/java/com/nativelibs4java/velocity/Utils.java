@@ -31,7 +31,7 @@ public class Utils {
     protected static String quoteSharpsInComments(String source) {
         return processComments(source, new Function<String, String>() {
             public String apply(String f) {
-                return f.replaceAll("#", "\\\\#");
+                return f.replaceAll("(?<=\\w)#", "\\\\#");
             }
         });
     }
