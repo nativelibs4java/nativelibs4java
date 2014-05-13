@@ -21,7 +21,8 @@ public class UtilsTest {
     public void testQuote() {
         assertEquals(quoteSharpsInComments("#"), "#");
         String q = quoteSharpsInComments("a#\n/*\n#c*/");
-        assertEquals("a#\n/*\n\\#c*/", quoteSharpsInComments("a#\n/*\n#c*/"));
+        assertEquals("a#\n/*\nb\\#c*/", quoteSharpsInComments("a#\n/*\nb#c*/"));
+        assertEquals("a#\n/*\n#b*/", quoteSharpsInComments("a#\n/*\n#b*/"));
         assertEquals("a#\n/*\n#c*/", unquoteSharpsInComments("a#\n/*\n\\#c*/"));
     }
 }
