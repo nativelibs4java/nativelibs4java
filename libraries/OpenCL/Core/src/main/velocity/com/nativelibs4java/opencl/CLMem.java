@@ -243,7 +243,8 @@ public abstract class CLMem extends CLAbstractEntity {
 	public enum MapFlags implements com.nativelibs4java.util.ValuedEnum {
 		Read(CL_MAP_READ),
 		Write(CL_MAP_WRITE),
-		ReadWrite(CL_MAP_READ | CL_MAP_WRITE);
+		ReadWrite(CL_MAP_READ | CL_MAP_WRITE),
+        WriteInvalidateRegion(CL_MAP_WRITE_INVALIDATE_REGION);
 
 		MapFlags(long value) { this.value = value; }
 		long value;

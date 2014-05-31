@@ -190,6 +190,9 @@ public abstract class CLImage extends CLMem {
             Long imageSlicePitch,
             boolean blocking, CLEvent... eventsToWaitFor)
     {
+        if (flags == MapFlags.WriteInvalidateRegion) {
+            context.getPlatform().requireMinVersionValue("CL_MAP_WRITE_INVALIDATE_REGION", 1.2);
+        }
 		#declareReusablePtrsAndEventsInOutBlockable()
 		#declarePErr()
         long mappedPeer = CL.clEnqueueMapImage(

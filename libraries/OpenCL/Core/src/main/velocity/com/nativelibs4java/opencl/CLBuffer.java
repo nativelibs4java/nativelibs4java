@@ -223,6 +223,9 @@ public class CLBuffer<T> extends CLMem {
 #documentCallsFunction("clEnqueueMapBuffer")
 	*/
 	protected Pair<Pointer<T>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
+        if (flags == MapFlags.WriteInvalidateRegion) {
+            context.getPlatform().requireMinVersionValue("CL_MAP_WRITE_INVALIDATE_REGION", 1.2);
+        }
 		checkBounds(offset, length);
 		#declareReusablePtrsAndEventsInOutBlockable()
 		#declarePErr()
