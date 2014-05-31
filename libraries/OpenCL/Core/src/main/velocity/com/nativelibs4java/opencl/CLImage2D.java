@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import org.bridj.Pointer;
+import org.bridj.SizeT;
 import static org.bridj.Pointer.*;
 
 import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
@@ -60,6 +61,18 @@ public class CLImage2D extends CLImage {
 	protected long[] getDimensions() {
 		return new long[] { getWidth(), getHeight(), 1 };
 	}
+
+    @Override
+    protected Pointer<SizeT> writeOrigin(long[] origin, ReusablePointer out) {
+        assert(origin.length == 2);
+        return out.pointerToSizeTs(origin[0], origin[1], 0);
+    }
+    
+    @Override
+    protected Pointer<SizeT> writeRegion(long[] region, ReusablePointer out) {
+        assert(region.length == 2);
+        return out.pointerToSizeTs(region[0], region[1], 1);
+    }
 
 	/**
 #documentEventsToWaitForAndReturn()

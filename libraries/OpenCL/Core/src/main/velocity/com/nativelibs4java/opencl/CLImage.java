@@ -225,4 +225,28 @@ public abstract class CLImage extends CLMem {
         error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), getPeer(pBuffer), #eventsInOutArgsRaw()));
 		#returnEventOut("queue")
     }
+
+    protected abstract Pointer<SizeT> writeOrigin(long[] origin, ReusablePointer out);
+    protected abstract Pointer<SizeT> writeRegion(long[] region, ReusablePointer out);
+
+    /**
+#documentCallsFunction("clEnqueueCopyImage")
+     * see {@link CLImage2D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
+     * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
+     * @param queue
+     * @param buffer
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent copyTo(CLQueue queue, CLImage destination, long[] sourceOrigin, long[] destinationOrigin, long[] region, CLEvent... eventsToWaitFor) {
+        #declareReusablePtrsAndEventsInOut()
+        error(CL.clEnqueueCopyImage(
+            queue.getEntity(),
+            getEntity(),
+            destination.getEntity(),
+            getPeer(writeOrigin(sourceOrigin, ptrs.sizeT3_1)),
+            getPeer(writeOrigin(destinationOrigin, ptrs.sizeT3_2)),
+            getPeer(writeRegion(region, ptrs.sizeT3_3)),
+            #eventsInOutArgsRaw()));
+		#returnEventOut("queue")
+    }
 }

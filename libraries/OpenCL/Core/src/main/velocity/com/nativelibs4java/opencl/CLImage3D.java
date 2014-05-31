@@ -8,8 +8,10 @@ import java.nio.ByteBuffer;
 
 import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;
+import org.bridj.Pointer;
 
 import static org.bridj.Pointer.*;
+import org.bridj.SizeT;
 /**
  * OpenCL 3D Image Memory Object<br/>
  * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }
@@ -43,6 +45,18 @@ public class CLImage3D extends CLImage2D {
 	protected long[] getDimensions() {
 		return new long[] { getWidth(), getHeight(), getDepth() };
 	}
+
+    @Override
+    protected Pointer<SizeT> writeOrigin(long[] origin, ReusablePointer out) {
+        assert(origin.length == 3);
+        return out.pointerToSizeTs(origin);
+    }
+    
+    @Override
+    protected Pointer<SizeT> writeRegion(long[] region, ReusablePointer out) {
+        assert(region.length == 3);
+        return out.pointerToSizeTs(region);
+    }
 
 	/**
 #documentEventsToWaitForAndReturn()
