@@ -452,5 +452,45 @@ public class CLBuffer<T> extends CLMem {
         PointerIO<T> newIO = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIO));
 	}
+
+    /**
+#documentCallsFunction("clEnqueueCopyBuffer")
+     * @param queue
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent copyTo(CLQueue queue, CLBuffer destination, CLEvent... eventsToWaitFor) {
+        return copyBytesTo(queue, destination, 0, 0, getByteCount(), eventsToWaitFor);
+    }
+
+    /**
+#documentCallsFunction("clEnqueueCopyBuffer")
+     * @param queue
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent copyBytesTo(CLQueue queue, CLBuffer destination, long sourceByteOffset, long destinationByteOffset, long byteCount, CLEvent... eventsToWaitFor) {
+        #declareReusablePtrsAndEventsInOut()
+        error(CL.clEnqueueCopyBuffer(
+            queue.getEntity(),
+            getEntity(),
+            destination.getEntity(),
+            sourceByteOffset,
+            destinationByteOffset,
+            byteCount,
+            #eventsInOutArgsRaw()));
+		#returnEventOut("queue")
+    }
+
+    /**
+#documentCallsFunction("clEnqueueCopyBuffer")
+     * @param queue
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent copyElementsTo(CLQueue queue, CLBuffer destination, long sourceElementOffset, long destinationElementOffset, long elementCount, CLEvent... eventsToWaitFor) {
+        return copyBytesTo(queue, destination,
+            sourceElementOffset * getElementSize(),
+            destinationElementOffset * getElementSize(),
+            elementCount * getElementSize(),
+            eventsToWaitFor);
+    }
 	
 }
