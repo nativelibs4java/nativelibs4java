@@ -59,7 +59,7 @@ public class CLImage2D extends CLImage {
 
 	@Override
 	protected long[] getDimensions() {
-		return new long[] { getWidth(), getHeight(), 1 };
+		return new long[] { getWidth(), getHeight() };
 	}
 
     @Override

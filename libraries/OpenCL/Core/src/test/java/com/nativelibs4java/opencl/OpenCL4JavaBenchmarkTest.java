@@ -158,7 +158,7 @@ public class OpenCL4JavaBenchmarkTest {
         if (hostInOpenCL) {
             // Copy the OpenCL-hosted array back to RAM
             output = memOut.map(queue, CLMem.MapFlags.Read);
-            System.out.println("memOut.map = " + Long.toHexString(output.getPeer()));
+            // System.out.println("memOut.map = " + Long.toHexString(output.getPeer()));
             //queue.finish();
             Pointer<Byte> b = allocateBytes(dataSize * nativePrim.sizeof()).order(context.getByteOrder());
             output.copyTo(b, dataSize);

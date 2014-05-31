@@ -162,14 +162,12 @@ public abstract class CLImage extends CLMem {
 		check(pColor.getValidElements() == 4, "Color should have 4 elements.");
 
 		#declareReusablePtrsAndEventsInOut()
-		Pointer<SizeT> pOrigin = ptrs.sizeT3_1.pointerToSizeTs(origin);
-		Pointer<SizeT> pRegion = ptrs.sizeT3_2.pointerToSizeTs(region);
 		error(CL.clEnqueueFillImage(
 			queue.getEntity(),
 			getEntity(),
 			getPeer(pColor),
-			getPeer(pOrigin),
-			getPeer(pRegion),
+			getPeer(writeOrigin(origin, ptrs.sizeT3_1)),
+			getPeer(writeRegion(region, ptrs.sizeT3_2)),
 			#eventsInOutArgsRaw()
 		));
         #returnEventOut("queue")
@@ -237,7 +235,19 @@ public abstract class CLImage extends CLMem {
      * see {@link CLImage2D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
      * @param queue
-     * @param buffer
+#documentEventsToWaitForAndReturn()
+     */
+    public CLEvent copyTo(CLQueue queue, CLImage destination, CLEvent... eventsToWaitFor) {
+        long[] region = getDimensions();
+        long[] origin = new long[region.length];
+        return copyTo(queue, destination, origin, origin, region, eventsToWaitFor);
+    }
+
+    /**
+#documentCallsFunction("clEnqueueCopyImage")
+     * see {@link CLImage2D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
+     * see {@link CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[]) }
+     * @param queue
 #documentEventsToWaitForAndReturn()
      */
     public CLEvent copyTo(CLQueue queue, CLImage destination, long[] sourceOrigin, long[] destinationOrigin, long[] region, CLEvent... eventsToWaitFor) {
