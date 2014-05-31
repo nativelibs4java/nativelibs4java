@@ -203,7 +203,7 @@ public abstract class CLImage extends CLMem {
 			getPeer(offset3),
             getPeer(length3),
             imageRowPitch == null ? 0 : getPeer(ptrs.sizeT3_1.pointerToSizeTs((long)imageRowPitch)),
-            imageSlicePitch == null ? 0 : getPeer(ptrs.sizeT3_1.pointerToSizeTs((long)imageSlicePitch)),
+            imageSlicePitch == null ? 0 : getPeer(ptrs.sizeT3_2.pointerToSizeTs((long)imageSlicePitch)),
 			#eventsInOutArgsRaw(),
 			getPeer(pErr)
 		);
