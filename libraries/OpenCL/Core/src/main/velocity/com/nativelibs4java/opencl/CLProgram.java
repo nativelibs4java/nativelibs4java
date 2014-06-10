@@ -699,6 +699,9 @@ public class CLProgram extends CLAbstractEntity {
 		Pointer<SizeT> pLen = allocateSizeT();
 		error(CL.clGetProgramBuildInfo(pgm, deviceId, CL_PROGRAM_BUILD_LOG, 0, 0, getPeer(pLen)));
 		long len = pLen.getSizeT();
+		if (len == 0) {
+			return null;
+		}
 		Pointer<?> buffer = allocateBytes(len);
 		error(CL.clGetProgramBuildInfo(pgm, deviceId, CL_PROGRAM_BUILD_LOG, len, getPeer(buffer), 0));
 		String s = buffer.getCString();
@@ -710,12 +713,12 @@ public class CLProgram extends CLAbstractEntity {
 		Set<String> errs = new HashSet<String>();
 		if (deviceIds == null) {
 		  String s = getProgramBuildInfo(pgm, 0);
-			if (s.length() > 0)
+			if (s != null && s.length() > 0)
 				errs.add(s);
 		} else {
 			for (SizeT device : deviceIds) {
 			  String s = getProgramBuildInfo(pgm, device.longValue());
-				if (s.length() > 0)
+				if (s != null && s.length() > 0)
 					errs.add(s);
 			}
 		}
