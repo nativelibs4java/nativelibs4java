@@ -5,6 +5,7 @@
 //-noJar -noComp
 -runtime BridJ
 
+-parseInOnePiece
 -gccLong
 -limitComments
 
