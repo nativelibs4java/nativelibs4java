@@ -17,8 +17,8 @@ import com.nativelibs4java.util.NIOUtils;
 
 public class OpenCL4JavaBasicTest {
 
-    public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
-    public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
+    public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 2e-4;
+    public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 5e-8;
 
     @Test
     public void simpleTest() {
