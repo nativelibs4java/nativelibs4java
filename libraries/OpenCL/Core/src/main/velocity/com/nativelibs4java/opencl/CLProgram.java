@@ -462,7 +462,7 @@ public class CLProgram extends CLAbstractEntity {
         for (int i = 0; i < n; i++) {
             binPtrs.setPointerAtIndex(i, binMems[i] = allocateBytes(sizes[i]));
         }
-        error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, binPtrs.getValidBytes(), binPtrs, null));
+        error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, n * Pointer.SIZE, binPtrs, null));
 
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         int iBin = n == devices.length + 1 ? 1 : 0;
