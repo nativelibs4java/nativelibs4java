@@ -54,8 +54,7 @@ public class URLUtils {
 				for (File ff : ffs)
 					if (pathAccepter == null || pathAccepter.accept(ff.toString()))
 						ret.add(ff.toURI().toURL());
-		} else 
-			throw new IOException("Cannot list contents of " + directory);
+		}
 		
 		return ret;
 	}
