@@ -52,7 +52,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	}
 	public native int clGetDeviceInfo(@Ptr long cl_device_id1, int cl_device_info1, @Ptr long size_t1, @Ptr long voidPtr1, @Ptr long size_tPtr1);
 	/** Original signature : <code>cl_int clCreateSubDevices(cl_device_id, const cl_device_partition_property*, cl_uint, cl_device_id*, cl_uint*)</code> */
-	public int clCreateSubDevices(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<Pointer<Integer > > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
+	public int clCreateSubDevices(IOpenCLLibrary.cl_device_id cl_device_id1, Pointer<SizeT > cl_device_partition_propertyPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<Integer > cl_uintPtr1) {
 		return clCreateSubDevices(Pointer.getPeer(cl_device_id1), Pointer.getPeer(cl_device_partition_propertyPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(cl_uintPtr1));
 	}
 	@Optional 
@@ -73,13 +73,13 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	 * Context APIs<br>
 	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, clCreateContext_arg1_callback*, void*, cl_int*)</code>
 	 */
-	public IOpenCLLibrary.cl_context clCreateContext(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
+	public IOpenCLLibrary.cl_context clCreateContext(Pointer<SizeT > cl_context_propertiesPtr1, int cl_uint1, Pointer<IOpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.clCreateContext_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_context(clCreateContext(Pointer.getPeer(cl_context_propertiesPtr1), cl_uint1, Pointer.getPeer(cl_device_idPtr1), Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
 	public native long clCreateContext(@Ptr long cl_context_propertiesPtr1, int cl_uint1, @Ptr long cl_device_idPtr1, @Ptr long arg1, @Ptr long voidPtr1, @Ptr long cl_intPtr1);
 	/** Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, clCreateContextFromType_arg1_callback*, void*, cl_int*)</code> */
-	public IOpenCLLibrary.cl_context clCreateContextFromType(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
+	public IOpenCLLibrary.cl_context clCreateContextFromType(Pointer<SizeT > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.clCreateContextFromType_arg1_callback > arg1, Pointer<? > voidPtr1, Pointer<Integer > cl_intPtr1) {
 		return new IOpenCLLibrary.cl_context(clCreateContextFromType(Pointer.getPeer(cl_context_propertiesPtr1), cl_device_type1, Pointer.getPeer(arg1), Pointer.getPeer(voidPtr1), Pointer.getPeer(cl_intPtr1)));
 	}
 	@Ptr 
@@ -616,7 +616,7 @@ public class OpenCLLibrary implements IOpenCLLibrary {
 	 * Additional cl_context_properties<br>
 	 * Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
 	 */
-	public int clGetGLContextInfoKHR(Pointer<Pointer<Integer > > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
+	public int clGetGLContextInfoKHR(Pointer<SizeT > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1) {
 		return clGetGLContextInfoKHR(Pointer.getPeer(cl_context_propertiesPtr1), cl_gl_context_info1, size_t1, Pointer.getPeer(voidPtr1), Pointer.getPeer(size_tPtr1));
 	}
 	@Optional 
