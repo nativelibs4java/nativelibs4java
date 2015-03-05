@@ -253,18 +253,14 @@ public class BridJ {
     public static boolean isCastingNativeObjectReturnTypeInCurrentThread() {
         return currentlyCastingNativeObject.get().peek() == CastingType.CastingNativeObjectReturnType;
     }
-    private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
+    private static KnownNativeObjectSupport knownNativeObjectSupport = new KnownNativeObjectSupport();
 
     public static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
-        if (object == null) {
-            knownNativeObjects.remove(peer);
-        } else {
-            knownNativeObjects.put(peer, object);
-        }
+    	knownNativeObjectSupport.setJavaObjectFromNativePeer(peer, object);
     }
 
     public static synchronized Object getJavaObjectFromNativePeer(long peer) {
-        return knownNativeObjects.get(peer);
+       return knownNativeObjectSupport.getJavaObjectFromNativePeer(peer);
     }
 
     private static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type, CastingType castingType) {
