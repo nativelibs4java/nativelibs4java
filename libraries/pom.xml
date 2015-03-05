@@ -61,6 +61,7 @@
 	
 	<properties>
 		<mainClass></mainClass>
+                <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 		<versionSpecificSubPackage></versionSpecificSubPackage>
 		<bridj.version>0.7-SNAPSHOT</bridj.version>
 		<maven-velocity-plugin.version>0.9-SNAPSHOT</maven-velocity-plugin.version>
@@ -68,7 +69,7 @@
 		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
-		<scala.version>2.10.0</scala.version>
+		<scala.version>2.10.4</scala.version>
 		
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 		<shadedClassifierName>shaded</shadedClassifierName>
