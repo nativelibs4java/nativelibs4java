@@ -28,8 +28,8 @@ import static org.bridj.Pointer.*;
  * OpenCL kernel.<br/>
  * A kernel is a function declared in a program. <br/>
  * A kernel is identified by the __kernel qualifier applied to any function in a program. <br/>
- * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.</br>
- * </br>
+ * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.<br/>
+ * <br/>
  * Kernels can be queued for execution in a CLQueue (see enqueueTask and enqueueNDRange)
  * See {@link CLProgram#createKernel(java.lang.String, java.lang.Object[])} and {@link CLProgram#createKernels()} 
  * @author Olivier Chafik
