@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0.0-RC4 (20150308)
+
 - Added basic handling of structs in JavaCL Generator (issue #421, issue #422, issue #423)
 - Optimized allocation of native memory throughout the library (reusing thread-local pointer pools)
 - Updated to BridJ 0.7 (brings fixes and lots of performance enhancements) 

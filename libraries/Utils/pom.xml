@@ -6,13 +6,13 @@
   <url>http://code.google.com/p/nativelibs4java/</url>
   <groupId>com.nativelibs4java</groupId>
   <artifactId>nativelibs4java-utils</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.6</version>
   <packaging>jar</packaging>
   
   <parent>
   	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.9-SNAPSHOT</version>
+	  <version>1.9</version>
 	  <relativePath>..</relativePath>
   </parent>
 

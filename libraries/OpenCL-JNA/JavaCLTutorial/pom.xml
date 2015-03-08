@@ -5,13 +5,13 @@
 	<artifactId>javacl-tutorial-jna</artifactId>
 	<name>JavaCL Tutorial / JNA</name>
 	<url>http://code.google.com/p/javacl/</url>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0-RC4</version>
 	<packaging>jar</packaging>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>javacl-parent-jna</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0.0-RC4</version>
 		<relativePath>..</relativePath>
 	</parent>
 

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.9-SNAPSHOT</version>
+	<version>1.9</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2009</inceptionYear>
 	<name>NativeLibs4Java Common Configuration</name>
@@ -63,9 +63,9 @@
 		<mainClass></mainClass>
                 <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 		<versionSpecificSubPackage></versionSpecificSubPackage>
-		<bridj.version>0.7-SNAPSHOT</bridj.version>
-		<maven-velocity-plugin.version>0.9-SNAPSHOT</maven-velocity-plugin.version>
-		<jnaerator.version>0.12-SNAPSHOT</jnaerator.version>
+		<bridj.version>0.7.0</bridj.version>
+		<maven-velocity-plugin.version>0.9</maven-velocity-plugin.version>
+		<jnaerator.version>0.12</jnaerator.version>
 		
 		<jna.version></jna.version>
 		<rococoa.version></rococoa.version>
@@ -439,12 +439,8 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>Velocity</module>
 				<module>BridJ</module>
 				<module>jnaerator</module>
-				<!--module>ScalaCL</module>
-				<module>Scalaxy</module-->
 				<module>OpenCL</module>
-				<!--module>Mono</module>
-				<module>DirectX</module-->
-				<!--module>PThread</module-->
+        <!-- <module>OpenCL-JNA</module> -->
 				<module>Utils</module>
 				<module>IdleTime</module>
 				<module>JarShrinker</module>
@@ -459,9 +455,8 @@ Most of these wrappers are created automatically by JNAerator.
 				<module>Velocity</module>
 				<module>BridJ</module>
 				<module>jnaerator</module>
-				<!--module>ScalaCL</module>
-				<module>Scalaxy</module-->
-				<module>OpenCL</module>
+        <module>OpenCL</module>
+        <!-- <module>OpenCL-JNA</module> -->
 				<module>Utils</module>
 			</modules>
 		</profile>
