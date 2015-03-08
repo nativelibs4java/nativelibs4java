@@ -4,17 +4,34 @@ Current development version (1.0-SNAPSHOT)
 
 Version 1.0.0-RC4 (20150308)
 
-- Added basic handling of structs in JavaCL Generator (issue #421, issue #422, issue #423)
-- Optimized allocation of native memory throughout the library (reusing thread-local pointer pools)
-- Updated to BridJ 0.7 (brings fixes and lots of performance enhancements) 
 - Dropped Blas artifact from main deployment (requires addional repo since ujmp is not in Maven Central)
-- Dropped support for JNA variant of JavaCL. Migration is highly encouraged (features and bugfixes).
-  https://code.google.com/p/javacl/wiki/MigratingFromJNAToBridJ
-- Fixed illegal calls to clReleaseDevice (OpenCL 1.2) (issue #387).
-- Fixed major bug in CLProgram (issue #397)
-- Fixed crash on Radeon due to bug in driver (attempts to get the source from a program created with clCreateProgramWithBinary yields a segfault, issue #397)
-- Fixed crash introduced in snapshot (double release, found with new -Dbridj.debug.pointer.releases=true feature) (see issue #420 and/or issue #405).
-...
+- Dropped support for JNA variant of JavaCL. Migration is highly encouraged to get more features and bugfixes: https://code.google.com/p/javacl/wiki/MigratingFromJNAToBridJ
+- Updated to BridJ 0.7 (brings fixes and lots of performance enhancements) 
+- Optimized allocation of native memory throughout the library (reusing thread-local pointer pools)
+- Optimized (CLDevice, CLPlatform).hasExtension
+- Added basic handling of structs in JavaCL Generator (issue #421, issue #422, issue #423)
+- Added CLBuffer.copyTo, .copyBytesTo, .copyElementsTo
+- Added CLBuffer.fillBuffer to support OpenCL 1.2 clEnqueueFillBuffer (issue #232)
+- Added CLDevice.getParent()
+- Added CLDevice.getPrintfBufferSize(), .isPreferredInteropUserSync(), .isLinkerAvailable()
+- Added CLImage.copyTo (issue #508)
+- Added CLImage.fillImage (issue #232)
+- Added CLPlatform.unloadPlatformCompiler() with automatic switch between OpenCL 1.1 clUnloadCompiler and OpenCL 1.2 clUnloadPlatformCompiler (issue #232)
+- Added CLQueue.enqueueBarrier & .enqueueMarker to support clEnqueueBarrierWithWaitList & clEnqueueMarkerWithWaitList (switching between OpenCL 1.1 and OpenCL 1.2 variants automatically) (issue #232)
+- Added CLQueue.enqueueMigrateMemObjects (issue #232)
+- Added JAVACL_LOG_CALLS=1 / -Djavacl.logCalls=true to log every native call (similar to BRIDJ_LOG_CALLS except it prints the parameter and return values)
+- Added many missing CLDevice 1.2 info getters (issue #232),
+- Added MapFlags.WriteInvalidateRegion (CL_MAP_WRITE_INVALIDATE_REGION from OpenCL 1.2) (issue #232)
+- Fixed crash in CLPlatform.getBinaries()
+- Fixed excessive logs for deprecated features and missing OpenCL 1.1 and 1.2 functions (especially if version < deprecatedVersion)
+- Fixed issue #387: don't call clReleaseDevice (OpenCL 1.2) unless explicitly needed
+- Fixed issue #397: crash on Radeon due to bug in driver (attempts to get the source from a program created with clCreateProgramWithBinary yields a segfault)
+- Fixed issue #397: major bug in CLProgram
+- Fixed issue #420: horrible random native crash (double release, found with new -Dbridj.debug.pointer.releases=true).
+- Fixed issue #453: don't try to load cached binaries for programs created from binaries!
+- Fixed issue #455: when reading binaries, skip devices that are not allowed
+- Fixed issue #479: avoid some NPEs in CLProgram.getProgramBuildInfo
+- Fixed typo: CLDevice.getOpenCLVersion -> getOpenCLCVersion
 
 Version 1.0.0-RC3 (20130107)
 
