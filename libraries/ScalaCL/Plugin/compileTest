@@ -1,1 +1,0 @@
-SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-stream" || exit 1

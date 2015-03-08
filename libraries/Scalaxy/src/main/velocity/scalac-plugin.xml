@@ -1,4 +1,0 @@
-<plugin>
-  <name>${project_name}-${project_version}</name>
-  <classname>com.nativelibs4java.scalaxy.plugin.ScalaxyPlugin</classname>
-</plugin>
