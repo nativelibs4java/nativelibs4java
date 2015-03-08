@@ -32,7 +32,7 @@ import org.bridj.Platform;
 public class SetupUtils {
 
     public enum DownloadURL {
-        ATI("http://developer.amd.com/tools-and-sdks/heterogeneous-computing/amd-accelerated-parallel-processing-app-sdk/"),
+        ATI("http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk"),
         NVidia("http://www.nvidia.com/Download/Find.aspx");
         
         public final URL url;
