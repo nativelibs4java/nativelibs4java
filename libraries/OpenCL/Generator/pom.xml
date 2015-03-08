@@ -27,7 +27,6 @@
 	  <artifactId>javacl-core</artifactId>
 	</dependency>
   </dependencies>
-  
 </project>
 
 
