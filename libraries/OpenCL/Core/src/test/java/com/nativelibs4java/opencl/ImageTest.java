@@ -6,7 +6,7 @@ import com.nativelibs4java.opencl.CLImageFormat.ChannelOrder;
 import static org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
-import org.junit.Test;
+import org.junit.*;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.runners.Parameterized;
@@ -399,6 +399,7 @@ public class ImageTest extends AbstractCommon {
         // }
 	}
 
+    @Ignore
     @Test
     public void testFillImage() {
         if (!supportsImages())

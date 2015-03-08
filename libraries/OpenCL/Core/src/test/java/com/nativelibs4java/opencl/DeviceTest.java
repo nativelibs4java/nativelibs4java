@@ -12,8 +12,7 @@ import static org.junit.Assert.*;
 
 import java.nio.*;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.NIOUtils;
@@ -37,6 +36,7 @@ public class DeviceTest extends AbstractCommon {
     public static List<Object[]> getDeviceParameters() {
         return AbstractCommon.getDeviceParameters();
     }
+    @Ignore
     @Test
     public void testSplitEqually() {
         int computeUnits = device.getMaxComputeUnits();
@@ -49,6 +49,7 @@ public class DeviceTest extends AbstractCommon {
             checkParent(device, subDevice);
         }
     }
+    @Ignore
     @Test
     public void testSplitByCounts() {
         long[] counts = new long[] { 2, 4, 8 };
@@ -62,6 +63,7 @@ public class DeviceTest extends AbstractCommon {
             i++;
         }
     }
+    @Ignore
     @Test
     public void testSplitByAffinity() {
         CLDevice[] subDevices = device.createSubDevicesByAffinity(CLDevice.AffinityDomain.NextPartitionable);
