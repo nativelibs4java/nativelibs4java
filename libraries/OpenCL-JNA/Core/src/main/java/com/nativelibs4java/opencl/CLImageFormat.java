@@ -132,12 +132,12 @@ public class CLImageFormat {
 		 */
 		A(CL_A),
 		/**
-		 * components of channel data: (I, I, I, I) <br/>
+		 * components of channel data: (I, I, I, I) <br>
 		 * This format can only be used if channel data type = CL_UNORM_INT8, CL_UNORM_INT16, CL_SNORM_INT8, CL_SNORM_INT16, CL_HALF_FLOAT or CL_FLOAT.
 		 */
 		INTENSITY(CL_INTENSITY),
 		/**
-		 * components of channel data: (L, L, L, 1.0) <br/>
+		 * components of channel data: (L, L, L, 1.0) <br>
 		 * This format can only be used if channel data type = CL_UNORM_INT8, CL_UNORM_INT16, CL_SNORM_INT8, CL_SNORM_INT16, CL_HALF_FLOAT or CL_FLOAT.
 		 */
 		LUMINANCE(CL_LUMINANCE),
@@ -155,12 +155,12 @@ public class CLImageFormat {
 		 */
 		RA(CL_RA),
 		/**
-		 * components of channel data: (r, g, b, 1.0) <br/>
+		 * components of channel data: (r, g, b, 1.0) <br>
 		 * This format can only be used if channel data type = CL_UNORM_SHORT_565, CL_UNORM_SHORT_555 or CL_UNORM_INT101010.
 		 */
 		RGB(CL_RGB),
 		/**
-		 * components of channel data: (r, g, b, 1.0) <br/>
+		 * components of channel data: (r, g, b, 1.0) <br>
 		 * This format can only be used if channel data type = CL_UNORM_SHORT_565, CL_UNORM_SHORT_555 or CL_UNORM_INT101010.
 		 * @since OpenCL 1.1
 		 */
@@ -174,7 +174,7 @@ public class CLImageFormat {
 		 */
 		ARGB(CL_ARGB),
 		/**
-		 * components of channel data: (r, g, b, a) <br/>
+		 * components of channel data: (r, g, b, a) <br>
 		 * This format can only be used if channel data type = CL_UNORM_INT8, CL_SNORM_INT8, CL_SIGNED_INT8 or CL_UNSIGNED_INT8.
 		 */
 		BGRA(CL_BGRA);
@@ -209,26 +209,26 @@ public class CLImageFormat {
 		 */
 		UNormInt16(CL_UNORM_INT16, 16),
 		/**
-		 * Represents a normalized 5-6-5 3-channel RGB image. <br/>
-		 * The channel order must be CL_RGB or CL_RGBx.<br/>
-		 * CL_UNORM_SHORT_565 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
-		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
+		 * Represents a normalized 5-6-5 3-channel RGB image. <br>
+		 * The channel order must be CL_RGB or CL_RGBx.<br>
+		 * CL_UNORM_SHORT_565 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br>
+		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br>
 		 * For CL_UNORM_SHORT_565, R is in bits 15:11, G is in bits 10:5 and B is in bits 4:0.
 		 */
 		UNormShort565(CL_UNORM_SHORT_565, 16/* ?? */),
 		/**
-		 * Represents a normalized x-5-5-5 4-channel xRGB image. <br/>
-		 * The channel order must be CL_RGB or CL_RGBx.<br/>
-		 * CL_UNORM_SHORT_555 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
-		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
+		 * Represents a normalized x-5-5-5 4-channel xRGB image. <br>
+		 * The channel order must be CL_RGB or CL_RGBx.<br>
+		 * CL_UNORM_SHORT_555 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br>
+		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br>
 		 * For CL_UNORM_SHORT_555, bit 15 is undefined, R is in bits 14:10, G in bits 9:5 and B in bits 4:0.
 		 */
 		UNormShort555(CL_UNORM_SHORT_555, 15/* ?? */),
 		/**
-		 * Represents a normalized x-10-10-10 4-channel xRGB image. <br/>
-		 * The channel order must be CL_RGB or CL_RGBx.<br/>
-		 * CL_UNORM_INT_101010 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
-		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
+		 * Represents a normalized x-10-10-10 4-channel xRGB image. <br>
+		 * The channel order must be CL_RGB or CL_RGBx.<br>
+		 * CL_UNORM_INT_101010 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br>
+		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br>
 		 * For CL_UNORM_INT_101010, bits 31:30 are undefined, R is in bits 29:20, G in bits 19:10 and B in bits 9:0.
 		 */
 		UNormInt101010(CL_UNORM_INT_101010, 30/* TODO ?? */),

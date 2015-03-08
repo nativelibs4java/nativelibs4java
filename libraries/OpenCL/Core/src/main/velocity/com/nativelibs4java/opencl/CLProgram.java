@@ -63,8 +63,8 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 
 /**
- * OpenCL program.<br/>
- * An OpenCL program consists of a set of kernels that are identified as functions declared with the __kernel qualifier in the program source. OpenCL programs may also contain auxiliary functions and constant data that can be used by __kernel functions. The program executable can be generated online or offline by the OpenCL compiler for the appropriate target device(s).<br/>
+ * OpenCL program.<br>
+ * An OpenCL program consists of a set of kernels that are identified as functions declared with the __kernel qualifier in the program source. OpenCL programs may also contain auxiliary functions and constant data that can be used by __kernel functions. The program executable can be generated online or offline by the OpenCL compiler for the appropriate target device(s).<br>
  * A program object encapsulates the following information:
  * <ul>
  * <li>An associated context.</li>

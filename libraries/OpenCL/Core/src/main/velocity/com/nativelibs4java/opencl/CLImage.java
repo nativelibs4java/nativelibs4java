@@ -25,8 +25,8 @@ import static org.bridj.Pointer.*;
 
 
 /**
- * OpenCL Image Memory Object.<br/>
- * An image object is used to store a two- or three- dimensional texture, frame-buffer or image<br/>
+ * OpenCL Image Memory Object.<br>
+ * An image object is used to store a two- or three- dimensional texture, frame-buffer or image<br>
  * An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats.
  * @author Oliveir Chafik
  */
@@ -52,7 +52,7 @@ public abstract class CLImage extends CLMem {
 	}
 
 	/**
-	 * Return size of each element of the image memory object given by image. <br/>
+	 * Return size of each element of the image memory object given by image. <br>
 	 * An element is made up of n channels. The value of n is given in cl_image_format descriptor.
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")
@@ -130,8 +130,6 @@ public abstract class CLImage extends CLMem {
      * @param queue
      * @param queue Queue on which to enqueue this fill buffer command.
      * @param color Color components to fill the buffer with.
-     * @param origin Origin point.
-     * @param region Size of the region to fill.
 #documentEventsToWaitForAndReturn()
      */
     public CLEvent fillImage(CLQueue queue, Object color, CLEvent... eventsToWaitFor) {

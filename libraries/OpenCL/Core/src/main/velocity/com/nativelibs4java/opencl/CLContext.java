@@ -50,8 +50,8 @@ import java.util.Map;
 
 
 /**
- * OpenCL context.<br/>
- * An OpenCL context is created with one or more devices.<br/>
+ * OpenCL context.<br>
+ * An OpenCL context is created with one or more devices.<br>
  * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
  * @author Olivier Chafik
  */
@@ -63,21 +63,66 @@ public class CLContext extends CLAbstractEntity {
 	 * Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
 	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
 	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, CLMem.MapFlags, CLEvent...) CLBuffer#map(CLQueue, MapFlags, CLEvent...)} is then necessary to ensure the data is properly synchronized with the buffer. 
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param usage Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()}).
+   * @param data Data buffer.
+   * @param copy Whether to copy the input data.
+   * @return A new buffer allocated on this context.
 	 */
 #end
 #macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
     /**
 #documentCallsFunction("clCreateBuffer")
      * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
-	 $insertParam 
-	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
-	 */
+     * @param usage Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+   $insertParam 
+   * @param elementCount Length of the buffer expressed in elements $exampleOfLength
+   * @return A new buffer allocated on this context.
+   */
+#end
+#macro (docCreateBufferPointer $bufferType $type $insertParam $exampleOfLength)
+    /**
+#documentCallsFunction("clCreateBuffer")
+     * Create a <code>$bufferType</code> OpenCL buffer big enough to hold the valid $type values of the provided data pointer.
+     * @param usage Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+     * @param data Host data to copy to the buffer
+     * @return A new buffer allocated on this context.
+   */
 #end
 #macro (docCreateBufferPrim $bufferType $prim)
 #docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
+#end
+
+#macro (docCreateImage)
+     * @param usage Usage intended for the image.
+     * @param format Format of the image.
+     * @param width Image width
+     * @param height Image height
+     * @return A new image allocated on this context.
+#end
+
+#macro (documentCreateImage2D)
+#documentCallsFunction("clCreateImage2D")
+#docCreateImage()
+#end
+
+#macro (documentCreateImage3D)
+#documentCallsFunction("clCreateImage3D")
+#docCreateImage()
+     * @param depth Image depth
+#end
+
+#macro (documentRowPitch)
+   * @param rowPitch Row pitch.
+#end
+
+#macro (documentSlicePitch)
+   * @param slicePitch Slice pitch.
+#end
+
+#macro (documentCopiableImageBuffer)
+   * @param buffer Image data buffer.
+   * @param copy Whether to copy the input buffer.
 #end
 
 	private final AtomicReference<ConcurrentHashMap<Object, Object>> propertiesMapRef =
@@ -163,7 +208,7 @@ public class CLContext extends CLAbstractEntity {
 	}
     
 	/**
-	 * Creates a user event object. <br/>
+	 * Creates a user event object. <br>
 	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
 	 * @since OpenCL 1.1
 	 */
@@ -176,7 +221,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 
 	/**
-	 * Create an OpenCL queue on the first device of this context.<br/>
+	 * Create an OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
 	 * @return new OpenCL queue
 	 */
@@ -185,7 +230,7 @@ public class CLContext extends CLAbstractEntity {
 	}
 
 	/**
-	 * Create an out-of-order OpenCL queue on the first device of this context.<br/>
+	 * Create an out-of-order OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createOutOfOrderQueue(context)</code>
 	 * @return new out-of-order OpenCL queue
 	 */
@@ -216,7 +261,7 @@ public class CLContext extends CLAbstractEntity {
     }
 
 	/**
-	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br/>
+	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createProfilingQueue(context)</code>
 	 * @return new profiling-enabled OpenCL queue
 	 */
@@ -368,7 +413,7 @@ public class CLContext extends CLAbstractEntity {
 
     /**
 #documentCallsFunction("clCreateFromGLBuffer")
-     * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br/>
+     * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) } 
@@ -393,7 +438,7 @@ public class CLContext extends CLAbstractEntity {
 
     /**
 #documentCallsFunction("clCreateFromGLRenderbuffer")
-     * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br/>
+     * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -417,11 +462,11 @@ public class CLContext extends CLAbstractEntity {
 	
 	/**
 #documentCallsFunction("clCreateFromGLTexture2D")
-	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br/>
+	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * @param usage
 	 * @param textureTarget Must be one of GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, or GL_TEXTURE_RECTANGLE47. texture_target is used only to define the image type of texture. No reference to a bound GL texture object is made or implied by this parameter.
-	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values > 0)
+	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values &gt; 0)
 	 * @param texture Name of a GL 2D, cubemap or rectangle texture object. The texture object must be a complete texture as per OpenGL rules on texture completeness. The texture format and dimensions defined by OpenGL for the specified miplevel of the texture will be used to create the 2D image object. Only GL texture objects with an internal format that maps to appropriate image channel order and data type specified in tables 5.4 and 5.5 may be used to create a 2D image object.
 	 * @return valid OpenCL image object if the image object is created successfully
 	 * @throws CLException.InvalidMipLevel if miplevel is less than the value of levelbase (for OpenGL implementations) or zero (for OpenGL ES implementations); or greater than the value of q (for both OpenGL and OpenGL ES). levelbase and q are defined for the texture in section 3.8.10 (Texture Completeness) of the OpenGL 2.1 specification and section 3.7.10 of the OpenGL ES 2.0, or if miplevel is greather than zero and the OpenGL implementation does not support creating from non-zero mipmap levels.
@@ -484,10 +529,10 @@ public class CLContext extends CLAbstractEntity {
 	
 	/**
 #documentCallsFunction("clCreateFromGLTexture3D")
-	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br/>
+	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
 	 * @param usage
-	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values > 0)
+	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values &gt; 0)
 	 * @param texture Name of a GL 3D texture object. The texture object must be a complete texture as per OpenGL rules on texture completeness. The texture format and dimensions defined by OpenGL for the specified miplevel of the texture will be used to create the 3D image object. Only GL texture objects with an internal format that maps to appropriate image channel order and data type specified in tables 5.4 and 5.5 can be used to create the 3D image object.
 	 * @return valid OpenCL image object if the image object is created successfully
 	 * @throws CLException.InvalidMipLevel if miplevel is less than the value of levelbase (for OpenGL implementations) or zero (for OpenGL ES implementations); or greater than the value of q (for both OpenGL and OpenGL ES). levelbase and q are defined for the texture in section 3.8.10 (Texture Completeness) of the OpenGL 2.1 specification and section 3.7.10 of the OpenGL ES 2.0, or if miplevel is greather than zero and the OpenGL implementation does not support creating from non-zero mipmap levels.
@@ -530,7 +575,9 @@ public class CLContext extends CLAbstractEntity {
 	}
 
 	/**
-#documentCallsFunction("clCreateImage2D")
+#documentCreateImage2D() 
+#documentRowPitch()
+#documentCopiableImageBuffer()
 	*/
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
@@ -560,18 +607,28 @@ public class CLContext extends CLAbstractEntity {
 		return new CLImage2D(this, mem, format);
 	}
 
-	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch) {
+	/**
+#documentCreateImage2D() 
+#documentRowPitch()
+  */
+  public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch) {
 		return createImage2D(usage, format, width, height, rowPitch, null, false);
 	}
 
-	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height) {
+	/**
+#documentCreateImage2D() 
+  */
+  public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height) {
 		return createImage2D(usage, format, width, height, 0, null, false);
 	}
 
 	/**
-#documentCallsFunction("clCreateImage3D")
-	*/
-	@SuppressWarnings("deprecation")
+#documentCreateImage3D() 
+#documentRowPitch()
+#documentSlicePitch()
+#documentCopiableImageBuffer()
+  */
+  @SuppressWarnings("deprecation")
 	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
 		platform.requireMinVersionValue("clCreateImage3D", 1.1, 1.2);
 		long memFlags = usage.getIntFlags();
@@ -600,37 +657,45 @@ public class CLContext extends CLAbstractEntity {
 		return new CLImage3D(this, mem, format);
 	}
 
-	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
+	/**
+#documentCreateImage3D() 
+#documentRowPitch()
+#documentSlicePitch()
+  */
+  public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
 		return createImage3D(usage, format, width, height, depth, rowPitch, slicePitch, null, false);
 	}
 
-	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth) {
+	/**
+#documentCreateImage3D() 
+  */
+  public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth) {
 		return createImage3D(usage, format, width, height, depth, 0, 0, null, false);
 	}
 
 #foreach ($prim in $primitivesNoBool)
 
 #docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, #if ($prim.Name == "byte") Buffer #else ${prim.BufferName} #end data, boolean copy) {
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage usage, #if ($prim.Name == "byte") Buffer #else ${prim.BufferName} #end data, boolean copy) {
 #if ($prim.Name == "byte")
-		return createBuffer(kind, Pointer.pointerToBuffer(data).as(Byte.class), copy);
+		return createBuffer(usage, Pointer.pointerToBuffer(data).as(Byte.class), copy);
 #else
-		return createBuffer(kind, Pointer.pointerTo${prim.CapName}s(data), copy);
+		return createBuffer(usage, Pointer.pointerTo${prim.CapName}s(data), copy);
 #end
 	}
 
-#docCreateBuffer("CLBuffer&lt;${prim.WrapperName}&gt;", "")
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data) {
-		return create${prim.BufferName}(kind, data, true);
+#docCreateBufferPointer("CLBuffer&lt;${prim.WrapperName}&gt;", "")
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage usage, Pointer<${prim.WrapperName}> data) {
+		return create${prim.BufferName}(usage, data, true);
 	}
 #docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data, boolean copy) {
-		return createBuffer(kind, data, copy);
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage usage, Pointer<${prim.WrapperName}> data, boolean copy) {
+		return createBuffer(usage, data, copy);
 	}
 	
 #docCreateBufferPrim("CLBuffer&lt;${prim.WrapperName}&gt;", $prim)
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, long elementCount) {
-		return createBuffer(kind, ${prim.WrapperName}.class, elementCount);
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage usage, long elementCount) {
+		return createBuffer(usage, ${prim.WrapperName}.class, elementCount);
 	}
 	
 #end
@@ -638,37 +703,37 @@ public class CLContext extends CLAbstractEntity {
 	/**
 #documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param usage Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
 	 */
-    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data) {
-		return createBuffer(kind, data, true);
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage usage, Pointer<T> data) {
+		return createBuffer(usage, data, true);
 	}
 	
 #docCreateBufferCopy("CLBuffer&lt;N&gt;", "")
-    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data, boolean copy) {
-        return createBuffer(data.getIO(), data, data.getValidBytes(), kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage usage, Pointer<T> data, boolean copy) {
+        return createBuffer(data.getIO(), data, data.getValidBytes(), usage.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
 
 #docCreateBuffer("CLBuffer&lt;N&gt;", "T", "* @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.", "")
-    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Class<T> elementClass, long elementCount) {
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage usage, Class<T> elementClass, long elementCount) {
         PointerIO<T> io = PointerIO.getInstance(elementClass);
         if (io == null)
         	throw new IllegalArgumentException("Unknown target type : " + elementClass.getName());
-        return createBuffer(kind, io, elementCount);
+        return createBuffer(usage, io, elementCount);
 	}
 
 	/**
 #documentCallsFunction("clCreateBuffer")
 	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified type.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param usage Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param io Delegate responsible for reading and writing values.
-	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
+	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer&lt;Integer&gt; of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
 	 * @deprecated Intended for advanced uses in conjunction with BridJ.
 	 */
     @Deprecated
-    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, PointerIO<T> io, long elementCount) {
-        return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage usage, PointerIO<T> io, long elementCount) {
+        return createBuffer(io, null, io.getTargetSize() * elementCount, usage.getIntFlags(), false);
 	}
 
 	/**

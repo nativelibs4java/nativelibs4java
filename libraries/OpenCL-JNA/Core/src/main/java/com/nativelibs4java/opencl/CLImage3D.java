@@ -40,7 +40,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
 
 /**
- * OpenCL 3D Image Memory Object<br/>
+ * OpenCL 3D Image Memory Object<br>
  * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }
  * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long) }
  * see {@link CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, long, long, java.nio.Buffer, boolean) }
@@ -53,7 +53,7 @@ public class CLImage3D extends CLImage2D {
 	}
 
 	/**
-	 * Return size in bytes of a 2D slice for this 3D image object. <br/>
+	 * Return size in bytes of a 2D slice for this 3D image object. <br>
 	 */
 	@InfoName("CL_IMAGE_SLICE_PITCH")
 	public long getSlicePitch() {

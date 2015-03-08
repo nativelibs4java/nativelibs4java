@@ -55,8 +55,8 @@ import com.sun.jna.Pointer;
 
 
 /**
- * OpenCL Image Memory Object.<br/>
- * An image object is used to store a two- or three- dimensional texture, frame-buffer or image<br/>
+ * OpenCL Image Memory Object.<br>
+ * An image object is used to store a two- or three- dimensional texture, frame-buffer or image<br>
  * An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats.
  * @author Oliveir Chafik
  */
@@ -86,7 +86,7 @@ public abstract class CLImage extends CLMem {
 	}
 
 	/**
-	 * Return size of each element of the image memory object given by image. <br/>
+	 * Return size of each element of the image memory object given by image. <br>
 	 * An element is made up of n channels. The value of n is given in cl_image_format descriptor.
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")

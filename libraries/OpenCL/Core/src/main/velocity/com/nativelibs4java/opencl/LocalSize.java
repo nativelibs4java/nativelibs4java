@@ -16,7 +16,7 @@ public class LocalSize {
 
 	/**
 	 * Returns the size in bytes of an array of ${prim.Name} values of the specified length.<br>
-	 * @return <code>arrayLength * sizeof(${prim.Name}) = arrayLength * ${prim.Size}<br>
+	 * @return <code>arrayLength * sizeof(${prim.Name}) = arrayLength * ${prim.Size}</code>
 	 */
 	public static LocalSize of${prim.CapName}Array(long arrayLength) {
 		return new LocalSize(arrayLength * ${prim.Size});

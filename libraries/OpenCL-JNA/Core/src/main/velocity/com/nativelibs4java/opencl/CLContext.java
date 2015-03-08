@@ -82,8 +82,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * OpenCL context.<br/>
- * An OpenCL context is created with one or more devices.<br/>
+ * OpenCL context.<br>
+ * An OpenCL context is created with one or more devices.<br>
  * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
  * @author Olivier Chafik
  */
@@ -167,7 +167,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	
 	/**
-	 * Creates a user event object. <br/>
+	 * Creates a user event object. <br>
 	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
 	 * @since OpenCL 1.1
 	 */
@@ -184,7 +184,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	/**
-	 * Create an OpenCL queue on the first device of this context.<br/>
+	 * Create an OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
 	 * @return new OpenCL queue
 	 */
@@ -193,7 +193,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	/**
-	 * Create an out-of-order OpenCL queue on the first device of this context.<br/>
+	 * Create an out-of-order OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createOutOfOrderQueue(context)</code>
 	 * @return new out-of-order OpenCL queue
 	 */
@@ -224,7 +224,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     }
 
 	/**
-	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br/>
+	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br>
 	 * Equivalent to calling <code>getDevices()[0].createProfilingQueue(context)</code>
 	 * @return new profiling-enabled OpenCL queue
 	 */
@@ -361,7 +361,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     }
 
     /**
-     * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br/>
+     * Makes an OpenGL Vertex Buffer Object (VBO) visible to OpenCL as a buffer object.<br>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) } 
@@ -379,7 +379,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
     /**
-     * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br/>
+     * Makes an OpenGL Render Buffer visible to OpenCL as a 2D image.<br>
      * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * see {@link CLMem#acquireGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
      * see {@link CLMem#releaseGLObject(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLEvent[]) }
@@ -397,7 +397,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	
 	/**
-	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br/>
+	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.<br>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
      * @param usage
 	 * @param textureTarget Must be one of GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, or GL_TEXTURE_RECTANGLE47. texture_target is used only to define the image type of texture. No reference to a bound GL texture object is made or implied by this parameter.
@@ -455,7 +455,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	
 	/**
-	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br/>
+	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object<br>
 	 * Note that memory objects shared with OpenGL must be acquired / released before / after use from OpenCL.
 	 * @param usage
 	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values > 0)

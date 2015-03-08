@@ -35,7 +35,7 @@ import java.nio.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
- * OpenCL Memory Buffer Object with Double values.<br/>
+ * OpenCL Memory Buffer Object with Double values.<br>
  * see {@link CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
  * see {@link CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.DoubleBuffer, boolean) }
  * @author Olivier Chafik

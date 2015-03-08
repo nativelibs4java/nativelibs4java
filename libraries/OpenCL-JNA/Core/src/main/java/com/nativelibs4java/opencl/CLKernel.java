@@ -62,9 +62,9 @@ import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 /**
- * OpenCL kernel.<br/>
- * A kernel is a function declared in a program. <br/>
- * A kernel is identified by the __kernel qualifier applied to any function in a program. <br/>
+ * OpenCL kernel.<br>
+ * A kernel is a function declared in a program. <br>
+ * A kernel is identified by the __kernel qualifier applied to any function in a program. <br>
  * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.</br>
  * </br>
  * Kernels can be queued for execution in a CLQueue (see enqueueTask and enqueueNDRange)
@@ -109,8 +109,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
     /**
-     * Returns the preferred multiple of work- group size for launch. <br/>
-     * This is a performance hint. <br/>
+     * Returns the preferred multiple of work- group size for launch. <br>
+     * This is a performance hint. <br>
      * Specifying a work- group size that is not a multiple of the value returned by this query as the value of the local work size argument to clEnqueueNDRangeKernel will not fail to enqueue the kernel for execution unless the work-group size specified is larger than the device maximum.
      * @since OpenCL 1.1
      */
@@ -128,8 +128,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     
     /**
-     * This provides a mechanism for the application to query the maximum work-group size that can be used to execute a kernel on a specific device given by device. <br/>
-     * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.<br/>
+     * This provides a mechanism for the application to query the maximum work-group size that can be used to execute a kernel on a specific device given by device. <br>
+     * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.<br>
      * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_WORK_GROUP_SIZE</a>
      */
     public Map<CLDevice, Long> getWorkGroupSize() {
@@ -141,9 +141,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
     /**
-     * Returns the work-group size specified by the __attribute__((reqd_work_gr oup_size(X, Y, Z))) qualifier.<br/>
-     * Refer to section 6.7.2.<br/>
-     * If the work-group size is not specified using the above attribute qualifier (0, 0, 0) is returned.<br/>
+     * Returns the work-group size specified by the __attribute__((reqd_work_gr oup_size(X, Y, Z))) qualifier.<br>
+     * Refer to section 6.7.2.<br>
+     * If the work-group size is not specified using the above attribute qualifier (0, 0, 0) is returned.<br>
      * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_COMPILE_WORK_GROUP_SIZE</a>
      * @return for each CLDevice, array of 3 longs
      */
@@ -156,9 +156,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     
     /**
-     * Returns the amount of local memory in bytes being used by a kernel. <br/>
-     * This includes local memory that may be needed by an implementation to execute the kernel, variables declared inside the kernel with the __local address qualifier and local memory to be allocated for arguments to the kernel declared as pointers with the __local address qualifier and whose size is specified with clSetKernelArg.<br/>
-     * If the local memory size, for any pointer argument to the kernel declared with the __local address qualifier, is not specified, its size is assumed to be 0.<br/>
+     * Returns the amount of local memory in bytes being used by a kernel. <br>
+     * This includes local memory that may be needed by an implementation to execute the kernel, variables declared inside the kernel with the __local address qualifier and local memory to be allocated for arguments to the kernel declared as pointers with the __local address qualifier and whose size is specified with clSetKernelArg.<br>
+     * If the local memory size, for any pointer argument to the kernel declared with the __local address qualifier, is not specified, its size is assumed to be 0.<br>
      * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_LOCAL_MEM_SIZE</a>
      */
     public Map<CLDevice, Long> getLocalMemSize() {

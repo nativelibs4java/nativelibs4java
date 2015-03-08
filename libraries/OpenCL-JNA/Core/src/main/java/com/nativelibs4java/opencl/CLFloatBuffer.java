@@ -36,7 +36,7 @@ import java.nio.FloatBuffer;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
- * OpenCL Memory Buffer Object with Float values.<br/>
+ * OpenCL Memory Buffer Object with Float values.<br>
  * see {@link CLContext#createFloatBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
  * see {@link CLContext#createFloatBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.FloatBuffer, boolean) }
  * @author Olivier Chafik

@@ -23,9 +23,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * OpenCL device (CPU, GPU...).<br/>
+ * OpenCL device (CPU, GPU...).<br>
  * Devices are retrieved from a CLPlatform through 
- * {@link CLPlatform#listDevices(java.util.EnumSet, boolean) },
+ * {@link CLPlatform#listDevices(CLDevice.Type, boolean) },
  * {@link CLPlatform#listAllDevices(boolean) },
  * {@link CLPlatform#listCPUDevices(boolean) },
  * {@link CLPlatform#listGPUDevices(boolean) }
@@ -119,7 +119,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Describes the execution capabilities of the device.<br/>
+     * Describes the execution capabilities of the device.<br>
      * The mandated minimum capability is: Kernel.
      */
     @InfoName("CL_DEVICE_EXECUTION_CAPABILITIES")
@@ -159,7 +159,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * A unique device vendor identifier. <br/>
+     * A unique device vendor identifier. <br>
      * An example of a unique device identifier could be the PCIe ID.
      */
     @InfoName("CL_DEVICE_VENDOR_ID")
@@ -168,7 +168,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * The number of parallel compute cores on the OpenCL device. <br/>
+     * The number of parallel compute cores on the OpenCL device. <br>
      * The minimum value is 1.
      */
     @InfoName("CL_DEVICE_MAX_COMPUTE_UNITS")
@@ -177,9 +177,9 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Maximum dimensions that specify the global and local work-item IDs used by the data parallel execution model. <br/>
+     * Maximum dimensions that specify the global and local work-item IDs used by the data parallel execution model. <br>
      * (Refer to clEnqueueNDRangeKernel).
-     * <br/>The minimum value is 3.
+     * <br>The minimum value is 3.
      */
     @InfoName("CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS")
     public int getMaxWorkItemDimensions() {
@@ -202,7 +202,7 @@ public class CLDevice extends CLAbstractEntity {
 
     /**
      * Maximum number of work-items in a work-group executing a kernel using the data parallel execution model.
-     * (Refer to clEnqueueNDRangeKernel). <br/>
+     * (Refer to clEnqueueNDRangeKernel). <br>
      * The minimum value is 1.
      */
     @InfoName("CL_DEVICE_MAX_WORK_GROUP_SIZE")
@@ -244,7 +244,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max number of simultaneous image objects that can be read by a kernel. <br/>
+     * Max number of simultaneous image objects that can be read by a kernel. <br>
      * The minimum value is 128 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
      */
     @InfoName("CL_DEVICE_MAX_READ_IMAGE_ARGS")
@@ -253,7 +253,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max number of simultaneous image objects that can be written to by a kernel. <br/>
+     * Max number of simultaneous image objects that can be written to by a kernel. <br>
      * The minimum value is 8 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
      */
     @InfoName("CL_DEVICE_MAX_WRITE_IMAGE_ARGS")
@@ -304,7 +304,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max width of 2D image in pixels. <br/>
+     * Max width of 2D image in pixels. <br>
      * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_IMAGE2D_MAX_WIDTH")
@@ -313,7 +313,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max height of 2D image in pixels. <br/>
+     * Max height of 2D image in pixels. <br>
      * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_IMAGE2D_MAX_HEIGHT")
@@ -322,7 +322,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max width of 3D image in pixels. <br/>
+     * Max width of 3D image in pixels. <br>
      * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_IMAGE3D_MAX_WIDTH")
@@ -331,7 +331,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max height of 3D image in pixels. <br/>
+     * Max height of 3D image in pixels. <br>
      * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_IMAGE3D_MAX_HEIGHT")
@@ -340,7 +340,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max depth of 3D image in pixels. <br/>
+     * Max depth of 3D image in pixels. <br>
      * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_IMAGE3D_MAX_DEPTH")
@@ -349,8 +349,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Maximum number of samplers that can be used in a kernel. <br/>
-     * Refer to section 6.11.8 for a detailed description on samplers. <br/>
+     * Maximum number of samplers that can be used in a kernel. <br>
+     * Refer to section 6.11.8 for a detailed description on samplers. <br>
      * The minimum value is 16 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
      */
     @InfoName("CL_DEVICE_MAX_SAMPLERS")
@@ -359,7 +359,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max size in bytes of the arguments that can be passed to a kernel. <br/>
+     * Max size in bytes of the arguments that can be passed to a kernel. <br>
      * The minimum value is 256.
      */
     @InfoName("CL_DEVICE_MAX_PARAMETER_SIZE")
@@ -384,7 +384,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Describes single precision floating- point capability of the device.<br/>
+     * Describes single precision floating- point capability of the device.<br>
      * The mandated minimum floating-point capability is: RoundToNearest and InfNaN.
      */
     @InfoName("CL_DEVICE_SINGLE_FP_CONFIG")
@@ -442,7 +442,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max size in bytes of a constant buffer allocation. <br/>
+     * Max size in bytes of a constant buffer allocation. <br>
      * The minimum value is 64 KB.
      */
     @InfoName("CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE")
@@ -451,7 +451,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Max number of arguments declared with the __constant qualifier in a kernel. <br/>
+     * Max number of arguments declared with the __constant qualifier in a kernel. <br>
      * The minimum value is 8.
      */
     @InfoName("CL_DEVICE_MAX_CONSTANT_ARGS")
@@ -477,7 +477,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Type of local memory supported. <br/>
+     * Type of local memory supported. <br>
      */
     @InfoName("CL_DEVICE_LOCAL_MEM_TYPE")
     public LocalMemType getLocalMemType() {
@@ -485,7 +485,7 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Size of local memory arena in bytes. <br/>
+     * Size of local memory arena in bytes. <br>
      * The minimum value is 16 KB.
      */
     @InfoName("CL_DEVICE_LOCAL_MEM_SIZE")
@@ -494,8 +494,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Is CL_TRUE if the device implements error correction for the memories, caches, registers etc. in the device. <br/>
-     * Is CL_FALSE if the device does not implement error correction. <br/>
+     * Is CL_TRUE if the device implements error correction for the memories, caches, registers etc. in the device. <br>
+     * Is CL_FALSE if the device does not implement error correction. <br>
      * This can be a requirement for certain clients of OpenCL.
      */
     @InfoName("CL_DEVICE_ERROR_CORRECTION_SUPPORT")
@@ -537,8 +537,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Describes the resolution of device timer. <br/>
-     * This is measured in nanoseconds.	<br/>
+     * Describes the resolution of device timer. <br>
+     * This is measured in nanoseconds.	<br>
      * Refer to section 5.9 for details.
      */
     @InfoName("CL_DEVICE_PROFILING_TIMER_RESOLUTION")
@@ -563,8 +563,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Is CL_FALSE if the implementation does not have a compiler available to compile the program source. <br/>
-     * Is CL_TRUE if the compiler is available.<br/>
+     * Is CL_FALSE if the implementation does not have a compiler available to compile the program source. <br>
+     * Is CL_TRUE if the compiler is available.<br>
      * This can be CL_FALSE for the embededed platform profile only.
      */
     @InfoName("CL_DEVICE_COMPILER_AVAILABLE")
@@ -581,12 +581,12 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * OpenCL C version string. <br/>
-     * Returns the highest OpenCL C version supported by the compiler for this device. <br/>
-     * This version string has the following format:<br/>
-     *  OpenCL&lt;space&gt;C&lt;space&gt;&lt;major_version.minor_version&gt;&lt;space&gt;&lt;vendor-specific information&gt;<br/>
-     *  The major_version.minor_version value returned must be 1.1 if CL_DEVICE_VERSION is OpenCL 1.1.<br/>
-     *  The major_version.minor_version value returned can be 1.0 or 1.1 if CL_DEVICE_VERSION is OpenCL 1.0. <br/>
+     * OpenCL C version string. <br>
+     * Returns the highest OpenCL C version supported by the compiler for this device. <br>
+     * This version string has the following format:<br>
+     *  OpenCL&lt;space&gt;C&lt;space&gt;&lt;major_version.minor_version&gt;&lt;space&gt;&lt;vendor-specific information&gt;<br>
+     *  The major_version.minor_version value returned must be 1.1 if CL_DEVICE_VERSION is OpenCL 1.1.<br>
+     *  The major_version.minor_version value returned can be 1.0 or 1.1 if CL_DEVICE_VERSION is OpenCL 1.0. <br>
      *  If OpenCL C 1.1 is returned, this implies that the language feature set defined in section 6 of the OpenCL 1.1 specification is supported by the OpenCL 1.0 device.
      *  @since OpenCL 1.1
      */
@@ -781,8 +781,8 @@ public class CLDevice extends CLAbstractEntity {
 
 
     /**
-     * OpenCL profile string. <br/>
-     * Returns the profile name supported by the device. <br/>
+     * OpenCL profile string. <br>
+     * Returns the profile name supported by the device. <br>
      * The profile name returned can be one of the following strings:
      * <ul>
      * <li>FULL_PROFILE if the device supports the OpenCL specification (functionality defined as part of the core specification and does not require any extensions to be supported).</li>
@@ -805,8 +805,8 @@ public class CLDevice extends CLAbstractEntity {
     }
     
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR")
@@ -815,8 +815,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT")
@@ -825,8 +825,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT")
@@ -835,8 +835,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG")
@@ -845,8 +845,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT")
@@ -855,8 +855,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Preferred native vector width size for built-in scalar types that can be put into vectors. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE")
@@ -865,8 +865,8 @@ public class CLDevice extends CLAbstractEntity {
     }
     
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR")
@@ -875,8 +875,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT")
@@ -885,8 +885,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_INT")
@@ -895,8 +895,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG")
@@ -905,8 +905,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT")
@@ -915,8 +915,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Returns the native ISA vector width. <br/>
-     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * Returns the native ISA vector width. <br>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br>
      * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE")
@@ -925,11 +925,11 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * OpenCL version string. <br/>
-     * Returns the OpenCL version supported by the device.<br/>
+     * OpenCL version string. <br>
+     * Returns the OpenCL version supported by the device.<br>
      * This version string has the following format:
      * <code>
-     * OpenCL&lt;space&gt;&lt;major_version.min or_version&gt;&lt;space&gt;&lt;vendor-specific information>
+     * OpenCL&lt;space&gt;&lt;major_version.min or_version&gt;&lt;space&gt;&lt;vendor-specific information&gt;
      * </code>
      * The major_version.minor_version value returned will be 1.0.
      */
@@ -1086,8 +1086,8 @@ public class CLDevice extends CLAbstractEntity {
     }
 
     /**
-     * Describes the command-queue properties supported by the device.<br/>
-     * These properties are described in table 5.1.<br/>
+     * Describes the command-queue properties supported by the device.<br>
+     * These properties are described in table 5.1.<br>
      * The mandated minimum capability is: ProfilingEnable.
      */
     @InfoName("CL_DEVICE_QUEUE_PROPERTIES")
@@ -1130,11 +1130,10 @@ public class CLDevice extends CLAbstractEntity {
      * Split the aggregate device into as many smaller aggregate devices as can be created, each containing n compute units. The value n is passed as the value accompanying this property. If n does not divide evenly into CL_DEVICE_PARTITION_MAX_COMPUTE_UNITS, then the remaining compute units are not used.
 #documentCallsFunction("clCreateSubDevices")
 	 * @param computeUnitsForEverySubDevice Count of compute units for every subdevice.
-#documentEventsToWaitForAndReturn()
      */
-    public CLDevice[] createSubDevicesEqually(int computeUnitsForEverySubDevices) {
+    public CLDevice[] createSubDevicesEqually(int computeUnitsForEverySubDevice) {
 		return createSubDevices(pointerToSizeTs(
-			CL_DEVICE_PARTITION_EQUALLY, computeUnitsForEverySubDevices, 0, 0
+			CL_DEVICE_PARTITION_EQUALLY, computeUnitsForEverySubDevice, 0, 0
 		));
 	}
 
@@ -1145,7 +1144,6 @@ public class CLDevice extends CLAbstractEntity {
 	 * The total number of compute units specified may not exceed CL_DEVICE_PARTITION_MAX_COMPUTE_UNITS.
 #documentCallsFunction("clCreateSubDevices")
 	 * @param computeUnitsForEachSubDevice List of counts of compute units for each subdevice.
-#documentEventsToWaitForAndReturn()
      */
     public CLDevice[] createSubDevicesByCounts(long... computeUnitsForEachSubDevice) {
     	Pointer<SizeT> pProperties = allocateSizeTs(1 + computeUnitsForEachSubDevice.length + 1 + 1);
@@ -1164,7 +1162,6 @@ public class CLDevice extends CLAbstractEntity {
      * The user may determine what happened by calling clGetDeviceInfo (CL_DEVICE_PARTITION_TYPE) on the sub-devices.
 #documentCallsFunction("clCreateSubDevices")
      * @param affinityDomain Affinity domain along which devices should be split.
-#documentEventsToWaitForAndReturn()
      */
     public CLDevice[] createSubDevicesByAffinity(AffinityDomain affinityDomain) {
 		return createSubDevices(pointerToSizeTs(
@@ -1178,7 +1175,7 @@ public class CLDevice extends CLAbstractEntity {
 #documentEventsToWaitForAndReturn()
      */
     CLDevice[] createSubDevices(Pointer<SizeT> pProperties) {
-		platform.requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
+		platform.requireMinVersionValue("clCreateSubDevices", 1.2);
 
         #declareReusablePtrs()
         Pointer<Integer> pNum = ptrs.int1;
@@ -1200,7 +1197,7 @@ public class CLDevice extends CLAbstractEntity {
      * @param queue
 #documentEventsToWaitForAndReturn()
      */
-	/*
+    /*
     public CLEvent enqueueMigrateMemObjects(CLQueue queue, CLEvent... eventsToWaitFor) {
 		context.getPlatform().requireMinVersionValue("clEnqueueMigrateMemObjects", 1.2);
         #declareReusablePtrsAndEventsInOut()

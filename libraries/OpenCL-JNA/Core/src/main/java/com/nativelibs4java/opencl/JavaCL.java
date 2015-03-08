@@ -50,7 +50,7 @@ import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.Native;
 
 /**
- * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>
+ * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br>
  * @author Olivier Chafik
  */
 public class JavaCL {
@@ -150,7 +150,7 @@ public class JavaCL {
     }
 
 	/**
-	 * Creates an OpenCL context formed of the provided devices.<br/>
+	 * Creates an OpenCL context formed of the provided devices.<br>
 	 * It is generally not a good idea to create a context with more than one device,
 	 * because much data is shared between all the devices in the same context.
 	 * @param devices devices that are to form the new context
@@ -161,8 +161,8 @@ public class JavaCL {
     }
 
     /**
-	 * Allows the implementation to release the resources allocated by the OpenCL compiler. <br/>
-	 * This is a hint from the application and does not guarantee that the compiler will not be used in the future or that the compiler will actually be unloaded by the implementation. <br/>
+	 * Allows the implementation to release the resources allocated by the OpenCL compiler. <br>
+	 * This is a hint from the application and does not guarantee that the compiler will not be used in the future or that the compiler will actually be unloaded by the implementation. <br>
 	 * Calls to Program.build() after unloadCompiler() will reload the compiler, if necessary, to build the appropriate program executable.
 	 */
 	public static void unloadCompiler() {

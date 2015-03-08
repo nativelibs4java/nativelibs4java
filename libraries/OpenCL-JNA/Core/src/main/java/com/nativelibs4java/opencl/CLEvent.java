@@ -47,17 +47,17 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 /**
- * OpenCL event object.<br/>
- * Event objects can be used to refer to a kernel execution command (clEnqueueNDRangeKernel, clEnqueueTask, clEnqueueNativeKernel), or read, write, map and copy commands on memory objects (clEnqueue{Read|Write|Map}{Buffer|Image}, clEnqueueCopy{Buffer|Image}, clEnqueueCopyBufferToImage, or clEnqueueCopyImageToBuffer).<br/>
- * An event object can be used to track the execution status of a command. <br/>
- * The API calls that enqueue commands to a command-queue create a new event object that is returned in the event argument. <br/>
- * In case of an error enqueuing the command in the command-queue the event argument does not return an event object.<br/>
- * The execution status of an enqueued command at any given point in time can be CL_QUEUED (command has been enqueued in the command-queue), CL_SUBMITTED (enqueued command has been submitted by the host to the device associated with the command-queue), CL_RUNNING (device is currently executing this command), CL_COMPLETE (command has successfully completed) or the appropriate error code if the command was abnormally terminated (this may be caused by a bad memory access etc.). <br/>
- * The error code returned by a terminated command is a negative integer value. <br/>
- * A command is considered to be complete if its execution status is CL_COMPLETE or is a negative integer value.<br/>
- * If the execution of a command is terminated, the command-queue associated with this terminated command, and the associated context (and all other command-queues in this context) may no longer be available. <br/>
- * The behavior of OpenCL API calls that use this context (and command-queues associated with this context) are now considered to be implementation- defined. <br/>
- * The user registered callback function specified when context is created can be used to report appropriate error information.<br/>
+ * OpenCL event object.<br>
+ * Event objects can be used to refer to a kernel execution command (clEnqueueNDRangeKernel, clEnqueueTask, clEnqueueNativeKernel), or read, write, map and copy commands on memory objects (clEnqueue{Read|Write|Map}{Buffer|Image}, clEnqueueCopy{Buffer|Image}, clEnqueueCopyBufferToImage, or clEnqueueCopyImageToBuffer).<br>
+ * An event object can be used to track the execution status of a command. <br>
+ * The API calls that enqueue commands to a command-queue create a new event object that is returned in the event argument. <br>
+ * In case of an error enqueuing the command in the command-queue the event argument does not return an event object.<br>
+ * The execution status of an enqueued command at any given point in time can be CL_QUEUED (command has been enqueued in the command-queue), CL_SUBMITTED (enqueued command has been submitted by the host to the device associated with the command-queue), CL_RUNNING (device is currently executing this command), CL_COMPLETE (command has successfully completed) or the appropriate error code if the command was abnormally terminated (this may be caused by a bad memory access etc.). <br>
+ * The error code returned by a terminated command is a negative integer value. <br>
+ * A command is considered to be complete if its execution status is CL_COMPLETE or is a negative integer value.<br>
+ * If the execution of a command is terminated, the command-queue associated with this terminated command, and the associated context (and all other command-queues in this context) may no longer be available. <br>
+ * The behavior of OpenCL API calls that use this context (and command-queues associated with this context) are now considered to be implementation- defined. <br>
+ * The user registered callback function specified when context is created can be used to report appropriate error information.<br>
  * 
  * @author ochafik
  */
@@ -90,7 +90,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     }
     
     /**
-     * Registers a user callback function for the completion execution status (CL_COMPLETE). <br/>
+     * Registers a user callback function for the completion execution status (CL_COMPLETE). <br>
      * @param callback
      * @throws UnsupportedOperationException in OpenCL 1.0
      * @since OpenCL 1.1
@@ -99,7 +99,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     	setCallback(CL_COMPLETE, callback);
     }
     /**
-     * Registers a user callback function for a specific command execution status. <br/>
+     * Registers a user callback function for a specific command execution status. <br>
      * The registered callback function will be called when the execution status of command associated with event changes to the execution status specified by command_exec_status.
      * @param commandExecStatus specifies the command execution status for which the callback is registered. The command execution callback values for which a callback can be registered are: CL_COMPLETE. There is no guarantee that the callback functions registered for various execution status values for an event will be called in the exact order that the execution status of a command changes.
      * @param callback
@@ -197,7 +197,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	/**
-	 * Invoke an action in a separate thread only after completion of the command associated with this event.<br/>
+	 * Invoke an action in a separate thread only after completion of the command associated with this event.<br>
 	 * Returns immediately.
 	 * @param action an action to be ran
 	 * @throws IllegalArgumentException if action is null
@@ -207,7 +207,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	/**
-	 * Invoke an action in a separate thread only after completion of all of the commands associated with the specified events.<br/>
+	 * Invoke an action in a separate thread only after completion of all of the commands associated with the specified events.<br>
 	 * Returns immediately.
 	 * @param action an action to be ran
 	 * @param eventsToWaitFor list of events which commands's completion should be waited for before the action is ran
@@ -285,7 +285,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 	
 	/**
-	 * Return the execution status of the command identified by event.  <br/>
+	 * Return the execution status of the command identified by event.  <br>
 	 * @throws CLException is the execution status denotes an error
 	 */
 	public CommandExecutionStatus getCommandExecutionStatus() {
@@ -296,7 +296,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		return status;
 	}
 	/**
-	 * Return the execution status of the command identified by event.  <br/>
+	 * Return the execution status of the command identified by event.  <br>
 	 * @throws CLException is the execution status denotes an error
 	 */
 	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")

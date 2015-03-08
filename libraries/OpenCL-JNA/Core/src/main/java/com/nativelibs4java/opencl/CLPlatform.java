@@ -356,7 +356,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     /**
-     * Creates an OpenCL context formed of the provided devices.<br/>
+     * Creates an OpenCL context formed of the provided devices.<br>
      * It is generally not a good idea to create a context with more than one device,
      * because much data is shared between all the devices in the same context.
      * @param devices devices that are to form the new context
@@ -474,7 +474,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     /**
-     * Returns a list of extension names <br/>
+     * Returns a list of extension names <br>
      * Extensions defined here must be supported by all devices associated with this platform.
      */
     @InfoName("CL_PLATFORM_EXTENSIONS")

@@ -333,7 +333,7 @@ public class CLPlatform extends CLAbstractEntity {
 
     /**
 #documentCallsFunction("clCreateContext")
-     * Creates an OpenCL context formed of the provided devices.<br/>
+     * Creates an OpenCL context formed of the provided devices.<br>
      * It is generally not a good idea to create a context with more than one device,
      * because much data is shared between all the devices in the same context.
      * @param devices devices that are to form the new context
@@ -393,7 +393,7 @@ public class CLPlatform extends CLAbstractEntity {
 
     /**
     OpenCL version string. Returns the OpenCL version supported by the implementation. This version string has the following format:
-    OpenCL<space><major_version.min or_version><space><platform- specific information>
+    OpenCL&lt;space&gt;&lt;major_version.min or_version&gt;&lt;space&gt;&lt;platform- specific information&gt;
     Last Revision Date: 5/16/09	Page 30
     The major_version.minor_version value returned will be 1.0.
      */
@@ -455,7 +455,7 @@ public class CLPlatform extends CLAbstractEntity {
     }
 
     /**
-     * Returns a list of extension names <br/>
+     * Returns a list of extension names <br>
      * Extensions defined here must be supported by all devices associated with this platform.
      */
     @InfoName("CL_PLATFORM_EXTENSIONS")

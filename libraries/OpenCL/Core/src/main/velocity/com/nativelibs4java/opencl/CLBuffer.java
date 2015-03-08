@@ -1,4 +1,9 @@
 #parse("main/Header.vm")
+
+#macro (documentMapFlags)
+  * @param flags Map flags.
+#end
+
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
@@ -23,9 +28,9 @@ import static com.nativelibs4java.opencl.proxy.PointerUtils.*;
 
 
 /**
- * OpenCL Memory Buffer Object.<br/>
- * A buffer object stores a one-dimensional collection of elements.<br/>
- * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure.<br/>
+ * OpenCL Memory Buffer Object.<br>
+ * A buffer object stores a one-dimensional collection of elements.<br>
+ * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure.<br>
  * @see CLContext
  * @author Olivier Chafik
  */
@@ -50,12 +55,20 @@ public class CLBuffer<T> extends CLMem {
     }
 	/**
 #documentCallsFunction("clEnqueueMapBuffer")
+#documentQueue()
+#documentMapFlags()
+#documentEventsToWaitForAndReturn()
 	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
 	/**
 #documentCallsFunction("clEnqueueMapBuffer")
+#documentQueue()
+#documentMapFlags()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+#documentEventsToWaitForAndReturn()
 	*/
 	public Pointer<T> map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
@@ -63,12 +76,20 @@ public class CLBuffer<T> extends CLMem {
     
 	/**
 #documentCallsFunction("clEnqueueMapBuffer")
+#documentQueue()
+#documentMapFlags()
+#documentEventsToWaitForAndReturn()
 	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
 	/**
 #documentCallsFunction("clEnqueueMapBuffer")
+#documentQueue()
+#documentMapFlags()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+#documentEventsToWaitForAndReturn()
 	*/
 	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
@@ -76,7 +97,7 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueFillBuffer")
-     * @param queue Queue on which to enqueue this fill buffer command.
+#documentQueue()
      * @param pattern Data pattern to fill the buffer with.
 #documentEventsToWaitForAndReturn()
      */
@@ -86,8 +107,6 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueFillBuffer")
-     * @param queue
-     * @param queue Queue on which to enqueue this fill buffer command.
      * @param pattern Data pattern to fill the buffer with.
      * @param patternLength Length in elements (not in bytes) of the pattern to use.
      * @param offset Offset in elements where to start filling the pattern.
@@ -155,7 +174,7 @@ public class CLBuffer<T> extends CLMem {
 	 * Can be used to create a new buffer object (referred to as a sub-buffer object) from an existing buffer object.
 	 * @param usage is used to specify allocation and usage information about the image memory object being created and is described in table 5.3 of the OpenCL spec.
 	 * @param offset
-	 * @param length
+	 * @param length length in bytes
 	 * @since OpenCL 1.1
 	 * @return sub-buffer that is a "window" of this buffer starting at the provided offset, with the provided length
 	 */
@@ -171,7 +190,7 @@ public class CLBuffer<T> extends CLMem {
 	
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
-	 * @param destination
+	 * @param destination destination buffer object
 #documentEventsToWaitForAndReturn()
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
@@ -181,10 +200,10 @@ public class CLBuffer<T> extends CLMem {
 	/**
 #documentCallsFunction("clEnqueueCopyBuffer")
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
-	 * @param queue
+#documentQueue()
 	 * @param srcOffset
-	 * @param length
-	 * @param destination
+	 * @param length length in bytes
+	 * @param destination destination buffer object
 	 * @param destOffset
 #documentEventsToWaitForAndReturn()
 	 */
@@ -250,6 +269,9 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueUnmapMemObject")
+#documentQueue()
+   * @param buffer
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
     	#declareReusablePtrsAndEventsInOut();
@@ -260,6 +282,10 @@ public class CLBuffer<T> extends CLMem {
     /**
 #documentCallsFunction("clEnqueueReadBuffer")
      * @deprecated use {@link CLBuffer#read(CLQueue, Pointer, boolean, CLEvent[])} instead
+#documentQueue()
+   * @param out output buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -268,6 +294,10 @@ public class CLBuffer<T> extends CLMem {
     
 	/**
 #documentCallsFunction("clEnqueueReadBuffer")
+#documentQueue()
+   * @param out output buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent read(CLQueue queue, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
         return read(queue, 0, -1, out, blocking, eventsToWaitFor);
@@ -276,6 +306,12 @@ public class CLBuffer<T> extends CLMem {
 	/**
 #documentCallsFunction("clEnqueueReadBuffer")
 	 * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param out output buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
      */
     @Deprecated
 	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -301,6 +337,12 @@ public class CLBuffer<T> extends CLMem {
 	
 	/**
 #documentCallsFunction("clEnqueueReadBuffer")
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param out output buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (out == null)
@@ -334,6 +376,10 @@ public class CLBuffer<T> extends CLMem {
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead
+#documentQueue()
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
      */
     @Deprecated
 	public CLEvent write(CLQueue queue, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -342,6 +388,10 @@ public class CLBuffer<T> extends CLMem {
 	
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
+#documentQueue()
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent write(CLQueue queue, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
@@ -350,6 +400,12 @@ public class CLBuffer<T> extends CLMem {
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
      * @deprecated use {@link CLBuffer#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
      */
     @Deprecated
 	public CLEvent write(CLQueue queue, long offset, long length, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -370,6 +426,12 @@ public class CLBuffer<T> extends CLMem {
 	
 	/**
 #documentCallsFunction("clEnqueueWriteBuffer")
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		if (length == 0)
@@ -404,12 +466,24 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueWriteBuffer")
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
     		return writeBytes(queue, offset, length, pointerToBuffer(in), blocking, eventsToWaitFor);
     }
     /**
 #documentCallsFunction("clEnqueueWriteBuffer")
+#documentQueue()
+   * @param offset offset in the {@link CLBuffer}
+   * @param length length to write (in bytes)
+   * @param in input buffer
+   * @param blocking whether the operation should be blocking (and return null), or non-blocking (and return a completion event)
+#documentEventsToWaitForAndReturn()
 	*/
 	public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (in == null)
@@ -455,7 +529,8 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueCopyBuffer")
-     * @param queue
+#documentQueue()
+    * @param destination destination buffer object
 #documentEventsToWaitForAndReturn()
      */
     public CLEvent copyTo(CLQueue queue, CLBuffer destination, CLEvent... eventsToWaitFor) {
@@ -464,7 +539,11 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueCopyBuffer")
-     * @param queue
+#documentQueue()
+   * @param destination destination buffer object
+   * @param sourceByteOffset byte offset in the source
+   * @param destinationByteOffset byte offset in the destination
+   * @param byteCount number of bytes to copy
 #documentEventsToWaitForAndReturn()
      */
     public CLEvent copyBytesTo(CLQueue queue, CLBuffer destination, long sourceByteOffset, long destinationByteOffset, long byteCount, CLEvent... eventsToWaitFor) {
@@ -482,7 +561,11 @@ public class CLBuffer<T> extends CLMem {
 
     /**
 #documentCallsFunction("clEnqueueCopyBuffer")
-     * @param queue
+#documentQueue()
+   * @param destination destination buffer object
+   * @param sourceElementOffset element offset in the source
+   * @param destinationElementOffset element offset in the destination
+   * @param elementCount number of elements to copy
 #documentEventsToWaitForAndReturn()
      */
     public CLEvent copyElementsTo(CLQueue queue, CLBuffer destination, long sourceElementOffset, long destinationElementOffset, long elementCount, CLEvent... eventsToWaitFor) {

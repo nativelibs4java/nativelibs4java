@@ -19,7 +19,7 @@ import com.nativelibs4java.opencl.library.IOpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;
 
 /**
- * OpenCL 2D Image Memory Object<br/>
+ * OpenCL 2D Image Memory Object<br>
  * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, java.awt.Image, boolean) }
  * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long) }
  * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }

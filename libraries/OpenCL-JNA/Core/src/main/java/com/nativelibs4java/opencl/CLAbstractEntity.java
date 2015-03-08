@@ -47,9 +47,9 @@ abstract class CLAbstractEntity<T extends PointerType> {
     }
 
 	/**
-	 * Manual release of the OpenCL resources represented by this object.<br/>
-	 * Note that resources are automatically released by the garbage collector, so in general there's no need to call this method.<br/>
-	 * In an environment with fast allocation/deallocation of large objects, it might be safer to call release() manually, though.<br/>
+	 * Manual release of the OpenCL resources represented by this object.<br>
+	 * Note that resources are automatically released by the garbage collector, so in general there's no need to call this method.<br>
+	 * In an environment with fast allocation/deallocation of large objects, it might be safer to call release() manually, though.<br>
 	 * Note that release() does not necessarily free the object immediately : OpenCL maintains a reference count for all its objects, and an object released on the Java side might still be pointed to by running kernels or queued operations.
 	 */
 	public synchronized void release() {

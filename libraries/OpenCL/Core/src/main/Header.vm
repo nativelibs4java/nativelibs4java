@@ -113,6 +113,10 @@
 #end
 	
 #macro (documentCallsFunction $functionName)
-	* Calls <a href="http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/${functionName}.html">$functionName</a>.<br>
+  * Calls <a href="http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/${functionName}.html">$functionName</a>.<br>
+#end
+
+#macro (documentQueue)
+  * @param queue Execution queue for this operation.
 #end
 	

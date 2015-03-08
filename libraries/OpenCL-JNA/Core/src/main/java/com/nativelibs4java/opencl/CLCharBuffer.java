@@ -35,7 +35,7 @@ import java.nio.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
- * OpenCL Memory Buffer Object with Character values.<br/>
+ * OpenCL Memory Buffer Object with Character values.<br>
  * see {@link CLContext#createCharBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
  * see {@link CLContext#createCharBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.CharBuffer, boolean) }
  * @author Olivier Chafik

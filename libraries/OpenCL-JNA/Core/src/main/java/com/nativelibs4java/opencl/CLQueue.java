@@ -46,14 +46,14 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 
 /**
- * OpenCL command queue.<br/>
- * OpenCL objects such as memory, program and kernel objects are created using a context. <br/>
- * Operations on these objects are performed using a command-queue. <br/>
- * The command-queue can be used to queue a set of operations (referred to as commands) in order. <br/>
- * Having multiple command-queues allows applications to queue multiple independent commands without requiring synchronization. <br/>
- * Note that this should work as long as these objects are not being shared. <br/>
- * Sharing of objects across multiple command-queues will require the application to perform appropriate synchronization.<br/>
- * <br/>
+ * OpenCL command queue.<br>
+ * OpenCL objects such as memory, program and kernel objects are created using a context. <br>
+ * Operations on these objects are performed using a command-queue. <br>
+ * The command-queue can be used to queue a set of operations (referred to as commands) in order. <br>
+ * Having multiple command-queues allows applications to queue multiple independent commands without requiring synchronization. <br>
+ * Note that this should work as long as these objects are not being shared. <br>
+ * Sharing of objects across multiple command-queues will require the application to perform appropriate synchronization.<br>
+ * <br>
  * A queue is bound to a single device.
  * see {@link CLDevice#createQueue(com.nativelibs4java.opencl.CLContext, com.nativelibs4java.opencl.CLDevice.QueueProperties[]) } 
  * see {@link CLDevice#createOutOfOrderQueue(com.nativelibs4java.opencl.CLContext) }
@@ -113,8 +113,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
     }
 
     /**
-	 * Blocks until all previously queued OpenCL commands in this queue are issued to the associated device and have completed. <br/>
-	 * finish() does not return until all queued commands in this queue have been processed and completed. <br/>
+	 * Blocks until all previously queued OpenCL commands in this queue are issued to the associated device and have completed. <br>
+	 * finish() does not return until all queued commands in this queue have been processed and completed. <br>
 	 * finish() is also a synchronization point.
 	 */
     public void finish() {
@@ -122,8 +122,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
     }
 
     /**
-	 * Issues all previously queued OpenCL commands in this queue to the device associated with this queue. <br/>
-	 * flush() only guarantees that all queued commands in this queue get issued to the appropriate device. <br/>
+	 * Issues all previously queued OpenCL commands in this queue to the device associated with this queue. <br>
+	 * flush() only guarantees that all queued commands in this queue get issued to the appropriate device. <br>
 	 * There is no guarantee that they will be complete after flush() returns.
 	 */
     public void flush() {
@@ -139,8 +139,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	}
 
 	/**
-	 * Enqueue a barrier operation.<br/>
-	 * The enqueueBarrier() command ensures that all queued commands in command_queue have finished execution before the next batch of commands can begin execution. <br/>
+	 * Enqueue a barrier operation.<br>
+	 * The enqueueBarrier() command ensures that all queued commands in command_queue have finished execution before the next batch of commands can begin execution. <br>
 	 * enqueueBarrier() is a synchronization point.
 	 */
 	public void enqueueBarrier() {
@@ -148,7 +148,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	}
 
 	/**
-	 * Enqueue a marker command to command_queue. <br/>
+	 * Enqueue a marker command to command_queue. <br>
 	 * The marker command returns an event which can be used by to queue a wait on this marker event i.e. wait for all commands queued before the marker command to complete.
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */

@@ -17,11 +17,11 @@ import static org.bridj.Pointer.*;
 import static com.nativelibs4java.opencl.proxy.PointerUtils.*;
 
 /**
- * OpenCL memory object.<br/>
- * Memory objects are categorized into two types: buffer objects, and image objects. <br/>
- * A buffer object stores a one-dimensional collection of elements whereas an image object is used to store a two- or three- dimensional texture, frame-buffer or image.<br/>
- * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure. An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats. <br/>
- * The minimum number of elements in a memory object is one.<br/>
+ * OpenCL memory object.<br>
+ * Memory objects are categorized into two types: buffer objects, and image objects. <br>
+ * A buffer object stores a one-dimensional collection of elements whereas an image object is used to store a two- or three- dimensional texture, frame-buffer or image.<br>
+ * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure. An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats. <br>
+ * The minimum number of elements in a memory object is one.<br>
  * The fundamental differences between a buffer and an image object are:
  * <ul>
  * <li>Elements in a buffer are stored in sequential fashion and can be accessed using a pointer by a kernel executing on a device. Elements of an image are stored in a format that is opaque to the user and cannot be directly accessed using a pointer. Built-in functions are provided by the OpenCL C programming language to allow a kernel to read from or write to an image.</li>
@@ -55,10 +55,10 @@ public abstract class CLMem extends CLAbstractEntity {
     
     /**
 #documentCallsFunction("clSetMemObjectDestructorCallback")
-     * Registers a user callback function that will be called when the memory object is deleted and its resources freed. <br/>
-     * Each call to clSetMemObjectDestructorCallback registers the specified user callback function on a callback stack associated with memobj. <br/>
-     * The registered user callback functions are called in the reverse order in which they were registered. <br/>
-     * The user callback functions are called and then the memory object's resources are freed and the memory object is deleted. <br/>
+     * Registers a user callback function that will be called when the memory object is deleted and its resources freed. <br>
+     * Each call to clSetMemObjectDestructorCallback registers the specified user callback function on a callback stack associated with memobj. <br>
+     * The registered user callback functions are called in the reverse order in which they were registered. <br>
+     * The user callback functions are called and then the memory object's resources are freed and the memory object is deleted. <br>
      * This provides a mechanism for the application (and libraries) using memobj to be notified when the memory referenced by host_ptr, specified when the memory object is created and used as the storage bits for the memory object, can be reused or freed.
      * @since OpenCL 1.1
      * @param callback
@@ -124,7 +124,7 @@ public abstract class CLMem extends CLAbstractEntity {
 	}
 
 	/**
-	 * Memory object migration options (see {@link CLQueue#enqueueMigrateMemObjects(CLMem[], CLEvent[])}).
+	 * Memory object migration options (see {@link CLQueue#enqueueMigrateMemObjects(CLMem[], java.lang.EnumSet, CLEvent[])}).
 	 */
 	public enum Migration implements com.nativelibs4java.util.ValuedEnum {
 		/**
@@ -158,26 +158,26 @@ public abstract class CLMem extends CLAbstractEntity {
 		 */
 		ReadWrite(CL_MEM_READ_WRITE),
 		/**
-		 * This flags specifies that the memory object will be written but not read by a kernel.<br/>
+		 * This flags specifies that the memory object will be written but not read by a kernel.<br>
 		 * Reading from a buffer or image object created with CL_MEM_WRITE_ONLY inside a kernel is undefined.
 		 */
 		WriteOnly(CL_MEM_WRITE_ONLY),
 		/**
-		 * This flag specifies that the memory object is a read-only memory object when used inside a kernel. <br/>
+		 * This flag specifies that the memory object is a read-only memory object when used inside a kernel. <br>
 		 * Writing to a buffer or image object created with CL_MEM_READ_ONLY inside a kernel is undefined.
 		 */
 		ReadOnly(CL_MEM_READ_ONLY),
 		/**
-		 * This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to use memory referenced by host_ptr as the storage bits for the memory object. <br/>
-		 * OpenCL implementations are allowed to cache the buffer contents pointed to by host_ptr in device memory. This cached copy can be used when kernels are executed on a device. <br/>
+		 * This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to use memory referenced by host_ptr as the storage bits for the memory object. <br>
+		 * OpenCL implementations are allowed to cache the buffer contents pointed to by host_ptr in device memory. This cached copy can be used when kernels are executed on a device. <br>
 		 * The result of OpenCL commands that operate on multiple buffer objects created with the same host_ptr or overlapping host regions is considered to be undefined.
 		 */
 		UseHostPtr(CL_MEM_USE_HOST_PTR),
 		/**
-		 * This flag specifies that the application wants the OpenCL implementation to allocate memory from host accessible memory. <br/>
-		 * CL_MEM_ALLOC_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
-		 * CL_MEM_COPY_HOST_PTR: This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to allocate memory for the memory object and copy the data from memory referenced by host_ptr.<br/>
-		 * CL_MEM_COPY_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
+		 * This flag specifies that the application wants the OpenCL implementation to allocate memory from host accessible memory. <br>
+		 * CL_MEM_ALLOC_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br>
+		 * CL_MEM_COPY_HOST_PTR: This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to allocate memory for the memory object and copy the data from memory referenced by host_ptr.<br>
+		 * CL_MEM_COPY_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br>
 		 * CL_MEM_COPY_HOST_PTR can be used with CL_MEM_ALLOC_HOST_PTR to initialize the contents of the cl_mem object allocated using host-accessible (e.g. PCIe) memory.
 		 */
 		AllocHostPtr(CL_MEM_ALLOC_HOST_PTR),

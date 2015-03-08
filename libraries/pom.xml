@@ -61,7 +61,7 @@
 	
 	<properties>
 		<mainClass></mainClass>
-                <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+    <!-- <maven.javadoc.failOnError>false</maven.javadoc.failOnError> -->
 		<versionSpecificSubPackage></versionSpecificSubPackage>
 		<bridj.version>0.7.0</bridj.version>
 		<maven-velocity-plugin.version>0.9</maven-velocity-plugin.version>

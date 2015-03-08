@@ -35,7 +35,7 @@ import java.nio.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
- * OpenCL Memory Buffer Object with Int values.<br/>
+ * OpenCL Memory Buffer Object with Int values.<br>
  * see {@link CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
  * see {@link CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.IntBuffer, boolean) }
  * @author Olivier Chafik

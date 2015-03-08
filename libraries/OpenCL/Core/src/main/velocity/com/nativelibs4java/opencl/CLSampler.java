@@ -19,11 +19,11 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 
 /**
- * OpenCL sampler object.<br/>
- * A sampler object describes how to sample an image when the image is read in the kernel. <br/>
- * The built-in functions to read from an image in a kernel take a sampler as an argument. <br/>
+ * OpenCL sampler object.<br>
+ * A sampler object describes how to sample an image when the image is read in the kernel. <br>
+ * The built-in functions to read from an image in a kernel take a sampler as an argument. <br>
  * The sampler arguments to the image read function can be sampler objects created using OpenCL functions and passed as argument values to the kernel or can be samplers declared inside a kernel.
- *  <br/>
+ *  <br>
  * see {@link CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) } 
  * @author Olivier Chafik
  */
@@ -41,7 +41,7 @@ public class CLSampler extends CLAbstractEntity {
 	}
 
 	/**
-	 * Values for CL_SAMPLER_ADDRESSING_MODE<br/>
+	 * Values for CL_SAMPLER_ADDRESSING_MODE<br>
 	 * How out-of-range image coordinates are handled when reading from an image
 	 */
 	public enum AddressingMode implements com.nativelibs4java.util.ValuedEnum {
@@ -66,7 +66,7 @@ public class CLSampler extends CLAbstractEntity {
 	}
 
 	/**
-	 * Values for CL_SAMPLER_FILTER_MODE<br/>
+	 * Values for CL_SAMPLER_FILTER_MODE<br>
 	 * Type of filter that must be applied when reading an image
 	 */
 	public enum FilterMode implements com.nativelibs4java.util.ValuedEnum {

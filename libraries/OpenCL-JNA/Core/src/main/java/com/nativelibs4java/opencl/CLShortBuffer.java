@@ -35,7 +35,7 @@ import java.nio.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
- * OpenCL Memory Buffer Object with Short values.<br/>
+ * OpenCL Memory Buffer Object with Short values.<br>
  * see {@link CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
  * see {@link CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ShortBuffer, boolean) }
  * @author Olivier Chafik
