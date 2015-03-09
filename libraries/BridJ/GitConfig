@@ -1,6 +1,0 @@
-#!/bin/bash
-
-git config --global user.name "Olivier Chafik"
-git config --global user.email "olivier.chafik@gmail.com"
-
-#git commit --amend --reset-author
