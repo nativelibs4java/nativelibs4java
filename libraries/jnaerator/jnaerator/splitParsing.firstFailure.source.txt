@@ -1,5 +1,0 @@
-// Synthetic typedefs from -Tfoo=bar arguments.
-
-typedef short __be16;
-
-
