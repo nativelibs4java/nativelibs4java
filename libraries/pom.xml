@@ -78,9 +78,9 @@ Most of these wrappers are created automatically by JNAerator.
 	</mailingLists>
 	
 	<scm>
-		<connection>scm:git:git@github.com:ochafik/nativelibs4java.git</connection>
-		<developerConnection>scm:git:git@github.com:ochafik/nativelibs4java.git</developerConnection>
-		<url>git@github.com:ochafik/nativelibs4java.git</url>
+		<connection>scm:git:git@github.com:nativelibs4java/nativelibs4java.git</connection>
+		<developerConnection>scm:git:git@github.com:nativelibs4java/nativelibs4java.git</developerConnection>
+		<url>git@github.com:nativelibs4java/nativelibs4java.git</url>
 	</scm>
 	
 	<build>
@@ -335,7 +335,7 @@ Most of these wrappers are created automatically by JNAerator.
 	
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/ochafik/nativelibs4java/issues</url>
+		<url>https://github.com/nativelibs4java/nativelibs4java/issues</url>
 	</issueManagement>
 	
 	<!--distributionManagement>
