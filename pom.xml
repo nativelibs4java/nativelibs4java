@@ -274,7 +274,7 @@ Most of these wrappers are created automatically by JNAerator.
                      <maxmemory>512</maxmemory>
                      <breakiterator>true</breakiterator>
                      <quiet>true</quiet>
-                     <source>1.5</source>
+                     <source>1.6</source>
                      <verbose>false</verbose>
                      <linksource>true</linksource>
                      <show>public</show>
@@ -316,8 +316,8 @@ Most of these wrappers are created automatically by JNAerator.
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.2</version>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
