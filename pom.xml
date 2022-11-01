@@ -22,7 +22,7 @@
 		<repository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 		</repository>
 	</repositories>
 
@@ -30,7 +30,7 @@
 		<pluginRepository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
 	
@@ -58,7 +58,7 @@
 	<licenses>
 		<license>
 			<name>New BSD License (GPL-compatible)</name>
-			<url>http://code.google.com/p/bridj/wiki/CreditsAndLicense</url>
+			<url>https://code.google.com/p/bridj/wiki/CreditsAndLicense</url>
 			<distribution>repo</distribution>
 			<comments></comments>
 		</license>
